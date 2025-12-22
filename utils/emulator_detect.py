@@ -17,6 +17,13 @@ try:
 except ModuleNotFoundError:
     psutil = None
 
+try:
+    from utils.device import _get_adb_path
+except ImportError:
+    # Fallback if utils.device is not available
+    def _get_adb_path():
+        return "adb"
+
 
 def abspath(path: str) -> str:
     return os.path.abspath(path).replace("\\", "/")
@@ -252,8 +259,25 @@ class EmulatorManager:
         return [i for i in self.all_instances if i.type == emulator_type]
 
     @staticmethod
-    def adb_devices(adb_path: str = "adb") -> list[tuple[str, str]]:
-        proc = subprocess.run([adb_path, "devices"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    def adb_devices(adb_path: str | None = None) -> list[tuple[str, str]]:
+        # Use the smart ADB path resolver if no path provided or if it's just "adb"
+        if adb_path is None or adb_path == "adb":
+            try:
+                adb_path = _get_adb_path()
+            except Exception:
+                adb_path = "adb"
+        
+        try:
+            proc = subprocess.run([adb_path, "devices"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        except FileNotFoundError:
+            raise FileNotFoundError(
+                f"ADB executable not found at '{adb_path}'. "
+                "Please ensure ADB is installed and accessible. "
+                "You can either:\n"
+                "1. Install Android SDK Platform Tools and add ADB to your PATH\n"
+                "2. Set the full path to adb.exe in config.json (adb_config.adb_path)\n"
+                "3. Install adbutils package which includes bundled ADB"
+            )
         stdout = proc.stdout.decode(errors="ignore").replace("\r\r\n", "\n").replace("\r\n", "\n")
         devices: list[tuple[str, str]] = []
         for line in stdout.splitlines():
@@ -263,17 +287,39 @@ class EmulatorManager:
             devices.append((serial, status))
         return devices
 
-    def connect_serials(self, serials: list[str], adb_path: str = "adb") -> list[tuple[str, str]]:
+    def connect_serials(self, serials: list[str], adb_path: str | None = None) -> list[tuple[str, str]]:
+        # Use the smart ADB path resolver if no path provided or if it's just "adb"
+        if adb_path is None or adb_path == "adb":
+            try:
+                adb_path = _get_adb_path()
+            except Exception:
+                adb_path = "adb"
+        
         results: list[tuple[str, str]] = []
-        for serial, status in self.adb_devices(adb_path):
-            if status == "offline":
-                subprocess.run([adb_path, "disconnect", serial], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        try:
+            for serial, status in self.adb_devices(adb_path):
+                if status == "offline":
+                    subprocess.run([adb_path, "disconnect", serial], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        except FileNotFoundError as e:
+            # Re-raise with better context
+            raise
         for serial in serials:
-            proc = subprocess.run([adb_path, "connect", serial], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            results.append((serial, proc.stdout.decode(errors="ignore").strip()))
+            try:
+                proc = subprocess.run([adb_path, "connect", serial], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                results.append((serial, proc.stdout.decode(errors="ignore").strip()))
+            except FileNotFoundError:
+                # Re-raise with better context
+                raise FileNotFoundError(
+                    f"ADB executable not found at '{adb_path}'. "
+                    "Please ensure ADB is installed and accessible. "
+                    "You can either:\n"
+                    "1. Install Android SDK Platform Tools and add ADB to your PATH\n"
+                    "2. Set the full path to adb.exe in config.json (adb_config.adb_path)\n"
+                    "3. Install adbutils package which includes bundled ADB"
+                )
         return results
 
-    def choose_running_instance(self, emulator_type: str, adb_path: str = "adb") -> tuple[EmulatorInstance | None, str | None, list[str]]:
+    def choose_running_instance(self, emulator_type: str, adb_path: str | None = None) -> tuple[EmulatorInstance | None, str | None, list[str]]:
         instances = self.instances_by_type(emulator_type)
         if not instances:
             return None, None, []
@@ -288,12 +334,52 @@ class EmulatorManager:
         self.connect_serials(serials, adb_path=adb_path)
         devices = self.adb_devices(adb_path=adb_path)
         running = [s for s, status in devices if status == "device" and s in serials]
-        if len(running) == 1:
-            serial = running[0]
-            inst = next((i for i in instances if i.serial == serial or get_serial_pair(i.serial)[1] == serial), instances[0])
-            return inst, serial, running
-        if len(running) >= 2:
+        
+        if not running:
             return None, None, running
+        
+        # Normalize serials to group pairs (same emulator instance with different formats)
+        # Prefer 127.0.0.1:X format as the primary form
+        def normalize_serial(serial: str) -> str:
+            """Normalize serial to primary form (127.0.0.1:X preferred)"""
+            if serial.startswith("127.0.0.1:"):
+                return serial
+            if serial.startswith("emulator-"):
+                port_serial, _ = get_serial_pair(serial)
+                if port_serial:
+                    return port_serial
+            return serial
+        
+        # Group running serials by their normalized form (same emulator instance)
+        normalized_to_serials: dict[str, list[str]] = {}
+        for serial in running:
+            normalized = normalize_serial(serial)
+            if normalized not in normalized_to_serials:
+                normalized_to_serials[normalized] = []
+            normalized_to_serials[normalized].append(serial)
+        
+        # Count distinct emulator instances (after normalization)
+        distinct_count = len(normalized_to_serials)
+        
+        if distinct_count == 1:
+            # Single emulator instance (may have multiple serial formats like 127.0.0.1:5557 and emulator-5556)
+            primary_serial = list(normalized_to_serials.keys())[0]
+            # Find matching instance - check if instance serial matches the normalized serial
+            inst = next(
+                (i for i in instances 
+                 if i.serial == primary_serial 
+                 or normalize_serial(i.serial) == primary_serial
+                 or get_serial_pair(i.serial)[0] == primary_serial
+                 or get_serial_pair(i.serial)[1] == primary_serial),
+                instances[0] if instances else None
+            )
+            if inst:
+                return inst, primary_serial, running
+        
+        # Multiple distinct emulator instances
+        if distinct_count >= 2:
+            return None, None, running
+        
         return None, None, running
 
     # --- discovery helpers
@@ -443,7 +529,7 @@ def list_emulator_types() -> list[str]:
     return sorted(types)
 
 
-def resolve_emulator_connection(emulator_type: str, adb_path: str = "adb"):
+def resolve_emulator_connection(emulator_type: str, adb_path: str | None = None):
     """
     Returns tuple (instance, serial, running_list).
     instance/serial None means ambiguous or not found.

@@ -9,6 +9,7 @@ import re
 from datetime import datetime
 from tkinter import messagebox
 from utils.emulator_detect import resolve_emulator_connection, EmulatorManager, Emulator
+from utils.device import _get_adb_path
 
 class BotController:
     def __init__(self, main_window):
@@ -62,7 +63,12 @@ class BotController:
             return False
 
         adb_cfg = cfg.get("adb_config", {})
-        adb_path = adb_cfg.get("adb_path", "adb")
+        # Use the smart ADB path resolver that checks bundled ADB and falls back gracefully
+        try:
+            adb_path = _get_adb_path()
+        except Exception:
+            # Fallback to config value if resolver fails
+            adb_path = adb_cfg.get("adb_path", "adb")
         device_address = adb_cfg.get("device_address", "")
 
         manager = EmulatorManager()
@@ -85,7 +91,24 @@ class BotController:
             except Exception as e:
                 self.main_window.add_log(f"[auto-detect] instance listing failed: {e}", "warning")
 
-            inst, serial, running = resolve_emulator_connection(emulator_type, adb_path=adb_path)
+            try:
+                inst, serial, running = resolve_emulator_connection(emulator_type, adb_path=adb_path)
+            except FileNotFoundError as e:
+                # ADB not found - show user-friendly error
+                error_msg = str(e)
+                self.main_window.add_log(f"[auto-detect] ADB error: {error_msg}", "error")
+                messagebox.showerror(
+                    "ADB Not Found",
+                    f"ADB executable not found.\n\n{error_msg}\n\n"
+                    "Please configure ADB before starting the bot."
+                )
+                return False
+            except Exception as e:
+                # Other errors during emulator detection
+                self.main_window.add_log(f"[auto-detect] Error: {e}", "error")
+                messagebox.showerror("Emulator Detection Error", f"Failed to detect emulator: {e}")
+                return False
+            
             self.main_window.add_log(
                 f"[auto-detect] adb running serials for type={emulator_type}: {running}",
                 "info"
