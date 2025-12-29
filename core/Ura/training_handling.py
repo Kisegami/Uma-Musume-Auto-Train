@@ -2,7 +2,6 @@ import time
 import json
 from PIL import ImageStat, Image, ImageEnhance
 import numpy as np
-import pytesseract
 import re
 import os
 
@@ -352,7 +351,6 @@ def check_failure(screenshot, train_type):
     from utils.constants_ura import FAILURE_REGION_SPD, FAILURE_REGION_STA, FAILURE_REGION_PWR, FAILURE_REGION_GUTS, FAILURE_REGION_WIT
     from utils.screenshot import enhanced_screenshot, take_screenshot
     import numpy as np
-    import pytesseract
     import re
     from PIL import ImageEnhance
 
@@ -408,8 +406,9 @@ def check_failure(screenshot, train_type):
             white_img.save(f"debug_failure_{train_type}_white_enhanced_{attempt+1}.png")
         
         # Get OCR data with confidence from enhanced white image
-        ocr_data = pytesseract.image_to_data(np.array(white_img), config='--oem 3 --psm 6', output_type=pytesseract.Output.DICT)
-        text = pytesseract.image_to_string(np.array(white_img), config='--oem 3 --psm 6').strip()
+        from core.Ura.ocr import extract_text_with_data, extract_text
+        ocr_data = extract_text_with_data(white_img, config='--oem 3 --psm 6')
+        text = extract_text(white_img, config='--oem 3 --psm 6')
         log_debug(f" White OCR result: '{text}'")
         
         # Calculate average confidence from OCR data
@@ -460,8 +459,8 @@ def check_failure(screenshot, train_type):
             yellow_img.save(f"debug_failure_{train_type}_yellow_attempt_{attempt+1}.png")
         
         # Get OCR data with confidence
-        ocr_data = pytesseract.image_to_data(np.array(yellow_img), config='--oem 3 --psm 6', output_type=pytesseract.Output.DICT)
-        text = pytesseract.image_to_string(np.array(yellow_img), config='--oem 3 --psm 6').strip()
+        ocr_data = extract_text_with_data(yellow_img, config='--oem 3 --psm 6')
+        text = extract_text(yellow_img, config='--oem 3 --psm 6')
         log_debug(f" Yellow OCR result: '{text}'")
         
         # Calculate average confidence from OCR data

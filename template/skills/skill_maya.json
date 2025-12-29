@@ -1,0 +1,10 @@
+{
+    "skill_priority": [
+        "Professor of Curvature",
+        "Swinging Maestro"
+    ],
+    "gold_skill_upgrades": {
+        "Professor of Curvature": "Corner Adept",
+        "Swinging Maestro": "Corner Recovery"
+    }
+}

@@ -110,15 +110,15 @@ def extract_skill_points(screenshot=None):
         log_debug(f"Saved skill points debug image: debug_skill_points.png")
         
         # Optimized OCR - precise region makes simple approach work perfectly
-        import pytesseract
-        skill_points_raw = pytesseract.image_to_string(points_crop, lang='eng').strip()
+        from core.Ura.ocr import extract_text, extract_number
+        skill_points_raw = extract_text(points_crop)
         log_debug(f"OCR result: '{skill_points_raw}'")
         
         # Fallback with digits-only if simple OCR fails (rare with current precision)
         if not skill_points_raw:
             log_debug(f"Fallback: Using enhanced OCR with digits-only filter")
             enhanced_crop = enhance_image_for_ocr(points_crop)
-            skill_points_raw = pytesseract.image_to_string(enhanced_crop, config='--psm 8 -c tessedit_char_whitelist=0123456789').strip()
+            skill_points_raw = extract_number(enhanced_crop, config='--psm 8 -c tessedit_char_whitelist=0123456789')
             log_debug(f"Fallback result: '{skill_points_raw}'")
         
         # Clean and extract numbers

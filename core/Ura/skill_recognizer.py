@@ -10,12 +10,14 @@ from utils.input import perform_swipe
 
 from utils.log import log_debug, log_info, log_warning, log_error
 
+# OCR is now handled by utils.ocr_utils
+# Check if OCR functions are available
 try:
-    import pytesseract
+    from core.Ura.ocr import extract_text
     OCR_AVAILABLE = True
 except ImportError:
     OCR_AVAILABLE = False
-    log_debug(f"Warning: pytesseract not available. OCR features will be disabled.")
+    log_debug(f"Warning: OCR not available. OCR features will be disabled.")
 
 
 
@@ -116,10 +118,11 @@ def extract_skill_info(screenshot, button_x, button_y, anchor_x=946, anchor_y=80
         price_region = (price_x1, price_y1, price_x2, price_y2)
         
         # Extract skill name with simple OCR
+        from core.Ura.ocr import extract_text, extract_number
         skill_name = "Name Error"
         try:
             name_crop = screenshot.crop(name_region)
-            skill_name_raw = pytesseract.image_to_string(name_crop, lang='eng').strip()
+            skill_name_raw = extract_text(name_crop)
             skill_name = clean_skill_name(skill_name_raw)
         except Exception as e:
             log_debug(f"Name OCR error: {e}")
@@ -133,15 +136,15 @@ def extract_skill_info(screenshot, button_x, button_y, anchor_x=946, anchor_y=80
             skill_price_raw = ""
             
             # Approach 1: Simple OCR
-            skill_price_raw = pytesseract.image_to_string(price_crop, lang='eng').strip()
+            skill_price_raw = extract_text(price_crop)
             
             # Approach 2: If empty, try with digits-only config
             if not skill_price_raw:
-                skill_price_raw = pytesseract.image_to_string(price_crop, config='--psm 8 -c tessedit_char_whitelist=0123456789').strip()
+                skill_price_raw = extract_number(price_crop, config='--psm 8 -c tessedit_char_whitelist=0123456789')
             
             # Approach 3: If still empty, try different PSM
             if not skill_price_raw:
-                skill_price_raw = pytesseract.image_to_string(price_crop, config='--psm 7').strip()
+                skill_price_raw = extract_text(price_crop, config='--psm 7')
             
             log_debug(f"Raw price OCR: '{skill_price_raw}'")
             skill_price = clean_skill_price(skill_price_raw)
