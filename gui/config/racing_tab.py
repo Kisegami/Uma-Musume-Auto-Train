@@ -283,18 +283,30 @@ class RacingTab(BaseTab):
             filter_dist_vars = {d: tk.BooleanVar(value=self.allowed_distances_vars.get(d, tk.BooleanVar(value=False)).get()) for d in ['Sprint','Mile','Medium','Long']}
 
             # Filters layout rows
-            def build_filter_row(parent, label_text, options, vars_map):
+            def build_filter_row(parent, label_text, options, vars_map, refresh_callback):
                 row = ctk.CTkFrame(parent, fg_color="transparent")
                 row.pack(fill=tk.X, padx=15, pady=5)
                 ctk.CTkLabel(row, text=label_text, text_color=self.colors['text_light'], font=get_font('label')).pack(side=tk.LEFT)
                 checks = ctk.CTkFrame(row, fg_color="transparent")
                 checks.pack(side=tk.RIGHT)
                 for opt in options:
-                    ctk.CTkCheckBox(checks, text=opt, variable=vars_map[opt], text_color=self.colors['text_light'], font=get_font('checkbox'), command=lambda: refresh_rows()).pack(side=tk.LEFT, padx=(0,6))
+                    ctk.CTkCheckBox(checks, text=opt, variable=vars_map[opt], text_color=self.colors['text_light'], font=get_font('checkbox'), command=refresh_callback).pack(side=tk.LEFT, padx=(0,6))
 
-            build_filter_row(filters_frame, "Allowed Grades:", ['G1','G2','G3','OP','Pre-OP'], filter_grades_vars)
-            build_filter_row(filters_frame, "Allowed Tracks:", ['Turf','Dirt'], filter_tracks_vars)
-            build_filter_row(filters_frame, "Allowed Distances:", ['Sprint','Mile','Medium','Long'], filter_dist_vars)
+            # Debounced filter refresh to avoid excessive rebuilds
+            filter_refresh_timer = None
+            
+            def schedule_filter_refresh():
+                nonlocal filter_refresh_timer
+                if filter_refresh_timer:
+                    try:
+                        window.after_cancel(filter_refresh_timer)
+                    except:
+                        pass
+                filter_refresh_timer = window.after(150, refresh_rows)
+            
+            build_filter_row(filters_frame, "Allowed Grades:", ['G1','G2','G3','OP','Pre-OP'], filter_grades_vars, schedule_filter_refresh)
+            build_filter_row(filters_frame, "Allowed Tracks:", ['Turf','Dirt'], filter_tracks_vars, schedule_filter_refresh)
+            build_filter_row(filters_frame, "Allowed Distances:", ['Sprint','Mile','Medium','Long'], filter_dist_vars, schedule_filter_refresh)
 
             # Grade sort order
             grade_rank = {'G1': 5, 'G2': 4, 'G3': 3, 'OP': 2, 'Pre-OP': 1}
@@ -321,13 +333,25 @@ class RacingTab(BaseTab):
 
             def refresh_rows():
                 # Rebuild each dropdown's values based on current filters
-                for period, widgets in row_vars.items():
-                    race_names = build_options_for_period(period, all_races.get(period, {}))
-                    widgets['menu'].configure(values=race_names)
-                    # Keep current selection if still valid, else clear
-                    current = widgets['var'].get()
-                    if current not in race_names:
-                        widgets['var'].set('')
+                # Use after_idle to batch updates and avoid blocking UI
+                items = list(row_vars.items())
+                
+                def update_batch(start_idx, batch_size=10):
+                    end_idx = min(start_idx + batch_size, len(items))
+                    for period, widgets in items[start_idx:end_idx]:
+                        race_names = build_options_for_period(period, all_races.get(period, {}))
+                        widgets['menu'].configure(values=race_names)
+                        # Keep current selection if still valid, else clear
+                        current = widgets['var'].get()
+                        if current not in race_names:
+                            widgets['var'].set('')
+                    # Schedule next batch if more items remain
+                    if end_idx < len(items):
+                        window.after_idle(lambda: update_batch(end_idx, batch_size))
+                
+                # Start batch updates
+                if items:
+                    update_batch(0)
 
             # Build table rows (periods from custom file order)
             for period in period_order:

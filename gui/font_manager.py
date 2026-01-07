@@ -22,6 +22,7 @@ class FontManager:
         self.config_file = config_file
         self.fonts = {}
         self.fallback_fonts = {}
+        self._font_cache = {}  # Cache for CTkFont objects to avoid recreation
         self.load_font_config()
         
     def load_font_config(self):
@@ -95,14 +96,21 @@ class FontManager:
         if font_name not in self.fonts:
             print(f"⚠ Font '{font_name}' not found, using 'body_medium' as fallback")
             font_name = 'body_medium'
+        
+        # Return cached font if available
+        if font_name in self._font_cache:
+            return self._font_cache[font_name]
             
         font_config = self.fonts[font_name]
         
-        return ctk.CTkFont(
+        # Create and cache new font
+        font = ctk.CTkFont(
             family=font_config.get('family', 'Comic Sans MS'),
             size=font_config.get('size', 11),
             weight=font_config.get('weight', 'normal')
         )
+        self._font_cache[font_name] = font
+        return font
     
     def get_font_tuple(self, font_name: str) -> Tuple[str, int, str]:
         """Get font as tuple (family, size, weight) for tkinter widgets
@@ -146,6 +154,7 @@ class FontManager:
     
     def reload_config(self):
         """Reload font configuration from file"""
+        self._font_cache.clear()  # Clear cache on reload
         self.load_font_config()
         print("✓ Font configuration reloaded")
     

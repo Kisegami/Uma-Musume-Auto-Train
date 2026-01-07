@@ -53,7 +53,7 @@ class BaseTab:
         raise NotImplementedError("Subclasses must implement create_tab()")
     
     def add_variable_with_autosave(self, name, variable, callback_name=None):
-        """Add a variable with auto-save callback
+        """Add a variable with auto-save callback (debounced to prevent excessive saves)
         
         Args:
             name: Name/key for the variable
@@ -63,7 +63,21 @@ class BaseTab:
         self.variables[name] = variable
         callback = callback_name or 'on_setting_change'
         if hasattr(self, callback):
-            variable.trace('w', getattr(self, callback))
+            # Create debounced callback to prevent excessive updates while typing
+            debounce_attr = f'_debounce_timer_{name}'
+            
+            def debounced_callback(*args):
+                # Cancel any pending callback
+                if hasattr(self, debounce_attr):
+                    try:
+                        self.config_panel.after_cancel(getattr(self, debounce_attr))
+                    except:
+                        pass
+                # Schedule new callback after 300ms delay
+                timer = self.config_panel.after(300, lambda: getattr(self, callback)(*args))
+                setattr(self, debounce_attr, timer)
+            
+            variable.trace('w', debounced_callback)
     
     def create_section_frame(self, parent, title, pack_kwargs=None):
         """Create a standardized section frame with title

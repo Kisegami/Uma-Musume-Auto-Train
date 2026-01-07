@@ -163,6 +163,13 @@ class LogPanel(ctk.CTkFrame):
             # Insert log entry with proper Unicode handling
             self.log_text.insert(tk.END, formatted_entry + "\n", tag)
             
+            # Trim buffer if exceeds max lines to prevent memory issues
+            max_lines = 1500
+            line_count = int(self.log_text.index('end-1c').split('.')[0])
+            if line_count > max_lines:
+                # Delete oldest 500 lines to avoid frequent trimming
+                self.log_text.delete('1.0', '501.0')
+            
             # Auto-scroll if enabled
             if self.auto_scroll_var.get():
                 self.log_text.see(tk.END)

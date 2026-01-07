@@ -20,13 +20,16 @@ class MainWindow:
     def __init__(self, root):
         self.root = root
         self.root.title("Uma Musume Auto Train")
-        self.root.geometry("1400x900")
-        self.root.minsize(1200, 800)
+        
+        # Calculate responsive geometry based on screen size
+        self._set_responsive_geometry()
+        
         self.set_app_icon()
 
         # Set customtkinter appearance mode and color theme
         ctk.set_appearance_mode("dark")  # "dark" or "light"
         ctk.set_default_color_theme("dark-blue")  # "blue", "green", "dark-blue"
+
 
         # Modern color scheme
         self.colors = {
@@ -300,6 +303,32 @@ class MainWindow:
             self.config[parent_key] = {}
         self.config[parent_key][child_key] = value
         self.schedule_auto_save()
+
+    def _set_responsive_geometry(self):
+        """Calculate and set responsive window size based on screen dimensions"""
+        # Get screen dimensions
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        
+        # Calculate window size: 60% width, 70% height
+        width = int(screen_width * 0.6)
+        height = int(screen_height * 0.7)
+        
+        # Apply minimum bounds to ensure usability
+        min_width = 900
+        min_height = 600
+        width = max(width, min_width)
+        height = max(height, min_height)
+        
+        # Apply maximum bounds to prevent oversized windows
+        max_width = 1800
+        max_height = 1200
+        width = min(width, max_width)
+        height = min(height, max_height)
+        
+        # Set geometry and minimum size
+        self.root.geometry(f"{width}x{height}")
+        self.root.minsize(min_width, min_height)
 
     def set_app_icon(self):
         """Attempt to set a custom window icon if provided"""

@@ -1,0 +1,2191 @@
+{
+  "Normal": [
+    {
+      "name": "Right-Handed ◎",
+      "id": "200011"
+    },
+    {
+      "name": "Right-Handed ○",
+      "id": "200012"
+    },
+    {
+      "name": "Right-Handed ×",
+      "id": "200013"
+    },
+    {
+      "name": "Left-Handed ◎",
+      "id": "200021"
+    },
+    {
+      "name": "Left-Handed ○",
+      "id": "200022"
+    },
+    {
+      "name": "Left-Handed ×",
+      "id": "200023"
+    },
+    {
+      "name": "Tokyo Racecourse ◎",
+      "id": "200031"
+    },
+    {
+      "name": "Tokyo Racecourse ○",
+      "id": "200032"
+    },
+    {
+      "name": "Tokyo Racecourse ×",
+      "id": "200033"
+    },
+    {
+      "name": "Nakayama Racecourse ◎",
+      "id": "200041"
+    },
+    {
+      "name": "Nakayama Racecourse ○",
+      "id": "200042"
+    },
+    {
+      "name": "Nakayama Racecourse ×",
+      "id": "200043"
+    },
+    {
+      "name": "Hanshin Racecourse ◎",
+      "id": "200051"
+    },
+    {
+      "name": "Hanshin Racecourse ○",
+      "id": "200052"
+    },
+    {
+      "name": "Hanshin Racecourse ×",
+      "id": "200053"
+    },
+    {
+      "name": "Kyoto Racecourse ◎",
+      "id": "200061"
+    },
+    {
+      "name": "Kyoto Racecourse ○",
+      "id": "200062"
+    },
+    {
+      "name": "Kyoto Racecourse ×",
+      "id": "200063"
+    },
+    {
+      "name": "Chukyo Racecourse ◎",
+      "id": "200071"
+    },
+    {
+      "name": "Chukyo Racecourse ○",
+      "id": "200072"
+    },
+    {
+      "name": "Chukyo Racecourse ×",
+      "id": "200073"
+    },
+    {
+      "name": "Sapporo Racecourse ◎",
+      "id": "200081"
+    },
+    {
+      "name": "Sapporo Racecourse ○",
+      "id": "200082"
+    },
+    {
+      "name": "Sapporo Racecourse ×",
+      "id": "200083"
+    },
+    {
+      "name": "Hakodate Racecourse ◎",
+      "id": "200091"
+    },
+    {
+      "name": "Hakodate Racecourse ○",
+      "id": "200092"
+    },
+    {
+      "name": "Hakodate Racecourse ×",
+      "id": "200093"
+    },
+    {
+      "name": "Fukushima Racecourse ◎",
+      "id": "200101"
+    },
+    {
+      "name": "Fukushima Racecourse ○",
+      "id": "200102"
+    },
+    {
+      "name": "Fukushima Racecourse ×",
+      "id": "200103"
+    },
+    {
+      "name": "Niigata Racecourse ◎",
+      "id": "200111"
+    },
+    {
+      "name": "Niigata Racecourse ○",
+      "id": "200112"
+    },
+    {
+      "name": "Niigata Racecourse ×",
+      "id": "200113"
+    },
+    {
+      "name": "Kokura Racecourse ◎",
+      "id": "200121"
+    },
+    {
+      "name": "Kokura Racecourse ○",
+      "id": "200122"
+    },
+    {
+      "name": "Kokura Racecourse ×",
+      "id": "200123"
+    },
+    {
+      "name": "Standard Distance ◎",
+      "id": "200131"
+    },
+    {
+      "name": "Standard Distance ○",
+      "id": "200132"
+    },
+    {
+      "name": "Standard Distance ×",
+      "id": "200133"
+    },
+    {
+      "name": "Non-Standard Distance ◎",
+      "id": "200141"
+    },
+    {
+      "name": "Non-Standard Distance ○",
+      "id": "200142"
+    },
+    {
+      "name": "Non-Standard Distance ×",
+      "id": "200143"
+    },
+    {
+      "name": "Firm Conditions ◎",
+      "id": "200151"
+    },
+    {
+      "name": "Firm Conditions ○",
+      "id": "200152"
+    },
+    {
+      "name": "Firm Conditions ×",
+      "id": "200153"
+    },
+    {
+      "name": "Wet Conditions ◎",
+      "id": "200161"
+    },
+    {
+      "name": "Wet Conditions ○",
+      "id": "200162"
+    },
+    {
+      "name": "Wet Conditions ×",
+      "id": "200163"
+    },
+    {
+      "name": "Spring Runner ◎",
+      "id": "200171"
+    },
+    {
+      "name": "Spring Runner ○",
+      "id": "200172"
+    },
+    {
+      "name": "Spring Runner ×",
+      "id": "200173"
+    },
+    {
+      "name": "Summer Runner ◎",
+      "id": "200181"
+    },
+    {
+      "name": "Summer Runner ○",
+      "id": "200182"
+    },
+    {
+      "name": "Summer Runner ×",
+      "id": "200183"
+    },
+    {
+      "name": "Fall Runner ◎",
+      "id": "200191"
+    },
+    {
+      "name": "Fall Runner ○",
+      "id": "200192"
+    },
+    {
+      "name": "Fall Runner ×",
+      "id": "200193"
+    },
+    {
+      "name": "Winter Runner ◎",
+      "id": "200201"
+    },
+    {
+      "name": "Winter Runner ○",
+      "id": "200202"
+    },
+    {
+      "name": "Winter Runner ×",
+      "id": "200203"
+    },
+    {
+      "name": "Sunny Days ◎",
+      "id": "200211"
+    },
+    {
+      "name": "Sunny Days ○",
+      "id": "200212"
+    },
+    {
+      "name": "Cloudy Days ◎",
+      "id": "200221"
+    },
+    {
+      "name": "Cloudy Days ○",
+      "id": "200222"
+    },
+    {
+      "name": "Rainy Days ◎",
+      "id": "200231"
+    },
+    {
+      "name": "Rainy Days ○",
+      "id": "200232"
+    },
+    {
+      "name": "Rainy Days ×",
+      "id": "200233"
+    },
+    {
+      "name": "Snowy Days ◎",
+      "id": "200241"
+    },
+    {
+      "name": "Snowy Days ○",
+      "id": "200242"
+    },
+    {
+      "name": "Inner Post Proficiency ◎",
+      "id": "200251"
+    },
+    {
+      "name": "Inner Post Proficiency ○",
+      "id": "200252"
+    },
+    {
+      "name": "Inner Post Averseness",
+      "id": "200253"
+    },
+    {
+      "name": "Outer Post Proficiency ◎",
+      "id": "200261"
+    },
+    {
+      "name": "Outer Post Proficiency ○",
+      "id": "200262"
+    },
+    {
+      "name": "Outer Post Averseness",
+      "id": "200263"
+    },
+    {
+      "name": "Maverick ◎",
+      "id": "200271"
+    },
+    {
+      "name": "Maverick ○",
+      "id": "200272"
+    },
+    {
+      "name": "Competitive Spirit ◎",
+      "id": "200281"
+    },
+    {
+      "name": "Competitive Spirit ○",
+      "id": "200282"
+    },
+    {
+      "name": "Wallflower",
+      "id": "200283"
+    },
+    {
+      "name": "Target in Sight ◎",
+      "id": "200291"
+    },
+    {
+      "name": "Target in Sight ○",
+      "id": "200292"
+    },
+    {
+      "name": "Long Shot ◎",
+      "id": "200301"
+    },
+    {
+      "name": "Long Shot ○",
+      "id": "200302"
+    },
+    {
+      "name": "G1 Averseness",
+      "id": "200311"
+    },
+    {
+      "name": "Paddock Fright",
+      "id": "200321"
+    },
+    {
+      "name": "Corner Adept ○",
+      "id": "200332"
+    },
+    {
+      "name": "Corner Adept ×",
+      "id": "200333"
+    },
+    {
+      "name": "Corner Acceleration ○",
+      "id": "200342"
+    },
+    {
+      "name": "Corner Acceleration ×",
+      "id": "200343"
+    },
+    {
+      "name": "Corner Recovery ○",
+      "id": "200352"
+    },
+    {
+      "name": "Corner Recovery ×",
+      "id": "200353"
+    },
+    {
+      "name": "Straightaway Adept",
+      "id": "200362"
+    },
+    {
+      "name": "Straightaway Acceleration",
+      "id": "200372"
+    },
+    {
+      "name": "Straightaway Recovery",
+      "id": "200382"
+    },
+    {
+      "name": "Ramp Revulsion",
+      "id": "200391"
+    },
+    {
+      "name": "Packphobia",
+      "id": "200401"
+    },
+    {
+      "name": "Defeatist",
+      "id": "200411"
+    },
+    {
+      "name": "Reckless",
+      "id": "200421"
+    },
+    {
+      "name": "Focus",
+      "id": "200432"
+    },
+    {
+      "name": "Gatekept",
+      "id": "200433"
+    },
+    {
+      "name": "Lay Low",
+      "id": "200442"
+    },
+    {
+      "name": "Prudent Positioning",
+      "id": "200452"
+    },
+    {
+      "name": "Ramp Up",
+      "id": "200462"
+    },
+    {
+      "name": "Pace Strategy",
+      "id": "200472"
+    },
+    {
+      "name": "Calm in a Crowd",
+      "id": "200482"
+    },
+    {
+      "name": "Nimble Navigator",
+      "id": "200492"
+    },
+    {
+      "name": "Go with the Flow",
+      "id": "200502"
+    },
+    {
+      "name": "Homestretch Haste",
+      "id": "200512"
+    },
+    {
+      "name": "Running Idle",
+      "id": "200521"
+    },
+    {
+      "name": "Early Lead",
+      "id": "200532"
+    },
+    {
+      "name": "Fast-Paced",
+      "id": "200542"
+    },
+    {
+      "name": "Final Push",
+      "id": "200552"
+    },
+    {
+      "name": "Stamina to Spare",
+      "id": "200562"
+    },
+    {
+      "name": "Preferred Position",
+      "id": "200572"
+    },
+    {
+      "name": "Prepared to Pass",
+      "id": "200582"
+    },
+    {
+      "name": "Position Pilfer",
+      "id": "200592"
+    },
+    {
+      "name": "Slick Surge",
+      "id": "200602"
+    },
+    {
+      "name": "Outer Swell",
+      "id": "200612"
+    },
+    {
+      "name": "Standing By",
+      "id": "200622"
+    },
+    {
+      "name": "Masterful Gambit",
+      "id": "200632"
+    },
+    {
+      "name": "Straightaway Spurt",
+      "id": "200642"
+    },
+    {
+      "name": "Sprinting Gear",
+      "id": "200652"
+    },
+    {
+      "name": "Wait-and-See",
+      "id": "200662"
+    },
+    {
+      "name": "Gap Closer",
+      "id": "200672"
+    },
+    {
+      "name": "Productive Plan",
+      "id": "200682"
+    },
+    {
+      "name": "Watchful Eye",
+      "id": "200692"
+    },
+    {
+      "name": "Updrafters",
+      "id": "200702"
+    },
+    {
+      "name": "Rosy Outlook",
+      "id": "200712"
+    },
+    {
+      "name": "Up-Tempo",
+      "id": "200722"
+    },
+    {
+      "name": "Steadfast",
+      "id": "200732"
+    },
+    {
+      "name": "Deep Breaths",
+      "id": "200742"
+    },
+    {
+      "name": "Inside Scoop",
+      "id": "200752"
+    },
+    {
+      "name": "Extra Tank",
+      "id": "200762"
+    },
+    {
+      "name": "Trick (Front)",
+      "id": "200771"
+    },
+    {
+      "name": "Trick (Rear)",
+      "id": "200781"
+    },
+    {
+      "name": "Frenzied Front Runners",
+      "id": "200791"
+    },
+    {
+      "name": "Frenzied Pace Chasers",
+      "id": "200801"
+    },
+    {
+      "name": "Frenzied Late Surgers",
+      "id": "200811"
+    },
+    {
+      "name": "Frenzied End Closers",
+      "id": "200821"
+    },
+    {
+      "name": "Subdued Front Runners",
+      "id": "200831"
+    },
+    {
+      "name": "Flustered Front Runners",
+      "id": "200841"
+    },
+    {
+      "name": "Hesitant Front Runners",
+      "id": "200851"
+    },
+    {
+      "name": "Subdued Pace Chasers",
+      "id": "200861"
+    },
+    {
+      "name": "Flustered Pace Chasers",
+      "id": "200871"
+    },
+    {
+      "name": "Hesitant Pace Chasers",
+      "id": "200881"
+    },
+    {
+      "name": "Subdued Late Surgers",
+      "id": "200891"
+    },
+    {
+      "name": "Flustered Late Surgers",
+      "id": "200901"
+    },
+    {
+      "name": "Hesitant Late Surgers",
+      "id": "200911"
+    },
+    {
+      "name": "Subdued End Closers",
+      "id": "200921"
+    },
+    {
+      "name": "Flustered End Closers",
+      "id": "200931"
+    },
+    {
+      "name": "Hesitant End Closers",
+      "id": "200941"
+    },
+    {
+      "name": "Oi Racecourse ◎",
+      "id": "200951"
+    },
+    {
+      "name": "Oi Racecourse ○",
+      "id": "200952"
+    },
+    {
+      "name": "Oi Racecourse ×",
+      "id": "200953"
+    },
+    {
+      "name": "Sprint Straightaways ◎",
+      "id": "200961"
+    },
+    {
+      "name": "Sprint Straightaways ○",
+      "id": "200962"
+    },
+    {
+      "name": "Sprint Corners ◎",
+      "id": "200971"
+    },
+    {
+      "name": "Sprint Corners ○",
+      "id": "200972"
+    },
+    {
+      "name": "Huge Lead",
+      "id": "200982"
+    },
+    {
+      "name": "Countermeasure",
+      "id": "200992"
+    },
+    {
+      "name": "Meticulous Measures",
+      "id": "201002"
+    },
+    {
+      "name": "Intimidate",
+      "id": "201012"
+    },
+    {
+      "name": "Stop Right There!",
+      "id": "201022"
+    },
+    {
+      "name": "Mile Straightaways ◎",
+      "id": "201031"
+    },
+    {
+      "name": "Mile Straightaways ○",
+      "id": "201032"
+    },
+    {
+      "name": "Mile Corners ◎",
+      "id": "201041"
+    },
+    {
+      "name": "Mile Corners ○",
+      "id": "201042"
+    },
+    {
+      "name": "Shifting Gears",
+      "id": "201052"
+    },
+    {
+      "name": "Acceleration",
+      "id": "201062"
+    },
+    {
+      "name": "Unyielding Spirit",
+      "id": "201072"
+    },
+    {
+      "name": "Speed Eater",
+      "id": "201082"
+    },
+    {
+      "name": "Opening Gambit",
+      "id": "201092"
+    },
+    {
+      "name": "Medium Straightaways ◎",
+      "id": "201101"
+    },
+    {
+      "name": "Medium Straightaways ○",
+      "id": "201102"
+    },
+    {
+      "name": "Medium Corners ◎",
+      "id": "201111"
+    },
+    {
+      "name": "Medium Corners ○",
+      "id": "201112"
+    },
+    {
+      "name": "Hawkeye",
+      "id": "201122"
+    },
+    {
+      "name": "Thunderbolt Step",
+      "id": "201132"
+    },
+    {
+      "name": "Soft Step",
+      "id": "201142"
+    },
+    {
+      "name": "Tether",
+      "id": "201152"
+    },
+    {
+      "name": "Murmur",
+      "id": "201162"
+    },
+    {
+      "name": "Long Straightaways ◎",
+      "id": "201171"
+    },
+    {
+      "name": "Long Straightaways ○",
+      "id": "201172"
+    },
+    {
+      "name": "Long Corners ◎",
+      "id": "201181"
+    },
+    {
+      "name": "Long Corners ○",
+      "id": "201182"
+    },
+    {
+      "name": "Keeping the Lead",
+      "id": "201192"
+    },
+    {
+      "name": "Passing Pro",
+      "id": "201202"
+    },
+    {
+      "name": "Pressure",
+      "id": "201212"
+    },
+    {
+      "name": "Stamina Eater",
+      "id": "201222"
+    },
+    {
+      "name": "Smoke Screen",
+      "id": "201232"
+    },
+    {
+      "name": "Front Runner Straightaways ◎",
+      "id": "201241"
+    },
+    {
+      "name": "Front Runner Straightaways ○",
+      "id": "201242"
+    },
+    {
+      "name": "Front Runner Corners ◎",
+      "id": "201251"
+    },
+    {
+      "name": "Front Runner Corners ○",
+      "id": "201252"
+    },
+    {
+      "name": "Dodging Danger",
+      "id": "201262"
+    },
+    {
+      "name": "Leader's Pride",
+      "id": "201272"
+    },
+    {
+      "name": "Moxie",
+      "id": "201282"
+    },
+    {
+      "name": "Second Wind",
+      "id": "201292"
+    },
+    {
+      "name": "Restart",
+      "id": "201302"
+    },
+    {
+      "name": "Pace Chaser Straightaways ◎",
+      "id": "201311"
+    },
+    {
+      "name": "Pace Chaser Straightaways ○",
+      "id": "201312"
+    },
+    {
+      "name": "Pace Chaser Corners ◎",
+      "id": "201321"
+    },
+    {
+      "name": "Pace Chaser Corners ○",
+      "id": "201322"
+    },
+    {
+      "name": "Shrewd Step",
+      "id": "201332"
+    },
+    {
+      "name": "Straight Descent",
+      "id": "201342"
+    },
+    {
+      "name": "Hydrate",
+      "id": "201352"
+    },
+    {
+      "name": "Tactical Tweak",
+      "id": "201362"
+    },
+    {
+      "name": "Disorient",
+      "id": "201372"
+    },
+    {
+      "name": "Late Surger Straightaways ◎",
+      "id": "201381"
+    },
+    {
+      "name": "Late Surger Straightaways ○",
+      "id": "201382"
+    },
+    {
+      "name": "Late Surger Corners ◎",
+      "id": "201391"
+    },
+    {
+      "name": "Late Surger Corners ○",
+      "id": "201392"
+    },
+    {
+      "name": "Fighter",
+      "id": "201402"
+    },
+    {
+      "name": "1,500,000 CC",
+      "id": "201412"
+    },
+    {
+      "name": "A Small Breather",
+      "id": "201422"
+    },
+    {
+      "name": "Studious",
+      "id": "201432"
+    },
+    {
+      "name": "Sharp Gaze",
+      "id": "201442"
+    },
+    {
+      "name": "End Closer Straightaways ◎",
+      "id": "201451"
+    },
+    {
+      "name": "End Closer Straightaways ○",
+      "id": "201452"
+    },
+    {
+      "name": "End Closer Corners ◎",
+      "id": "201461"
+    },
+    {
+      "name": "End Closer Corners ○",
+      "id": "201462"
+    },
+    {
+      "name": "I Can See Right Through You",
+      "id": "201472"
+    },
+    {
+      "name": "After-School Stroll",
+      "id": "201482"
+    },
+    {
+      "name": "Levelheaded",
+      "id": "201492"
+    },
+    {
+      "name": "Strategist",
+      "id": "201502"
+    },
+    {
+      "name": "Intense Gaze",
+      "id": "201512"
+    },
+    {
+      "name": "Front Runner Savvy ◎",
+      "id": "201521"
+    },
+    {
+      "name": "Front Runner Savvy ○",
+      "id": "201522"
+    },
+    {
+      "name": "Pace Chaser Savvy ◎",
+      "id": "201531"
+    },
+    {
+      "name": "Pace Chaser Savvy ○",
+      "id": "201532"
+    },
+    {
+      "name": "Late Surger Savvy ◎",
+      "id": "201541"
+    },
+    {
+      "name": "Late Surger Savvy ○",
+      "id": "201542"
+    },
+    {
+      "name": "End Closer Savvy ◎",
+      "id": "201551"
+    },
+    {
+      "name": "End Closer Savvy ○",
+      "id": "201552"
+    },
+    {
+      "name": "Lucky Seven",
+      "id": "201562"
+    },
+    {
+      "name": "Triple 7s",
+      "id": "201571"
+    },
+    {
+      "name": "Highlander",
+      "id": "201581"
+    },
+    {
+      "name": "Uma Stan",
+      "id": "201591"
+    },
+    {
+      "name": "Groundwork",
+      "id": "201601"
+    },
+    {
+      "name": "Tail Held High",
+      "id": "201611"
+    },
+    {
+      "name": "Shake It Out",
+      "id": "201621"
+    },
+    {
+      "name": "Sympathy",
+      "id": "201631"
+    },
+    {
+      "name": "Lone Wolf",
+      "id": "201641"
+    },
+    {
+      "name": "Slipstream",
+      "id": "201651"
+    },
+    {
+      "name": "Playtime's Over!",
+      "id": "201661"
+    },
+    {
+      "name": "Top Pick",
+      "id": "201672"
+    },
+    {
+      "name": "Ignited Spirit SPD",
+      "id": "210012"
+    },
+    {
+      "name": "Ignited Spirit STA",
+      "id": "210022"
+    },
+    {
+      "name": "Ignited Spirit PWR",
+      "id": "210032"
+    },
+    {
+      "name": "Ignited Spirit GUTS",
+      "id": "210042"
+    },
+    {
+      "name": "Ignited Spirit WIT",
+      "id": "210052"
+    },
+    {
+      "name": "Forward, March!",
+      "id": "201682"
+    },
+    {
+      "name": "Be Still",
+      "id": "201692"
+    },
+    {
+      "name": "Unquenched Thirst",
+      "id": "300011"
+    },
+    {
+      "name": "All I've Got",
+      "id": "201702"
+    },
+    {
+      "name": "♡ 3D Nail Art",
+      "id": "201801"
+    },
+    {
+      "name": "Head-On",
+      "id": "201902"
+    },
+    {
+      "name": "Familiar Ground",
+      "id": "202002"
+    },
+    {
+      "name": "Towards the Scenery I Seek",
+      "id": "300031"
+    },
+    {
+      "name": "Creeping Anxiety",
+      "id": "300041"
+    },
+    {
+      "name": "Show Me What Lies Beyond!",
+      "id": "300071"
+    },
+    {
+      "name": "Hoiya! Have a Good Run!",
+      "id": "300081"
+    },
+    {
+      "name": "As a Friend and Rival",
+      "id": "300091"
+    },
+    {
+      "name": "Feature Act",
+      "id": "202012"
+    },
+    {
+      "name": "Early Start",
+      "id": "202022"
+    },
+    {
+      "name": "Risky Business",
+      "id": "202032"
+    },
+    {
+      "name": "Carnival Bonus",
+      "id": "1000011"
+    },
+    {
+      "name": "Light as a Feather",
+      "id": "202042"
+    },
+    {
+      "name": "Glittering Star",
+      "id": "210062"
+    },
+    {
+      "name": "Free-Spirited",
+      "id": "202072"
+    },
+    {
+      "name": "Chin Up, Derby Umamusume!",
+      "id": "300111"
+    },
+    {
+      "name": "Take the Chance",
+      "id": "202082"
+    },
+    {
+      "name": "Fighting Spirit",
+      "id": "202092"
+    },
+    {
+      "name": "Eager",
+      "id": "202102"
+    },
+    {
+      "name": "Carnival Bonus",
+      "id": "1000012"
+    },
+    {
+      "name": "Pumped",
+      "id": "202112"
+    },
+    {
+      "name": "Fearless",
+      "id": "202122"
+    },
+    {
+      "name": "Feelin' a Bit Silly",
+      "id": "1100011"
+    },
+    {
+      "name": "With All My Soul",
+      "id": "202132"
+    },
+    {
+      "name": "Full Throttle",
+      "id": "202152"
+    },
+    {
+      "name": "You're Not the Boss of Me!",
+      "id": "202141"
+    },
+    {
+      "name": "Restraint",
+      "id": "202161"
+    },
+    {
+      "name": "Downhill Speedster",
+      "id": "202172"
+    },
+    {
+      "name": "99 Problems",
+      "id": "202181"
+    },
+    {
+      "name": "Medium Race Enthusiast",
+      "id": "1200011"
+    },
+    {
+      "name": "Long Race Enthusiast",
+      "id": "1200021"
+    },
+    {
+      "name": "Mile Race Enthusiast",
+      "id": "1200031"
+    }
+  ],
+  "Rare": [
+    {
+      "name": "Professor of Curvature",
+      "id": "200331",
+      "other_version": "Corner Adept"
+    },
+    {
+      "name": "Corner Connoisseur",
+      "id": "200341",
+      "other_version": "Corner Acceleration"
+    },
+    {
+      "name": "Swinging Maestro",
+      "id": "200351",
+      "other_version": "Corner Recovery"
+    },
+    {
+      "name": "Beeline Burst",
+      "id": "200361",
+      "other_version": "Straightaway Adept"
+    },
+    {
+      "name": "Rushing Gale!",
+      "id": "200371",
+      "other_version": "Straightaway Acceleration"
+    },
+    {
+      "name": "Breath of Fresh Air",
+      "id": "200381",
+      "other_version": "Straightaway Recovery"
+    },
+    {
+      "name": "Concentration",
+      "id": "200431",
+      "other_version": "Focus"
+    },
+    {
+      "name": "Iron Will",
+      "id": "200441",
+      "other_version": "Lay Low"
+    },
+    {
+      "name": "Center Stage",
+      "id": "200451",
+      "other_version": "Prudent Positioning"
+    },
+    {
+      "name": "It's On!",
+      "id": "200461",
+      "other_version": "Ramp Up"
+    },
+    {
+      "name": "Indomitable",
+      "id": "200471",
+      "other_version": "Pace Strategy"
+    },
+    {
+      "name": "Unruffled",
+      "id": "200481",
+      "other_version": "Calm in a Crowd"
+    },
+    {
+      "name": "No Stopping Me!",
+      "id": "200491",
+      "other_version": "Nimble Navigator"
+    },
+    {
+      "name": "Lane Legerdemain",
+      "id": "200501",
+      "other_version": "Go with the Flow"
+    },
+    {
+      "name": "In Body and Mind",
+      "id": "200511",
+      "other_version": "Homestretch Haste"
+    },
+    {
+      "name": "Taking the Lead",
+      "id": "200531",
+      "other_version": "Early Lead"
+    },
+    {
+      "name": "Escape Artist",
+      "id": "200541",
+      "other_version": "Fast-Paced"
+    },
+    {
+      "name": "Unrestrained",
+      "id": "200551",
+      "other_version": "Final Push"
+    },
+    {
+      "name": "Calm and Collected",
+      "id": "200561",
+      "other_version": "Stamina to Spare"
+    },
+    {
+      "name": "Race Planner",
+      "id": "200571",
+      "other_version": "Preferred Position"
+    },
+    {
+      "name": "Speed Star",
+      "id": "200581",
+      "other_version": "Prepared to Pass"
+    },
+    {
+      "name": "Fast & Furious",
+      "id": "200591",
+      "other_version": "Position Pilfer"
+    },
+    {
+      "name": "On Your Left!",
+      "id": "200601",
+      "other_version": "Slick Surge"
+    },
+    {
+      "name": "Rising Dragon",
+      "id": "200611",
+      "other_version": "Outer Swell"
+    },
+    {
+      "name": "Sleeping Lion",
+      "id": "200621",
+      "other_version": "Standing By"
+    },
+    {
+      "name": "Sturm und Drang",
+      "id": "200631",
+      "other_version": "Masterful Gambit"
+    },
+    {
+      "name": "Encroaching Shadow",
+      "id": "200641",
+      "other_version": "Straightaway Spurt"
+    },
+    {
+      "name": "Turbo Sprint",
+      "id": "200651",
+      "other_version": "Sprinting Gear"
+    },
+    {
+      "name": "Blinding Flash",
+      "id": "200671",
+      "other_version": "Gap Closer"
+    },
+    {
+      "name": "Mile Maven",
+      "id": "200681",
+      "other_version": "Productive Plan"
+    },
+    {
+      "name": "Keen Eye",
+      "id": "200691",
+      "other_version": "Watchful Eye"
+    },
+    {
+      "name": "Furious Feat",
+      "id": "200701",
+      "other_version": "Updrafters"
+    },
+    {
+      "name": "Trackblazer",
+      "id": "200711",
+      "other_version": "Rosy Outlook"
+    },
+    {
+      "name": "Killer Tunes",
+      "id": "200721",
+      "other_version": "Up-Tempo"
+    },
+    {
+      "name": "Unyielding",
+      "id": "200731",
+      "other_version": "Steadfast"
+    },
+    {
+      "name": "Cooldown",
+      "id": "200741",
+      "other_version": "Deep Breaths"
+    },
+    {
+      "name": "Innate Experience",
+      "id": "200751",
+      "other_version": "Inside Scoop"
+    },
+    {
+      "name": "Adrenaline Rush",
+      "id": "200761",
+      "other_version": "Extra Tank"
+    },
+    {
+      "name": "Staggering Lead",
+      "id": "200981",
+      "other_version": "Huge Lead"
+    },
+    {
+      "name": "Plan X",
+      "id": "200991",
+      "other_version": "Countermeasure"
+    },
+    {
+      "name": "Perfect Prep!",
+      "id": "201001",
+      "other_version": "Meticulous Measures"
+    },
+    {
+      "name": "You've Got No Shot",
+      "id": "201021",
+      "other_version": "Stop Right There!"
+    },
+    {
+      "name": "Changing Gears",
+      "id": "201051",
+      "other_version": "Shifting Gears"
+    },
+    {
+      "name": "Step on the Gas!",
+      "id": "201061",
+      "other_version": "Acceleration"
+    },
+    {
+      "name": "Big-Sisterly",
+      "id": "201071",
+      "other_version": "Unyielding Spirit"
+    },
+    {
+      "name": "Greed for Speed",
+      "id": "201081",
+      "other_version": "Speed Eater"
+    },
+    {
+      "name": "Battle Formation",
+      "id": "201091",
+      "other_version": "Opening Gambit"
+    },
+    {
+      "name": "Clairvoyance",
+      "id": "201121",
+      "other_version": "Hawkeye"
+    },
+    {
+      "name": "Lightning Step",
+      "id": "201131",
+      "other_version": "Thunderbolt Step"
+    },
+    {
+      "name": "Miraculous Step",
+      "id": "201141",
+      "other_version": "Soft Step"
+    },
+    {
+      "name": "Dominator",
+      "id": "201151",
+      "other_version": "Tether"
+    },
+    {
+      "name": "Mystifying Murmur",
+      "id": "201161",
+      "other_version": "Murmur"
+    },
+    {
+      "name": "Vanguard Spirit",
+      "id": "201191",
+      "other_version": "Keeping the Lead"
+    },
+    {
+      "name": "Overwhelming Pressure",
+      "id": "201211",
+      "other_version": "Pressure"
+    },
+    {
+      "name": "Stamina Siphon",
+      "id": "201221",
+      "other_version": "Stamina Eater"
+    },
+    {
+      "name": "Illusionist",
+      "id": "201231",
+      "other_version": "Smoke Screen"
+    },
+    {
+      "name": "Restless",
+      "id": "201281",
+      "other_version": "Moxie"
+    },
+    {
+      "name": "Reignition",
+      "id": "201291",
+      "other_version": "Second Wind"
+    },
+    {
+      "name": "Technician",
+      "id": "201331",
+      "other_version": "Shrewd Step"
+    },
+    {
+      "name": "Determined Descent",
+      "id": "201341",
+      "other_version": "Straight Descent"
+    },
+    {
+      "name": "Gourmand",
+      "id": "201351",
+      "other_version": "Hydrate"
+    },
+    {
+      "name": "Shatterproof",
+      "id": "201361",
+      "other_version": "Tactical Tweak"
+    },
+    {
+      "name": "Dazzling Disorientation",
+      "id": "201371",
+      "other_version": "Disorient"
+    },
+    {
+      "name": "Hard Worker",
+      "id": "201401",
+      "other_version": "Fighter"
+    },
+    {
+      "name": "15,000,000 CC",
+      "id": "201411",
+      "other_version": "1,500,000 CC"
+    },
+    {
+      "name": "Relax",
+      "id": "201421",
+      "other_version": "A Small Breather"
+    },
+    {
+      "name": "The Bigger Picture",
+      "id": "201431",
+      "other_version": "Studious"
+    },
+    {
+      "name": "All-Seeing Eyes",
+      "id": "201441",
+      "other_version": "Sharp Gaze"
+    },
+    {
+      "name": "The Coast Is Clear!",
+      "id": "201471",
+      "other_version": "I Can See Right Through You"
+    },
+    {
+      "name": "Go-Home Specialist",
+      "id": "201481",
+      "other_version": "After-School Stroll"
+    },
+    {
+      "name": "Serenity",
+      "id": "201491",
+      "other_version": "Levelheaded"
+    },
+    {
+      "name": "Crusader",
+      "id": "201501",
+      "other_version": "Strategist"
+    },
+    {
+      "name": "Petrifying Gaze",
+      "id": "201511",
+      "other_version": "Intense Gaze"
+    },
+    {
+      "name": "Super Lucky Seven",
+      "id": "201561",
+      "other_version": "Lucky Seven"
+    },
+    {
+      "name": "Adored by All",
+      "id": "201011",
+      "other_version": "Intimidate"
+    },
+    {
+      "name": "Trending in the Charts!",
+      "id": "201671",
+      "other_version": "Top Pick"
+    },
+    {
+      "name": "Sixth Sense",
+      "id": "201261",
+      "other_version": "Dodging Danger"
+    },
+    {
+      "name": "Burning Spirit SPD",
+      "id": "210011",
+      "other_version": "Ignited Spirit SPD"
+    },
+    {
+      "name": "Burning Spirit STA",
+      "id": "210021",
+      "other_version": "Ignited Spirit STA"
+    },
+    {
+      "name": "Burning Spirit PWR",
+      "id": "210031",
+      "other_version": "Ignited Spirit PWR"
+    },
+    {
+      "name": "Burning Spirit GUTS",
+      "id": "210041",
+      "other_version": "Ignited Spirit GUTS"
+    },
+    {
+      "name": "Burning Spirit WIT",
+      "id": "210051",
+      "other_version": "Ignited Spirit WIT"
+    },
+    {
+      "name": "Superstan",
+      "id": "201592",
+      "other_version": "Uma Stan"
+    },
+    {
+      "name": "Lead the Charge!",
+      "id": "201681",
+      "other_version": "Forward, March!"
+    },
+    {
+      "name": "Tantalizing Trick",
+      "id": "200772",
+      "other_version": "Trick (Front)"
+    },
+    {
+      "name": "Lie in Wait",
+      "id": "201691",
+      "other_version": "Be Still"
+    },
+    {
+      "name": "Unchanging",
+      "id": "300021"
+    },
+    {
+      "name": "Come What May",
+      "id": "201701",
+      "other_version": "All I've Got"
+    },
+    {
+      "name": "Fall Frenzy",
+      "id": "200194",
+      "other_version": "Fall Runner"
+    },
+    {
+      "name": "Yodo Invicta",
+      "id": "200064",
+      "other_version": "Kyoto Racecourse"
+    },
+    {
+      "name": "VIP Pass",
+      "id": "201201",
+      "other_version": "Passing Pro"
+    },
+    {
+      "name": "Tail Nine",
+      "id": "201612",
+      "other_version": "Tail Held High"
+    },
+    {
+      "name": "Blatant Fear",
+      "id": "300051"
+    },
+    {
+      "name": "Dream Run",
+      "id": "300061"
+    },
+    {
+      "name": "Cheers of a Fellow Dreamer",
+      "id": "300101"
+    },
+    {
+      "name": "Headliner",
+      "id": "202011",
+      "other_version": "Feature Act"
+    },
+    {
+      "name": "Daring Strike",
+      "id": "202021",
+      "other_version": "Early Start"
+    },
+    {
+      "name": "Nothing Ventured",
+      "id": "202031",
+      "other_version": "Risky Business"
+    },
+    {
+      "name": "Spring Spectacle",
+      "id": "200174",
+      "other_version": "Spring Runner"
+    },
+    {
+      "name": "Flash Forward",
+      "id": "201103",
+      "other_version": "Medium Straightaways"
+    },
+    {
+      "name": "In High Spirits",
+      "id": "202041",
+      "other_version": "Light as a Feather"
+    },
+    {
+      "name": "Firm Course Menace",
+      "id": "200154",
+      "other_version": "Firm Conditions"
+    },
+    {
+      "name": "Blast Forward",
+      "id": "201173",
+      "other_version": "Long Straightaways"
+    },
+    {
+      "name": "Runaway",
+      "id": "202051"
+    },
+    {
+      "name": "Radiant Star",
+      "id": "210061",
+      "other_version": "Glittering Star"
+    },
+    {
+      "name": "Right-Handed Demon",
+      "id": "200014",
+      "other_version": "Right-Handed"
+    },
+    {
+      "name": "Best in Japan",
+      "id": "202061"
+    },
+    {
+      "name": "Of Calm Mind",
+      "id": "202071",
+      "other_version": "Free-Spirited"
+    },
+    {
+      "name": "For the Team",
+      "id": "300121"
+    },
+    {
+      "name": "Top Runner",
+      "id": "201271",
+      "other_version": "Leader's Pride"
+    },
+    {
+      "name": "From the Brink",
+      "id": "202081",
+      "other_version": "Take the Chance"
+    },
+    {
+      "name": "Burning Soul",
+      "id": "202091",
+      "other_version": "Fighting Spirit"
+    },
+    {
+      "name": "Elated",
+      "id": "202101",
+      "other_version": "Eager"
+    },
+    {
+      "name": "Neck and Neck",
+      "id": "201901",
+      "other_version": "Head-On"
+    },
+    {
+      "name": "Full of Vigor",
+      "id": "202111",
+      "other_version": "Pumped"
+    },
+    {
+      "name": "Dauntless",
+      "id": "202121",
+      "other_version": "Fearless"
+    },
+    {
+      "name": "Wild Wind",
+      "id": "202131",
+      "other_version": "With All My Soul"
+    },
+    {
+      "name": "See Ya Later!",
+      "id": "201662",
+      "other_version": "Playtime's Over!"
+    },
+    {
+      "name": "Keep Going!",
+      "id": "202151",
+      "other_version": "Full Throttle"
+    },
+    {
+      "name": "Master of the Sands",
+      "id": "202001",
+      "other_version": "Familiar Ground"
+    },
+    {
+      "name": "Moonlit Flash",
+      "id": "201453",
+      "other_version": "End Closer Straightaways"
+    },
+    {
+      "name": "Refraction Arc",
+      "id": "201113",
+      "other_version": "Medium Corners"
+    }
+  ],
+  "Unique": [
+    {
+      "name": "Certain Victory",
+      "id": "110031"
+    },
+    {
+      "name": "Legacy of the Strong",
+      "id": "110131"
+    },
+    {
+      "name": "Warning Shot!",
+      "id": "10071"
+    },
+    {
+      "name": "Xceleration",
+      "id": "10081"
+    },
+    {
+      "name": "Red Ace",
+      "id": "10091"
+    },
+    {
+      "name": "Focused Mind",
+      "id": "10111"
+    },
+    {
+      "name": "Corazón ☆ Ardiente",
+      "id": "10141"
+    },
+    {
+      "name": "Empress's Pride",
+      "id": "10181"
+    },
+    {
+      "name": "1st Place Kiss☆",
+      "id": "10241"
+    },
+    {
+      "name": "Feel the Burn!",
+      "id": "10271"
+    },
+    {
+      "name": "Introduction to Physiology",
+      "id": "10321"
+    },
+    {
+      "name": "V Is for Victory!",
+      "id": "10351"
+    },
+    {
+      "name": "Class Rep + Speed = Bakushin",
+      "id": "10411"
+    },
+    {
+      "name": "Clear Heart",
+      "id": "10451"
+    },
+    {
+      "name": "Super-Duper Stoked",
+      "id": "10521"
+    },
+    {
+      "name": "Luck Be with Me!",
+      "id": "10561"
+    },
+    {
+      "name": "I Can Win Sometimes, Right?",
+      "id": "10601"
+    },
+    {
+      "name": "Call Me King",
+      "id": "10611"
+    },
+    {
+      "name": "Shooting Star",
+      "id": "100011"
+    },
+    {
+      "name": "The View from the Lead Is Mine!",
+      "id": "100021"
+    },
+    {
+      "name": "Sky-High Teio Step",
+      "id": "100031"
+    },
+    {
+      "name": "Red Shift/LP1211-M",
+      "id": "100041"
+    },
+    {
+      "name": "Triumphant Pulse",
+      "id": "100061"
+    },
+    {
+      "name": "Anchors Aweigh!",
+      "id": "100071"
+    },
+    {
+      "name": "Cut and Drive!",
+      "id": "100081"
+    },
+    {
+      "name": "Resplendent Red Ace",
+      "id": "100091"
+    },
+    {
+      "name": "Shooting for Victory!",
+      "id": "100101"
+    },
+    {
+      "name": "Where There's a Will, There's a Way",
+      "id": "100111"
+    },
+    {
+      "name": "The Duty of Dignity Calls",
+      "id": "100131"
+    },
+    {
+      "name": "Victoria por plancha ☆",
+      "id": "100141"
+    },
+    {
+      "name": "This Dance Is for Vittoria!",
+      "id": "100151"
+    },
+    {
+      "name": "Behold Thine Emperor's Divine Might",
+      "id": "100171"
+    },
+    {
+      "name": "Blazing Pride",
+      "id": "100181"
+    },
+    {
+      "name": "∴win Q.E.D.",
+      "id": "100231"
+    },
+    {
+      "name": "Flashy☆Landing",
+      "id": "100241"
+    },
+    {
+      "name": "G00 1st. F∞;",
+      "id": "100261"
+    },
+    {
+      "name": "Let's Pump Some Iron!",
+      "id": "100271"
+    },
+    {
+      "name": "Blue Rose Closer",
+      "id": "100301"
+    },
+    {
+      "name": "U=ma2",
+      "id": "100321"
+    },
+    {
+      "name": "Our Ticket to Win!",
+      "id": "100351"
+    },
+    {
+      "name": "Genius x Bakushin = Victory",
+      "id": "100411"
+    },
+    {
+      "name": "Pure Heart",
+      "id": "100451"
+    },
+    {
+      "name": "Super-Duper Climax",
+      "id": "100521"
+    },
+    {
+      "name": "I See Victory in My Future!",
+      "id": "100561"
+    },
+    {
+      "name": "Just a Little Farther!",
+      "id": "100601"
+    },
+    {
+      "name": "Prideful King",
+      "id": "100611"
+    },
+    {
+      "name": "#LookatCurren",
+      "id": "100381"
+    },
+    {
+      "name": "Nemesis",
+      "id": "100501"
+    },
+    {
+      "name": "SPARKLY☆STARDOM",
+      "id": "100461"
+    },
+    {
+      "name": "Shadow Break",
+      "id": "100161"
+    },
+    {
+      "name": "Eternal Moments",
+      "id": "110181"
+    },
+    {
+      "name": "Flowery☆Maneuver",
+      "id": "110241"
+    },
+    {
+      "name": "Angling and Scheming",
+      "id": "100201"
+    },
+    {
+      "name": "You and Me! One-on-One!",
+      "id": "100121"
+    },
+    {
+      "name": "Superior Heal",
+      "id": "110111"
+    },
+    {
+      "name": "Condor's Fury",
+      "id": "110141"
+    },
+    {
+      "name": "Lights of Vaudeville",
+      "id": "100051"
+    },
+    {
+      "name": "KEEP IT REAL.",
+      "id": "100401"
+    },
+    {
+      "name": "Dazzl'n ♪ Diver",
+      "id": "110011"
+    },
+    {
+      "name": "A Kiss for Courage",
+      "id": "110041"
+    },
+    {
+      "name": "I Never Goof Up!",
+      "id": "100581"
+    },
+    {
+      "name": "Schwarzes Schwert",
+      "id": "100371"
+    },
+    {
+      "name": "Bountiful Harvest",
+      "id": "110561"
+    },
+    {
+      "name": "YUMMY☆SPEED!",
+      "id": "100281"
+    },
+    {
+      "name": "OMG! (ﾟ∀ﾟ)  The Final Sprint! ☆",
+      "id": "100191"
+    },
+    {
+      "name": "Every Rose Has Its Fangs",
+      "id": "110301"
+    },
+    {
+      "name": "Give Mummy a Hug ♡",
+      "id": "110451"
+    },
+    {
+      "name": "A Princess Must Seize Victory!",
+      "id": "100391"
+    },
+    {
+      "name": "Chasing After You",
+      "id": "100251"
+    },
+    {
+      "name": "Arrows Whistle, Shadows Disperse",
+      "id": "110171"
+    },
+    {
+      "name": "Dancing in the Leaves",
+      "id": "110401"
+    },
+    {
+      "name": "Pop & Polish",
+      "id": "100481"
+    },
+    {
+      "name": "Moving Past, and Beyond",
+      "id": "100591"
+    },
+    {
+      "name": "Festive Miracle",
+      "id": "110061"
+    },
+    {
+      "name": "Presents from X",
+      "id": "110231"
+    },
+    {
+      "name": "Fairy Tale",
+      "id": "100221"
+    },
+    {
+      "name": "White Lightning Comin' Through!",
+      "id": "100211"
+    },
+    {
+      "name": "Barcarole of Blessings",
+      "id": "110151"
+    },
+    {
+      "name": "114th Time's the Charm",
+      "id": "110521"
+    },
+    {
+      "name": "Ambition to Surpass the Sakura",
+      "id": "100691"
+    },
+    {
+      "name": "A Lifelong Dream, A Moment's Flight",
+      "id": "100711"
+    },
+    {
+      "name": "Operation Cacao",
+      "id": "110261"
+    },
+    {
+      "name": "Guten Appetit ♪",
+      "id": "110371"
+    },
+    {
+      "name": "Shooting Star of Dioskouroi",
+      "id": "100331"
+    },
+    {
+      "name": "Ready, Go!",
+      "id": "10621"
+    },
+    {
+      "name": "Go, Go, Mun!",
+      "id": "100621"
+    },
+    {
+      "name": "Victory Cheer!",
+      "id": "100681"
+    },
+    {
+      "name": "Eternal Encompassing Shine",
+      "id": "100671"
+    },
+    {
+      "name": "Lovely Spring Breeze",
+      "id": "100741"
+    },
+    {
+      "name": "Ravissant",
+      "id": "110051"
+    },
+    {
+      "name": "Break It Down!",
+      "id": "110201"
+    },
+    {
+      "name": "Budding Blossom",
+      "id": "100511"
+    },
+    {
+      "name": "Peerless Dance of Flowering Flames",
+      "id": "100721"
+    },
+    {
+      "name": "Go☆Go☆Goal!",
+      "id": "110601"
+    },
+    {
+      "name": "Louder! Tracen Cheer!",
+      "id": "110611"
+    },
+    {
+      "name": "All Charged! It's Go Time!",
+      "id": "100311"
+    },
+    {
+      "name": "Keep Pushing Ahead",
+      "id": "100641"
+    },
+    {
+      "name": "Best Day Ever",
+      "id": "110221"
+    },
+    {
+      "name": "One True Color",
+      "id": "110381"
+    },
+    {
+      "name": "Now We're Cruisin'!",
+      "id": "100341"
+    },
+    {
+      "name": "Victory belongs to me—Strelitzia! ☆",
+      "id": "100441"
+    },
+    {
+      "name": "Joyful Voyage!",
+      "id": "110101"
+    },
+    {
+      "name": "Wherever This Wonder Leads",
+      "id": "110591"
+    },
+    {
+      "name": "trigger:BEAT",
+      "id": "100361"
+    },
+    {
+      "name": "Dreams Donned with Pride!",
+      "id": "120011"
+    },
+    {
+      "name": "Ruler of Japan",
+      "id": "300131"
+    },
+    {
+      "name": "Indomitable",
+      "id": "300141"
+    }
+  ]
+}

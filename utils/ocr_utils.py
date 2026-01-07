@@ -235,22 +235,8 @@ def extract_event_name_text(pil_img: Image.Image) -> str:
         
         if result_text:
             if DEBUG_MODE:
-                log_debug(f"Event name HIGH-CONFIDENCE OCR: '{result_text}'")
-            # Import event matching from event_handling (try Unity first, then Ura)
-            matched_text = result_text
-            try:
-                from core.Unity.event_handling import find_best_event_match
-                matched_text = find_best_event_match(result_text)
-            except ImportError:
-                try:
-                    from core.Ura.event_handling import find_best_event_match
-                    matched_text = find_best_event_match(result_text)
-                except ImportError:
-                    # Fallback: return OCR text without matching
-                    log_warning("Could not import find_best_event_match from event_handling, returning raw OCR text")
-            if DEBUG_MODE:
-                log_debug(f"Event name MATCHED: '{matched_text}'")
-            return matched_text
+                log_debug(f"Event name OCR result: '{result_text}'")
+            return result_text
         else:
             if DEBUG_MODE:
                 log_debug(f"Event name: No high-confidence text found (threshold: 70)")

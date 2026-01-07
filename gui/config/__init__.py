@@ -7,6 +7,7 @@ and used by the main ConfigPanel class.
 
 try:
     from .main_tab import MainTab
+    from .performance_tab import PerformanceTab
     from .training_tab import TrainingTab
     from .racing_tab import RacingTab
     from .event_tab import EventTab
@@ -17,6 +18,7 @@ try:
     
     __all__ = [
         'MainTab',
+        'PerformanceTab',
         'TrainingTab', 
         'RacingTab',
         'EventTab',

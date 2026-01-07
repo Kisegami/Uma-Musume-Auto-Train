@@ -44,11 +44,12 @@ class ConfigPanel(ctk.CTkFrame):
     def _load_modular_tabs(self):
         """Load all configuration tabs from modules"""
         try:
-            from .config import MainTab, TrainingTab, RacingTab, EventTab, SkillTab, RestartTab, OthersTab, UpdateTab
+            from .config import MainTab, PerformanceTab, TrainingTab, RacingTab, EventTab, SkillTab, RestartTab, OthersTab, UpdateTab
             
             # Initialize all tabs (order matters - tabs appear in this order)
             self._tabs = {
                 'main': MainTab(self.tabview, self, self.colors),
+                'performance': PerformanceTab(self.tabview, self, self.colors),
                 'training': TrainingTab(self.tabview, self, self.colors),
                 'racing': RacingTab(self.tabview, self, self.colors),
                 'event': EventTab(self.tabview, self, self.colors),

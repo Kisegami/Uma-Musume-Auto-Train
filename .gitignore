@@ -41,7 +41,6 @@ temp_*.jpg
 annotated_*.png
 processed_*.png
 REF/
-skills_*.json
 unity_test/
 
 # Toolkit (bundled dependencies)
@@ -55,7 +54,6 @@ toolkit/
 launcher.exe
 _internal/
 custom_races.json
-skills.json
 .deps_installed
 custom_races_oguri.json
 debug_*.png
