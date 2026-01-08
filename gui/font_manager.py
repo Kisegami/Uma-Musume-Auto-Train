@@ -23,7 +23,59 @@ class FontManager:
         self.fonts = {}
         self.fallback_fonts = {}
         self._font_cache = {}  # Cache for CTkFont objects to avoid recreation
+        self._scale_factor = 1.0  # Will be calculated based on screen DPI
         self.load_font_config()
+    
+    def calculate_scale_factor(self, root_window=None):
+        """Calculate font scale factor based on screen DPI
+        
+        Args:
+            root_window: Optional tkinter root window for DPI detection
+            
+        The scale factor is calculated relative to 96 DPI (standard for 1080p).
+        """
+        try:
+            import tkinter as tk
+            if root_window is None:
+                # Create temporary window for DPI detection
+                temp_root = tk.Tk()
+                temp_root.withdraw()
+                dpi = temp_root.winfo_fpixels('1i')
+                screen_width = temp_root.winfo_screenwidth()
+                screen_height = temp_root.winfo_screenheight()
+                temp_root.destroy()
+            else:
+                dpi = root_window.winfo_fpixels('1i')
+                screen_width = root_window.winfo_screenwidth()
+                screen_height = root_window.winfo_screenheight()
+            
+            # Base reference: 96 DPI at 1920x1080
+            # Scale based on both DPI and resolution
+            base_dpi = 96.0
+            base_width = 1920
+            
+            # Calculate scale factor
+            # Primary scaling is DPI-based
+            dpi_scale = dpi / base_dpi
+            
+            # Secondary scaling considers screen width for very high resolutions
+            # This helps with 4K displays where DPI might not fully reflect size needs
+            resolution_scale = min(screen_width / base_width, 1.5)  # Cap at 1.5x
+            
+            # Combine scales with DPI being dominant
+            self._scale_factor = (dpi_scale * 0.7 + resolution_scale * 0.3)
+            
+            # Clamp scale factor to reasonable bounds
+            self._scale_factor = max(0.75, min(self._scale_factor, 2.0))
+            
+            print(f"✓ Screen: {screen_width}x{screen_height}, DPI: {dpi:.1f}, Font scale: {self._scale_factor:.2f}")
+            
+        except Exception as e:
+            print(f"⚠ Could not calculate DPI scale: {e}, using 1.0")
+            self._scale_factor = 1.0
+        
+        # Clear font cache to regenerate with new scale
+        self._font_cache.clear()
         
     def load_font_config(self):
         """Load font configuration from JSON file"""
@@ -103,10 +155,17 @@ class FontManager:
             
         font_config = self.fonts[font_name]
         
+        # Apply scale factor to size
+        base_size = font_config.get('size', 11)
+        scaled_size = int(round(base_size * self._scale_factor))
+        
+        # Ensure minimum readable size
+        scaled_size = max(scaled_size, 8)
+        
         # Create and cache new font
         font = ctk.CTkFont(
             family=font_config.get('family', 'Comic Sans MS'),
-            size=font_config.get('size', 11),
+            size=scaled_size,
             weight=font_config.get('weight', 'normal')
         )
         self._font_cache[font_name] = font
@@ -127,9 +186,14 @@ class FontManager:
             
         font_config = self.fonts[font_name]
         
+        # Apply scale factor to size
+        base_size = font_config.get('size', 11)
+        scaled_size = int(round(base_size * self._scale_factor))
+        scaled_size = max(scaled_size, 8)
+        
         return (
             font_config.get('family', 'Comic Sans MS'),
-            font_config.get('size', 11),
+            scaled_size,
             font_config.get('weight', 'normal')
         )
     
@@ -205,3 +269,13 @@ def get_font_tuple(font_name: str) -> Tuple[str, int, str]:
 def reload_fonts():
     """Convenience function to reload font configuration"""
     get_font_manager().reload_config()
+
+def init_font_scaling(root_window=None):
+    """Initialize font scaling based on screen DPI
+    
+    Call this early during GUI initialization, after creating the root window.
+    
+    Args:
+        root_window: Optional tkinter root window for DPI detection
+    """
+    get_font_manager().calculate_scale_factor(root_window)

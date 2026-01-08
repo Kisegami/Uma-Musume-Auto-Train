@@ -6,6 +6,7 @@ Contains ADB configuration and screenshot capture settings.
 
 import customtkinter as ctk
 import tkinter as tk
+from tkinter import messagebox
 
 try:
     from .base_tab import BaseTab
@@ -57,7 +58,7 @@ class MainTab(BaseTab):
         # ADB Configuration Section
         adb_frame, _ = self.create_section_frame(main_scroll, "ADB Configuration")
 
-        # Emulator Type (detected at launch)
+        # Device/Emulator Type (detected at launch)
         emulator_types = getattr(self.config_panel.main_window, 'detected_emulator_types', []) or []
         if not emulator_types:
             # Fallback: try detecting now
@@ -67,15 +68,19 @@ class MainTab(BaseTab):
                 self.config_panel.main_window.detected_emulator_types = emulator_types
             except Exception:
                 emulator_types = []
+        # Add "Phone" option to the list
+        if 'Phone' not in emulator_types:
+            emulator_types = emulator_types + ['Phone']
         self.config_panel.emulator_type_var = tk.StringVar(value=config.get('emulator_type', ''))
         self.add_variable_with_autosave('emulator_type', self.config_panel.emulator_type_var)
         values = emulator_types if emulator_types else ['']
         _, emu_type_combo = self.create_setting_row(
             adb_frame,
-            "Emulator Type:",
+            "Device/Emulator Type:",
             'optionmenu',
             values=values,
-            variable=self.config_panel.emulator_type_var
+            variable=self.config_panel.emulator_type_var,
+            command=lambda _: self.on_device_type_change()
         )
         
         # Device Address
@@ -143,3 +148,18 @@ class MainTab(BaseTab):
         training_tab = self.config_panel.get_tab('training')
         if training_tab and hasattr(training_tab, 'update_unity_fields_visibility'):
             training_tab.update_unity_fields_visibility()
+    
+    def on_device_type_change(self):
+        """Handle device/emulator type change - show warning for Phone option"""
+        device_type = self.config_panel.emulator_type_var.get()
+        
+        if device_type == 'Phone':
+            messagebox.showinfo(
+                "Phone Device Notice",
+                "When using a Phone device:\n\n"
+                "• Auto address detection won't work.\n"
+                "• You need to manually enter the ADB address.\n"
+                "• The device must have a resolution of 1080x1920 (Portrait).\n\n"
+                "Please ensure your phone is in portrait mode and "
+                "USB debugging is enabled."
+            )

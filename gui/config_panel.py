@@ -38,6 +38,9 @@ class ConfigPanel(ctk.CTkFrame):
         self.tabview = ctk.CTkTabview(self, fg_color=colors['bg_light'], corner_radius=10)
         self.tabview.pack(fill=tk.BOTH, expand=True, padx=15, pady=(0, 15))
         
+        # Configure the segmented button to have smaller font for full text visibility
+        self.tabview._segmented_button.configure(font=get_font('tab_label'))
+        
         # Load modular tabs
         self._load_modular_tabs()
     

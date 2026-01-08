@@ -10,16 +10,21 @@ try:
     from .status_panel import StatusPanel
     from .log_panel import LogPanel
     from .bot_controller import BotController
+    from .font_manager import init_font_scaling
 except ImportError:
     from config_panel import ConfigPanel
     from status_panel import StatusPanel
     from log_panel import LogPanel
     from bot_controller import BotController
+    from font_manager import init_font_scaling
 
 class MainWindow:
     def __init__(self, root):
         self.root = root
         self.root.title("Uma Musume Auto Train")
+        
+        # Initialize font scaling based on screen DPI (must be done early)
+        init_font_scaling(root)
         
         # Calculate responsive geometry based on screen size
         self._set_responsive_geometry()
@@ -38,6 +43,7 @@ class MainWindow:
             'bg_light': '#3c3c3c',
             'text_light': '#ffffff',
             'text_gray': '#b0b0b0',
+            'text_muted': '#888888',
             'accent_blue': '#1f538d',
             'accent_green': '#2d5a27',
             'accent_red': '#8b2635',

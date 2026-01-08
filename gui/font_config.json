@@ -22,6 +22,16 @@
       "size": 14,
       "weight": "normal"
     },
+    "body": {
+      "family": "Segoe UI",
+      "size": 13,
+      "weight": "normal"
+    },
+    "body_bold": {
+      "family": "Segoe UI",
+      "size": 13,
+      "weight": "bold"
+    },
     "body_medium": {
       "family": "Segoe UI",
       "size": 14,
@@ -110,6 +120,11 @@
     "tooltip": {
       "family": "Segoe UI",
       "size": 10,
+      "weight": "normal"
+    },
+    "tab_label": {
+      "family": "Segoe UI",
+      "size": 11,
       "weight": "normal"
     }
   },

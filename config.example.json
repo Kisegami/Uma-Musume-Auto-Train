@@ -91,6 +91,10 @@
   "mode": "ura",
   "debug_mode": false,
   "stop_on_event_detection_failure": false,
+  "events": {
+    "uma_event_file": "",
+    "support_card_template": ""
+  },
   "update": {
     "auto_update": true,
     "install_dependencies": true,
