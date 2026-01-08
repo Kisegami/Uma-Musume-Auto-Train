@@ -52,11 +52,11 @@ class ChoiceEditorWindow(QDialog):
         
         # Color based on type
         primary_color = COLORS['accent_green'] if self.choice_type == "Good" else COLORS['accent_red']
-        icon = "✓" if self.choice_type == "Good" else "✗"
+        icon_text = "[+]" if self.choice_type == "Good" else "[-]"
         
         # Header
         header = QHBoxLayout()
-        title = QLabel(f"{icon} Edit {self.choice_type} Choices")
+        title = QLabel(f"{icon_text} Edit {self.choice_type} Choices")
         title.setStyleSheet(f"font-size: 20px; font-weight: bold; color: {primary_color};")
         header.addWidget(title)
         header.addStretch()
@@ -232,7 +232,7 @@ class ChoiceEditorWindow(QDialog):
             with open(self.event_file, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=4, ensure_ascii=False)
             
-            QMessageBox.information(self, "Success", f"✓ Saved {len(choices)} {self.choice_type.lower()} choices!")
+            QMessageBox.information(self, "Success", f"Saved {len(choices)} {self.choice_type.lower()} choices!")
             self.accept()
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to save: {e}")

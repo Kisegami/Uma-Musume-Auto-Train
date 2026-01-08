@@ -36,14 +36,26 @@ class StatusPanel(QFrame):
         header.addStretch()
         layout.addLayout(header)
         
-        # Info grid: Year, Turn, Energy, Mood
+        # Info grid: Year (wider), Energy, Mood (Turn removed)
         info_grid = QGridLayout()
-        info_grid.setSpacing(16)
+        info_grid.setSpacing(12)
         
-        self.year_val = self._add_info_item(info_grid, "Year", "1", 0, 0)
-        self.turn_val = self._add_info_item(info_grid, "Turn", "1/78", 0, 1)
-        self.energy_val = self._add_info_item(info_grid, "Energy", "100", 0, 2)
+        # Mood colors mapping
+        self.mood_colors = {
+            "GREAT": "#ec4899",    # Pink
+            "GOOD": "#f97316",     # Orange
+            "NORMAL": "#eab308",   # Yellow
+            "BAD": "#3b82f6",      # Blue
+            "AWFUL": "#a855f7"     # Purple
+        }
+        
+        # Year takes 2 columns for more space
+        self.year_val = self._add_info_item(info_grid, "Year", "Unknown Year", 0, 0, colspan=2)
+        self.energy_val = self._add_info_item(info_grid, "Energy", "100%", 0, 2)
         self.mood_val = self._add_info_item(info_grid, "Mood", "GREAT", 0, 3)
+        
+        # Initialize mood with pink color for GREAT
+        self.mood_val.setStyleSheet(f"color: {self.mood_colors['GREAT']}; font-size: 14px; font-weight: bold;")
         
         layout.addLayout(info_grid)
         
@@ -52,9 +64,9 @@ class StatusPanel(QFrame):
         stats_grid.setSpacing(6)
         
         self.stat_bars = {}
-        stats = [("spd", "SPD", COLORS['accent_blue']), ("sta", "STA", COLORS['accent_green']),
-                 ("pwr", "PWR", COLORS['accent_red']), ("guts", "GUT", COLORS['accent_orange']),
-                 ("wit", "WIT", COLORS['accent_primary'])]
+        stats = [("spd", "SPD", "#3b82f6"), ("sta", "STA", "#ef4444"),
+                 ("pwr", "PWR", "#eab308"), ("guts", "GUT", "#ec4899"),
+                 ("wit", "WIT", "#22c55e")]
         
         for i, (key, label, color) in enumerate(stats):
             lbl = QLabel(label)
@@ -77,7 +89,7 @@ class StatusPanel(QFrame):
         
         layout.addLayout(stats_grid)
     
-    def _add_info_item(self, grid, label, value, row, col):
+    def _add_info_item(self, grid, label, value, row, col, colspan=1):
         widget = QWidget()
         vl = QVBoxLayout(widget)
         vl.setContentsMargins(0, 0, 0, 0)
@@ -91,17 +103,32 @@ class StatusPanel(QFrame):
         val.setStyleSheet(f"color: {COLORS['text_primary']}; font-size: 14px; font-weight: bold;")
         vl.addWidget(val)
         
-        grid.addWidget(widget, row, col)
+        grid.addWidget(widget, row, col, 1, colspan)
         return val
     
     def update_status(self, year, energy, turn, mood, goal_met, stats):
         """Update all values"""
         self.year_val.setText(str(year))
-        self.turn_val.setText(f"{turn}/78")
-        self.energy_val.setText(str(energy))
-        self.mood_val.setText(mood)
+        self.energy_val.setText(f"{energy}%")
+        
+        # Update mood with color
+        mood_upper = mood.upper()
+        self.mood_val.setText(mood_upper)
+        mood_color = self.mood_colors.get(mood_upper, COLORS['text_primary'])
+        self.mood_val.setStyleSheet(f"color: {mood_color}; font-size: 14px; font-weight: bold;")
         
         if stats:
             for key, val in stats.items():
                 if key in self.stat_bars:
                     self.stat_bars[key].setValue(int(val))
+    
+    def update_from_bot_data(self, status):
+        """Update from bot controller data format (compatibility method)"""
+        year = status.get('year', 'Unknown Year')
+        energy = status.get('energy', 0)
+        turn = status.get('turn', 'Unknown')
+        mood = status.get('mood', 'Unknown')
+        goal_met = status.get('goal_met', False)
+        stats = status.get('stats', {})
+        
+        self.update_status(year, energy, turn, mood, goal_met, stats)

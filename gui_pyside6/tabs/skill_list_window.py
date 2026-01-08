@@ -841,7 +841,7 @@ class SkillListWindow(QDialog):
                         self.child_upgrades[rare_skill] = skill_to_add
                         self.entry.clear()
                         self._refresh()
-                        self._show_status(f"✓ Auto-linked '{skill_to_add}' as child of '{rare_skill}'")
+                        self._show_status(f"Auto-linked '{skill_to_add}' as child of '{rare_skill}'")
                         return
         
         # Check if this is a Rare skill and its child is already in list
@@ -855,7 +855,7 @@ class SkillListWindow(QDialog):
                 self.child_upgrades[skill_to_add] = child_base
                 self.entry.clear()
                 self._refresh()
-                self._show_status(f"✓ Replaced '{child_base}' with '{skill_to_add}' and auto-linked as child")
+                self._show_status(f"Replaced '{child_base}' with '{skill_to_add}' and auto-linked as child")
                 return
         
         # Normal add
@@ -863,7 +863,7 @@ class SkillListWindow(QDialog):
         self.entry.clear()
         self._refresh()
         rarity = get_rarity(skill_to_add)
-        self._show_status(f"✓ Added {rarity} skill: {skill_to_add}")
+        self._show_status(f"Added {rarity} skill: {skill_to_add}")
     
     def _reorder(self, from_idx, to_idx):
         """Reorder skills."""
@@ -886,12 +886,12 @@ class SkillListWindow(QDialog):
             removed_child = self.child_upgrades[skill]
             del self.child_upgrades[skill]
             self._refresh()
-            self._show_status(f"✓ Removed child skill '{removed_child}' from '{skill}'")
+            self._show_status(f"Removed child skill '{removed_child}' from '{skill}'")
         else:
             # Add child using base name
             self.child_upgrades[skill] = child_base
             self._refresh()
-            self._show_status(f"✓ Added child skill '{child_base}' to '{skill}'")
+            self._show_status(f"Added child skill '{child_base}' to '{skill}'")
     
     def _delete(self, index):
         """Delete skill with confirmation."""
@@ -916,9 +916,9 @@ class SkillListWindow(QDialog):
             if has_child:
                 child_name = self.child_upgrades[skill]
                 del self.child_upgrades[skill]
-                self._show_status(f"✓ Deleted '{skill}' and child '{child_name}'")
+                self._show_status(f"Deleted '{skill}' and child '{child_name}'")
             else:
-                self._show_status(f"✓ Deleted '{skill}'")
+                self._show_status(f"Deleted '{skill}'")
             self._refresh()
     
     def _save(self):
@@ -945,7 +945,7 @@ class SkillListWindow(QDialog):
                 json.dump(data, f, indent=2, ensure_ascii=False)
             
             child_count = len(self.child_upgrades)
-            msg = f"✓ Successfully saved {len(self.skills)} skill(s)"
+            msg = f"Successfully saved {len(self.skills)} skill(s)"
             if child_count > 0:
                 msg += f" with {child_count} child upgrade(s)"
             

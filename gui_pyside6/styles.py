@@ -64,6 +64,7 @@ QPushButton#sidebarBtn {{
     padding: 12px 16px;
     text-align: left;
     font-size: 14px;
+    font-weight: 600;
 }}
 
 QPushButton#sidebarBtn:hover {{
@@ -74,6 +75,7 @@ QPushButton#sidebarBtn:hover {{
 QPushButton#sidebarBtn:checked {{
     background-color: {COLORS['accent_primary']};
     color: {COLORS['text_primary']};
+    font-weight: 700;
 }}
 
 /* ==================== Cards/Panels ==================== */
@@ -180,7 +182,7 @@ QPushButton#flat:hover {{
 }}
 
 /* ==================== Inputs ==================== */
-QLineEdit, QSpinBox, QDoubleSpinBox {{
+QLineEdit {{
     background-color: {COLORS['bg_input']};
     color: {COLORS['text_primary']};
     border: 1px solid {COLORS['border']};
@@ -189,8 +191,67 @@ QLineEdit, QSpinBox, QDoubleSpinBox {{
     min-height: 18px;
 }}
 
-QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus {{
+QLineEdit:focus {{
     border-color: {COLORS['accent_primary']};
+}}
+
+/* ==================== SpinBox ==================== */
+QSpinBox, QDoubleSpinBox {{
+    background-color: {COLORS['bg_input']};
+    color: {COLORS['text_primary']};
+    border: 1px solid {COLORS['border']};
+    border-radius: 6px;
+    padding: 8px 12px;
+    padding-right: 24px;
+    min-height: 18px;
+}}
+
+QSpinBox:focus, QDoubleSpinBox:focus {{
+    border-color: {COLORS['accent_primary']};
+}}
+
+QSpinBox::up-button, QDoubleSpinBox::up-button {{
+    subcontrol-origin: border;
+    subcontrol-position: top right;
+    width: 20px;
+    border: none;
+    background-color: {COLORS['bg_input']};
+    border-top-right-radius: 5px;
+    border-left: 1px solid {COLORS['border']};
+}}
+
+QSpinBox::up-button:hover, QDoubleSpinBox::up-button:hover {{
+    background-color: {COLORS['bg_hover']};
+}}
+
+QSpinBox::up-arrow, QDoubleSpinBox::up-arrow {{
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 6px solid {COLORS['text_secondary']};
+}}
+
+QSpinBox::down-button, QDoubleSpinBox::down-button {{
+    subcontrol-origin: border;
+    subcontrol-position: bottom right;
+    width: 20px;
+    border: none;
+    background-color: {COLORS['bg_input']};
+    border-bottom-right-radius: 5px;
+    border-left: 1px solid {COLORS['border']};
+}}
+
+QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover {{
+    background-color: {COLORS['bg_hover']};
+}}
+
+QSpinBox::down-arrow, QDoubleSpinBox::down-arrow {{
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid {COLORS['text_secondary']};
 }}
 
 /* ==================== ComboBox ==================== */
@@ -200,6 +261,7 @@ QComboBox {{
     border: 1px solid {COLORS['border']};
     border-radius: 6px;
     padding: 8px 12px;
+    padding-right: 24px;
     min-height: 18px;
 }}
 
@@ -209,19 +271,6 @@ QComboBox:hover {{
 
 QComboBox:focus {{
     border-color: {COLORS['accent_primary']};
-}}
-
-QComboBox::drop-down {{
-    border: none;
-    width: 24px;
-}}
-
-QComboBox::down-arrow {{
-    image: none;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 6px solid {COLORS['text_secondary']};
-    margin-right: 8px;
 }}
 
 QComboBox QAbstractItemView {{
@@ -274,7 +323,7 @@ QGroupBox {{
     border-radius: 10px;
     margin-top: 20px;
     padding-top: 12px;
-    font-weight: 600;
+    font-weight: 400;
 }}
 
 QGroupBox::title {{
@@ -284,6 +333,8 @@ QGroupBox::title {{
     padding: 0 8px;
     color: {COLORS['text_primary']};
     background-color: {COLORS['bg_card']};
+    font-weight: 700;
+    font-size: 14px;
 }}
 
 /* ==================== ScrollArea ==================== */

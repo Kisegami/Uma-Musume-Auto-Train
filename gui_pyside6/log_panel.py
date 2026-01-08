@@ -82,6 +82,10 @@ class LogPanel(QFrame):
         """Clear logs"""
         self.log_text.clear()
     
+    def add_log_entry(self, message, level="info"):
+        """Alias for add_log (compatibility with bot_controller)"""
+        self.add_log(message, level)
+    
     def update_bot_state(self, running):
         """Update based on bot state (no buttons here now)"""
         pass

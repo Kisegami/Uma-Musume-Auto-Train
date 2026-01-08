@@ -15,8 +15,10 @@ from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QFont, QIcon
 
 from .styles import MAIN_STYLESHEET, COLORS
+from .icon_helper import get_icon
 from .status_panel import StatusPanel
 from .log_panel import LogPanel
+from .bot_controller import BotController
 
 # Import all 9 tabs matching original GUI
 from .tabs.main_tab import MainTab
@@ -33,11 +35,14 @@ from .tabs.update_tab import UpdateTab
 class SidebarButton(QPushButton):
     """Custom sidebar navigation button"""
     
-    def __init__(self, text, icon_text="", parent=None):
+    def __init__(self, text, icon_name=None, parent=None):
         super().__init__(parent)
         self.setObjectName("sidebarBtn")
         self.setCheckable(True)
-        self.setText(f"  {icon_text}  {text}" if icon_text else f"  {text}")
+        self.setText(f"  {text}")
+        self.setFont(QFont("Segoe UI", 10, QFont.Bold))
+        if icon_name:
+            self.setIcon(get_icon(icon_name, "white"))
         self.setCursor(Qt.PointingHandCursor)
         self.setMinimumHeight(40)
 
@@ -72,6 +77,13 @@ class MainWindow(QMainWindow):
         # Initial log
         self.add_log("Uma Musume Auto-Train initialized")
         self.add_log(f"Config: {self.config_file}")
+        
+        # Add Qt compatibility layer for BotController
+        # BotController expects root.after() like tkinter, so we provide it
+        self.root = self  # BotController accesses self.main_window.root
+        
+        # Initialize bot controller (must be after GUI components are created)
+        self.bot_controller = BotController(self)
     
     def _set_responsive_size(self):
         """Set responsive window size"""
@@ -135,15 +147,15 @@ class MainWindow(QMainWindow):
         # Navigation buttons - 9 tabs matching original GUI
         self.nav_buttons = []
         nav_items = [
-            ("Main", "⚙"),
-            ("Performance", "📊"),
-            ("Training", "🏃"),
-            ("Racing", "🏇"),
-            ("Event", "📅"),
-            ("Skill", "⭐"),
-            ("Restart", "🔄"),
-            ("Others", "🔧"),
-            ("Update", "📥"),
+            ("Main", "fa5s.cog"),
+            ("Performance", "fa5s.chart-bar"),
+            ("Training", "fa5s.running"),
+            ("Racing", "fa5s.flag-checkered"),
+            ("Event", "fa5s.calendar"),
+            ("Skill", "fa5s.star"),
+            ("Restart", "fa5s.redo"),
+            ("Others", "fa5s.wrench"),
+            ("Update", "fa5s.download"),
         ]
         
         for text, icon in nav_items:
@@ -155,7 +167,8 @@ class MainWindow(QMainWindow):
         sidebar_layout.addStretch()
         
         # Start/Stop button at bottom of sidebar
-        self.start_btn = QPushButton("▶  Start Bot")
+        self.start_btn = QPushButton("  Start Bot")
+        self.start_btn.setIcon(get_icon('play', 'white'))
         self.start_btn.setObjectName("primary")
         self.start_btn.setMinimumHeight(44)
         self.start_btn.setCursor(Qt.PointingHandCursor)
@@ -304,24 +317,42 @@ class MainWindow(QMainWindow):
     # Bot control
     def start_bot(self):
         """Start bot"""
-        self.bot_running = True
-        self.start_btn.setText("⬛  Stop Bot")
-        self.start_btn.setObjectName("danger")
-        self.start_btn.setStyleSheet(f"background-color: {COLORS['accent_red']}; border: none; color: white;")
-        self.status_label.setText("● Running")
-        self.status_label.setStyleSheet(f"color: {COLORS['accent_green']};")
-        self.add_log("Bot started", "success")
-        if hasattr(self, 'log_panel'):
-            self.log_panel.update_bot_state(True)
+        self.add_log("start_bot() called", "info")
+        if hasattr(self, 'bot_controller'):
+            self.add_log("BotController exists, calling start_bot()", "info")
+            try:
+                self.bot_controller.start_bot()
+                self.bot_running = True
+                # Update UI
+                self.start_btn.setText("  Stop Bot")
+                self.start_btn.setIcon(get_icon('stop', 'white'))
+                self.start_btn.setObjectName("danger")
+                self.start_btn.setStyleSheet(f"background-color: {COLORS['accent_red']}; border: none; color: white;")
+                self.status_label.setText("● Running")
+                self.status_label.setStyleSheet(f"color: {COLORS['accent_green']};")
+                if hasattr(self, 'log_panel'):
+                    self.log_panel.update_bot_state(True)
+            except Exception as e:
+                self.add_log(f"Error starting bot: {e}", "error")
+                import traceback
+                self.add_log(traceback.format_exc(), "error")
+        else:
+            self.add_log("BotController not found!", "error")
     
     def stop_bot(self):
         """Stop bot"""
-        self.bot_running = False
-        self.start_btn.setText("▶  Start Bot")
-        self.start_btn.setObjectName("primary")
-        self.start_btn.setStyleSheet(f"background-color: {COLORS['accent_green']}; border: none; color: white;")
-        self.status_label.setText("● Inactive")
-        self.status_label.setStyleSheet(f"color: {COLORS['text_muted']};")
+        if hasattr(self, 'bot_controller'):
+            self.bot_controller.stop_bot()
+            self.bot_running = False
+            # Update UI
+            self.start_btn.setText("  Start Bot")
+            self.start_btn.setIcon(get_icon('play', 'white'))
+            self.start_btn.setObjectName("primary")
+            self.start_btn.setStyleSheet(f"background-color: {COLORS['accent_green']}; border: none; color: white;")
+            self.status_label.setText("● Inactive")
+            self.status_label.setStyleSheet(f"color: {COLORS['text_muted']};")
+            if hasattr(self, 'log_panel'):
+                self.log_panel.update_bot_state(False)
         self.add_log("Bot stopped", "warning")
         if hasattr(self, 'log_panel'):
             self.log_panel.update_bot_state(False)
@@ -337,6 +368,11 @@ class MainWindow(QMainWindow):
             self.log_panel.add_log(message, level)
         else:
             print(f"[{level.upper()}] {message}")
+    
+    def after(self, delay_ms, callback, *args):
+        """Qt compatibility wrapper for tkinter's root.after() method"""
+        from PySide6.QtCore import QTimer
+        QTimer.singleShot(delay_ms, lambda: callback(*args))
     
     def closeEvent(self, event):
         """Handle close"""

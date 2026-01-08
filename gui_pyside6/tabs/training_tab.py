@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, Signal
 
 from ..styles import COLORS
+from ..icon_helper import get_icon
 
 
 class DraggableListWidget(QListWidget):
@@ -53,31 +54,53 @@ class TrainingTab(QScrollArea):
         priority_group = QGroupBox("Stats Priority")
         priority_layout = QVBoxLayout(priority_group)
         
-        instruction = QLabel("Click to swap positions (left = highest priority):")
-        instruction.setStyleSheet(f"color: {COLORS['text_muted']};")
+        instruction = QLabel("Drag and drop to reorder (left = highest priority):")
+        instruction.setStyleSheet(f"color: {COLORS['text_muted']}; font-weight: normal;")
+        instruction.setAlignment(Qt.AlignCenter)
         priority_layout.addWidget(instruction)
+        
+        # Container to center the stat boxes
+        priority_container = QHBoxLayout()
+        priority_container.setAlignment(Qt.AlignCenter)
         
         # Horizontal stat priority list
         self.priority_list = DraggableListWidget()
         self.priority_list.setFlow(QListWidget.LeftToRight)
         self.priority_list.setWrapping(False)
-        self.priority_list.setFixedHeight(50)
-        self.priority_list.setSpacing(4)
+        self.priority_list.setFixedHeight(60)
+        self.priority_list.setSpacing(8)
+        self.priority_list.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.priority_list.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.priority_list.orderChanged.connect(self._on_priority_changed)
         self.priority_list.setStyleSheet(f"""
-            QListWidget {{ background-color: transparent; border: none; }}
+            QListWidget {{ 
+                background-color: transparent; 
+                border: none; 
+                outline: none;
+            }}
             QListWidget::item {{
                 background-color: {COLORS['accent_primary']};
                 color: white;
-                border-radius: 8px;
-                padding: 8px 16px;
+                border-radius: 10px;
+                padding: 10px 16px;
                 margin: 2px;
-                min-width: 50px;
+                font-weight: bold;
+                font-size: 13px;
+                border: 2px solid {COLORS['accent_primary']};
             }}
-            QListWidget::item:selected {{ background-color: {COLORS['accent_green']}; }}
-            QListWidget::item:hover:!selected {{ background-color: {COLORS['accent_blue']}; }}
+            QListWidget::item:selected {{ 
+                background-color: {COLORS['accent_green']}; 
+                border: 2px solid white;
+            }}
+            QListWidget::item:hover:!selected {{ 
+                background-color: {COLORS['accent_blue']}; 
+                border: 2px solid {COLORS['accent_blue']};
+            }}
         """)
-        priority_layout.addWidget(self.priority_list)
+        self.priority_list.setFixedWidth(550)
+        priority_container.addWidget(self.priority_list)
+        
+        priority_layout.addLayout(priority_container)
         layout.addWidget(priority_group)
         
         # ==================== Training Settings Section ====================
@@ -114,8 +137,8 @@ class TrainingTab(QScrollArea):
         # ==================== Unity Mode Settings ====================
         self.unity_widget = QWidget()
         unity_layout = QVBoxLayout(self.unity_widget)
-        unity_layout.setContentsMargins(0, 8, 0, 0)
-        unity_layout.setSpacing(8)
+        unity_layout.setContentsMargins(0, 12, 0, 0)
+        unity_layout.setSpacing(12)
         
         # Use dating instead of rest (Unity mode)
         self.use_dating = QCheckBox("Use dating instead of rest")
@@ -125,14 +148,19 @@ class TrainingTab(QScrollArea):
         # Spirit Burst Enabled Stats (Unity mode)
         spirit_widget = QWidget()
         spirit_layout = QVBoxLayout(spirit_widget)
-        spirit_layout.setContentsMargins(0, 0, 0, 0)
-        spirit_layout.setSpacing(4)
-        spirit_layout.addWidget(QLabel("Spirit Burst Enabled Stats:"))
+        spirit_layout.setContentsMargins(0, 20, 0, 0)
+        spirit_layout.setSpacing(10)
+        
+        spirit_label = QLabel("Spirit Burst Enabled Stats:")
+        spirit_label.setStyleSheet(f"color: {COLORS['text_muted']}; font-weight: bold;")
+        spirit_layout.addWidget(spirit_label)
         
         spirit_row = QHBoxLayout()
+        spirit_row.setSpacing(24)
         self.spirit_burst_vars = {}
         for stat in ['spd', 'sta', 'pwr', 'guts', 'wit']:
             cb = QCheckBox(stat.upper())
+            cb.setStyleSheet("QCheckBox { spacing: 8px; }")
             cb.stateChanged.connect(self._save_training)
             self.spirit_burst_vars[stat] = cb
             spirit_row.addWidget(cb)
@@ -203,7 +231,8 @@ class TrainingTab(QScrollArea):
         layout.addWidget(caps_group)
         
         # ==================== Training Score (Collapsible) ====================
-        self.score_btn = QPushButton("▶ Training Score Settings (Click to expand)")
+        self.score_btn = QPushButton("  Training Score Settings (Click to expand)")
+        self.score_btn.setIcon(get_icon('expand'))
         self.score_btn.setCheckable(True)
         self.score_btn.clicked.connect(self._toggle_score_section)
         layout.addWidget(self.score_btn)
@@ -249,10 +278,12 @@ class TrainingTab(QScrollArea):
     def _toggle_score_section(self):
         """Toggle training score section visibility"""
         if self.score_btn.isChecked():
-            self.score_btn.setText("▼ Training Score Settings (Click to collapse)")
+            self.score_btn.setText("  Training Score Settings (Click to collapse)")
+            self.score_btn.setIcon(get_icon('collapse'))
             self.score_section.show()
         else:
-            self.score_btn.setText("▶ Training Score Settings (Click to expand)")
+            self.score_btn.setText("  Training Score Settings (Click to expand)")
+            self.score_btn.setIcon(get_icon('expand'))
             self.score_section.hide()
     
     def load_config(self):

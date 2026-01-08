@@ -269,7 +269,7 @@ class UmaEventWindow(QDialog):
             with open(filepath, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=4, ensure_ascii=False)
             
-            QMessageBox.information(self, "Success", f"✓ Saved {len(self.custom_choices)} choices to {os.path.basename(filepath)}")
+            QMessageBox.information(self, "Success", f"Saved {len(self.custom_choices)} choices to {os.path.basename(filepath)}")
             self.accept()
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to save: {e}")
