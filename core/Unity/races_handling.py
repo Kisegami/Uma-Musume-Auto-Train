@@ -2,7 +2,6 @@ import time
 import json
 import random
 import numpy as np
-import pytesseract
 from PIL import ImageStat
 
 from utils.recognizer import locate_on_screen, match_template, locate_all_on_screen, max_match_confidence

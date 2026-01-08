@@ -4,7 +4,7 @@ import os
 
 from PIL import Image, ImageEnhance
 from utils.screenshot import capture_region, enhanced_screenshot, enhanced_screenshot_for_failure, enhanced_screenshot_for_year, take_screenshot
-from core.Ura.ocr import extract_text, extract_number, extract_turn_number, extract_failure_text, extract_failure_text_with_confidence
+from core.Ura.ocr import extract_text, extract_number
 from utils.recognizer import match_template, max_match_confidence
 from core.Ura.skill_auto_purchase import execute_skill_purchases, click_image_button, extract_skill_points
 from core.Ura.skill_recognizer import scan_all_skills_with_scroll
@@ -123,7 +123,6 @@ def check_turn(screenshot=None):
         log_debug(f"Saved enhanced turn image to debug_turn_enhanced.png")
         
         # Use the best method found in testing: basic processing + PSM 7
-        import pytesseract
         import re
         
         # Apply basic grayscale processing (like test_turn_basic_grayscale)
@@ -131,7 +130,7 @@ def check_turn(screenshot=None):
         turn_img = turn_img.resize((turn_img.width * 2, turn_img.height * 2), Image.BICUBIC)
         
         # Use PSM 7 (single line) which had 94% confidence in testing
-        turn_text = pytesseract.image_to_string(turn_img, config='--oem 3 --psm 7').strip()
+        turn_text = extract_text(turn_img, config='--oem 3 --psm 7')
         log_debug(f"Turn OCR raw result: '{turn_text}'")
         
         # Check for "Race Day" first (before character replacements that would corrupt it)
@@ -162,8 +161,7 @@ def check_current_year(screenshot=None):
     """Fast year detection using regular screenshot"""
     year_img = enhanced_screenshot(YEAR_REGION, screenshot)
     
-    import pytesseract
-    text = pytesseract.image_to_string(year_img).strip()
+    text = extract_text(year_img)
     
     if text:
         # Clean OCR result - correct common OCR errors
@@ -180,8 +178,7 @@ def check_criteria(screenshot=None):
     criteria_img = enhanced_screenshot(CRITERIA_REGION, screenshot)
     
     # Use single, fast OCR configuration
-    import pytesseract
-    text = pytesseract.image_to_string(criteria_img, config='--oem 3 --psm 7').strip()
+    text = extract_text(criteria_img, config='--oem 3 --psm 7')
     
     if text:
         # Apply common OCR corrections
@@ -228,8 +225,7 @@ def check_goal_name(screenshot=None):
             pass
 
     # Primary OCR path: single line recognition
-    import pytesseract
-    text = pytesseract.image_to_string(goal_img, config='--oem 3 --psm 7').strip()
+    text = extract_text(goal_img, config='--oem 3 --psm 7')
 
     if not text:
         # Fallback once to the shared OCR helper
@@ -405,7 +401,6 @@ def check_current_stats(screenshot=None):
     """
     from utils.constants_ura import SPD_REGION, STA_REGION, PWR_REGION, GUTS_REGION, WIT_REGION
     from utils.screenshot import take_screenshot
-    import pytesseract
     from PIL import Image, ImageEnhance
     
     # Use provided screenshot or take new one if not provided
@@ -432,7 +427,7 @@ def check_current_stats(screenshot=None):
             stat_img = ImageEnhance.Contrast(stat_img).enhance(2.0)  # Increase contrast
             
             # OCR the stat value
-            stat_text = pytesseract.image_to_string(stat_img, config='--oem 3 --psm 7 -c tessedit_char_whitelist=0123456789').strip()
+            stat_text = extract_number(stat_img, config='--oem 3 --psm 7 -c tessedit_char_whitelist=0123456789')
             
             # Try to extract the number
             if stat_text:
