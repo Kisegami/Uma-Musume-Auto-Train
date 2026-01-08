@@ -204,12 +204,12 @@ def do_train(train, already_on_training_screen=False):
     """
     log_debug(f"Performing {train.upper()} training...")
     
-    # First, go to training screen unless already there
-    if not already_on_training_screen:
-        if not go_to_training():
-            log_debug(f"Failed to go to training screen, cannot perform {train.upper()} training")
-            return
-        time.sleep(0.3)  # Wait for screen to load
+    # # First, go to training screen unless already there
+    # if not already_on_training_screen:
+    #     if not go_to_training():
+    #         log_debug(f"Failed to go to training screen, cannot perform {train.upper()} training")
+    #         return
+    #     time.sleep(0.3)  # Wait for screen to load
     
     # Fixed coordinates for each training type
     training_coords = {
