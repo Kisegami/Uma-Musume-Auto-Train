@@ -1,0 +1,25 @@
+{
+    "TemplateName": "s",
+    "CustomChoices": [
+        {
+            "EventName": "Unexpected Side",
+            "CardSlug": "30036-riko-kashimoto",
+            "SelectedOption": "Middle Option"
+        },
+        {
+            "EventName": "(❯) Just Because ♪",
+            "CardSlug": "30072-mayano-top-gun",
+            "SelectedOption": "Bottom Option"
+        },
+        {
+            "EventName": "Snack Advice for Mayano!",
+            "CardSlug": "30072-mayano-top-gun",
+            "SelectedOption": "Bottom Option"
+        },
+        {
+            "EventName": "Marvelous, No Question ☆",
+            "CardSlug": "30074-marvelous-sunday",
+            "SelectedOption": "Bottom Option"
+        }
+    ]
+}
