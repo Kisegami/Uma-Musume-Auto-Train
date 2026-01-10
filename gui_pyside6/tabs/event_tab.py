@@ -12,6 +12,8 @@ from PySide6.QtWidgets import (
     QPushButton, QGroupBox, QFrame, QScrollArea, QMessageBox, QInputDialog, QLineEdit
 )
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap
+from PySide6.QtWidgets import QCompleter
 
 from ..styles import COLORS
 
@@ -28,9 +30,11 @@ class EventTab(QScrollArea):
         # Load data
         self.uma_data = self._load_uma_data()
         self.uma_names = ["All"] + sorted([uma.get("UmaName", "") for uma in self.uma_data])
+        self.uma_slug_map = self._build_uma_slug_map()
         self.support_templates = self._load_support_templates()
         
         self._create_ui()
+        self.load_config()
     
     def _load_uma_data(self):
         """Load Uma data from JSON"""
@@ -40,10 +44,20 @@ class EventTab(QScrollArea):
         except Exception:
             return []
     
+    def _build_uma_slug_map(self):
+        """Build a mapping from UmaName to UmaSlug"""
+        slug_map = {}
+        for uma in self.uma_data:
+            name = uma.get("UmaName", "")
+            slug = uma.get("UmaSlug", "")
+            if name and slug:
+                slug_map[name] = slug
+        return slug_map
+    
     def _load_support_templates(self):
         """Load support card templates"""
         templates = []
-        template_dir = os.path.join("template", "events")
+        template_dir = os.path.join("template", "Events", "Supports")
         if os.path.exists(template_dir):
             for filepath in glob.glob(os.path.join(template_dir, "SupportCards_*.json")):
                 try:
@@ -93,16 +107,55 @@ class EventTab(QScrollArea):
         uma_layout = QVBoxLayout(uma_group)
         uma_layout.setSpacing(12)
         
+        # Main content layout (image on left, controls on right)
+        uma_content_layout = QHBoxLayout()
+        uma_content_layout.setSpacing(16)
+        
+        # Uma character image
+        self.uma_image_label = QLabel()
+        self.uma_image_label.setFixedSize(80, 80)
+        self.uma_image_label.setStyleSheet(f"""
+            background-color: {COLORS['bg_card']};
+            border-radius: 8px;
+            border: 2px solid {COLORS['border']};
+        """)
+        self.uma_image_label.setAlignment(Qt.AlignCenter)
+        self.uma_image_label.setScaledContents(False)
+        uma_content_layout.addWidget(self.uma_image_label)
+        
+        # Right side controls
+        uma_controls_layout = QVBoxLayout()
+        uma_controls_layout.setSpacing(8)
+        
         uma_row = QHBoxLayout()
         uma_row.addWidget(QLabel("Uma Name:"))
         
-        # Searchable combo with filter
+        # Searchable combo - no prediction, filter on type, full list on click
         self.uma_combo = QComboBox()
         self.uma_combo.setEditable(True)
         self.uma_combo.setInsertPolicy(QComboBox.NoInsert)
         self.uma_combo.addItems(self.uma_names)
         self.uma_combo.setMinimumWidth(250)
-        self.uma_combo.lineEdit().textChanged.connect(self._filter_uma)
+        self.uma_combo.setStyleSheet(f"""
+            QComboBox QAbstractItemView {{
+                color: {COLORS['text_primary']};
+                background-color: {COLORS['bg_card']};
+                selection-background-color: {COLORS['accent_primary']};
+                selection-color: white;
+            }}
+            QComboBox QAbstractItemView::item:hover {{
+                background-color: {COLORS['bg_hover']};
+                color: {COLORS['text_primary']};
+            }}
+        """)
+        # Use completer for filtering (no inline completion)
+        completer = QCompleter(self.uma_names)
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        completer.setFilterMode(Qt.MatchContains)
+        completer.setCompletionMode(QCompleter.PopupCompletion)
+        self.uma_combo.setCompleter(completer)
+        self.uma_combo.currentTextChanged.connect(self._save_uma_selection)
+        self.uma_combo.currentTextChanged.connect(self._update_uma_image)
         uma_row.addWidget(self.uma_combo)
         
         uma_edit_btn = QPushButton("Edit Custom Choices")
@@ -111,11 +164,15 @@ class EventTab(QScrollArea):
         uma_row.addWidget(uma_edit_btn)
         
         uma_row.addStretch()
-        uma_layout.addLayout(uma_row)
+        uma_controls_layout.addLayout(uma_row)
         
         info = QLabel("Select a specific Uma to edit their event choices. 'All' cannot be edited.")
         info.setStyleSheet(f"color: {COLORS['text_muted']}; font-size: 12px;")
-        uma_layout.addWidget(info)
+        uma_controls_layout.addWidget(info)
+        
+        uma_content_layout.addLayout(uma_controls_layout)
+        uma_content_layout.addStretch()
+        uma_layout.addLayout(uma_content_layout)
         
         layout.addWidget(uma_group)
         
@@ -133,6 +190,7 @@ class EventTab(QScrollArea):
             self.template_combo.addItems(self.support_templates)
         else:
             self.template_combo.addItem("(No templates)")
+        self.template_combo.currentTextChanged.connect(self._save_template_selection)
         template_row.addWidget(self.template_combo)
         template_row.addStretch()
         support_layout.addLayout(template_row)
@@ -157,36 +215,38 @@ class EventTab(QScrollArea):
         btn_row.addStretch()
         support_layout.addLayout(btn_row)
         
+        # Deck Preview section
+        preview_label = QLabel("Deck Preview:")
+        preview_label.setStyleSheet(f"color: {COLORS['text_secondary']}; font-weight: bold; margin-top: 8px;")
+        support_layout.addWidget(preview_label)
+        
+        # Horizontal scroll area for card thumbnails
+        self.deck_scroll = QScrollArea()
+        self.deck_scroll.setWidgetResizable(True)
+        self.deck_scroll.setFixedHeight(100)
+        self.deck_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.deck_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.deck_scroll.setStyleSheet("background-color: #2a2a2a; border-radius: 8px;")
+        
+        self.deck_container = QWidget()
+        self.deck_layout = QHBoxLayout(self.deck_container)
+        self.deck_layout.setContentsMargins(8, 8, 8, 8)
+        self.deck_layout.setSpacing(8)
+        self.deck_layout.addStretch()
+        self.deck_scroll.setWidget(self.deck_container)
+        
+        support_layout.addWidget(self.deck_scroll)
+        
+        # Connect template change to preview update
+        self.template_combo.currentTextChanged.connect(self._update_deck_preview)
+        
         layout.addWidget(support_group)
         
         layout.addStretch()
         self.setWidget(container)
-    
-    def _filter_uma(self, text):
-        """Filter Uma combo based on typed text"""
-        try:
-            self.uma_combo.lineEdit().textChanged.disconnect(self._filter_uma)
-        except:
-            pass
         
-        try:
-            search = text.lower()
-            cursor_pos = self.uma_combo.lineEdit().cursorPosition()
-            
-            if not search:
-                filtered = self.uma_names
-            else:
-                filtered = [n for n in self.uma_names if search in n.lower()]
-            
-            self.uma_combo.clear()
-            self.uma_combo.addItems(filtered if filtered else self.uma_names)
-            self.uma_combo.setEditText(text)
-            self.uma_combo.lineEdit().setCursorPosition(cursor_pos)
-        finally:
-            try:
-                self.uma_combo.lineEdit().textChanged.connect(self._filter_uma)
-            except:
-                pass
+        # Initial preview update
+        self._update_deck_preview()
     
     def _open_choice_window(self, choice_type):
         """Open good/bad choice window"""
@@ -250,3 +310,163 @@ class EventTab(QScrollArea):
         from .support_event_window import SupportEventWindow
         dialog = SupportEventWindow(self, selected)
         dialog.exec()
+        # Update preview after editing
+        self._update_deck_preview()
+    
+    def _update_deck_preview(self):
+        """Update deck preview with card images from selected template"""
+        # Clear existing preview
+        while self.deck_layout.count() > 0:
+            item = self.deck_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+        
+        template_name = self.template_combo.currentText()
+        if not template_name or template_name == "(No templates)":
+            no_template = QLabel("No template selected")
+            no_template.setStyleSheet(f"color: {COLORS['text_muted']};")
+            self.deck_layout.addWidget(no_template)
+            self.deck_layout.addStretch()
+            return
+        
+        # Load template file
+        template_path = os.path.join("template", "events", "Supports", f"SupportCards_{template_name}.json")
+        if not os.path.exists(template_path):
+            no_file = QLabel(f"Template file not found")
+            no_file.setStyleSheet(f"color: {COLORS['text_muted']};")
+            self.deck_layout.addWidget(no_file)
+            self.deck_layout.addStretch()
+            return
+        
+        try:
+            with open(template_path, 'r', encoding='utf-8') as f:
+                template_data = json.load(f)
+        except Exception:
+            self.deck_layout.addWidget(QLabel("Failed to load template"))
+            self.deck_layout.addStretch()
+            return
+        
+        # Extract unique CardSlugs
+        card_slugs = []
+        seen = set()
+        for choice in template_data.get("CustomChoices", []):
+            slug = choice.get("CardSlug", "")
+            if slug and slug not in seen:
+                card_slugs.append(slug)
+                seen.add(slug)
+        
+        if not card_slugs:
+            no_cards = QLabel("No cards in template")
+            no_cards.setStyleSheet(f"color: {COLORS['text_muted']};")
+            self.deck_layout.addWidget(no_cards)
+            self.deck_layout.addStretch()
+            return
+        
+        # Load and display card images
+        assets_dir = os.path.join(os.path.dirname(__file__), "..", "assets", "supports")
+        for slug in card_slugs:
+            img_path = os.path.join(assets_dir, f"{slug}.png")
+            
+            card_widget = QLabel()
+            card_widget.setToolTip(slug)
+            
+            if os.path.exists(img_path):
+                pixmap = QPixmap(img_path)
+                if not pixmap.isNull():
+                    scaled = pixmap.scaledToHeight(80, Qt.SmoothTransformation)
+                    card_widget.setPixmap(scaled)
+                else:
+                    card_widget.setText(slug.split('-')[-1][:10])
+            else:
+                # Show text fallback with card name
+                card_widget.setText(slug.split('-')[-1][:10])
+                card_widget.setStyleSheet(f"color: {COLORS['text_secondary']}; padding: 8px; background: #3a3a3a; border-radius: 4px;")
+            
+            self.deck_layout.addWidget(card_widget)
+        
+        self.deck_layout.addStretch()
+    
+    def _save_uma_selection(self, uma_name):
+        """Save selected Uma name to config"""
+        if uma_name and uma_name in self.uma_names:
+            self.main_window.update_nested_config_value("events", "uma_event_file", uma_name)
+            self.main_window.save_config()
+    
+    def _update_uma_image(self, uma_name=None):
+        """Update the Uma character image based on selection"""
+        if uma_name is None:
+            uma_name = self.uma_combo.currentText()
+        
+        # Default placeholder if no Uma selected or "All"
+        if not uma_name or uma_name == "All" or uma_name not in self.uma_slug_map:
+            self.uma_image_label.clear()
+            self.uma_image_label.setText("?")
+            self.uma_image_label.setStyleSheet(f"""
+                background-color: {COLORS['bg_card']};
+                border-radius: 8px;
+                border: 2px solid {COLORS['border']};
+                color: {COLORS['text_muted']};
+                font-size: 24px;
+                font-weight: bold;
+            """)
+            return
+        
+        # Get the slug for this Uma
+        slug = self.uma_slug_map.get(uma_name, "")
+        if not slug:
+            return
+        
+        # Look for character image
+        assets_dir = os.path.join(os.path.dirname(__file__), "..", "assets", "characters")
+        img_path = os.path.join(assets_dir, f"{slug}.png")
+        
+        if os.path.exists(img_path):
+            pixmap = QPixmap(img_path)
+            if not pixmap.isNull():
+                # Scale to fit the label while maintaining aspect ratio
+                scaled = pixmap.scaled(76, 76, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                self.uma_image_label.setPixmap(scaled)
+                self.uma_image_label.setStyleSheet(f"""
+                    background-color: {COLORS['bg_card']};
+                    border-radius: 8px;
+                    border: 2px solid {COLORS['accent_primary']};
+                """)
+                return
+        
+        # Fallback: show first letter of Uma name
+        self.uma_image_label.clear()
+        self.uma_image_label.setText(uma_name[0] if uma_name else "?")
+        self.uma_image_label.setStyleSheet(f"""
+            background-color: {COLORS['bg_card']};
+            border-radius: 8px;
+            border: 2px solid {COLORS['border']};
+            color: {COLORS['text_secondary']};
+            font-size: 24px;
+            font-weight: bold;
+        """)
+    
+    def _save_template_selection(self, template_name):
+        """Save selected template to config"""
+        if template_name and template_name != "(No templates)":
+            self.main_window.update_nested_config_value("events", "support_card_template", template_name)
+            self.main_window.save_config()
+            self._update_deck_preview()
+    
+    def load_config(self):
+        """Load saved selections from config"""
+        config = self.main_window.get_config()
+        events = config.get("events", {})
+        
+        # Load uma selection
+        uma_name = events.get("uma_event_file", "All")
+        if uma_name in self.uma_names:
+            self.uma_combo.setCurrentText(uma_name)
+        
+        # Update Uma image
+        self._update_uma_image()
+        
+        # Load template selection
+        template = events.get("support_card_template", "")
+        if template and template in self.support_templates:
+            self.template_combo.setCurrentText(template)
+

@@ -15,6 +15,18 @@ from ..styles import COLORS
 from ..icon_helper import get_icon
 
 
+class NoScrollSpinBox(QSpinBox):
+    """SpinBox that ignores scroll wheel events"""
+    def wheelEvent(self, event):
+        event.ignore()
+
+
+class NoScrollDoubleSpinBox(QDoubleSpinBox):
+    """DoubleSpinBox that ignores scroll wheel events"""
+    def wheelEvent(self, event):
+        event.ignore()
+
+
 class DraggableListWidget(QListWidget):
     """Horizontal list widget with drag-drop reordering"""
     orderChanged = Signal(list)
@@ -117,14 +129,14 @@ class TrainingTab(QScrollArea):
         
         # Maximum Failure Rate
         settings_layout.addWidget(QLabel("Maximum Failure Rate:"), 1, 0)
-        self.failure_spin = QSpinBox()
+        self.failure_spin = NoScrollSpinBox()
         self.failure_spin.setRange(0, 100)
         self.failure_spin.valueChanged.connect(self._save_training)
         settings_layout.addWidget(self.failure_spin, 1, 1)
         
         # Minimum Energy
         settings_layout.addWidget(QLabel("Minimum Energy:"), 2, 0)
-        self.energy_spin = QSpinBox()
+        self.energy_spin = NoScrollSpinBox()
         self.energy_spin.setRange(0, 100)
         self.energy_spin.valueChanged.connect(self._save_training)
         settings_layout.addWidget(self.energy_spin, 2, 1)
@@ -134,26 +146,21 @@ class TrainingTab(QScrollArea):
         self.race_when_bad.stateChanged.connect(self._save_training)
         settings_layout.addWidget(self.race_when_bad, 3, 0, 1, 2)
         
+        # Use dating instead of rest (works for both URA and Unity)
+        self.use_dating = QCheckBox("Use dating instead of rest")
+        self.use_dating.stateChanged.connect(self._save_training)
+        settings_layout.addWidget(self.use_dating, 4, 0, 1, 2)
+        
         # ==================== Unity Mode Settings ====================
         self.unity_widget = QWidget()
         unity_layout = QVBoxLayout(self.unity_widget)
         unity_layout.setContentsMargins(0, 12, 0, 0)
         unity_layout.setSpacing(12)
         
-        # Use dating instead of rest (Unity mode)
-        self.use_dating = QCheckBox("Use dating instead of rest")
-        self.use_dating.stateChanged.connect(self._save_training)
-        unity_layout.addWidget(self.use_dating)
-        
-        # Spirit Burst Enabled Stats (Unity mode)
-        spirit_widget = QWidget()
-        spirit_layout = QVBoxLayout(spirit_widget)
-        spirit_layout.setContentsMargins(0, 20, 0, 0)
-        spirit_layout.setSpacing(10)
-        
+        # Spirit Burst Enabled Stats (Unity mode only)
         spirit_label = QLabel("Spirit Burst Enabled Stats:")
         spirit_label.setStyleSheet(f"color: {COLORS['text_muted']}; font-weight: bold;")
-        spirit_layout.addWidget(spirit_label)
+        unity_layout.addWidget(spirit_label)
         
         spirit_row = QHBoxLayout()
         spirit_row.setSpacing(24)
@@ -165,10 +172,9 @@ class TrainingTab(QScrollArea):
             self.spirit_burst_vars[stat] = cb
             spirit_row.addWidget(cb)
         spirit_row.addStretch()
-        spirit_layout.addLayout(spirit_row)
-        unity_layout.addWidget(spirit_widget)
+        unity_layout.addLayout(spirit_row)
         
-        settings_layout.addWidget(self.unity_widget, 4, 0, 1, 2)
+        settings_layout.addWidget(self.unity_widget, 5, 0, 1, 2)
         
         layout.addWidget(settings_group)
         
@@ -190,7 +196,7 @@ class TrainingTab(QScrollArea):
             lbl.setStyleSheet(f"color: {COLORS['text_muted']};")
             stat_layout.addWidget(lbl)
             
-            spin = QDoubleSpinBox()
+            spin = NoScrollDoubleSpinBox()
             spin.setRange(0, 10)
             spin.setSingleStep(0.1)
             spin.setDecimals(1)
@@ -219,7 +225,7 @@ class TrainingTab(QScrollArea):
             lbl.setStyleSheet(f"color: {COLORS['text_muted']};")
             stat_layout.addWidget(lbl)
             
-            spin = QSpinBox()
+            spin = NoScrollSpinBox()
             spin.setRange(0, 2000)
             spin.setSingleStep(50)
             spin.valueChanged.connect(self._save_training)
@@ -238,36 +244,66 @@ class TrainingTab(QScrollArea):
         layout.addWidget(self.score_btn)
         
         self.score_section = QWidget()
-        score_section_layout = QGridLayout(self.score_section)
-        score_section_layout.setSpacing(12)
+        self.score_section_layout = QGridLayout(self.score_section)
+        self.score_section_layout.setSpacing(12)
         
+        # Common training score fields (always shown)
         # Rainbow Support
-        score_section_layout.addWidget(QLabel("Rainbow Support:"), 0, 0)
-        self.rainbow_spin = QDoubleSpinBox()
+        self.score_section_layout.addWidget(QLabel("Rainbow Support:"), 0, 0)
+        self.rainbow_spin = NoScrollDoubleSpinBox()
         self.rainbow_spin.setRange(0, 5)
         self.rainbow_spin.setDecimals(2)
-        score_section_layout.addWidget(self.rainbow_spin, 0, 1)
+        self.rainbow_spin.valueChanged.connect(self._on_training_score_change)
+        self.score_section_layout.addWidget(self.rainbow_spin, 0, 1)
         
         # Low Bond Support
-        score_section_layout.addWidget(QLabel("Low Bond (<4) Support:"), 1, 0)
-        self.low_bond_spin = QDoubleSpinBox()
+        self.score_section_layout.addWidget(QLabel("Low Bond (<4) Support:"), 1, 0)
+        self.low_bond_spin = NoScrollDoubleSpinBox()
         self.low_bond_spin.setRange(0, 5)
         self.low_bond_spin.setDecimals(2)
-        score_section_layout.addWidget(self.low_bond_spin, 1, 1)
+        self.low_bond_spin.valueChanged.connect(self._on_training_score_change)
+        self.score_section_layout.addWidget(self.low_bond_spin, 1, 1)
         
         # High Bond Different Type
-        score_section_layout.addWidget(QLabel("High Bond (>=4) Different Type:"), 2, 0)
-        self.high_bond_spin = QDoubleSpinBox()
+        self.score_section_layout.addWidget(QLabel("High Bond (>=4) Different Type:"), 2, 0)
+        self.high_bond_spin = NoScrollDoubleSpinBox()
         self.high_bond_spin.setRange(0, 5)
         self.high_bond_spin.setDecimals(2)
-        score_section_layout.addWidget(self.high_bond_spin, 2, 1)
+        self.high_bond_spin.valueChanged.connect(self._on_training_score_change)
+        self.score_section_layout.addWidget(self.high_bond_spin, 2, 1)
         
         # Hint
-        score_section_layout.addWidget(QLabel("Hint:"), 3, 0)
-        self.hint_spin = QDoubleSpinBox()
+        self.score_section_layout.addWidget(QLabel("Hint:"), 3, 0)
+        self.hint_spin = NoScrollDoubleSpinBox()
         self.hint_spin.setRange(0, 5)
         self.hint_spin.setDecimals(2)
-        score_section_layout.addWidget(self.hint_spin, 3, 1)
+        self.hint_spin.valueChanged.connect(self._on_training_score_change)
+        self.score_section_layout.addWidget(self.hint_spin, 3, 1)
+        
+        # Unity-specific training score fields (will be shown/hidden based on mode)
+        self.unity_score_label1 = QLabel("Spirit Training:")
+        self.score_section_layout.addWidget(self.unity_score_label1, 4, 0)
+        self.spirit_training_spin = NoScrollDoubleSpinBox()
+        self.spirit_training_spin.setRange(0, 5)
+        self.spirit_training_spin.setDecimals(2)
+        self.spirit_training_spin.valueChanged.connect(self._on_training_score_change)
+        self.score_section_layout.addWidget(self.spirit_training_spin, 4, 1)
+        
+        self.unity_score_label2 = QLabel("Spirit Burst:")
+        self.score_section_layout.addWidget(self.unity_score_label2, 5, 0)
+        self.spirit_burst_spin = NoScrollDoubleSpinBox()
+        self.spirit_burst_spin.setRange(0, 5)
+        self.spirit_burst_spin.setDecimals(2)
+        self.spirit_burst_spin.valueChanged.connect(self._on_training_score_change)
+        self.score_section_layout.addWidget(self.spirit_burst_spin, 5, 1)
+        
+        self.unity_score_label3 = QLabel("Spirit Training Extra:")
+        self.score_section_layout.addWidget(self.unity_score_label3, 6, 0)
+        self.spirit_training_extra_spin = NoScrollDoubleSpinBox()
+        self.spirit_training_extra_spin.setRange(0, 5)
+        self.spirit_training_extra_spin.setDecimals(2)
+        self.spirit_training_extra_spin.valueChanged.connect(self._on_training_score_change)
+        self.score_section_layout.addWidget(self.spirit_training_extra_spin, 6, 1)
         
         self.score_section.hide()
         layout.addWidget(self.score_section)
@@ -285,6 +321,20 @@ class TrainingTab(QScrollArea):
             self.score_btn.setText("  Training Score Settings (Click to expand)")
             self.score_btn.setIcon(get_icon('expand'))
             self.score_section.hide()
+    
+    def _update_unity_score_visibility(self):
+        """Show/hide Unity-specific training score fields based on mode"""
+        config = self.main_window.get_config()
+        mode = config.get("mode", "ura")
+        is_unity = mode == "unity"
+        
+        # Unity-specific training score fields
+        self.unity_score_label1.setVisible(is_unity)
+        self.spirit_training_spin.setVisible(is_unity)
+        self.unity_score_label2.setVisible(is_unity)
+        self.spirit_burst_spin.setVisible(is_unity)
+        self.unity_score_label3.setVisible(is_unity)
+        self.spirit_training_extra_spin.setVisible(is_unity)
     
     def load_config(self):
         """Load config values into UI"""
@@ -354,14 +404,12 @@ class TrainingTab(QScrollArea):
             spin.setValue(stat_caps.get(stat, 600))
             spin.blockSignals(False)
         
-        # Training score
-        self.rainbow_spin.setValue(1.0)
-        self.low_bond_spin.setValue(0.7)
-        self.high_bond_spin.setValue(0.0)
-        self.hint_spin.setValue(0.3)
+        # Load training score from JSON file
+        self._load_training_score_config()
         
         # Update Unity fields visibility based on mode
         self.update_unity_visibility()
+        self._update_unity_score_visibility()
         
         self._loading = False
     
@@ -370,6 +418,7 @@ class TrainingTab(QScrollArea):
         config = self.main_window.get_config()
         mode = config.get("mode", "ura")
         self.unity_widget.setVisible(mode == "unity")
+        self._update_unity_score_visibility()
     
     def _on_priority_changed(self, order):
         """Handle priority order change"""
@@ -417,3 +466,85 @@ class TrainingTab(QScrollArea):
         
         # Actually save to file
         self.main_window.save_config()
+    
+    def _load_training_score_config(self):
+        """Load training score settings from JSON file"""
+        import json
+        import os
+        
+        config = self.main_window.get_config()
+        mode = config.get("mode", "ura")
+        filename = "training_score_unity.json" if mode == "unity" else "training_score.json"
+        
+        try:
+            if os.path.exists(filename):
+                with open(filename, 'r', encoding='utf-8') as f:
+                    score_config = json.load(f)
+            else:
+                score_config = {}
+        except Exception:
+            score_config = {}
+        
+        # Load common score settings
+        self.rainbow_spin.blockSignals(True)
+        self.rainbow_spin.setValue(score_config.get("rainbow_support", 1.0))
+        self.rainbow_spin.blockSignals(False)
+        
+        self.low_bond_spin.blockSignals(True)
+        self.low_bond_spin.setValue(score_config.get("low_bond_support", 0.7))
+        self.low_bond_spin.blockSignals(False)
+        
+        self.high_bond_spin.blockSignals(True)
+        self.high_bond_spin.setValue(score_config.get("high_bond_support", 0.0))
+        self.high_bond_spin.blockSignals(False)
+        
+        self.hint_spin.blockSignals(True)
+        self.hint_spin.setValue(score_config.get("hint", 0.3))
+        self.hint_spin.blockSignals(False)
+        
+        # Load Unity-specific score settings
+        self.spirit_training_spin.blockSignals(True)
+        self.spirit_training_spin.setValue(score_config.get("spirit_training", 0.4))
+        self.spirit_training_spin.blockSignals(False)
+        
+        self.spirit_burst_spin.blockSignals(True)
+        self.spirit_burst_spin.setValue(score_config.get("spirit_burst", 1.0))
+        self.spirit_burst_spin.blockSignals(False)
+        
+        self.spirit_training_extra_spin.blockSignals(True)
+        self.spirit_training_extra_spin.setValue(score_config.get("spirit_training_extra", 0.2))
+        self.spirit_training_extra_spin.blockSignals(False)
+    
+    def _save_training_score_config(self):
+        """Save training score settings to JSON file"""
+        import json
+        import os
+        
+        config = self.main_window.get_config()
+        mode = config.get("mode", "ura")
+        filename = "training_score_unity.json" if mode == "unity" else "training_score.json"
+        
+        score_config = {
+            "rainbow_support": self.rainbow_spin.value(),
+            "low_bond_support": self.low_bond_spin.value(),
+            "high_bond_support": self.high_bond_spin.value(),
+            "hint": self.hint_spin.value(),
+        }
+        
+        # Add Unity-specific settings for unity mode
+        if mode == "unity":
+            score_config["spirit_training"] = self.spirit_training_spin.value()
+            score_config["spirit_burst"] = self.spirit_burst_spin.value()
+            score_config["spirit_training_extra"] = self.spirit_training_extra_spin.value()
+        
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump(score_config, f, indent=4)
+        except Exception as e:
+            print(f"Failed to save training score config: {e}")
+    
+    def _on_training_score_change(self):
+        """Handle training score changes - save to JSON file"""
+        if not getattr(self, '_loading', False):
+            self._save_training_score_config()
+

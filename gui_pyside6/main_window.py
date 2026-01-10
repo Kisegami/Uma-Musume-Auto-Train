@@ -84,6 +84,8 @@ class MainWindow(QMainWindow):
         
         # Initialize bot controller (must be after GUI components are created)
         self.bot_controller = BotController(self)
+        # Connect bot stopped signal to reset UI when bot auto-stops
+        self.bot_controller.signaler.bot_stopped_signal.connect(self._on_bot_stopped)
     
     def _set_responsive_size(self):
         """Set responsive window size"""
@@ -386,6 +388,19 @@ class MainWindow(QMainWindow):
                 event.ignore()
         else:
             event.accept()
+    
+    def _on_bot_stopped(self):
+        """Handle bot stopped signal - reset UI to stopped state"""
+        self.bot_running = False
+        # Update UI
+        self.start_btn.setText("  Start Bot")
+        self.start_btn.setIcon(get_icon('play', 'white'))
+        self.start_btn.setObjectName("primary")
+        self.start_btn.setStyleSheet(f"background-color: {COLORS['accent_green']}; border: none; color: white;")
+        self.status_label.setText("● Inactive")
+        self.status_label.setStyleSheet(f"color: {COLORS['text_muted']};")
+        if hasattr(self, 'log_panel'):
+            self.log_panel.update_bot_state(False)
 
 
 def main():

@@ -97,7 +97,7 @@ class CustomRaceWindow(QDialog):
         grades_row.addWidget(QLabel("Grades:"))
         grades_row.addSpacing(20)
         self.grade_checks = {}
-        grade_colors = {'G1': '#FFD700', 'G2': '#C0C0C0', 'G3': '#CD7F32', 'OP': '#90EE90', 'Pre-OP': '#87CEEB'}
+        grade_colors = {'G1': '#4A90D9', 'G2': '#FF69B4', 'G3': '#4CAF50', 'OP': '#FFD700', 'Pre-OP': '#FFD700'}
         for grade in ['G1', 'G2', 'G3', 'OP', 'Pre-OP']:
             cb = QCheckBox(grade)
             cb.setChecked(True)
@@ -358,7 +358,7 @@ class CustomRaceWindow(QDialog):
         
         # Color the grade
         grade = race_data.get('grade', '')
-        grade_colors = {'G1': '#FFD700', 'G2': '#C0C0C0', 'G3': '#CD7F32', 'OP': '#90EE90', 'Pre-OP': '#87CEEB'}
+        grade_colors = {'G1': '#4A90D9', 'G2': '#FF69B4', 'G3': '#4CAF50', 'OP': '#FFD700', 'Pre-OP': '#FFD700'}
         if grade in grade_colors:
             details['grade'].setStyleSheet(f"color: {grade_colors[grade]}; font-weight: bold;")
     

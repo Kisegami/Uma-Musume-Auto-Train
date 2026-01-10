@@ -17,6 +17,7 @@ class LogSignaler(QObject):
     """Qt signal emitter for thread-safe GUI updates"""
     log_signal = Signal(str, str)  # message, level
     status_signal = Signal(dict)  # status data
+    bot_stopped_signal = Signal()  # emitted when bot stops automatically
 
 class BotController:
     def __init__(self, main_window):
@@ -172,8 +173,12 @@ class BotController:
                 exe_dir = os.path.dirname(chosen_instance.path)
                 parent_dir = os.path.dirname(exe_dir)
                 cfg.setdefault("nemu_ipc_config", {})
-                cfg["nemu_ipc_config"]["nemu_folder"] = parent_dir
-                cfg["nemu_ipc_config"]["instance_id"] = chosen_instance.mumu12_id or 0
+                # Only set nemu_folder if not already configured
+                if not cfg["nemu_ipc_config"].get("nemu_folder"):
+                    cfg["nemu_ipc_config"]["nemu_folder"] = parent_dir
+                # Only set instance_id if not already configured (use None check, not falsy check)
+                if cfg["nemu_ipc_config"].get("instance_id") is None:
+                    cfg["nemu_ipc_config"]["instance_id"] = chosen_instance.mumu12_id or 0
                 cfg["nemu_ipc_config"]["display_id"] = cfg["nemu_ipc_config"].get("display_id", 0)
                 cfg["nemu_ipc_config"]["timeout"] = cfg["nemu_ipc_config"].get("timeout", 1.0)
                 self.main_window.add_log(
@@ -208,7 +213,8 @@ class BotController:
                     self.main_window.add_log(
                         f"[auto-detect] Filled MuMu nemu_folder={parent_dir} from instance path", "info"
                     )
-                if not cfg["nemu_ipc_config"].get("instance_id"):
+                # Use None check, not falsy check (instance_id=0 is valid)
+                if cfg["nemu_ipc_config"].get("instance_id") is None:
                     cfg["nemu_ipc_config"]["instance_id"] = chosen_instance.mumu12_id or 0
             if emulator_type == Emulator.LDPlayer9 and chosen_instance:
                 exe_dir = os.path.dirname(chosen_instance.path)
@@ -218,7 +224,8 @@ class BotController:
                     self.main_window.add_log(
                         f"[auto-detect] Filled LDPlayer ld_folder={exe_dir} from instance path", "info"
                     )
-                if cfg["ldopengl_config"].get("instance_id") in [None, ""]:
+                # Use None check (instance_id=0 is valid)
+                if cfg["ldopengl_config"].get("instance_id") is None:
                     if chosen_instance.ldplayer_id is not None:
                         cfg["ldopengl_config"]["instance_id"] = chosen_instance.ldplayer_id
 
@@ -415,14 +422,8 @@ class BotController:
                     pass
             self.bot_running = False
             self.main_window.add_log("Bot stopped", "warning")
-            # Ensure main window state and button reflect auto-stop
-            try:
-                self.main_window.bot_running = False
-                if hasattr(self.main_window, 'log_panel') and hasattr(self.main_window, 'root'):
-                    # Update button on the main UI thread
-                    self.main_window.root.after(0, self.main_window.log_panel.update_start_stop_button, False)
-            except Exception:
-                pass
+            # Emit signal to notify main window that bot has stopped
+            self.signaler.bot_stopped_signal.emit()
     
     def process_bot_output(self, output):
         """Process bot output to extract status updates and logs"""

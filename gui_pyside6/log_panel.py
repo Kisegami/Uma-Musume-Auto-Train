@@ -3,14 +3,16 @@ Log Panel for PySide6 GUI
 Clean log display matching Alas/MAA style.
 """
 
+import os
 from datetime import datetime
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QFrame, QLabel, 
-    QTextEdit, QPushButton
+    QTextEdit, QPushButton, QFileDialog
 )
 from PySide6.QtCore import Qt
 
 from .styles import COLORS
+from .icon_helper import get_icon
 
 
 class LogPanel(QFrame):
@@ -36,9 +38,21 @@ class LogPanel(QFrame):
         header.addWidget(title)
         header.addStretch()
         
-        clear_btn = QPushButton("Clear")
+        # Save Log button with icon
+        save_btn = QPushButton()
+        save_btn.setIcon(get_icon('save'))
+        save_btn.setToolTip("Save Log")
+        save_btn.setObjectName("flat")
+        save_btn.setFixedSize(32, 32)
+        save_btn.clicked.connect(self.save_logs)
+        header.addWidget(save_btn)
+        
+        # Clear button with icon
+        clear_btn = QPushButton()
+        clear_btn.setIcon(get_icon('delete'))
+        clear_btn.setToolTip("Clear Log")
         clear_btn.setObjectName("flat")
-        clear_btn.setFixedWidth(50)
+        clear_btn.setFixedSize(32, 32)
         clear_btn.clicked.connect(self.clear_logs)
         header.addWidget(clear_btn)
         
@@ -82,6 +96,25 @@ class LogPanel(QFrame):
         """Clear logs"""
         self.log_text.clear()
     
+    def save_logs(self):
+        """Save logs to file"""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        default_name = f"bot_log_{timestamp}.txt"
+        
+        filename, _ = QFileDialog.getSaveFileName(
+            self, "Save Log", default_name, "Text Files (*.txt);;All Files (*)"
+        )
+        
+        if filename:
+            try:
+                # Get plain text from log
+                plain_text = self.log_text.toPlainText()
+                with open(filename, 'w', encoding='utf-8') as f:
+                    f.write(plain_text)
+                self.add_log(f"Log saved to: {filename}", "success")
+            except Exception as e:
+                self.add_log(f"Failed to save log: {e}", "error")
+    
     def add_log_entry(self, message, level="info"):
         """Alias for add_log (compatibility with bot_controller)"""
         self.add_log(message, level)
@@ -89,3 +122,4 @@ class LogPanel(QFrame):
     def update_bot_state(self, running):
         """Update based on bot state (no buttons here now)"""
         pass
+

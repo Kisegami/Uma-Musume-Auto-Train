@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
     QPushButton, QRadioButton, QButtonGroup, QMessageBox, QInputDialog
 )
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap
 
 from ..styles import COLORS
 
@@ -149,6 +150,16 @@ class RestartTab(QScrollArea):
         template_row_layout.addStretch()
         support_layout.addWidget(self.template_row)
         
+        # Template preview
+        self.preview_label = QLabel()
+        self.preview_label.setAlignment(Qt.AlignCenter)
+        self.preview_label.setMinimumHeight(100)
+        self.preview_label.setStyleSheet("background-color: #2a2a2a; border-radius: 8px; padding: 8px;")
+        support_layout.addWidget(self.preview_label)
+        
+        # Connect template change to preview update
+        self.template_combo.currentTextChanged.connect(self._update_template_preview)
+        
         layout.addWidget(self.support_group)
         
         layout.addStretch()
@@ -177,8 +188,42 @@ class RestartTab(QScrollArea):
     
     def _toggle_template_controls(self):
         """Toggle visibility of template controls"""
-        self.template_row.setVisible(self.use_templates.isChecked())
+        visible = self.use_templates.isChecked()
+        self.template_row.setVisible(visible)
+        self.preview_label.setVisible(visible)
+        if visible:
+            self._update_template_preview()
         self._save_restart()
+    
+    def _update_template_preview(self):
+        """Update the template preview image"""
+        template = self.template_combo.currentText()
+        if not template or template == "No templates":
+            self.preview_label.setText("No template selected")
+            self.preview_label.setPixmap(QPixmap())
+            return
+        
+        path = os.path.join(self._get_supports_dir(), template)
+        if not os.path.exists(path):
+            self.preview_label.setText("Template file not found")
+            self.preview_label.setPixmap(QPixmap())
+            return
+        
+        try:
+            pixmap = QPixmap(path)
+            if pixmap.isNull():
+                self.preview_label.setText("Failed to load image")
+                return
+            
+            # Scale to fit, max height 200px
+            scaled = pixmap.scaledToHeight(200, Qt.SmoothTransformation)
+            if scaled.width() > 400:
+                scaled = pixmap.scaledToWidth(400, Qt.SmoothTransformation)
+            
+            self.preview_label.setPixmap(scaled)
+            self.preview_label.setText("")
+        except Exception as e:
+            self.preview_label.setText(f"Error: {e}")
     
     def _on_criteria_change(self):
         """Handle criteria radio button change"""
@@ -228,7 +273,11 @@ class RestartTab(QScrollArea):
         # Update visibility
         self.criteria_widget.setVisible(self.restart_enabled.isChecked())
         self.support_group.setVisible(self.restart_enabled.isChecked())
-        self.template_row.setVisible(self.use_templates.isChecked())
+        visible = self.use_templates.isChecked()
+        self.template_row.setVisible(visible)
+        self.preview_label.setVisible(visible)
+        if visible:
+            self._update_template_preview()
         
         self._loading = False
     
@@ -264,15 +313,163 @@ class RestartTab(QScrollArea):
         self.main_window.save_config()
     
     def _add_template(self):
-        """Add new support template - placeholder for screenshot crop"""
-        QMessageBox.information(
-            self, "Add Template", 
-            "To add a support template:\n"
-            "1. Take a screenshot of your support card lineup\n"
-            "2. Save it as a PNG file in template/supports/\n\n"
-            "The template will be used to match support cards during restart."
-        )
-        self._refresh_template_dropdown()
+        """Capture emulator screen, crop, and save as a new template."""
+        try:
+            from utils.screenshot import take_screenshot
+        except ImportError:
+            QMessageBox.warning(
+                self, "Error",
+                "Screenshot module not available.\n\n"
+                "To add a support template manually:\n"
+                "1. Take a screenshot of your support card lineup\n"
+                "2. Save it as a PNG file in template/supports/"
+            )
+            return
+        
+        # Take screenshot
+        try:
+            screenshot = take_screenshot()
+            if screenshot is None:
+                QMessageBox.warning(self, "Error", "Failed to take screenshot. Make sure emulator is running.")
+                return
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Failed to take screenshot: {e}")
+            return
+        
+        # Show crop dialog
+        cropped = self._show_crop_dialog(screenshot)
+        if cropped is None:
+            return
+        
+        # Prompt for template name
+        name, ok = QInputDialog.getText(self, "Template Name", "Enter template name (without extension):")
+        if not ok or not name.strip():
+            return
+        
+        # Save template
+        safe_name = f"{name.strip()}.png"
+        save_path = os.path.join(self._get_supports_dir(), safe_name)
+        try:
+            cropped.save(save_path)
+            QMessageBox.information(self, "Saved", f"Template saved to {save_path}")
+            self._refresh_template_dropdown()
+            self.template_combo.setCurrentText(safe_name)
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Failed to save template: {e}")
+    
+    def _show_crop_dialog(self, pil_image):
+        """Show a crop dialog and return cropped image or None"""
+        from PIL import Image
+        from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
+        from PySide6.QtGui import QPixmap, QPainter, QPen
+        from PySide6.QtCore import QRect, QPoint
+        
+        class CropDialog(QDialog):
+            def __init__(self, parent, pil_img):
+                super().__init__(parent)
+                self.setWindowTitle("Crop Template")
+                self.setModal(True)
+                
+                self.pil_image = pil_img
+                self.cropped_result = None
+                
+                # Scale image to fit screen
+                screen = self.screen().availableGeometry()
+                max_w = int(screen.width() * 0.75)
+                max_h = int(screen.height() * 0.75) - 100
+                
+                img_w, img_h = pil_img.size
+                self.scale = min(max_w / img_w, max_h / img_h, 1.0)
+                
+                display_w = int(img_w * self.scale)
+                display_h = int(img_h * self.scale)
+                
+                # Convert PIL to QPixmap
+                img_data = pil_img.convert("RGB").tobytes("raw", "RGB")
+                from PySide6.QtGui import QImage
+                qimg = QImage(img_data, img_w, img_h, img_w * 3, QImage.Format_RGB888)
+                self.pixmap = QPixmap.fromImage(qimg).scaled(display_w, display_h)
+                
+                # Selection state
+                self.start_pos = None
+                self.end_pos = None
+                self.selecting = False
+                
+                # Layout
+                layout = QVBoxLayout(self)
+                
+                # Image label
+                self.image_label = QLabel()
+                self.image_label.setPixmap(self.pixmap)
+                self.image_label.setMouseTracking(True)
+                layout.addWidget(self.image_label)
+                
+                # Buttons
+                btn_layout = QHBoxLayout()
+                confirm_btn = QPushButton("Confirm")
+                confirm_btn.clicked.connect(self._confirm)
+                cancel_btn = QPushButton("Cancel")
+                cancel_btn.clicked.connect(self.reject)
+                btn_layout.addWidget(confirm_btn)
+                btn_layout.addWidget(cancel_btn)
+                btn_layout.addStretch()
+                layout.addLayout(btn_layout)
+                
+                self.resize(display_w + 40, display_h + 80)
+            
+            def mousePressEvent(self, event):
+                pos = self.image_label.mapFrom(self, event.pos())
+                if self.image_label.rect().contains(pos):
+                    self.start_pos = pos
+                    self.selecting = True
+            
+            def mouseMoveEvent(self, event):
+                if self.selecting:
+                    self.end_pos = self.image_label.mapFrom(self, event.pos())
+                    self._draw_selection()
+            
+            def mouseReleaseEvent(self, event):
+                if self.selecting:
+                    self.end_pos = self.image_label.mapFrom(self, event.pos())
+                    self.selecting = False
+                    self._draw_selection()
+            
+            def _draw_selection(self):
+                if self.start_pos and self.end_pos:
+                    pm = self.pixmap.copy()
+                    painter = QPainter(pm)
+                    pen = QPen()
+                    pen.setColor(Qt.red)
+                    pen.setWidth(2)
+                    painter.setPen(pen)
+                    rect = QRect(self.start_pos, self.end_pos).normalized()
+                    painter.drawRect(rect)
+                    painter.end()
+                    self.image_label.setPixmap(pm)
+            
+            def _confirm(self):
+                if not self.start_pos or not self.end_pos:
+                    QMessageBox.warning(self, "No Selection", "Please drag to select an area.")
+                    return
+                
+                rect = QRect(self.start_pos, self.end_pos).normalized()
+                if rect.width() < 10 or rect.height() < 10:
+                    QMessageBox.warning(self, "Too Small", "Selection is too small.")
+                    return
+                
+                # Convert to original coordinates
+                x1 = int(rect.left() / self.scale)
+                y1 = int(rect.top() / self.scale)
+                x2 = int(rect.right() / self.scale)
+                y2 = int(rect.bottom() / self.scale)
+                
+                self.cropped_result = self.pil_image.crop((x1, y1, x2, y2))
+                self.accept()
+        
+        dialog = CropDialog(self, pil_image)
+        if dialog.exec() == QDialog.Accepted:
+            return dialog.cropped_result
+        return None
     
     def _remove_template(self):
         """Remove selected template"""
@@ -286,3 +483,4 @@ class RestartTab(QScrollArea):
             if os.path.exists(path):
                 os.remove(path)
             self._refresh_template_dropdown()
+

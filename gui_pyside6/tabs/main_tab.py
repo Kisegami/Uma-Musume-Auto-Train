@@ -56,6 +56,7 @@ class MainTab(QScrollArea):
         self.emulator_combo.addItem("")
         self.emulator_combo.addItems(emulator_types)
         self.emulator_combo.addItem("Phone")
+        self.emulator_combo.addItem("Other Emulator")
         self.emulator_combo.currentTextChanged.connect(self._on_emulator_change)
         adb_layout.addWidget(self.emulator_combo, 0, 1)
         
@@ -132,6 +133,11 @@ class MainTab(QScrollArea):
             QMessageBox.information(
                 self, "Phone Device",
                 "When using Phone:\n• Auto address detection won't work\n• Manually enter ADB address\n• Resolution must be 1080x1920 (Portrait)"
+            )
+        elif text == "Other Emulator":
+            QMessageBox.information(
+                self, "Other Emulator",
+                "When using Other Emulator:\n• Auto address detection won't work\n• Manually enter ADB address\n• Screenshot method will default to ADB"
             )
     
     def _update_adb_config(self, key, value):

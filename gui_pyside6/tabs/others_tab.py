@@ -37,13 +37,13 @@ class OthersTab(QScrollArea):
         
         self.debug_mode = QCheckBox("Debug Mode")
         self.debug_mode.stateChanged.connect(
-            lambda v: self.main_window.update_config_value("debug_mode", v == Qt.Checked)
+            lambda v: self._update_and_save("debug_mode", v == Qt.Checked)
         )
         debug_layout.addWidget(self.debug_mode)
         
         self.stop_on_failure = QCheckBox("Stop Bot on Event Detection Failure")
         self.stop_on_failure.stateChanged.connect(
-            lambda v: self.main_window.update_config_value("stop_on_event_detection_failure", v == Qt.Checked)
+            lambda v: self._update_and_save("stop_on_event_detection_failure", v == Qt.Checked)
         )
         debug_layout.addWidget(self.stop_on_failure)
         
@@ -52,18 +52,6 @@ class OthersTab(QScrollArea):
         debug_layout.addWidget(desc)
         
         layout.addWidget(debug_group)
-        
-        # Dating Settings
-        dating_group = QGroupBox("Dating")
-        dating_layout = QVBoxLayout(dating_group)
-        
-        self.use_dating = QCheckBox("Use Dating Instead of Rest")
-        self.use_dating.stateChanged.connect(
-            lambda v: self._update_dating("use_dating_instead_of_rest", v == Qt.Checked)
-        )
-        dating_layout.addWidget(self.use_dating)
-        
-        layout.addWidget(dating_group)
         
         layout.addStretch()
         self.setWidget(container)
@@ -74,9 +62,9 @@ class OthersTab(QScrollArea):
         
         self.debug_mode.setChecked(config.get("debug_mode", False))
         self.stop_on_failure.setChecked(config.get("stop_on_event_detection_failure", False))
-        
-        dating = config.get("dating", {})
-        self.use_dating.setChecked(dating.get("use_dating_instead_of_rest", False))
     
-    def _update_dating(self, key, value):
-        self.main_window.update_nested_config_value("dating", key, value)
+    def _update_and_save(self, key, value):
+        """Update config value and save"""
+        self.main_window.update_config_value(key, value)
+        self.main_window.save_config()
+
