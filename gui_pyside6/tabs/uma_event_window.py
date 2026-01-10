@@ -38,7 +38,7 @@ class UmaEventWindow(QDialog):
     def _load_existing_choices(self):
         """Load existing custom choices from file"""
         safe_name = self.uma_name.replace("/", "-").replace("\\", "-").replace(":", "-")
-        filepath = os.path.join("template", "events", f"Events_{safe_name}.json")
+        filepath = os.path.join("template", "Events", "Uma", f"Events_{safe_name}.json")
         
         if os.path.exists(filepath):
             try:
@@ -255,10 +255,10 @@ class UmaEventWindow(QDialog):
     def _save_choices(self):
         """Save custom choices"""
         try:
-            os.makedirs(os.path.join("template", "events"), exist_ok=True)
+            os.makedirs(os.path.join("template", "Events", "Uma"), exist_ok=True)
             
             safe_name = self.uma_name.replace("/", "-").replace("\\", "-").replace(":", "-")
-            filepath = os.path.join("template", "events", f"Events_{safe_name}.json")
+            filepath = os.path.join("template", "Events", "Uma", f"Events_{safe_name}.json")
             
             data = {
                 "UmaName": self.uma_name,

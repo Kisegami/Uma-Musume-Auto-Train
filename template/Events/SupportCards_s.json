@@ -2,9 +2,19 @@
     "TemplateName": "s",
     "CustomChoices": [
         {
+            "EventName": "(❯) Lovely Training Weather ♪",
+            "CardSlug": "30010-fine-motion",
+            "SelectedOption": "Bottom Option"
+        },
+        {
             "EventName": "Unexpected Side",
             "CardSlug": "30036-riko-kashimoto",
             "SelectedOption": "Middle Option"
+        },
+        {
+            "EventName": "(❯❯) Irrepressible Feelings",
+            "CardSlug": "30054-nice-nature",
+            "SelectedOption": "Bottom Option"
         },
         {
             "EventName": "(❯) Just Because ♪",

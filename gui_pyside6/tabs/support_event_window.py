@@ -27,7 +27,7 @@ class SupportEventWindow(QDialog):
         super().__init__(parent)
         self.template_name = template_name
         self.template_path = template_path or os.path.join(
-            "template", "events", f"SupportCards_{template_name}.json"
+            "template", "Events", "Supports", f"SupportCards_{template_name}.json"
         )
         self.all_events = []  # List of merged events {EventName, CardSlug, EventOptions}
         self.event_lookup = {}  # Display string -> (EventName, CardSlug)
