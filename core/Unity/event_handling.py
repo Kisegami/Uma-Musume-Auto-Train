@@ -40,7 +40,9 @@ DEBUG_MODE = config.get("debug_mode", False)
 _event_cache = {
     "support_card": None,
     "uma_data": None,
-    "ura_finale": None
+    "ura_finale": None,
+    "custom_uma_events": None,
+    "custom_support_events": None
 }
 
 def _load_event_databases():
@@ -75,6 +77,102 @@ def _load_event_databases():
             _event_cache["ura_finale"] = []
     
     return _event_cache
+
+
+def _load_custom_event_templates():
+    """Load custom event templates from config.json's events section
+    
+    Loads:
+    - Uma events from: template/Events/Uma/Events_{uma_event_file}.json
+    - Support card events from: template/Events/Supports/SupportCards_{support_card_template}.json
+    """
+    global _event_cache
+    
+    # Only load once (cache check)
+    if _event_cache["custom_uma_events"] is not None or _event_cache["custom_support_events"] is not None:
+        return _event_cache
+    
+    events_config = config.get("events", {})
+    project_root = _get_project_root()
+    
+    # Load Uma event template
+    uma_event_file = events_config.get("uma_event_file", "")
+    if uma_event_file:
+        uma_template_path = os.path.join(project_root, "template", "Events", "Uma", f"Events_{uma_event_file}.json")
+        if os.path.exists(uma_template_path):
+            try:
+                with open(uma_template_path, "r", encoding="utf-8-sig") as f:
+                    uma_data = json.load(f)
+                    _event_cache["custom_uma_events"] = uma_data.get("CustomChoices", {})
+                    log_info(f"Loaded custom Uma event template: {uma_event_file} ({len(_event_cache['custom_uma_events'])} events)")
+            except Exception as e:
+                log_warning(f"Error loading Uma event template {uma_event_file}: {e}")
+                _event_cache["custom_uma_events"] = {}
+        else:
+            log_debug(f"Uma event template not found: {uma_template_path}")
+            _event_cache["custom_uma_events"] = {}
+    else:
+        _event_cache["custom_uma_events"] = {}
+    
+    # Load Support Card event template
+    support_template = events_config.get("support_card_template", "")
+    if support_template:
+        support_template_path = os.path.join(project_root, "template", "Events", "Supports", f"SupportCards_{support_template}.json")
+        if os.path.exists(support_template_path):
+            try:
+                with open(support_template_path, "r", encoding="utf-8-sig") as f:
+                    support_data = json.load(f)
+                    # Convert array format to dict for quick lookup
+                    custom_choices = support_data.get("CustomChoices", [])
+                    _event_cache["custom_support_events"] = {item["EventName"]: item["SelectedOption"] for item in custom_choices}
+                    log_info(f"Loaded custom Support Card template: {support_template} ({len(_event_cache['custom_support_events'])} events)")
+            except Exception as e:
+                log_warning(f"Error loading Support Card template {support_template}: {e}")
+                _event_cache["custom_support_events"] = {}
+        else:
+            log_debug(f"Support Card template not found: {support_template_path}")
+            _event_cache["custom_support_events"] = {}
+    else:
+        _event_cache["custom_support_events"] = {}
+    
+    return _event_cache
+
+
+def search_custom_events(event_name):
+    """Search for event in custom templates (from config.json)
+    
+    Args:
+        event_name: The event name to search for
+        
+    Returns:
+        str or None: The pre-configured option (e.g., "Top Option") if found, None otherwise
+    """
+    # Ensure custom templates are loaded
+    _load_custom_event_templates()
+    
+    # Check Uma events first (exact match)
+    if _event_cache["custom_uma_events"]:
+        if event_name in _event_cache["custom_uma_events"]:
+            return _event_cache["custom_uma_events"][event_name]
+        
+        # Try case-insensitive match
+        event_name_lower = event_name.lower()
+        for custom_event, selected_option in _event_cache["custom_uma_events"].items():
+            if custom_event.lower() == event_name_lower:
+                return selected_option
+    
+    # Check Support Card events
+    if _event_cache["custom_support_events"]:
+        if event_name in _event_cache["custom_support_events"]:
+            return _event_cache["custom_support_events"][event_name]
+        
+        # Try case-insensitive match
+        event_name_lower = event_name.lower()
+        for custom_event, selected_option in _event_cache["custom_support_events"].items():
+            if custom_event.lower() == event_name_lower:
+                return selected_option
+    
+    return None
 
 
 # Cache for event names (for OCR matching)
@@ -684,6 +782,38 @@ def handle_event_choice():
                 return 1, False, recheck_locations
         
         log_info(f"Event found: {event_name}")
+
+        # Check custom event templates first (from config.json)
+        custom_choice = search_custom_events(event_name)
+        if custom_choice:
+            log_info(f"🎯 Custom template match: {event_name} → {custom_choice}")
+            choices_found, choice_locations = count_event_choices()
+            
+            # Map custom_choice to choice number
+            choice_number = 1
+            if choices_found == 2:
+                if "top" in custom_choice.lower():
+                    choice_number = 1
+                elif "bottom" in custom_choice.lower():
+                    choice_number = 2
+            elif choices_found == 3:
+                if "top" in custom_choice.lower():
+                    choice_number = 1
+                elif "middle" in custom_choice.lower():
+                    choice_number = 2
+                elif "bottom" in custom_choice.lower():
+                    choice_number = 3
+            elif choices_found >= 4:
+                option_match = re.search(r'option\s*(\d+)', custom_choice.lower())
+                if option_match:
+                    choice_number = int(option_match.group(1))
+            
+            if choice_number > choices_found:
+                log_warning(f"Custom choice {choice_number} exceeds available choices ({choices_found}), defaulting to first")
+                choice_number = 1
+            
+            log_info(f"Choose choice: {choice_number}")
+            return choice_number, True, choice_locations
 
         # Hardcoded event handling
         # Handle "Tutorial" event - always choose 2nd choice
