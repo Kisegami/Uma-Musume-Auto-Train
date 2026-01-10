@@ -78,6 +78,7 @@ class SkillTab(QScrollArea):
         self.skill_dropdown = QComboBox()
         self.skill_dropdown.setMinimumWidth(180)
         self._load_skill_templates()
+        self.skill_dropdown.currentTextChanged.connect(self._save_skill)
         auto_layout.addWidget(self.skill_dropdown)
         
         add_btn = QPushButton("Add New")

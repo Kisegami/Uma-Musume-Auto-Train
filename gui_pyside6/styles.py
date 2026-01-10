@@ -277,6 +277,29 @@ QCheckBox::indicator:checked {{
     image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBvbHlsaW5lIHBvaW50cz0iMjAgNiA5IDE3IDQgMTIiPjwvcG9seWxpbmU+PC9zdmc+);
 }}
 
+/* ==================== RadioButton ==================== */
+QRadioButton {{
+    spacing: 10px;
+    color: {COLORS['text_primary']};
+}}
+
+QRadioButton::indicator {{
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    border: 2px solid {COLORS['border_light']};
+    background-color: {COLORS['bg_input']};
+}}
+
+QRadioButton::indicator:hover {{
+    border-color: {COLORS['accent_primary']};
+}}
+
+QRadioButton::indicator:checked {{
+    background-color: {COLORS['accent_primary']};
+    border-color: {COLORS['accent_primary']};
+}}
+
 /* ==================== GroupBox ==================== */
 QGroupBox {{
     background-color: {COLORS['bg_card']};

@@ -3,10 +3,15 @@
     "Professor of Curvature",
     "Swinging Maestro",
     "Speed Star",
-    "Rushing Gale!"
+    "Rushing Gale!",
+    "Straightaway Adept",
+    "Ignited Spirit SPD",
+    "Triumphant Pulse",
+    "Shooting for Victory!"
   ],
   "gold_skill_upgrades": {
     "Professor of Curvature": "Corner Adept",
-    "Swinging Maestro": "Corner Recovery"
+    "Swinging Maestro": "Corner Recovery",
+    "Speed Star": "Prepared to Pass"
   }
 }

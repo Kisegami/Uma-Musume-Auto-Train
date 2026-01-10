@@ -130,6 +130,7 @@ class RacingTab(QScrollArea):
         self.custom_file_combo = QComboBox()
         self.custom_file_combo.setMinimumWidth(200)
         self._load_custom_race_templates()
+        self.custom_file_combo.currentTextChanged.connect(self._save_racing)
         custom_file_layout.addWidget(self.custom_file_combo)
         
         add_btn = QPushButton("Add New")

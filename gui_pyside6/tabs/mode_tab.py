@@ -103,7 +103,7 @@ class ModeTab(QScrollArea):
         )
         auto_layout.addWidget(self.rarity_combo, 2, 1)
         
-        self.auto_charge = QCheckBox("Auto Charge TP")
+        self.auto_charge = QCheckBox("Restore TP using TP Bottle")
         self.auto_charge.stateChanged.connect(
             lambda v: self._update_config("auto_start_career", "auto_charge_tp", v == Qt.Checked)
         )
