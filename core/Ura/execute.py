@@ -352,6 +352,47 @@ def career_lobby():
         log_info(f"Goal Name: {goal_data}")
         log_info(f"Status: {criteria_text}")
 
+        # Check for maiden (2-star) race opportunity in career lobby
+        # Only check if year is not Pre-Debut
+        if not is_pre_debut_year(year):
+            log_debug(f"Checking for maiden race icon in lobby...")
+            # Check for maiden_lobby.png in specific region (x=0, y=1123, width=378, height=111)
+            maiden_lobby_region = (0, 1123, 378, 111)
+            maiden_lobby_matches = match_template(screenshot, "assets/icons/maiden_lobby.png", confidence=0.8, region=maiden_lobby_region)
+            
+            if maiden_lobby_matches:
+                log_info(f"Maiden race icon found in lobby! Checking for 2-star races...")
+                
+                # Navigate to race menu
+                if tap_on_image("assets/buttons/races_btn.png", min_search=10):
+                    time.sleep(0.5)
+                    # Handle OK button if it appears
+                    tap_on_image("assets/buttons/ok_btn.png", confidence=0.5, min_search=2)
+                    time.sleep(0.5)
+                    
+                    # Take fresh screenshot to check for 2-star race
+                    race_screenshot = take_screenshot()
+                    two_star_matches = match_template(race_screenshot, "assets/races/2_star_race.png", confidence=0.8)
+                    
+                    if two_star_matches:
+                        log_info(f"2-star race found! Tapping to select...")
+                        x, y, w, h = two_star_matches[0]
+                        center_x, center_y = x + w//2, y + h//2
+                        tap(center_x, center_y)
+                        time.sleep(0.5)
+                        
+                        # Execute the race after selection
+                        from core.Ura.races_handling import execute_race_after_selection
+                        if execute_race_after_selection():
+                            log_info(f"2-star race completed successfully!")
+                            continue
+                    else:
+                        log_debug(f"No 2-star race found, tapping back to continue normally...")
+                        tap_on_image("assets/buttons/back_btn.png", confidence=0.8, min_search=5)
+                        time.sleep(0.5)
+            else:
+                log_debug(f"No maiden race icon in lobby")
+
         log_debug(f"Mood index: {mood_index}, Minimum mood index: {minimum_mood}")
         
         # Check energy bar before proceeding with training decisions
