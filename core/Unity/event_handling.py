@@ -138,6 +138,15 @@ def _load_custom_event_templates():
     return _event_cache
 
 
+def _normalize_event_name(name: str) -> str:
+    """Remove special markers and symbols from event names for matching
+    
+    Removes: (❯), (❯❯), (❯❯❯), ♪, and extra whitespace
+    """
+    result = name.replace("(❯)", "").replace("(❯❯)", "").replace("(❯❯❯)", "").replace("♪", "")
+    return result.strip()
+
+
 def search_custom_events(event_name):
     """Search for event in custom templates (from config.json)
     
@@ -150,26 +159,45 @@ def search_custom_events(event_name):
     # Ensure custom templates are loaded
     _load_custom_event_templates()
     
-    # Check Uma events first (exact match)
+    # Normalize the search term
+    normalized_search = _normalize_event_name(event_name).lower()
+    
+    # Check Uma events first
     if _event_cache["custom_uma_events"]:
+        # Try exact match first
         if event_name in _event_cache["custom_uma_events"]:
             return _event_cache["custom_uma_events"][event_name]
         
-        # Try case-insensitive match
-        event_name_lower = event_name.lower()
+        # Try normalized exact match
         for custom_event, selected_option in _event_cache["custom_uma_events"].items():
-            if custom_event.lower() == event_name_lower:
+            normalized_custom = _normalize_event_name(custom_event).lower()
+            if normalized_custom == normalized_search:
+                return selected_option
+        
+        # Try prefix match (e.g., "Solid Showing" matches "Solid Showing (G1)")
+        for custom_event, selected_option in _event_cache["custom_uma_events"].items():
+            normalized_custom = _normalize_event_name(custom_event).lower()
+            if normalized_custom.startswith(normalized_search) and len(normalized_search) >= 5:
+                log_debug(f"Prefix match: '{event_name}' → '{custom_event}'")
                 return selected_option
     
     # Check Support Card events
     if _event_cache["custom_support_events"]:
+        # Try exact match first
         if event_name in _event_cache["custom_support_events"]:
             return _event_cache["custom_support_events"][event_name]
         
-        # Try case-insensitive match
-        event_name_lower = event_name.lower()
+        # Try normalized exact match
         for custom_event, selected_option in _event_cache["custom_support_events"].items():
-            if custom_event.lower() == event_name_lower:
+            normalized_custom = _normalize_event_name(custom_event).lower()
+            if normalized_custom == normalized_search:
+                return selected_option
+        
+        # Try prefix match
+        for custom_event, selected_option in _event_cache["custom_support_events"].items():
+            normalized_custom = _normalize_event_name(custom_event).lower()
+            if normalized_custom.startswith(normalized_search) and len(normalized_search) >= 5:
+                log_debug(f"Prefix match: '{event_name}' → '{custom_event}'")
                 return selected_option
     
     return None
