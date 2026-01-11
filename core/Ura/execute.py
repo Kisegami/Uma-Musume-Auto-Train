@@ -404,8 +404,8 @@ def career_lobby():
         
         # Check for rest in June to save energy for summer (skip on Race Day)
         rest_in_june_enabled = training_config_section.get("rest_in_june", False)
-        if rest_in_june_enabled and "Jun" in year and "Junior" not in year and energy_percentage <= 50 and turn != "Race Day":
-            log_info(f"Rest in June enabled - Energy <= 50%. Going to rest to save energy for summer.")
+        if rest_in_june_enabled and "Jun" in year and "Junior" not in year and energy_percentage <= 60 and turn != "Race Day":
+            log_info(f"Rest in June enabled - Energy <= 60%. Going to rest to save energy for summer.")
             do_rest()
             continue
         

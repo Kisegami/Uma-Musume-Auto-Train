@@ -2,16 +2,6 @@
     "TemplateName": "Maya",
     "CustomChoices": [
         {
-            "EventName": "Heavy Romance",
-            "CardSlug": "20005-agnes-digital",
-            "SelectedOption": "Bottom Option"
-        },
-        {
-            "EventName": "Umamusume Deficiency!",
-            "CardSlug": "20005-agnes-digital",
-            "SelectedOption": "Top Option"
-        },
-        {
             "EventName": "Enemies on Main Street",
             "CardSlug": "30005-vodka",
             "SelectedOption": "Top Option"
@@ -75,6 +65,21 @@
             "EventName": "Student Council Member!",
             "CardSlug": "30044-narita-brian",
             "SelectedOption": "Bottom Option"
+        },
+        {
+            "EventName": "(❯❯) Dazzling and Marvelous ☆",
+            "CardSlug": "30074-marvelous-sunday",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "How To Be More Marvelous ☆",
+            "CardSlug": "30074-marvelous-sunday",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "Marvelous, No Question ☆",
+            "CardSlug": "30074-marvelous-sunday",
+            "SelectedOption": "Top Option"
         }
     ]
 }

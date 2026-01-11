@@ -93,7 +93,7 @@ def should_continue_restarting(current_restart_count: int, max_restart_times: in
 
 
 def execute_skill_purchase_workflow(available_points: int):
-    """Execute the skill purchase workflow"""
+    """Execute the skill purchase workflow with merged priorities (main → end → budget)"""
     log_info(f"=== Auto Skill Purchase Workflow ===")
     
     # Import here to avoid circular imports
@@ -117,9 +117,50 @@ def execute_skill_purchase_workflow(available_points: int):
     if all_available_skills:
         # Deduplicate and optimize skill purchase
         deduplicated_skills = deduplicate_skills(all_available_skills, similarity_threshold=0.8)
-        config = load_skill_config()
+        
+        # Load main skill config
+        main_config = load_skill_config()
+        
+        # Load end skill config (always used during restart career)
+        restart_config = load_restart_config()
+        end_skill_file = restart_config.get("end_skill_file", "")
+        
+        # Merge configs: main priority list + end skill priority list
+        merged_config = {
+            "skill_priority": list(main_config.get("skill_priority", [])),
+            "gold_skill_upgrades": dict(main_config.get("gold_skill_upgrades", {}))
+        }
+        
+        if end_skill_file:
+            try:
+                import json
+                import os
+                # Handle relative path
+                if not os.path.isabs(end_skill_file):
+                    end_skill_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), end_skill_file)
+                
+                if os.path.exists(end_skill_file):
+                    with open(end_skill_file, 'r', encoding='utf-8') as f:
+                        end_config = json.load(f)
+                    
+                    # Append end skill priorities (avoid duplicates)
+                    existing_priorities = set(merged_config["skill_priority"])
+                    for skill in end_config.get("skill_priority", []):
+                        if skill not in existing_priorities:
+                            merged_config["skill_priority"].append(skill)
+                            existing_priorities.add(skill)
+                    
+                    # Merge gold skill upgrades
+                    merged_config["gold_skill_upgrades"].update(end_config.get("gold_skill_upgrades", {}))
+                    
+                    log_info(f"Merged end skill config from: {end_skill_file}")
+                else:
+                    log_info(f"End skill file not found: {end_skill_file}")
+            except Exception as e:
+                log_info(f"Failed to load end skill config: {e}")
+        
         # Use end_career=True to buy all available skills instead of just priority skills
-        purchase_plan = create_purchase_plan(deduplicated_skills, config, end_career=True)
+        purchase_plan = create_purchase_plan(deduplicated_skills, merged_config, end_career=True)
         
         if purchase_plan:
             affordable_skills, total_cost, remaining_points = filter_affordable_skills(purchase_plan, available_points)

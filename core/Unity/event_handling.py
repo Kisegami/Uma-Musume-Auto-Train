@@ -180,6 +180,13 @@ def search_custom_events(event_name):
             if normalized_custom.startswith(normalized_search) and len(normalized_search) >= 5:
                 log_debug(f"Prefix match: '{event_name}' → '{custom_event}'")
                 return selected_option
+        
+        # Try substring/contains match (e.g., "Get Well Soon!" matches "Failed training (Get Well Soon!)")
+        for custom_event, selected_option in _event_cache["custom_uma_events"].items():
+            normalized_custom = _normalize_event_name(custom_event).lower()
+            if len(normalized_search) >= 5 and normalized_search in normalized_custom:
+                log_debug(f"Substring match: '{event_name}' → '{custom_event}'")
+                return selected_option
     
     # Check Support Card events
     if _event_cache["custom_support_events"]:
@@ -198,6 +205,13 @@ def search_custom_events(event_name):
             normalized_custom = _normalize_event_name(custom_event).lower()
             if normalized_custom.startswith(normalized_search) and len(normalized_search) >= 5:
                 log_debug(f"Prefix match: '{event_name}' → '{custom_event}'")
+                return selected_option
+        
+        # Try substring/contains match
+        for custom_event, selected_option in _event_cache["custom_support_events"].items():
+            normalized_custom = _normalize_event_name(custom_event).lower()
+            if len(normalized_search) >= 5 and normalized_search in normalized_custom:
+                log_debug(f"Substring match: '{event_name}' → '{custom_event}'")
                 return selected_option
     
     return None

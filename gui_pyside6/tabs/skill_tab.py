@@ -101,6 +101,49 @@ class SkillTab(QScrollArea):
         
         layout.addWidget(skill_group)
         
+        # ==================== End Skill Template Section ====================
+        self.end_skill_group = QGroupBox("End Skill Template (Restart Career)")
+        end_skill_layout = QVBoxLayout(self.end_skill_group)
+        end_skill_layout.setSpacing(12)
+        
+        # Note label
+        note_label = QLabel("⚠️ Used automatically when Restart Career is enabled")
+        note_label.setStyleSheet(f"color: {COLORS['accent_orange']}; font-size: 11px;")
+        end_skill_layout.addWidget(note_label)
+        
+        # End skill template selection (always visible)
+        self.end_skill_widget = QWidget()
+        end_skill_row_layout = QHBoxLayout(self.end_skill_widget)
+        end_skill_row_layout.setContentsMargins(0, 0, 0, 0)
+        
+        end_skill_row_layout.addWidget(QLabel("End Skill Template:"))
+        
+        self.end_skill_dropdown = QComboBox()
+        self.end_skill_dropdown.setMinimumWidth(180)
+        self._load_end_skill_templates()
+        self.end_skill_dropdown.currentTextChanged.connect(self._save_end_skill)
+        end_skill_row_layout.addWidget(self.end_skill_dropdown)
+        
+        end_add_btn = QPushButton("Add New")
+        end_add_btn.setObjectName("primary")
+        end_add_btn.clicked.connect(self._add_end_skill_template)
+        end_skill_row_layout.addWidget(end_add_btn)
+        
+        end_remove_btn = QPushButton("Remove")
+        end_remove_btn.setObjectName("danger")
+        end_remove_btn.clicked.connect(self._remove_end_skill_template)
+        end_skill_row_layout.addWidget(end_remove_btn)
+        
+        end_edit_btn = QPushButton("Edit")
+        end_edit_btn.setObjectName("accent")
+        end_edit_btn.clicked.connect(self._edit_end_skill_template)
+        end_skill_row_layout.addWidget(end_edit_btn)
+        
+        end_skill_row_layout.addStretch()
+        end_skill_layout.addWidget(self.end_skill_widget)
+        
+        layout.addWidget(self.end_skill_group)
+        
         layout.addStretch()
         self.setWidget(container)
     
@@ -141,6 +184,7 @@ class SkillTab(QScrollArea):
         self._loading = True
         config = self.main_window.get_config()
         skills = config.get("skills", {})
+        restart = config.get("restart_career", {})
         
         self.enable_skill_check.blockSignals(True)
         self.enable_skill_check.setChecked(skills.get("enable_skill_point_check", True))
@@ -166,6 +210,14 @@ class SkillTab(QScrollArea):
         enabled = self.enable_skill_check.isChecked()
         self.settings_widget.setVisible(enabled)
         self.auto_widget.setVisible(enabled and self.purchase_combo.currentText() == 'auto')
+        
+        # End skill file
+        end_skill_file = restart.get("end_skill_file", "default.json")
+        if "/" in end_skill_file or "\\" in end_skill_file:
+            end_skill_file = os.path.basename(end_skill_file)
+        idx = self.end_skill_dropdown.findText(end_skill_file)
+        if idx >= 0:
+            self.end_skill_dropdown.setCurrentIndex(idx)
         
         self._loading = False
     
@@ -227,4 +279,81 @@ class SkillTab(QScrollArea):
         
         from .skill_list_window import SkillListWindow
         dialog = SkillListWindow(self, skill_file)
+        dialog.exec()
+    
+    # ==================== End Skill Template Methods ====================
+    
+    def _get_end_skill_dir(self):
+        """Get End_skill template directory"""
+        end_skill_dir = os.path.join("template", "End_skill")
+        os.makedirs(end_skill_dir, exist_ok=True)
+        return end_skill_dir
+    
+    def _load_end_skill_templates(self):
+        """Load available end skill templates"""
+        self.end_skill_dropdown.clear()
+        end_skill_dir = self._get_end_skill_dir()
+        if os.path.exists(end_skill_dir):
+            files = glob.glob(os.path.join(end_skill_dir, "*.json"))
+            for f in sorted(files):
+                self.end_skill_dropdown.addItem(os.path.basename(f))
+        if self.end_skill_dropdown.count() == 0:
+            self.end_skill_dropdown.addItem("default.json")
+    
+    
+    def _save_end_skill(self):
+        """Save end skill settings to restart_career config"""
+        if getattr(self, '_loading', False):
+            return
+        
+        config = self.main_window.get_config()
+        if "restart_career" not in config:
+            config["restart_career"] = {}
+        
+
+        config["restart_career"]["end_skill_file"] = f"template/End_skill/{self.end_skill_dropdown.currentText()}"
+        
+        self.main_window.save_config()
+    
+    def _add_end_skill_template(self):
+        """Add new end skill template"""
+        name, ok = QInputDialog.getText(self, "New End Skill Template", "Enter template name:")
+        if ok and name.strip():
+            safe_name = name.strip()
+            if not safe_name.endswith(".json"):
+                safe_name += ".json"
+            path = os.path.join(self._get_end_skill_dir(), safe_name)
+            if not os.path.exists(path):
+                with open(path, 'w') as f:
+                    json.dump({"skill_priority": [], "gold_skill_upgrades": {}}, f, indent=2)
+            self._load_end_skill_templates()
+            idx = self.end_skill_dropdown.findText(safe_name)
+            if idx >= 0:
+                self.end_skill_dropdown.setCurrentIndex(idx)
+    
+    def _remove_end_skill_template(self):
+        """Remove selected end skill template"""
+        filename = self.end_skill_dropdown.currentText()
+        if not filename:
+            return
+        reply = QMessageBox.question(self, "Confirm", f"Remove '{filename}'?")
+        if reply == QMessageBox.Yes:
+            path = os.path.join(self._get_end_skill_dir(), filename)
+            if os.path.exists(path):
+                os.remove(path)
+            self._load_end_skill_templates()
+    
+    def _edit_end_skill_template(self):
+        """Edit selected end skill template"""
+        filename = self.end_skill_dropdown.currentText()
+        if not filename:
+            return
+        
+        path = os.path.join(self._get_end_skill_dir(), filename)
+        if not os.path.exists(path):
+            with open(path, 'w') as f:
+                json.dump({"skill_priority": [], "gold_skill_upgrades": {}}, f, indent=2)
+        
+        from .skill_list_window import SkillListWindow
+        dialog = SkillListWindow(self, path)
         dialog.exec()
