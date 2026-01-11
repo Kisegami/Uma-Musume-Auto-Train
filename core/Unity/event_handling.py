@@ -36,6 +36,15 @@ project_root = _get_project_root()
 config = load_main_config(os.path.join(project_root, "config.json"))
 DEBUG_MODE = config.get("debug_mode", False)
 
+# Unity Team name to asset mapping for "A Team at Last" event
+UNITY_TEAM_ASSETS = {
+    "Happy Hoppers": "assets/unity/team_happy_hoppers.png",
+    "Sunny Runners": "assets/unity/team_sunny_runners.png",
+    "Carrot Pudding": "assets/unity/team_carrot_pudding.png",
+    "Blue Bloom": "assets/unity/team_blue_bloom.png",
+    # "Team Carrot" has no asset - uses last choice (fallback)
+}
+
 # Cache for event databases to avoid reloading JSON files
 _event_cache = {
     "support_card": None,
@@ -869,17 +878,67 @@ def handle_event_choice():
                 log_warning(f"Tutorial event detected but only {choices_found} choice(s) available, defaulting to first choice")
                 return 1, True, choice_locations
         
-        # Handle "A Team at Last" event - always choose bottom (last) choice
+        # Handle "A Team at Last" event - select team based on config
         if "A Team at Last" in event_name or "Team at Last" in event_name:
-            log_info("🎯 Hardcoded event: A Team at Last - choosing bottom (last) choice")
+            team_name = config.get("unity_team_name", "Team Carrot")
+            log_info(f"🎯 Hardcoded event: A Team at Last - configured team: {team_name}")
             choices_found, choice_locations = count_event_choices()
-            if choices_found > 0:
-                choice_number = choices_found  # Last choice
-                log_info(f"Choose choice: {choice_number} (bottom/last choice)")
-                return choice_number, True, choice_locations
-            else:
+            
+            if choices_found == 0:
                 log_warning(f"A Team at Last event detected but no choices available, defaulting to first choice")
                 return 1, True, choice_locations
+            
+            # If Team Carrot or fallback, use last choice
+            if team_name not in UNITY_TEAM_ASSETS:
+                log_info(f"Using fallback: last choice (Team Carrot)")
+                choice_number = choices_found
+                log_info(f"Choose choice: {choice_number} (bottom/last choice)")
+                return choice_number, True, choice_locations
+            
+            # Template match to find the correct team choice
+            asset_path = UNITY_TEAM_ASSETS[team_name]
+            if not os.path.exists(asset_path):
+                log_warning(f"Team asset not found: {asset_path}, falling back to last choice")
+                choice_number = choices_found
+                log_info(f"Choose choice: {choice_number} (fallback)")
+                return choice_number, True, choice_locations
+            
+            # Take screenshot and find team icon
+            screenshot = take_screenshot()
+            img_cv = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+            template = cv2.imread(asset_path)
+            
+            if template is None:
+                log_warning(f"Could not load team template: {asset_path}, falling back to last choice")
+                choice_number = choices_found
+                return choice_number, True, choice_locations
+            
+            # Template matching on FULL SCREEN (not region)
+            result = cv2.matchTemplate(img_cv, template, cv2.TM_CCOEFF_NORMED)
+            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
+            
+            if max_val >= 0.7:
+                # Found team icon, calculate which choice it belongs to
+                team_y = max_loc[1] + template.shape[0] // 2
+                log_debug(f"Team {team_name} found at y={team_y}, confidence={max_val:.2f}")
+                
+                # Map icon Y position to choice number by comparing with choice locations
+                for i, (cx, cy, cw, ch) in enumerate(choice_locations):
+                    choice_center_y = cy + ch // 2
+                    # Check if team icon Y is within range of this choice
+                    if abs(team_y - choice_center_y) < 200:
+                        choice_number = i + 1
+                        log_info(f"Choose choice: {choice_number} ({team_name})")
+                        return choice_number, True, choice_locations
+                
+                log_warning(f"Could not map team icon position to choice, falling back to last choice")
+                choice_number = choices_found
+                return choice_number, True, choice_locations
+            else:
+                log_warning(f"Team {team_name} not found on screen (max_val={max_val:.2f}), falling back to last choice")
+                choice_number = choices_found
+                log_info(f"Choose choice: {choice_number} (fallback)")
+                return choice_number, True, choice_locations
 
         # Search for event in database
         found_events = search_events_exact(event_name)
