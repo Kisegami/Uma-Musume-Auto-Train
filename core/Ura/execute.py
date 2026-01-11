@@ -402,6 +402,13 @@ def career_lobby():
         
         log_info(f"Energy: {energy_percentage:.1f}% (Minimum: {min_energy}%)")
         
+        # Check for rest in June to save energy for summer
+        rest_in_june_enabled = training_config_section.get("rest_in_june", False)
+        if rest_in_june_enabled and "Jun" in year and "Junior" not in year and energy_percentage <= 50:
+            log_info(f"Rest in June enabled - Year contains 'Jun' and energy <= 50%. Going to rest to save energy for summer.")
+            do_rest()
+            continue
+        
         # Get and display current stats
         current_stats = {}
         try:
