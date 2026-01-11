@@ -461,9 +461,13 @@ def career_lobby():
         
         log_info(f"Energy: {energy_percentage:.1f}% (Minimum: {min_energy}%)")
         
-        # Check for rest in June to save energy for summer
+        # Early check for race day to avoid rest_in_june on race day
+        goal_matches_early = match_template(screenshot, "assets/unity/goal.png", confidence=0.8)
+        is_race_day_early = bool(goal_matches_early)
+        
+        # Check for rest in June to save energy for summer (skip on Race Day)
         rest_in_june_enabled = training_config_section.get("rest_in_june", False)
-        if rest_in_june_enabled and "Jun" in year and "Junior" not in year and energy_percentage <= 50:
+        if rest_in_june_enabled and "Jun" in year and "Junior" not in year and energy_percentage <= 50 and not is_race_day_early:
             log_info(f"Rest in June enabled - Energy <= 50%. Going to rest to save energy for summer.")
             do_rest()
             continue
@@ -775,17 +779,41 @@ def career_lobby():
                         
                     else:
                         log_info(f"Prioritizing race due to insufficient training scores.")
-                        log_info(f"Training Race Check: Looking for race due to insufficient training scores...")
-                        race_found = find_and_do_race()
-                        if race_found:
-                            log_info(f"Training Race Result: Found Race")
-                            continue
-                        else:
-                            log_info(f"Training Race Result: No Race Found")
-                            # If no race found, go back and try training instead of resting by default
-                            tap_on_image("assets/buttons/back_btn.png", text="[INFO] Race not found. Trying training instead.")
+                        log_info(f"Training Race Check: Checking database for available races...")
+                        
+                        # Check database while still on training screen (no navigation)
+                        from core.Unity.races_handling import check_race_in_database
+                        race_available = check_race_in_database(year)
+                        
+                        if race_available:
+                            log_info(f"Good race found in database. Going back to lobby to do race.")
+                            # Go back to lobby and do the race
+                            tap_on_image("assets/buttons/back_btn.png", text="[INFO] Going back to lobby to search for race...")
                             time.sleep(0.5)
-                            # Try training with relaxed thresholds
+                            race_found = find_and_do_race()
+                            if race_found:
+                                log_info(f"Training Race Result: Race executed successfully")
+                                continue
+                            else:
+                                log_info(f"Training Race Result: Race execution failed")
+                                # Go back to training and use relaxed config
+                                if not go_to_training():
+                                    log_warning("Could not return to training screen. Choosing to rest.")
+                                    if should_use_dating_for_rest(screenshot):
+                                        log_info(f"Using dating instead of rest")
+                                        if not do_dating():
+                                            log_warning(f"Dating failed, falling back to rest")
+                                            do_rest()
+                                    else:
+                                        do_rest()
+                                    continue
+                        else:
+                            log_info(f"No good race found in database.")
+                        
+                        # No race available - check energy to decide next action
+                        # We're still on training screen
+                        if energy_percentage >= 50:
+                            log_info(f"Energy is {energy_percentage:.1f}% (>= 50%). Using relaxed scoring to train.")
                             relaxed_config = dict(training_config)
                             relaxed_config['min_score'] = {
                                 "spd": 0.0,
@@ -794,31 +822,33 @@ def career_lobby():
                                 "guts": 0.0,
                                 "wit": 0.0
                             }
-                            fallback_training = choose_best_training(results_training, relaxed_config, current_stats)
-                            if fallback_training:
-                                log_info(f"Proceeding with training ({fallback_training.upper()}) after race not found")
-                                do_train(fallback_training)
+                            relaxed_training = choose_best_training(results_training, relaxed_config, current_stats)
+                            if relaxed_training:
+                                log_info(f"Proceeding with training ({relaxed_training.upper()}) using relaxed scoring")
+                                do_train(relaxed_training, already_on_training_screen=True)
                                 continue
                             else:
-                                wit_score = results_training.get('wit', {}).get('score', 0)
-                                if wit_score < 1.0:
-                                    log_info(f"No viable training after relaxation and race not found. Choosing to rest.")
-                                    if should_use_dating_for_rest(screenshot):
-                                        log_info(f"Using dating instead of rest")
-                                        if not do_dating():
-                                            log_warning(f"Dating failed, falling back to rest")
-                                            do_rest()
-                                    else:
+                                log_info(f"No training found even with relaxed scoring. Going back to rest.")
+                                tap_on_image("assets/buttons/back_btn.png")
+                                time.sleep(0.3)
+                                if should_use_dating_for_rest(screenshot):
+                                    log_info(f"Using dating instead of rest")
+                                    if not do_dating():
+                                        log_warning(f"Dating failed, falling back to rest")
                                         do_rest()
                                 else:
-                                    log_info(f"No training selected after relaxation. Choosing to rest.")
-                                    if should_use_dating_for_rest(screenshot):
-                                        log_info(f"Using dating instead of rest")
-                                        if not do_dating():
-                                            log_warning(f"Dating failed, falling back to rest")
-                                            do_rest()
-                                    else:
-                                        do_rest()
+                                    do_rest()
+                        else:
+                            log_info(f"Energy is {energy_percentage:.1f}% (< 50%). Going back to lobby to rest.")
+                            tap_on_image("assets/buttons/back_btn.png")
+                            time.sleep(0.3)
+                            if should_use_dating_for_rest(screenshot):
+                                log_info(f"Using dating instead of rest")
+                                if not do_dating():
+                                    log_warning(f"Dating failed, falling back to rest")
+                                    do_rest()
+                            else:
+                                do_rest()
             else:
                 # Race prioritization disabled: if no training was chosen here, rest
                 # (min_score and failure thresholds are still enforced)

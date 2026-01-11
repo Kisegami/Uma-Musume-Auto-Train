@@ -68,6 +68,77 @@ def get_grade_priority(grade):
     }
     return grade_priority.get(grade.upper(), 999)  # Unknown grades get lowest priority
 
+def check_race_in_database(year=None):
+    """Check if a suitable race exists in the database for the current year.
+    
+    This function ONLY checks the database - it does NOT navigate or click anything.
+    Use this to decide whether to attempt racing before leaving the training screen.
+    
+    Returns:
+        bool: True if a suitable race is available, False otherwise
+    """
+    try:
+        # Get current year if not provided
+        if year is None:
+            year = check_current_year()
+        if not year:
+            log_debug(f"check_race_in_database: Could not detect current year")
+            return False
+        
+        # Check basic racing availability
+        if not is_racing_available(year):
+            log_debug(f"check_race_in_database: Racing not available for {year}")
+            return False
+        
+        # Load configuration
+        try:
+            config = _load_config()
+        except Exception as e:
+            log_debug(f"check_race_in_database: Error loading config: {e}")
+            return False
+        
+        # Load race data
+        try:
+            with open(os.path.join(project_root, "assets/races/clean_race_data.json"), "r", encoding="utf-8") as f:
+                race_data = json.load(f)
+        except Exception as e:
+            log_debug(f"check_race_in_database: Error loading race data: {e}")
+            return False
+        
+        if not race_data or year not in race_data:
+            log_debug(f"check_race_in_database: No race data for {year}")
+            return False
+        
+        # Get config criteria
+        racing_config_section = config.get("racing", {})
+        allowed_grades = racing_config_section.get("allowed_grades", ["G1", "G2", "G3", "OP", "PRE-OP"])
+        allowed_tracks = racing_config_section.get("allowed_tracks", ["Turf", "Dirt"])
+        allowed_distances = racing_config_section.get("allowed_distances", ["Sprint", "Mile", "Medium", "Long"])
+        
+        # Check if any race matches criteria
+        for race_name, race_info in race_data[year].items():
+            race_grade = race_info.get("grade", "UNKNOWN")
+            race_surface = race_info.get("surface", "UNKNOWN")
+            race_category = race_info.get("distance_type", "UNKNOWN")
+            
+            if race_grade not in allowed_grades:
+                continue
+            if allowed_tracks and race_surface not in allowed_tracks:
+                continue
+            if allowed_distances and race_category not in allowed_distances:
+                continue
+            
+            # Found a suitable race
+            log_debug(f"check_race_in_database: Found suitable race: {race_name} ({race_grade})")
+            return True
+        
+        log_debug(f"check_race_in_database: No suitable race found in database")
+        return False
+        
+    except Exception as e:
+        log_debug(f"check_race_in_database: Error: {e}")
+        return False
+
 def find_target_race_in_screenshot(screenshot, race_description):
     """Find target race in a given screenshot and return fan center coordinates"""
     matches = locate_all_on_screen("assets/races/fan.png", confidence=0.8, region=(390, 1138, 513, 1495))

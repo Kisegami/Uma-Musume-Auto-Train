@@ -7,12 +7,12 @@ from core.Unity.skill_purchase_optimizer import fuzzy_match_skill_name
 from utils.log import log_debug, log_info, log_warning, log_error
 
 # Skill list swipe coordinates (optimized for skill screen)
-SKILL_LIST_CENTER_X = 504
-SKILL_LIST_TOP_Y = 800
-SKILL_LIST_BOTTOM_Y = 1430  # Updated: tested value
-SKILL_LIST_SCROLL_TARGET_TOP = 1400
-SKILL_LIST_SCROLL_TARGET_BOTTOM = 750
-SKILL_LIST_SWIPE_DURATION = 400  # Updated: tested value
+SKILL_LIST_CENTER_X = 898
+SKILL_LIST_TOP_Y = 500
+SKILL_LIST_BOTTOM_Y = 1200  # Updated: tested value
+SKILL_LIST_SCROLL_TARGET_TOP = 1200
+SKILL_LIST_SCROLL_TARGET_BOTTOM = 500
+SKILL_LIST_SWIPE_DURATION = 500  # Updated: tested value
 SKILL_LIST_TAP_X = 504
 SKILL_LIST_TAP_Y = 750
 

@@ -568,8 +568,8 @@ def generate_debug_image(screenshot, locations, confidence, brightness_info=None
         log_debug(f"Error generating debug image: {e}")
         return None
 
-def scan_all_skills_with_scroll(swipe_start_x=504, swipe_start_y=1430, swipe_end_x=504, swipe_end_y=750,
-                               swipe_duration=400, confidence=0.9, brightness_threshold=150, max_scrolls=20):
+def scan_all_skills_with_scroll(swipe_start_x=898, swipe_start_y=1200, swipe_end_x=974, swipe_end_y=500,
+                               swipe_duration=500, confidence=0.9, brightness_threshold=150, max_scrolls=20):
     """
     Scan all available skills by scrolling through the list until duplicates are found.
     Uses optimized swipe settings for faster scrolling.
