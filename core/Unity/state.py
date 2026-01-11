@@ -287,11 +287,12 @@ def check_skill_points(screenshot=None):
     sharpener = ImageEnhance.Sharpness(skill_img)
     skill_img_sharp = sharpener.enhance(2.5)  # Increase sharpness by 2.5x
     
-    # Save debug images for skill points OCR troubleshooting
-    skill_img.save("debug_skill_points_original.png")
-    skill_img_sharp.save("debug_skill_points_sharpened.png")
-    log_debug(f"Saved original skill points image to debug_skill_points_original.png")
-    log_debug(f"Saved sharpened skill points image to debug_skill_points_sharpened.png")
+    # Save debug images for skill points OCR troubleshooting (only when debug mode is enabled)
+    if DEBUG_MODE:
+        skill_img.save("debug_skill_points_original.png")
+        skill_img_sharp.save("debug_skill_points_sharpened.png")
+        log_debug(f"Saved original skill points image to debug_skill_points_original.png")
+        log_debug(f"Saved sharpened skill points image to debug_skill_points_sharpened.png")
     log_debug(f"Skill points region: {SKILL_PTS_REGION}")
     
     # Use sharpened image for OCR

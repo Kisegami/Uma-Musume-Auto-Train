@@ -212,7 +212,7 @@ def do_recreation():
             log_warning(f"Trainee date button not found after detecting cancel button")
     else:
         log_debug(f"No cancel button found after {elapsed_time:.1f}s - normal recreation flow")
-        if screenshot:
+        if screenshot and DEBUG_MODE:
             screenshot.save("debug_recreation_no_cancel.png")
             log_debug(f"Saved debug screenshot to debug_recreation_no_cancel.png")
 

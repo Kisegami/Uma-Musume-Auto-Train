@@ -5,6 +5,11 @@ from core.Unity.skill_recognizer import take_screenshot, recognize_skill_up_loca
 from utils.input import perform_swipe, tap, tap_on_image, swipe_and_tap
 from core.Unity.skill_purchase_optimizer import fuzzy_match_skill_name
 from utils.log import log_debug, log_info, log_warning, log_error
+from utils.config_loader import load_main_config
+
+# Load config and check debug mode
+_config = load_main_config()
+DEBUG_MODE = _config.get("debug_mode", False)
 
 # Skill list swipe coordinates (optimized for skill screen)
 SKILL_LIST_CENTER_X = 898
@@ -111,9 +116,10 @@ def extract_skill_points(screenshot=None):
         # Crop the skill points region
         points_crop = screenshot.crop(skill_points_region)
         
-        # Save original debug image
-        points_crop.save("debug_skill_points.png")
-        log_debug(f"Saved skill points debug image: debug_skill_points.png")
+        # Save original debug image (only when debug mode is enabled)
+        if DEBUG_MODE:
+            points_crop.save("debug_skill_points.png")
+            log_debug(f"Saved skill points debug image: debug_skill_points.png")
         
         # Optimized OCR - precise region makes simple approach work perfectly
         from core.Unity.ocr import extract_text, extract_number

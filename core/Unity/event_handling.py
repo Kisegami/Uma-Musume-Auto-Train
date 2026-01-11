@@ -812,10 +812,11 @@ def handle_event_choice():
         if not event_name:
             log_error(f"❌ EVENT DETECTION FAILED: No text detected in event region")
             
-            # Save debug image for analysis
-            debug_filename = f"debug_event_detection_failure_{int(time.time())}.png"
-            event_image.save(debug_filename)
-            log_error(f"❌ Debug image saved to: {debug_filename}")
+            # Save debug image for analysis (only when debug mode is enabled)
+            if DEBUG_MODE:
+                debug_filename = f"debug_event_detection_failure_{int(time.time())}.png"
+                event_image.save(debug_filename)
+                log_error(f"❌ Debug image saved to: {debug_filename}")
             log_error(f"❌ Event region coordinates: {event_region}")
             log_error(f"❌ Image size: {event_image.size}")
             log_error(f"❌ Check the OCR logs above for what text was detected (if any)")
