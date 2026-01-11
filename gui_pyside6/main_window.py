@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
     QMessageBox, QSizePolicy
 )
 from PySide6.QtCore import Qt, QSize
-from PySide6.QtGui import QFont, QIcon
+from PySide6.QtGui import QFont, QIcon, QPixmap
 
 from .styles import MAIN_STYLESHEET, COLORS
 from .icon_helper import get_icon
@@ -130,12 +130,30 @@ class MainWindow(QMainWindow):
         sidebar_layout.setContentsMargins(10, 16, 10, 16)
         sidebar_layout.setSpacing(2)
         
+        # Logo at top of sidebar
+        logo_label = QLabel()
+        logo_path = os.path.join(os.path.dirname(__file__), "assets", "logo.png")
+        if os.path.exists(logo_path):
+            logo_pixmap = QPixmap(logo_path)
+            logo_pixmap = logo_pixmap.scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            logo_label.setPixmap(logo_pixmap)
+        logo_label.setAlignment(Qt.AlignCenter)
+        sidebar_layout.addWidget(logo_label)
+        
+        sidebar_layout.addSpacing(8)
+        
         # App title in sidebar
-        title_label = QLabel("Uma Auto-Train")
+        title_label = QLabel("UMAT v0.2")
         title_label.setObjectName("title")
         title_label.setAlignment(Qt.AlignCenter)
         title_label.setStyleSheet("font-size: 16px;")
         sidebar_layout.addWidget(title_label)
+        
+        # Author credit
+        author_label = QLabel("By Kisegami ❤️")
+        author_label.setAlignment(Qt.AlignCenter)
+        author_label.setStyleSheet(f"color: {COLORS['text_muted']}; font-size: 11px;")
+        sidebar_layout.addWidget(author_label)
         
         # Status indicator
         self.status_label = QLabel("● Inactive")

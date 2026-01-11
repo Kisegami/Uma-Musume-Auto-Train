@@ -3,11 +3,14 @@ Main Tab for PySide6 GUI
 Contains ADB configuration and mode settings.
 """
 
+import os
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox,
-    QLineEdit, QGroupBox, QGridLayout, QFrame, QScrollArea, QMessageBox
+    QLineEdit, QGroupBox, QGridLayout, QFrame, QScrollArea, QMessageBox,
+    QSizePolicy
 )
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap
 
 from ..styles import COLORS
 
@@ -33,14 +36,51 @@ class MainTab(QScrollArea):
         
         # Mode Configuration
         mode_group = QGroupBox("Mode Configuration")
-        mode_layout = QGridLayout(mode_group)
-        mode_layout.setSpacing(12)
+        mode_main_layout = QHBoxLayout(mode_group)
+        mode_main_layout.setSpacing(16)
+        mode_main_layout.setContentsMargins(12, 6, 12, 6)
         
-        mode_layout.addWidget(QLabel("Game Mode:"), 0, 0)
+        # Left side: Settings
+        settings_layout = QVBoxLayout()
+        settings_layout.setSpacing(6)
+        
+        # Game Mode row
+        mode_row = QHBoxLayout()
+        mode_row.setSpacing(8)
+        mode_row.addWidget(QLabel("Game Mode:"))
         self.mode_combo = QComboBox()
         self.mode_combo.addItems(["URA Finale", "Unity Cup"])
+        self.mode_combo.setFixedWidth(140)
         self.mode_combo.currentTextChanged.connect(self._on_mode_change)
-        mode_layout.addWidget(self.mode_combo, 0, 1)
+        mode_row.addWidget(self.mode_combo)
+        settings_layout.addLayout(mode_row)
+        
+        # Unity Team row (only visible when Unity mode selected)
+        self.unity_team_row = QWidget()
+        team_row_layout = QHBoxLayout(self.unity_team_row)
+        team_row_layout.setContentsMargins(0, 0, 0, 0)
+        team_row_layout.setSpacing(8)
+        self.unity_team_label = QLabel("Unity Team:")
+        team_row_layout.addWidget(self.unity_team_label)
+        self.unity_team_combo = QComboBox()
+        self.unity_team_combo.addItems([
+            "Happy Hoppers", "Sunny Runners", "Carrot Pudding", 
+            "Blue Bloom", "Team Carrot"
+        ])
+        self.unity_team_combo.setFixedWidth(140)
+        self.unity_team_combo.currentTextChanged.connect(self._on_unity_team_change)
+        team_row_layout.addWidget(self.unity_team_combo)
+        settings_layout.addWidget(self.unity_team_row)
+        
+        # Wrap settings in container with top alignment
+        settings_container = QWidget()
+        settings_container.setLayout(settings_layout)
+        mode_main_layout.addWidget(settings_container, alignment=Qt.AlignTop)
+        mode_main_layout.addStretch()
+        
+        # Right side: Scenario Logo (aligned to top)
+        self.scenario_logo = QLabel()
+        mode_main_layout.addWidget(self.scenario_logo, alignment=Qt.AlignTop | Qt.AlignRight)
         
         layout.addWidget(mode_group)
         
@@ -95,6 +135,16 @@ class MainTab(QScrollArea):
         self.mode_combo.setCurrentText(mode_display)
         self.mode_combo.blockSignals(False)
         
+        # Unity Team Name
+        self.unity_team_combo.blockSignals(True)
+        self.unity_team_combo.setCurrentText(config.get("unity_team_name", "Team Carrot"))
+        self.unity_team_combo.blockSignals(False)
+        
+        # Set Unity Team visibility based on mode and update scenario logo
+        is_unity = (mode == "unity")
+        self.unity_team_row.setVisible(is_unity)
+        self._update_scenario_logo(mode)
+        
         # Emulator
         self.emulator_combo.blockSignals(True)
         self.emulator_combo.setCurrentText(config.get("emulator_type", ""))
@@ -116,12 +166,25 @@ class MainTab(QScrollArea):
         if getattr(self, '_loading', False):
             return
         mode_map = {"URA Finale": "ura", "Unity Cup": "unity"}
-        self.main_window.update_config_value("mode", mode_map.get(text, "ura"))
+        mode = mode_map.get(text, "ura")
+        self.main_window.update_config_value("mode", mode)
         self.main_window.save_config()
+        
+        # Toggle Unity Team visibility and update scenario logo
+        is_unity = (mode == "unity")
+        self.unity_team_row.setVisible(is_unity)
+        self._update_scenario_logo(mode)
         
         # Update Unity fields visibility in training tab
         if hasattr(self.main_window, 'training_page'):
             self.main_window.training_page.update_unity_visibility()
+    
+    def _on_unity_team_change(self, text):
+        """Handle Unity Team change"""
+        if getattr(self, '_loading', False):
+            return
+        self.main_window.update_config_value("unity_team_name", text)
+        self.main_window.save_config()
     
     def _on_emulator_change(self, text):
         """Handle emulator type change"""
@@ -146,3 +209,21 @@ class MainTab(QScrollArea):
             return
         self.main_window.update_nested_config_value("adb_config", key, value)
         self.main_window.save_config()
+    
+    def _update_scenario_logo(self, mode):
+        """Update the scenario logo based on the selected mode"""
+        # Get assets directory path
+        assets_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "scenario")
+        
+        if mode == "unity":
+            logo_path = os.path.join(assets_dir, "Unity_Cup.png")
+        else:
+            logo_path = os.path.join(assets_dir, "Ura_Finale.png")
+        
+        if os.path.exists(logo_path):
+            pixmap = QPixmap(logo_path)
+            # Scale to 200px height while keeping aspect ratio
+            scaled_pixmap = pixmap.scaledToHeight(200, Qt.SmoothTransformation)
+            self.scenario_logo.setPixmap(scaled_pixmap)
+        else:
+            self.scenario_logo.clear()
