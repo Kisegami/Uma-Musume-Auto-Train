@@ -568,15 +568,16 @@ def generate_debug_image(screenshot, locations, confidence, brightness_info=None
         log_debug(f"Error generating debug image: {e}")
         return None
 
-def scan_all_skills_with_scroll(swipe_start_x=504, swipe_start_y=1490, swipe_end_x=504, swipe_end_y=926,
-                               confidence=0.9, brightness_threshold=150, max_scrolls=20):
+def scan_all_skills_with_scroll(swipe_start_x=504, swipe_start_y=1430, swipe_end_x=504, swipe_end_y=750,
+                               swipe_duration=400, confidence=0.9, brightness_threshold=150, max_scrolls=20):
     """
     Scan all available skills by scrolling through the list until duplicates are found.
-    Uses optimized slow swipe for smooth scrolling without acceleration.
+    Uses optimized swipe settings for faster scrolling.
     
     Args:
         swipe_start_x, swipe_start_y: Starting coordinates for swipe
         swipe_end_x, swipe_end_y: Ending coordinates for swipe
+        swipe_duration: Swipe duration in milliseconds (default: 300ms)
         confidence: Template matching confidence (default: 0.9)
         brightness_threshold: Brightness threshold for available buttons (default: 150)
         max_scrolls: Maximum number of scrolls to prevent infinite loops (default: 20)
@@ -589,6 +590,8 @@ def scan_all_skills_with_scroll(swipe_start_x=504, swipe_start_y=1490, swipe_end
             'duplicate_found': str or None
         }
     """
+    from utils.input import swipe_and_tap
+    
     log_debug(f"Scanning all available skills with scrolling")
     log_debug(f"=" * 60)
     
@@ -616,8 +619,9 @@ def scan_all_skills_with_scroll(swipe_start_x=504, swipe_start_y=1490, swipe_end
             
             current_skills = result.get('skills', [])
             new_skills_found = 0
+            no_skills_found = not current_skills
             
-            if not current_skills:
+            if no_skills_found:
                 log_debug(f"No skills found on this screen")
                 # Don't break here - continue scrolling to find skills
                 # Only break if we've tried several empty screens in a row
@@ -644,21 +648,27 @@ def scan_all_skills_with_scroll(swipe_start_x=504, swipe_start_y=1490, swipe_end
                 if duplicate_found:
                     break
             
-            log_debug(f"Found {new_skills_found} new skills (Total: {len(all_skills)}")
+            log_debug(f"Found {new_skills_found} new skills (Total: {len(all_skills)})")
             
             # Perform swipe to scroll down
             scrolls_performed += 1
             if scrolls_performed < max_scrolls:
                 log_debug(f"Scrolling")
-                time.sleep(0.5)  # Wait before swipe to ensure UI is ready
-                success = perform_swipe(swipe_start_x, swipe_start_y, swipe_end_x, swipe_end_y)
+                # Use centralized swipe+tap from utils/input.py
+                success = swipe_and_tap(
+                    swipe_start_x, swipe_start_y,
+                    swipe_end_x, swipe_end_y,
+                    swipe_duration,
+                    504, 750  # tap coordinates to stabilize scroll
+                )
                 
                 if not success:
                     log_debug(f"Failed to perform swipe, stopping scan")
                     break
                 
-                # Wait for scroll animation to complete
-                time.sleep(1.5)
+                # Wait a bit when no skills found to let scroll stabilize
+                if no_skills_found:
+                    time.sleep(0.2)
         
         # Summary
         log_debug(f"=" * 60)
