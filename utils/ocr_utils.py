@@ -1,6 +1,7 @@
 """
 Unified OCR utility module for all OCR operations.
 Handles text extraction, number extraction, and specialized OCR tasks.
+Supports both Tesseract (default) and EasyOCR GPU backends.
 """
 
 import cv2
@@ -10,11 +11,144 @@ import os
 import sys
 import json
 import time
+import re
 from PIL import Image
 from typing import Tuple, Optional
 
 from utils.log import log_debug, log_info, log_warning
 from utils.config_loader import load_main_config
+
+# ==================== EasyOCR GPU Backend ====================
+# Lazy-loaded EasyOCR reader singleton (GPU only)
+_easyocr_reader = None
+_easyocr_init_attempted = False
+
+
+def _get_ocr_backend() -> str:
+    """Get configured OCR backend from config."""
+    try:
+        config = load_main_config()
+        return config.get("ocr_backend", "tesseract")
+    except Exception:
+        return "tesseract"
+
+
+def _get_easyocr_reader():
+    """
+    Get or initialize EasyOCR GPU reader (singleton, lazy-loaded).
+    Returns None if EasyOCR GPU is not available.
+    """
+    global _easyocr_reader, _easyocr_init_attempted
+    
+    if _easyocr_reader is not None:
+        return _easyocr_reader
+    
+    if _easyocr_init_attempted:
+        return None  # Already tried and failed
+    
+    _easyocr_init_attempted = True
+    
+    try:
+        import easyocr
+        import torch
+        
+        # Only use GPU - no CPU fallback per requirements
+        if not torch.cuda.is_available():
+            log_warning("EasyOCR GPU requested but CUDA not available. Falling back to Tesseract.")
+            return None
+        
+        log_info("Initializing EasyOCR GPU reader...")
+        _easyocr_reader = easyocr.Reader(['en'], gpu=True)
+        
+        gpu_name = torch.cuda.get_device_name(0) if torch.cuda.device_count() > 0 else "Unknown"
+        log_info(f"EasyOCR GPU initialized successfully using {gpu_name}")
+        
+        return _easyocr_reader
+        
+    except ImportError as e:
+        log_warning(f"EasyOCR not installed: {e}. Falling back to Tesseract.")
+        return None
+    except Exception as e:
+        log_warning(f"Failed to initialize EasyOCR GPU: {e}. Falling back to Tesseract.")
+        return None
+
+
+def _extract_text_easyocr_gpu(pil_img: Image.Image) -> str:
+    """
+    Extract text from image using GPU EasyOCR.
+    
+    Args:
+        pil_img: PIL Image to extract text from
+    
+    Returns:
+        Extracted text string
+    """
+    reader = _get_easyocr_reader()
+    if reader is None:
+        return ""
+    
+    try:
+        img_np = np.array(pil_img)
+        
+        # Handle different image modes
+        if len(img_np.shape) == 2:
+            # Grayscale - convert to 3-channel
+            img_np = np.stack([img_np] * 3, axis=-1)
+        elif len(img_np.shape) == 3 and img_np.shape[2] == 4:
+            # RGBA - convert to RGB
+            img_np = img_np[:, :, :3]
+        
+        results = reader.readtext(img_np)
+        
+        # Sort by x-coordinate (left-to-right) for correct reading order
+        sorted_results = sorted(results, key=lambda r: min(p[0] for p in r[0]))
+        text_parts = [result[1] for result in sorted_results]
+        return ' '.join(text_parts).strip()
+        
+    except Exception as e:
+        log_debug(f"EasyOCR text extraction error: {e}")
+        return ""
+
+
+def _extract_number_easyocr_gpu(pil_img: Image.Image) -> str:
+    """
+    Extract numbers from image using GPU EasyOCR.
+    
+    Args:
+        pil_img: PIL Image to extract numbers from
+    
+    Returns:
+        Extracted digits string
+    """
+    reader = _get_easyocr_reader()
+    if reader is None:
+        return ""
+    
+    try:
+        img_np = np.array(pil_img)
+        
+        # Handle different image modes
+        if len(img_np.shape) == 2:
+            img_np = np.stack([img_np] * 3, axis=-1)
+        elif len(img_np.shape) == 3 and img_np.shape[2] == 4:
+            img_np = img_np[:, :, :3]
+        
+        results = reader.readtext(img_np)
+        
+        # Extract only digits from results
+        text_parts = [result[1] for result in results]
+        full_text = ' '.join(text_parts)
+        
+        # Extract all digit sequences
+        digits = re.findall(r'\d+', full_text)
+        return ''.join(digits) if digits else ""
+        
+    except Exception as e:
+        log_debug(f"EasyOCR number extraction error: {e}")
+        return ""
+
+
+# ==================== End EasyOCR GPU Backend ====================
 
 # Fix Windows console encoding for Unicode support
 if os.name == 'nt':
@@ -125,7 +259,31 @@ def _preprocess_white_text(img_np: np.ndarray, threshold: int = 180) -> np.ndarr
 
 
 def extract_text(pil_img: Image.Image, config: Optional[str] = None) -> str:
-    """Extract text from image using Tesseract OCR"""
+    """Extract text from image using configured OCR backend.
+    
+    Uses EasyOCR GPU if configured and available, otherwise falls back to Tesseract.
+    
+    Args:
+        pil_img: PIL Image to extract text from
+        config: Optional Tesseract config string (only used with Tesseract backend)
+    
+    Returns:
+        Extracted text string
+    """
+    # Check if EasyOCR GPU backend is configured
+    backend = _get_ocr_backend()
+    if backend == "easyocr_gpu":
+        result = _extract_text_easyocr_gpu(pil_img)
+        if result:  # EasyOCR succeeded
+            return result
+        # Fall through to Tesseract if EasyOCR failed
+    
+    # Use Tesseract (default or fallback)
+    return _extract_text_tesseract(pil_img, config)
+
+
+def _extract_text_tesseract(pil_img: Image.Image, config: Optional[str] = None) -> str:
+    """Extract text from image using Tesseract OCR (internal function)"""
     try:
         img_np = _normalize_image(pil_img)
         text = pytesseract.image_to_string(img_np, lang='eng', config=config or '')
@@ -147,7 +305,31 @@ def extract_text(pil_img: Image.Image, config: Optional[str] = None) -> str:
 
 
 def extract_number(pil_img: Image.Image, config: Optional[str] = None) -> str:
-    """Extract numbers from image using Tesseract OCR
+    """Extract numbers from image using configured OCR backend.
+    
+    Uses EasyOCR GPU if configured and available, otherwise falls back to Tesseract.
+    
+    Args:
+        pil_img: PIL Image to extract numbers from
+        config: Optional Tesseract config string (only used with Tesseract backend)
+    
+    Returns:
+        Extracted digits string
+    """
+    # Check if EasyOCR GPU backend is configured
+    backend = _get_ocr_backend()
+    if backend == "easyocr_gpu":
+        result = _extract_number_easyocr_gpu(pil_img)
+        if result:  # EasyOCR succeeded
+            return result
+        # Fall through to Tesseract if EasyOCR failed
+    
+    # Use Tesseract (default or fallback)
+    return _extract_number_tesseract(pil_img, config)
+
+
+def _extract_number_tesseract(pil_img: Image.Image, config: Optional[str] = None) -> str:
+    """Extract numbers from image using Tesseract OCR (internal function)
     
     Args:
         pil_img: PIL Image to extract numbers from
