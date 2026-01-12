@@ -871,9 +871,28 @@ def choose_best_training(training_results, config, current_stats):
         "wit": min_score_config.get("wit", default_min_score)
     }
     
-    # Filter out training options with failure rates above maximum
-    safe_options = {k: v for k, v in training_results.items() 
-                   if v.get('failure', 100) <= max_failure}
+    # Gambling train config - increases max failure for high score training
+    gambling_enabled = config.get("gambling_train_enabled", False)
+    gambling_failure_increase = config.get("gambling_train_failure_increase", 5)
+    gambling_score_per_increase = config.get("gambling_train_score_per_increase", 1.0)
+    
+    # Filter out training options with failure rates above maximum (with gambling train adjustments)
+    safe_options = {}
+    for k, v in training_results.items():
+        failure_rate = v.get('failure', 100)
+        score = v.get('score', 0)
+        
+        # Calculate effective max failure for this training option
+        effective_max_failure = max_failure
+        if gambling_enabled and gambling_score_per_increase > 0:
+            # Increase max failure based on score (e.g., +5% for each 1.0 score)
+            score_multiplier = int(score / gambling_score_per_increase)
+            effective_max_failure = max_failure + (gambling_failure_increase * score_multiplier)
+            if score_multiplier > 0:
+                log_debug(f"  {k.upper()}: Gambling train applied, effective max failure = {effective_max_failure}% (score={score:.1f})")
+        
+        if failure_rate <= effective_max_failure:
+            safe_options[k] = v
     
     if not safe_options:
         log_debug(f" No training options with failure rate <= {max_failure}%")

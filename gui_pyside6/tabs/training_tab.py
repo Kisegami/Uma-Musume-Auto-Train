@@ -156,6 +156,41 @@ class TrainingTab(QScrollArea):
         self.rest_in_june.stateChanged.connect(self._save_training)
         settings_layout.addWidget(self.rest_in_june, 5, 0, 1, 2)
         
+        # Gambling Train - increase max failure for high score training
+        self.gambling_train = QCheckBox("Gambling Train (increase max failure for high score)")
+        self.gambling_train.stateChanged.connect(self._on_gambling_train_toggle)
+        settings_layout.addWidget(self.gambling_train, 6, 0, 1, 2)
+        
+        # Gambling Train Settings (shown when enabled)
+        self.gambling_settings_widget = QWidget()
+        gambling_layout = QHBoxLayout(self.gambling_settings_widget)
+        gambling_layout.setContentsMargins(20, 0, 0, 0)
+        gambling_layout.setSpacing(8)
+        
+        gambling_layout.addWidget(QLabel("Increase max failure by"))
+        self.gambling_failure_spin = NoScrollSpinBox()
+        self.gambling_failure_spin.setRange(1, 50)
+        self.gambling_failure_spin.setValue(5)
+        self.gambling_failure_spin.setFixedWidth(60)
+        self.gambling_failure_spin.valueChanged.connect(self._save_training)
+        gambling_layout.addWidget(self.gambling_failure_spin)
+        
+        gambling_layout.addWidget(QLabel("% for each"))
+        self.gambling_score_spin = NoScrollDoubleSpinBox()
+        self.gambling_score_spin.setRange(0.1, 10.0)
+        self.gambling_score_spin.setValue(1.0)
+        self.gambling_score_spin.setSingleStep(0.1)
+        self.gambling_score_spin.setDecimals(1)
+        self.gambling_score_spin.setFixedWidth(60)
+        self.gambling_score_spin.valueChanged.connect(self._save_training)
+        gambling_layout.addWidget(self.gambling_score_spin)
+        
+        gambling_layout.addWidget(QLabel("score"))
+        gambling_layout.addStretch()
+        
+        self.gambling_settings_widget.hide()
+        settings_layout.addWidget(self.gambling_settings_widget, 7, 0, 1, 2)
+        
         # ==================== Unity Mode Settings ====================
         self.unity_widget = QWidget()
         unity_layout = QVBoxLayout(self.unity_widget)
@@ -179,7 +214,7 @@ class TrainingTab(QScrollArea):
         spirit_row.addStretch()
         unity_layout.addLayout(spirit_row)
         
-        settings_layout.addWidget(self.unity_widget, 6, 0, 1, 2)
+        settings_layout.addWidget(self.unity_widget, 8, 0, 1, 2)
         
         layout.addWidget(settings_group)
         
@@ -187,6 +222,15 @@ class TrainingTab(QScrollArea):
         score_group = QGroupBox("Minimum Training Score (per stat)")
         score_layout = QHBoxLayout(score_group)
         score_layout.setSpacing(8)
+        
+        # Define stat-specific colors
+        stat_colors = {
+            "spd": "#87CEEB",   # Light Blue
+            "sta": "#FF6B6B",   # Light Red
+            "pwr": "#FFE066",   # Light Yellow
+            "guts": "#FFB6C1",  # Light Pink
+            "wit": "#90EE90"    # Light Green
+        }
         
         self.score_spins = {}
         stats = [("spd", "SPD"), ("sta", "STA"), ("pwr", "PWR"), ("guts", "GUTS"), ("wit", "WIT")]
@@ -198,7 +242,7 @@ class TrainingTab(QScrollArea):
             
             lbl = QLabel(label)
             lbl.setAlignment(Qt.AlignCenter)
-            lbl.setStyleSheet(f"color: {COLORS['text_muted']};")
+            lbl.setStyleSheet(f"color: {stat_colors[stat_key]}; font-weight: bold;")
             stat_layout.addWidget(lbl)
             
             spin = NoScrollDoubleSpinBox()
@@ -227,7 +271,7 @@ class TrainingTab(QScrollArea):
             
             lbl = QLabel(label)
             lbl.setAlignment(Qt.AlignCenter)
-            lbl.setStyleSheet(f"color: {COLORS['text_muted']};")
+            lbl.setStyleSheet(f"color: {stat_colors[stat_key]}; font-weight: bold;")
             stat_layout.addWidget(lbl)
             
             spin = NoScrollSpinBox()
@@ -396,6 +440,22 @@ class TrainingTab(QScrollArea):
         self.rest_in_june.setChecked(training.get("rest_in_june", False))
         self.rest_in_june.blockSignals(False)
         
+        # Gambling Train
+        self.gambling_train.blockSignals(True)
+        self.gambling_train.setChecked(training.get("gambling_train_enabled", False))
+        self.gambling_train.blockSignals(False)
+        
+        self.gambling_failure_spin.blockSignals(True)
+        self.gambling_failure_spin.setValue(training.get("gambling_train_failure_increase", 5))
+        self.gambling_failure_spin.blockSignals(False)
+        
+        self.gambling_score_spin.blockSignals(True)
+        self.gambling_score_spin.setValue(training.get("gambling_train_score_per_increase", 1.0))
+        self.gambling_score_spin.blockSignals(False)
+        
+        # Update gambling settings visibility
+        self.gambling_settings_widget.setVisible(self.gambling_train.isChecked())
+        
         spirit_burst_stats = training.get("spirit_burst_enabled_stats", [])
         for stat, cb in self.spirit_burst_vars.items():
             cb.blockSignals(True)
@@ -443,6 +503,12 @@ class TrainingTab(QScrollArea):
         if not getattr(self, '_loading', False):
             self._save_training()
     
+    def _on_gambling_train_toggle(self):
+        """Handle gambling train checkbox toggle"""
+        self.gambling_settings_widget.setVisible(self.gambling_train.isChecked())
+        if not getattr(self, '_loading', False):
+            self._save_training()
+    
     def _save_training(self):
         """Save training settings"""
         if getattr(self, '_loading', False):
@@ -467,6 +533,11 @@ class TrainingTab(QScrollArea):
         config["training"]["min_energy"] = self.energy_spin.value()
         config["training"]["do_race_when_bad_training"] = self.race_when_bad.isChecked()
         config["training"]["rest_in_june"] = self.rest_in_june.isChecked()
+        
+        # Gambling Train
+        config["training"]["gambling_train_enabled"] = self.gambling_train.isChecked()
+        config["training"]["gambling_train_failure_increase"] = self.gambling_failure_spin.value()
+        config["training"]["gambling_train_score_per_increase"] = self.gambling_score_spin.value()
         
         # Unity mode fields
         if "dating" not in config:

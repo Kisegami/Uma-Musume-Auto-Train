@@ -568,6 +568,24 @@ def complete_career(current_restart_count: int, max_restart_times: int,
     total_fans_acquired += run_fans
     log_info(f"Total fans acquired so far: {total_fans_acquired}")
     
+    # Send Discord webhook notification
+    try:
+        from utils.discord_webhook import is_webhook_enabled, send_run_complete_webhook
+        if is_webhook_enabled():
+            run_number = current_restart_count + 1
+            average_per_run = total_fans_acquired // run_number if run_number > 0 else 0
+            send_run_complete_webhook(
+                run_number=run_number,
+                max_runs=max_restart_times,
+                fans_this_run=run_fans,
+                session_total=total_fans_acquired,
+                today_total=total_fans_acquired,
+                average_per_run=average_per_run,
+                screenshot=screenshot
+            )
+    except Exception as e:
+        log_warning(f"Failed to send Discord webhook: {e}")
+    
     # Check if we should continue
     should_continue, reason = should_continue_restarting(
         current_restart_count, max_restart_times, total_fans_acquired, total_fans_requirement
