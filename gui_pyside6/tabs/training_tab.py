@@ -280,30 +280,38 @@ class TrainingTab(QScrollArea):
         self.hint_spin.valueChanged.connect(self._on_training_score_change)
         self.score_section_layout.addWidget(self.hint_spin, 3, 1)
         
+        # Friend Support (bond < 3)
+        self.score_section_layout.addWidget(QLabel("Friend Support (bond < 3):"), 4, 0)
+        self.friend_support_spin = NoScrollDoubleSpinBox()
+        self.friend_support_spin.setRange(0, 5)
+        self.friend_support_spin.setDecimals(2)
+        self.friend_support_spin.valueChanged.connect(self._on_training_score_change)
+        self.score_section_layout.addWidget(self.friend_support_spin, 4, 1)
+        
         # Unity-specific training score fields (will be shown/hidden based on mode)
         self.unity_score_label1 = QLabel("Spirit Training:")
-        self.score_section_layout.addWidget(self.unity_score_label1, 4, 0)
+        self.score_section_layout.addWidget(self.unity_score_label1, 5, 0)
         self.spirit_training_spin = NoScrollDoubleSpinBox()
         self.spirit_training_spin.setRange(0, 5)
         self.spirit_training_spin.setDecimals(2)
         self.spirit_training_spin.valueChanged.connect(self._on_training_score_change)
-        self.score_section_layout.addWidget(self.spirit_training_spin, 4, 1)
+        self.score_section_layout.addWidget(self.spirit_training_spin, 5, 1)
         
         self.unity_score_label2 = QLabel("Spirit Burst:")
-        self.score_section_layout.addWidget(self.unity_score_label2, 5, 0)
+        self.score_section_layout.addWidget(self.unity_score_label2, 6, 0)
         self.spirit_burst_spin = NoScrollDoubleSpinBox()
         self.spirit_burst_spin.setRange(0, 5)
         self.spirit_burst_spin.setDecimals(2)
         self.spirit_burst_spin.valueChanged.connect(self._on_training_score_change)
-        self.score_section_layout.addWidget(self.spirit_burst_spin, 5, 1)
+        self.score_section_layout.addWidget(self.spirit_burst_spin, 6, 1)
         
         self.unity_score_label3 = QLabel("Spirit Training Extra:")
-        self.score_section_layout.addWidget(self.unity_score_label3, 6, 0)
+        self.score_section_layout.addWidget(self.unity_score_label3, 7, 0)
         self.spirit_training_extra_spin = NoScrollDoubleSpinBox()
         self.spirit_training_extra_spin.setRange(0, 5)
         self.spirit_training_extra_spin.setDecimals(2)
         self.spirit_training_extra_spin.valueChanged.connect(self._on_training_score_change)
-        self.score_section_layout.addWidget(self.spirit_training_extra_spin, 6, 1)
+        self.score_section_layout.addWidget(self.spirit_training_extra_spin, 7, 1)
         
         self.score_section.hide()
         layout.addWidget(self.score_section)
@@ -479,40 +487,53 @@ class TrainingTab(QScrollArea):
         try:
             if os.path.exists(filename):
                 with open(filename, 'r', encoding='utf-8') as f:
-                    score_config = json.load(f)
+                    file_config = json.load(f)
+                    # Get scoring_rules from the nested structure
+                    score_config = file_config.get("scoring_rules", {})
             else:
                 score_config = {}
         except Exception:
             score_config = {}
         
+        # Helper to get points from nested rule structure
+        def get_points(rule_name, default):
+            rule = score_config.get(rule_name, {})
+            if isinstance(rule, dict):
+                return rule.get("points", default)
+            return default
+        
         # Load common score settings
         self.rainbow_spin.blockSignals(True)
-        self.rainbow_spin.setValue(score_config.get("rainbow_support", 1.0))
+        self.rainbow_spin.setValue(get_points("rainbow_support", 1.0))
         self.rainbow_spin.blockSignals(False)
         
         self.low_bond_spin.blockSignals(True)
-        self.low_bond_spin.setValue(score_config.get("low_bond_support", 0.7))
+        self.low_bond_spin.setValue(get_points("not_rainbow_support_low", 0.7))
         self.low_bond_spin.blockSignals(False)
         
         self.high_bond_spin.blockSignals(True)
-        self.high_bond_spin.setValue(score_config.get("high_bond_support", 0.0))
+        self.high_bond_spin.setValue(get_points("not_rainbow_support_high", 0.0))
         self.high_bond_spin.blockSignals(False)
         
         self.hint_spin.blockSignals(True)
-        self.hint_spin.setValue(score_config.get("hint", 0.3))
+        self.hint_spin.setValue(get_points("hint", 0.3))
         self.hint_spin.blockSignals(False)
         
-        # Load Unity-specific score settings
+        self.friend_support_spin.blockSignals(True)
+        self.friend_support_spin.setValue(get_points("friend_support", 0.5))
+        self.friend_support_spin.blockSignals(False)
+        
+        # Load Unity-specific score settings (use spririt_training key for backward compat)
         self.spirit_training_spin.blockSignals(True)
-        self.spirit_training_spin.setValue(score_config.get("spirit_training", 0.4))
+        self.spirit_training_spin.setValue(get_points("spririt_training", 0.5))
         self.spirit_training_spin.blockSignals(False)
         
         self.spirit_burst_spin.blockSignals(True)
-        self.spirit_burst_spin.setValue(score_config.get("spirit_burst", 1.0))
+        self.spirit_burst_spin.setValue(get_points("spirit_burst", 1.0))
         self.spirit_burst_spin.blockSignals(False)
         
         self.spirit_training_extra_spin.blockSignals(True)
-        self.spirit_training_extra_spin.setValue(score_config.get("spirit_training_extra", 0.2))
+        self.spirit_training_extra_spin.setValue(get_points("spirit_training_extra", 0.2))
         self.spirit_training_extra_spin.blockSignals(False)
     
     def _save_training_score_config(self):
@@ -524,22 +545,50 @@ class TrainingTab(QScrollArea):
         mode = config.get("mode", "ura")
         filename = "training_score_unity.json" if mode == "unity" else "training_score.json"
         
-        score_config = {
-            "rainbow_support": self.rainbow_spin.value(),
-            "low_bond_support": self.low_bond_spin.value(),
-            "high_bond_support": self.high_bond_spin.value(),
-            "hint": self.hint_spin.value(),
+        # Build scoring_rules with proper nested structure
+        scoring_rules = {
+            "rainbow_support": {
+                "description": "Same type support card with bond level >= 4",
+                "points": self.rainbow_spin.value()
+            },
+            "not_rainbow_support_low": {
+                "description": "Support with bond level < 4",
+                "points": self.low_bond_spin.value()
+            },
+            "not_rainbow_support_high": {
+                "description": "Not same type support with bond level >= 4 (no need to get more bond)",
+                "points": self.high_bond_spin.value()
+            },
+            "hint": {
+                "description": "Hint icon present",
+                "points": self.hint_spin.value()
+            },
+            "friend_support": {
+                "description": "Friend support card with bond < 3",
+                "points": self.friend_support_spin.value()
+            }
         }
         
         # Add Unity-specific settings for unity mode
         if mode == "unity":
-            score_config["spirit_training"] = self.spirit_training_spin.value()
-            score_config["spirit_burst"] = self.spirit_burst_spin.value()
-            score_config["spirit_training_extra"] = self.spirit_training_extra_spin.value()
+            scoring_rules["spririt_training"] = {
+                "description": "Spirit training",
+                "points": self.spirit_training_spin.value()
+            }
+            scoring_rules["spirit_burst"] = {
+                "description": "Spirit burst",
+                "points": self.spirit_burst_spin.value()
+            }
+            scoring_rules["spirit_training_extra"] = {
+                "description": "Spirit training after burst (Set this lower if you priortize gaining burst)",
+                "points": self.spirit_training_extra_spin.value()
+            }
+        
+        file_config = {"scoring_rules": scoring_rules}
         
         try:
             with open(filename, 'w', encoding='utf-8') as f:
-                json.dump(score_config, f, indent=4)
+                json.dump(file_config, f, indent=2)
         except Exception as e:
             print(f"Failed to save training score config: {e}")
     

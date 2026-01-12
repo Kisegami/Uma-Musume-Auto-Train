@@ -632,6 +632,17 @@ def calculate_training_score(support_detail, hint_found, training_type):
     for card_type, entries in support_detail.items():
         for entry in entries:
             level = entry['bond_level']
+            
+            # Friend support cards have separate scoring logic
+            if card_type == "friend":
+                # Friend with bond < 3: add configurable points
+                # Friend with bond >= 3: add 0 points (no need to raise bond)
+                if level < 3:
+                    score += scoring_rules.get("friend_support", {}).get("points", 0.5)
+                # else: bond >= 3, add 0 points (skip)
+                continue
+            
+            # Normal support card scoring
             is_rainbow = (card_type == training_type and level >= 4)
             
             if is_rainbow:
