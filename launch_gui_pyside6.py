@@ -35,12 +35,7 @@ def main():
     app.setApplicationName("Uma Musume Auto-Train")
     app.setApplicationVersion("2.0")
     
-    # Enable high DPI scaling
-    try:
-        app.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-        app.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
-    except AttributeError:
-        pass  # Already enabled in Qt6
+    # Note: High DPI scaling is enabled by default in Qt6/PySide6
     
     print("[OK] Application initialized")
     print("=" * 50)

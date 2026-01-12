@@ -111,6 +111,13 @@ class RestartTab(QScrollArea):
         
         self.criteria_group.buttonClicked.connect(self._on_criteria_change)
         
+        criteria_layout.addWidget(fans_widget)
+        
+        # Restore TP checkbox
+        self.restore_tp_checkbox = QCheckBox("Restore TP using TP Bottle")
+        self.restore_tp_checkbox.stateChanged.connect(self._save_restart)
+        criteria_layout.addWidget(self.restore_tp_checkbox)
+        
         restart_layout.addWidget(self.criteria_widget)
         layout.addWidget(restart_group)
         
@@ -259,6 +266,11 @@ class RestartTab(QScrollArea):
         self.total_fans_spin.setValue(restart.get("total_fans_requirement", 0))
         self.total_fans_spin.blockSignals(False)
         
+        # Restore TP
+        self.restore_tp_checkbox.blockSignals(True)
+        self.restore_tp_checkbox.setChecked(auto_start.get("auto_charge_tp", True))
+        self.restore_tp_checkbox.blockSignals(False)
+        
         # Support templates
         self.use_templates.blockSignals(True)
         self.use_templates.setChecked(auto_start.get("use_support_templates", False))
@@ -306,6 +318,7 @@ class RestartTab(QScrollArea):
             config["auto_start_career"] = {}
         
         config["auto_start_career"]["use_support_templates"] = self.use_templates.isChecked()
+        config["auto_start_career"]["auto_charge_tp"] = self.restore_tp_checkbox.isChecked()
         template = self.template_combo.currentText()
         if template != "No templates":
             config["auto_start_career"]["support_template_name"] = template

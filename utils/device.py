@@ -23,7 +23,7 @@ def _find_bundled_adb():
         if adb_path.exists():
             if sys.platform != 'win32' and not os.access(adb_path, os.X_OK):
                 continue
-            log_debug(f"Using bundled ADB from toolkit: {adb_path}")
+            # log_debug(f"Using bundled ADB from toolkit: {adb_path}")
             return str(adb_path)
     
     # Try to find adbutils binaries (fallback for when dependencies are installed)
@@ -54,7 +54,8 @@ def _find_bundled_adb():
             return str(adb_path)
             
     except Exception as e:
-        log_debug(f"Could not find bundled ADB: {e}")
+        # log_debug(f"Could not find bundled ADB: {e}")
+        pass
     
     return None
 
@@ -75,12 +76,12 @@ def _get_adb_path():
     if config_path and config_path != 'adb':
         if os.path.exists(config_path):
             return config_path
-        log_warning(f"ADB path from config not found: {config_path}, trying bundled ADB...")
+        # log_warning(f"ADB path from config not found: {config_path}, trying bundled ADB...")
     
     # Try bundled ADB from adbutils
     bundled_adb = _find_bundled_adb()
     if bundled_adb:
-        log_debug(f"Using bundled ADB: {bundled_adb}")
+        # log_debug(f"Using bundled ADB: {bundled_adb}")
         return bundled_adb
     
     # Fallback to system ADB

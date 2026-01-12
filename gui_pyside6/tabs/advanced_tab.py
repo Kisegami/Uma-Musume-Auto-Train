@@ -41,7 +41,7 @@ class AdvancedTab(QScrollArea):
         self.capture_combo = QComboBox()
         self.capture_combo.addItems(["auto", "adb", "nemu_ipc", "ldopengl"])
         self.capture_combo.currentTextChanged.connect(
-            lambda v: self.main_window.update_config_value("capture_method", v)
+            lambda v: (self.main_window.update_config_value("capture_method", v), self.main_window.save_config())
         )
         capture_layout.addWidget(self.capture_combo, 0, 1)
         
@@ -51,7 +51,7 @@ class AdvancedTab(QScrollArea):
         emulator_types = getattr(self.main_window, 'detected_emulator_types', [])
         self.emulator_combo.addItems(emulator_types)
         self.emulator_combo.currentTextChanged.connect(
-            lambda v: self.main_window.update_config_value("emulator_type", v)
+            lambda v: (self.main_window.update_config_value("emulator_type", v), self.main_window.save_config())
         )
         capture_layout.addWidget(self.emulator_combo, 1, 1)
         
@@ -105,13 +105,13 @@ class AdvancedTab(QScrollArea):
         
         self.debug_mode = QCheckBox("Debug Mode")
         self.debug_mode.stateChanged.connect(
-            lambda v: self.main_window.update_config_value("debug_mode", v == Qt.Checked)
+            lambda v: (self.main_window.update_config_value("debug_mode", v == Qt.Checked), self.main_window.save_config())
         )
         debug_layout.addWidget(self.debug_mode)
         
         self.stop_on_failure = QCheckBox("Stop on Event Detection Failure")
         self.stop_on_failure.stateChanged.connect(
-            lambda v: self.main_window.update_config_value("stop_on_event_detection_failure", v == Qt.Checked)
+            lambda v: (self.main_window.update_config_value("stop_on_event_detection_failure", v == Qt.Checked), self.main_window.save_config())
         )
         debug_layout.addWidget(self.stop_on_failure)
         
@@ -176,3 +176,4 @@ class AdvancedTab(QScrollArea):
     def _update_config(self, parent, key, value):
         """Update config value"""
         self.main_window.update_nested_config_value(parent, key, value)
+        self.main_window.save_config()

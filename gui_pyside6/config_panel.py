@@ -12,7 +12,6 @@ from .tabs.training_tab import TrainingTab
 from .tabs.racing_tab import RacingTab
 from .tabs.skill_tab import SkillTab
 from .tabs.event_tab import EventTab
-from .tabs.mode_tab import ModeTab
 from .tabs.advanced_tab import AdvancedTab
 
 
@@ -41,7 +40,6 @@ class ConfigPanel(QFrame):
         self.racing_tab = RacingTab(self.main_window)
         self.skill_tab = SkillTab(self.main_window)
         self.event_tab = EventTab(self.main_window)
-        self.mode_tab = ModeTab(self.main_window)
         self.advanced_tab = AdvancedTab(self.main_window)
         
         # Add tabs
@@ -49,7 +47,6 @@ class ConfigPanel(QFrame):
         self.tab_widget.addTab(self.racing_tab, "Racing")
         self.tab_widget.addTab(self.skill_tab, "Skills")
         self.tab_widget.addTab(self.event_tab, "Events")
-        self.tab_widget.addTab(self.mode_tab, "Mode")
         self.tab_widget.addTab(self.advanced_tab, "Advanced")
         
         layout.addWidget(self.tab_widget)

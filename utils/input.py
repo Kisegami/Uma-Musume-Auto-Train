@@ -32,6 +32,39 @@ def perform_swipe(start_x, start_y, end_x, end_y, duration_ms=1050):
     log_debug("Failed to perform swipe")
     return False
 
+def swipe_and_tap(
+    swipe_start_x, swipe_start_y, 
+    swipe_end_x, swipe_end_y, 
+    swipe_duration_ms,
+    tap_x, tap_y
+):
+    """
+    Perform swipe and tap as a single ADB shell command to eliminate delay.
+    Both commands are sent in one shell call, executed sequentially on device.
+    
+    This is the preferred method for scrolling operations where a stabilizing
+    tap is needed immediately after the swipe.
+    
+    Args:
+        swipe_start_x, swipe_start_y: Starting coordinates for swipe
+        swipe_end_x, swipe_end_y: Ending coordinates for swipe
+        swipe_duration_ms: Swipe duration in milliseconds
+        tap_x, tap_y: Coordinates for stabilizing tap after swipe
+    
+    Returns:
+        bool: True if command executed successfully, False otherwise
+    """
+    combined_command = (
+        f"input swipe {swipe_start_x} {swipe_start_y} {swipe_end_x} {swipe_end_y} {swipe_duration_ms}; "
+        f"input tap {tap_x} {tap_y}"
+    )
+    result = run_adb(['shell', combined_command])
+    if result is not None:
+        log_debug(f"Swipe+tap: ({swipe_start_x},{swipe_start_y})->({swipe_end_x},{swipe_end_y}), tap({tap_x},{tap_y})")
+        return True
+    log_debug("Failed to perform swipe+tap")
+    return False
+
 def long_press(x, y, duration_ms=1000):
     """Long press at coordinates (x, y) for duration_ms milliseconds - optimized: no input delay"""
     return swipe(x, y, x, y, duration_ms)

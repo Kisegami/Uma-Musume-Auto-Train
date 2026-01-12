@@ -151,6 +151,11 @@ class TrainingTab(QScrollArea):
         self.use_dating.stateChanged.connect(self._save_training)
         settings_layout.addWidget(self.use_dating, 4, 0, 1, 2)
         
+        # Rest in June to save energy for summer
+        self.rest_in_june = QCheckBox("Rest in June to save Energy for Summer")
+        self.rest_in_june.stateChanged.connect(self._save_training)
+        settings_layout.addWidget(self.rest_in_june, 5, 0, 1, 2)
+        
         # ==================== Unity Mode Settings ====================
         self.unity_widget = QWidget()
         unity_layout = QVBoxLayout(self.unity_widget)
@@ -174,7 +179,7 @@ class TrainingTab(QScrollArea):
         spirit_row.addStretch()
         unity_layout.addLayout(spirit_row)
         
-        settings_layout.addWidget(self.unity_widget, 5, 0, 1, 2)
+        settings_layout.addWidget(self.unity_widget, 6, 0, 1, 2)
         
         layout.addWidget(settings_group)
         
@@ -386,6 +391,11 @@ class TrainingTab(QScrollArea):
         self.use_dating.setChecked(dating_config.get("use_dating_instead_of_rest", False))
         self.use_dating.blockSignals(False)
         
+        # Rest in June
+        self.rest_in_june.blockSignals(True)
+        self.rest_in_june.setChecked(training.get("rest_in_june", False))
+        self.rest_in_june.blockSignals(False)
+        
         spirit_burst_stats = training.get("spirit_burst_enabled_stats", [])
         for stat, cb in self.spirit_burst_vars.items():
             cb.blockSignals(True)
@@ -456,6 +466,7 @@ class TrainingTab(QScrollArea):
         config["training"]["maximum_failure"] = self.failure_spin.value()
         config["training"]["min_energy"] = self.energy_spin.value()
         config["training"]["do_race_when_bad_training"] = self.race_when_bad.isChecked()
+        config["training"]["rest_in_june"] = self.rest_in_june.isChecked()
         
         # Unity mode fields
         if "dating" not in config:

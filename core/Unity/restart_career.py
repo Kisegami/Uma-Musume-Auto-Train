@@ -94,7 +94,7 @@ def should_continue_restarting(current_restart_count: int, max_restart_times: in
 
 
 def execute_skill_purchase_workflow(available_points: int):
-    """Execute the skill purchase workflow"""
+    """Execute the skill purchase workflow with merged priorities (main → end → budget)"""
     log_info(f"=== Auto Skill Purchase Workflow ===")
     
     # Import here to avoid circular imports
@@ -118,9 +118,50 @@ def execute_skill_purchase_workflow(available_points: int):
     if all_available_skills:
         # Deduplicate and optimize skill purchase
         deduplicated_skills = deduplicate_skills(all_available_skills, similarity_threshold=0.8)
-        config = load_skill_config()
+        
+        # Load main skill config
+        main_config = load_skill_config()
+        
+        # Load end skill config (always used during restart career)
+        restart_config = load_restart_config()
+        end_skill_file = restart_config.get("end_skill_file", "")
+        
+        # Merge configs: main priority list + end skill priority list
+        merged_config = {
+            "skill_priority": list(main_config.get("skill_priority", [])),
+            "gold_skill_upgrades": dict(main_config.get("gold_skill_upgrades", {}))
+        }
+        
+        if end_skill_file:
+            try:
+                import json
+                import os
+                # Handle relative path
+                if not os.path.isabs(end_skill_file):
+                    end_skill_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), end_skill_file)
+                
+                if os.path.exists(end_skill_file):
+                    with open(end_skill_file, 'r', encoding='utf-8') as f:
+                        end_config = json.load(f)
+                    
+                    # Append end skill priorities (avoid duplicates)
+                    existing_priorities = set(merged_config["skill_priority"])
+                    for skill in end_config.get("skill_priority", []):
+                        if skill not in existing_priorities:
+                            merged_config["skill_priority"].append(skill)
+                            existing_priorities.add(skill)
+                    
+                    # Merge gold skill upgrades
+                    merged_config["gold_skill_upgrades"].update(end_config.get("gold_skill_upgrades", {}))
+                    
+                    log_info(f"Merged end skill config from: {end_skill_file}")
+                else:
+                    log_info(f"End skill file not found: {end_skill_file}")
+            except Exception as e:
+                log_info(f"Failed to load end skill config: {e}")
+        
         # Use end_career=True to buy all available skills instead of just priority skills
-        purchase_plan = create_purchase_plan(deduplicated_skills, config, end_career=True)
+        purchase_plan = create_purchase_plan(deduplicated_skills, merged_config, end_career=True)
         
         if purchase_plan:
             affordable_skills, total_cost, remaining_points = filter_affordable_skills(purchase_plan, available_points)
@@ -278,6 +319,54 @@ def filter_support():
         time.sleep(0.5)
 
 
+def restore_tp() -> bool:
+    """Restore TP using TP bottle when out of TP.
+    
+    Returns:
+        bool: True if TP restored successfully, False if no bottles available
+    """
+    log_info("=== Restoring TP ===")
+    
+    # Step 1: Tap restore button
+    if not click_image_button("assets/buttons/restore_btn.png", "restore button", max_attempts=5):
+        log_warning("Failed to tap restore button")
+        return False
+    
+    time.sleep(1)
+    
+    # Step 2: Wait for TP bottle to appear
+    tp_bottle_matches = wait_for_image("assets/icons/tp_bottle.png", timeout=10, confidence=0.8)
+    if not tp_bottle_matches:
+        log_error("Out of TP Bottle")
+        return False
+    
+    # Step 3: Calculate Use button position (offset from bottle)
+    # TP Bottle at (131, 481) → Use button at (912, 481)
+    # X offset = 912 - 131 = 781
+    bottle_x, bottle_y = tp_bottle_matches[0], tp_bottle_matches[1]
+    use_btn_x = bottle_x + 781
+    use_btn_y = bottle_y
+    
+    log_info(f"TP bottle at ({bottle_x}, {bottle_y}), tapping Use at ({use_btn_x}, {use_btn_y})")
+    tap(use_btn_x, use_btn_y)
+    time.sleep(1)
+    
+    # Step 4: Tap OK button
+    if not click_image_button("assets/buttons/ok_restore.png", "OK button", max_attempts=10):
+        log_warning("Failed to tap OK button")
+        return False
+    
+    time.sleep(0.5)
+    
+    # Step 5: Tap Close button
+    if not click_image_button("assets/buttons/close.png", "close button", max_attempts=10):
+        log_warning("Failed to tap close button")
+        return False
+    
+    log_info("✓ TP restored successfully")
+    return True
+
+
 def skip_check():
     """Check which skip button is on screen and adjust accordingly."""
     log_info(f"Checking skip button...")
@@ -382,6 +471,30 @@ def start_career() -> bool:
             center = (x + w//2, y + h//2)
             tap(center[0], center[1])
             time.sleep(0.5)
+            
+            # Check for insufficient TP (restore button appears)
+            restore_matches = match_template(take_screenshot(), "assets/buttons/restore_btn.png", confidence=0.8)
+            if restore_matches:
+                auto_charge = auto_start_career.get('auto_charge_tp', False)
+                if auto_charge:
+                    log_info("Insufficient TP detected - attempting auto restore")
+                    if not restore_tp():
+                        log_error("TP restore failed - Out of TP Bottle")
+                        return False
+                    # After restore, tap Start Career 1 again
+                    time.sleep(1)
+                    start_career_1_matches = match_template(take_screenshot(), "assets/buttons/start_career_1.png", confidence=0.8)
+                    if start_career_1_matches:
+                        x, y, w, h = start_career_1_matches[0]
+                        center = (x + w//2, y + h//2)
+                        tap(center[0], center[1])
+                        time.sleep(0.5)
+                    else:
+                        log_error("Failed to find Start Career 1 button after TP restore")
+                        return False
+                else:
+                    log_error("Insufficient TP and auto_charge_tp is disabled - stopping bot")
+                    return False
         else:
             return False
         
