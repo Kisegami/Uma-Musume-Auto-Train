@@ -68,14 +68,20 @@ def go_to_training():
     log_debug(f"Going to training screen...")
     return tap_on_image("assets/buttons/training_btn.png", min_search=10)
 
-def check_training(go_back=True):
+def check_training(go_back=True, current_stats=None):
     """Check training results using fixed coordinates, collecting support counts,
     bond levels and hint presence in one hover pass before computing failure rates.
     
     Args:
         go_back (bool): If True, tap back to lobby after checking. If False, stay on training screen.
+        current_stats (dict, optional): Current character stats to check against caps. If provided,
+            training types where the stat is already at/above cap will be skipped to save time.
     """
     log_debug(f"Checking training options...")
+    
+    # Load stat caps from config for early filtering
+    training_config = config.get("training", {})
+    stat_caps = training_config.get("stat_caps", config.get("stat_caps", {}))
     
     # Fixed coordinates for each training type
     training_coords = {
@@ -86,8 +92,28 @@ def check_training(go_back=True):
         "wit": (936, 1572)
     }
     results = {}
+    skipped_stats = []
 
     for key, coords in training_coords.items():
+        # Early stat cap check - skip analysis if stat is already at/above cap
+        if current_stats:
+            current_stat_value = current_stats.get(key, 0)
+            stat_cap = stat_caps.get(key, 1200)  # Default cap is 1200 (very high = no cap)
+            if current_stat_value >= stat_cap:
+                log_info(f"[{key.upper()}] SKIPPED - stat {current_stat_value} >= cap {stat_cap}")
+                skipped_stats.append(key)
+                # Add placeholder result with score 0 so it won't be selected
+                results[key] = {
+                    "support": {},
+                    "support_detail": {},
+                    "hint": False,
+                    "total_support": 0,
+                    "failure": 100,  # Set high to prevent selection
+                    "confidence": 1.0,
+                    "score": 0,
+                    "skipped": True
+                }
+                continue
         log_debug(f"Checking {key.upper()} training at coordinates {coords}...")
         
         # Proper hover simulation: move to position, hold, check, move away, release

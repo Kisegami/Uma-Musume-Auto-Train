@@ -541,7 +541,7 @@ def career_lobby():
         # Last, do training
         log_debug(f"Analyzing training options...")
         time.sleep(0.5)
-        results_training = check_training(go_back=False)
+        results_training = check_training(go_back=False, current_stats=current_stats)
         
         log_debug(f"Deciding best training action using scoring algorithm...")
         

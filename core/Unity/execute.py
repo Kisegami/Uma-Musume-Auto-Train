@@ -619,7 +619,7 @@ def career_lobby():
         log_debug(f"Analyzing training options...")
         time.sleep(0.5)
         # Stay on training screen after checking (don't go back to lobby yet)
-        results_training = check_training(go_back=False, year=year)
+        results_training = check_training(go_back=False, year=year, current_stats=current_stats)
         
         log_debug(f"Deciding best training action using scoring algorithm...")
         
