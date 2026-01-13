@@ -440,3 +440,129 @@ def test_easyocr_gpu() -> Tuple[bool, str]:
         
     except Exception as e:
         return False, f"EasyOCR GPU test failed: {str(e)}"
+
+
+def get_easyocr_disk_usage() -> float:
+    """
+    Get approximate disk space used by EasyOCR + PyTorch CUDA packages.
+    
+    Returns:
+        Estimated disk usage in GB
+    """
+    try:
+        import importlib.metadata
+        
+        packages = ['torch', 'torchvision', 'torchaudio', 'easyocr']
+        total_size = 0
+        
+        for pkg in packages:
+            try:
+                dist = importlib.metadata.distribution(pkg)
+                # Get package location and estimate size
+                if dist.files:
+                    for file in dist.files:
+                        try:
+                            total_size += file.size if hasattr(file, 'size') and file.size else 0
+                        except:
+                            pass
+            except importlib.metadata.PackageNotFoundError:
+                pass
+        
+        # If we couldn't get actual sizes, return estimate
+        if total_size == 0:
+            # Check if torch with CUDA is installed
+            try:
+                import torch
+                if torch.cuda.is_available():
+                    return 7.5  # Typical size for PyTorch CUDA + EasyOCR
+                return 2.0  # CPU-only PyTorch
+            except ImportError:
+                return 0.0
+        
+        return total_size / (1024 ** 3)  # Convert to GB
+        
+    except Exception:
+        return 7.5  # Safe estimate
+
+
+def remove_easyocr_gpu(
+    progress_callback: Optional[Callable[[str, int], None]] = None
+) -> Tuple[bool, str]:
+    """
+    Remove EasyOCR GPU packages (torch, torchvision, torchaudio, easyocr).
+    
+    Args:
+        progress_callback: Optional callback(message, percent) for progress updates
+    
+    Returns:
+        Tuple of (success, message)
+    """
+    def report(msg: str, pct: int):
+        if progress_callback:
+            progress_callback(msg, pct)
+    
+    packages_to_remove = ['easyocr', 'torch', 'torchvision', 'torchaudio']
+    removed_packages = []
+    failed_packages = []
+    
+    try:
+        report("Checking installed packages...", 5)
+        
+        # Check which packages are installed
+        installed = []
+        for pkg in packages_to_remove:
+            try:
+                __import__(pkg.replace('-', '_'))
+                installed.append(pkg)
+            except ImportError:
+                pass
+        
+        if not installed:
+            return True, "No EasyOCR GPU packages found to remove"
+        
+        report(f"Found {len(installed)} packages to remove", 10)
+        
+        # Clear module cache before uninstalling
+        report("Clearing module cache...", 15)
+        import sys
+        modules_to_clear = [m for m in sys.modules.keys() 
+                          if any(pkg in m for pkg in packages_to_remove)]
+        for mod in modules_to_clear:
+            try:
+                del sys.modules[mod]
+            except:
+                pass
+        
+        # Uninstall packages
+        total_packages = len(installed)
+        for idx, pkg in enumerate(installed):
+            progress = 20 + int((idx / total_packages) * 70)
+            report(f"Removing {pkg}...", progress)
+            
+            try:
+                result = subprocess.run(
+                    [sys.executable, "-m", "pip", "uninstall", "-y", pkg],
+                    capture_output=True,
+                    text=True,
+                    timeout=120
+                )
+                
+                if result.returncode == 0:
+                    removed_packages.append(pkg)
+                else:
+                    failed_packages.append(pkg)
+                    
+            except subprocess.TimeoutExpired:
+                failed_packages.append(pkg)
+            except Exception as e:
+                failed_packages.append(pkg)
+        
+        report("Cleanup complete!", 100)
+        
+        if failed_packages:
+            return False, f"Removed: {', '.join(removed_packages)}. Failed: {', '.join(failed_packages)}"
+        
+        return True, f"Successfully removed: {', '.join(removed_packages)}"
+        
+    except Exception as e:
+        return False, f"Removal failed: {str(e)}"

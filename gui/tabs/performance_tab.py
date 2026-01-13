@@ -42,6 +42,47 @@ class EasyOCRInstallThread(QThread):
             self.finished_signal.emit(False, f"Installation failed: {str(e)}")
 
 
+class OCRBenchmarkThread(QThread):
+    """Background thread for OCR benchmark"""
+    progress_signal = Signal(str, int)  # message, percent
+    finished_signal = Signal(object)  # BenchmarkResult
+    
+    def __init__(self, include_easyocr: bool = False):
+        super().__init__()
+        self.include_easyocr = include_easyocr
+    
+    def run(self):
+        try:
+            from utils.ocr_benchmark import run_ocr_benchmark
+            result = run_ocr_benchmark(
+                include_easyocr=self.include_easyocr,
+                progress_callback=lambda msg, pct: self.progress_signal.emit(msg, pct)
+            )
+            self.finished_signal.emit(result)
+        except Exception as e:
+            from utils.ocr_benchmark import BenchmarkResult
+            self.finished_signal.emit(BenchmarkResult(
+                regions=[], total_tesseract_ms=0, total_easyocr_ms=None,
+                screenshot=None, iterations=0, error=str(e)
+            ))
+
+
+class EasyOCRRemoveThread(QThread):
+    """Background thread for EasyOCR GPU removal"""
+    progress_signal = Signal(str, int)  # message, percent
+    finished_signal = Signal(bool, str)  # success, message
+    
+    def run(self):
+        try:
+            from utils.easyocr_installer import remove_easyocr_gpu
+            success, message = remove_easyocr_gpu(
+                progress_callback=lambda msg, pct: self.progress_signal.emit(msg, pct)
+            )
+            self.finished_signal.emit(success, message)
+        except Exception as e:
+            self.finished_signal.emit(False, f"Removal failed: {str(e)}")
+
+
 class PerformanceTab(QScrollArea):
     """Performance configuration tab"""
     
@@ -51,6 +92,8 @@ class PerformanceTab(QScrollArea):
         self.setWidgetResizable(True)
         self.setFrameShape(QFrame.NoFrame)
         self.install_thread = None
+        self.benchmark_thread = None
+        self.remove_thread = None
         
         self._create_ui()
         self.load_config()
@@ -77,6 +120,13 @@ class PerformanceTab(QScrollArea):
         method_row.addStretch()
         ocr_layout.addLayout(method_row)
         
+        # Tesseract benchmark button (visible when Tesseract selected)
+        self.tesseract_benchmark_btn = QPushButton("🔬 Run Benchmark")
+        self.tesseract_benchmark_btn.setToolTip("Run OCR speed test on current emulator screen (requires Lobby screen)")
+        self.tesseract_benchmark_btn.clicked.connect(lambda: self._run_benchmark(include_easyocr=False))
+        self.tesseract_benchmark_btn.setVisible(True)  # Visible by default (Tesseract is default)
+        ocr_layout.addWidget(self.tesseract_benchmark_btn)
+        
         # Status display (hidden by default)
         self.ocr_status_frame = QFrame()
         status_layout = QVBoxLayout(self.ocr_status_frame)
@@ -98,6 +148,25 @@ class PerformanceTab(QScrollArea):
         self.install_btn.clicked.connect(self._install_easyocr_gpu)
         self.install_btn.setVisible(False)
         status_layout.addWidget(self.install_btn)
+        
+        # Action buttons row (benchmark + remove) - hidden by default
+        self.easyocr_actions_frame = QFrame()
+        actions_layout = QHBoxLayout(self.easyocr_actions_frame)
+        actions_layout.setContentsMargins(0, 8, 0, 0)
+        
+        self.easyocr_benchmark_btn = QPushButton("🔬 Run Benchmark")
+        self.easyocr_benchmark_btn.setToolTip("Compare Tesseract vs EasyOCR GPU speed (requires Lobby screen)")
+        self.easyocr_benchmark_btn.clicked.connect(lambda: self._run_benchmark(include_easyocr=True))
+        actions_layout.addWidget(self.easyocr_benchmark_btn)
+        
+        self.easyocr_remove_btn = QPushButton("🗑️ Remove EasyOCR GPU")
+        self.easyocr_remove_btn.setToolTip("Remove EasyOCR GPU packages to free disk space (~7-10 GB)")
+        self.easyocr_remove_btn.clicked.connect(self._remove_easyocr_gpu)
+        actions_layout.addWidget(self.easyocr_remove_btn)
+        
+        actions_layout.addStretch()
+        self.easyocr_actions_frame.setVisible(False)
+        status_layout.addWidget(self.easyocr_actions_frame)
         
         # Progress bar (hidden by default)
         self.install_progress = QProgressBar()
@@ -211,11 +280,13 @@ class PerformanceTab(QScrollArea):
             
             # Show status frame and check EasyOCR status
             self.ocr_status_frame.setVisible(True)
+            self.tesseract_benchmark_btn.setVisible(False)  # Hide tesseract benchmark
             self._check_easyocr_status()
         else:
             # Tesseract selected
             self.main_window.update_config_value("ocr_backend", "tesseract")
             self.ocr_status_frame.setVisible(False)
+            self.tesseract_benchmark_btn.setVisible(True)  # Show tesseract benchmark
     
     def _show_easyocr_warning(self) -> int:
         """Show EasyOCR GPU warning dialog"""
@@ -253,10 +324,12 @@ class PerformanceTab(QScrollArea):
                 self.gpu_info_label.setText(f"GPU: {status['gpu_name']} • CUDA {status['cuda_version']}")
                 self.gpu_info_label.setVisible(True)
                 self.install_btn.setVisible(False)
+                self.easyocr_actions_frame.setVisible(True)  # Show benchmark + remove buttons
             else:
                 # EasyOCR GPU not ready
                 self.ocr_status_label.setText(f"✗ {status['error']}")
                 self.ocr_status_label.setStyleSheet(f"color: {COLORS['accent_orange']};")
+                self.easyocr_actions_frame.setVisible(False)  # Hide action buttons
                 
                 if status['gpu_name']:
                     self.gpu_info_label.setText(f"GPU detected: {status['gpu_name']}")
@@ -272,6 +345,7 @@ class PerformanceTab(QScrollArea):
             self.ocr_status_label.setStyleSheet(f"color: {COLORS['accent_red']};")
             self.gpu_info_label.setVisible(False)
             self.install_btn.setVisible(False)
+            self.easyocr_actions_frame.setVisible(False)
     
     def _install_easyocr_gpu(self):
         """Start EasyOCR GPU installation in background thread"""
@@ -312,6 +386,169 @@ class PerformanceTab(QScrollArea):
             )
             self._check_easyocr_status()  # Refresh status
     
+    def _run_benchmark(self, include_easyocr: bool = False):
+        """Start OCR benchmark in background thread"""
+        # Show warning first
+        result = QMessageBox.information(
+            self, "OCR Benchmark",
+            "⚠️ Please ensure:\n\n"
+            "• The emulator is running\n"
+            "• The game is on the Lobby screen\n\n"
+            "The benchmark will capture the current screen and test OCR performance.\n\n"
+            "Continue?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.Yes
+        )
+        
+        if result != QMessageBox.Yes:
+            return
+        
+        # Disable buttons during benchmark
+        self.tesseract_benchmark_btn.setEnabled(False)
+        self.easyocr_benchmark_btn.setEnabled(False)
+        self.install_progress.setVisible(True)
+        self.install_progress.setValue(0)
+        self.progress_label.setVisible(True)
+        self.progress_label.setText("Starting benchmark...")
+        
+        self.benchmark_thread = OCRBenchmarkThread(include_easyocr=include_easyocr)
+        self.benchmark_thread.progress_signal.connect(self._on_benchmark_progress)
+        self.benchmark_thread.finished_signal.connect(self._on_benchmark_finished)
+        self.benchmark_thread.start()
+    
+    def _on_benchmark_progress(self, message: str, percent: int):
+        """Handle benchmark progress update"""
+        self.install_progress.setValue(percent)
+        self.progress_label.setText(message)
+    
+    def _on_benchmark_finished(self, result):
+        """Handle benchmark completion"""
+        self.install_progress.setVisible(False)
+        self.progress_label.setVisible(False)
+        self.tesseract_benchmark_btn.setEnabled(True)
+        self.easyocr_benchmark_btn.setEnabled(True)
+        
+        if result.error:
+            QMessageBox.warning(
+                self, "Benchmark Failed",
+                f"✗ {result.error}\n\nMake sure the emulator is connected and try again."
+            )
+            return
+        
+        # Build results table
+        lines = ["OCR Benchmark Results", "=" * 50, ""]
+        lines.append(f"Iterations: {result.iterations}")
+        lines.append("")
+        
+        if result.total_easyocr_ms:
+            # Comparison mode
+            lines.append(f"{'Region':<15} {'Tesseract':>12} {'EasyOCR':>12} {'Speedup':>10}")
+            lines.append("-" * 50)
+            
+            for r in result.regions:
+                speedup = f"{r.speedup:.2f}x" if r.speedup else "N/A"
+                lines.append(
+                    f"{r.region_name:<15} {r.tesseract_time_ms:>10.2f}ms "
+                    f"{r.easyocr_time_ms:>10.2f}ms {speedup:>10}"
+                )
+            
+            lines.append("-" * 50)
+            overall = result.overall_speedup
+            lines.append(
+                f"{'TOTAL':<15} {result.total_tesseract_ms:>10.2f}ms "
+                f"{result.total_easyocr_ms:>10.2f}ms {overall:.2f}x"
+            )
+            lines.append("")
+            if overall and overall > 1:
+                lines.append(f"✓ EasyOCR GPU is {overall:.1f}x faster than Tesseract")
+            else:
+                lines.append(f"✗ Tesseract is faster in this test")
+        else:
+            # Tesseract-only mode
+            lines.append(f"{'Region':<20} {'Time':>15}")
+            lines.append("-" * 40)
+            
+            for r in result.regions:
+                lines.append(f"{r.region_name:<20} {r.tesseract_time_ms:>12.2f}ms")
+            
+            lines.append("-" * 40)
+            lines.append(f"{'TOTAL':<20} {result.total_tesseract_ms:>12.2f}ms")
+        
+        QMessageBox.information(
+            self, "Benchmark Results",
+            "\n".join(lines)
+        )
+    
+    def _remove_easyocr_gpu(self):
+        """Start EasyOCR GPU removal in background thread"""
+        try:
+            from utils.easyocr_installer import get_easyocr_disk_usage
+            disk_usage = get_easyocr_disk_usage()
+        except:
+            disk_usage = 7.5
+        
+        result = QMessageBox.warning(
+            self, "Remove EasyOCR GPU",
+            f"⚠️ This will remove the following packages:\n\n"
+            f"• torch\n• torchvision\n• torchaudio\n• easyocr\n\n"
+            f"Estimated disk space to be freed: ~{disk_usage:.1f} GB\n\n"
+            f"You can reinstall EasyOCR GPU later if needed.\n\n"
+            f"Continue?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+        
+        if result != QMessageBox.Yes:
+            return
+        
+        # Update config to use Tesseract
+        self.main_window.update_config_value("ocr_backend", "tesseract")
+        
+        # Disable buttons during removal
+        self.easyocr_benchmark_btn.setEnabled(False)
+        self.easyocr_remove_btn.setEnabled(False)
+        self.install_progress.setVisible(True)
+        self.install_progress.setValue(0)
+        self.progress_label.setVisible(True)
+        self.progress_label.setText("Starting removal...")
+        
+        self.remove_thread = EasyOCRRemoveThread()
+        self.remove_thread.progress_signal.connect(self._on_remove_progress)
+        self.remove_thread.finished_signal.connect(self._on_remove_finished)
+        self.remove_thread.start()
+    
+    def _on_remove_progress(self, message: str, percent: int):
+        """Handle removal progress update"""
+        self.install_progress.setValue(percent)
+        self.progress_label.setText(message)
+    
+    def _on_remove_finished(self, success: bool, message: str):
+        """Handle removal completion"""
+        self.install_progress.setVisible(False)
+        self.progress_label.setVisible(False)
+        self.easyocr_benchmark_btn.setEnabled(True)
+        self.easyocr_remove_btn.setEnabled(True)
+        
+        if success:
+            QMessageBox.information(
+                self, "Removal Complete",
+                f"✓ {message}\n\nDisk space has been freed. "
+                f"OCR backend has been switched to Tesseract."
+            )
+            # Switch to Tesseract in UI
+            self.ocr_method_combo.blockSignals(True)
+            self.ocr_method_combo.setCurrentIndex(0)
+            self.ocr_method_combo.blockSignals(False)
+            self.ocr_status_frame.setVisible(False)
+            self.tesseract_benchmark_btn.setVisible(True)
+        else:
+            QMessageBox.warning(
+                self, "Removal Failed",
+                f"✗ {message}\n\nSome packages may not have been removed."
+            )
+        
+        self._check_easyocr_status()  # Refresh status
+    
     def _on_capture_method_change(self, value):
         """Handle capture method change"""
         self.main_window.update_config_value("capture_method", value)
@@ -337,10 +574,12 @@ class PerformanceTab(QScrollArea):
         if ocr_backend == "easyocr_gpu":
             self.ocr_method_combo.setCurrentIndex(1)
             self.ocr_status_frame.setVisible(True)
+            self.tesseract_benchmark_btn.setVisible(False)
             self._check_easyocr_status()
         else:
             self.ocr_method_combo.setCurrentIndex(0)
             self.ocr_status_frame.setVisible(False)
+            self.tesseract_benchmark_btn.setVisible(True)
         self.ocr_method_combo.blockSignals(False)
         
         self.capture_combo.setCurrentText(config.get("capture_method", "auto"))
