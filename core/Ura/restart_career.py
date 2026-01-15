@@ -548,6 +548,41 @@ def start_career() -> bool:
         return False
 
 
+def notify_run_completion(screenshot, current_restart_count: int, max_restart_times: int, 
+                           total_fans_acquired: int) -> Tuple[int, int]:
+    """
+    Extract fans and send webhook notification.
+    Returns (run_fans, new_total_fans_acquired)
+    """
+    run_fans = extract_total_fans(screenshot)
+    new_total_fans = total_fans_acquired + run_fans
+    
+    log_info(f"Total fans acquired so far: {new_total_fans}")
+    
+    # Send Discord webhook notification
+    try:
+        from utils.discord_webhook import is_webhook_enabled, send_run_complete_webhook
+        if is_webhook_enabled():
+            run_number = current_restart_count + 1
+            # If max_restart_times is 0 or 1 generally implies single run if logic holds, 
+            # but usually it's set to N. If restart disabled, maybe show 1/1?
+            
+            average_per_run = new_total_fans // run_number if run_number > 0 else 0
+            send_run_complete_webhook(
+                run_number=run_number,
+                max_runs=max_restart_times,
+                fans_this_run=run_fans,
+                session_total=new_total_fans,
+                today_total=new_total_fans,
+                average_per_run=average_per_run,
+                screenshot=screenshot
+            )
+    except Exception as e:
+        log_warning(f"Failed to send Discord webhook: {e}")
+        
+    return run_fans, new_total_fans
+
+
 def complete_career(current_restart_count: int, max_restart_times: int, 
                    total_fans_acquired: int, total_fans_requirement: int) -> Tuple[bool, int, int]:
     """Execute the complete career workflow including skill purchase"""
@@ -555,30 +590,12 @@ def complete_career(current_restart_count: int, max_restart_times: int,
     
     # Extract fans and skill points first
     screenshot = take_screenshot()
-    run_fans = extract_total_fans(screenshot)
     skill_points = extract_skill_points(screenshot)
     
-    # Add fans to total
-    total_fans_acquired += run_fans
-    log_info(f"Total fans acquired so far: {total_fans_acquired}")
-    
-    # Send Discord webhook notification
-    try:
-        from utils.discord_webhook import is_webhook_enabled, send_run_complete_webhook
-        if is_webhook_enabled():
-            run_number = current_restart_count + 1
-            average_per_run = total_fans_acquired // run_number if run_number > 0 else 0
-            send_run_complete_webhook(
-                run_number=run_number,
-                max_runs=max_restart_times,
-                fans_this_run=run_fans,
-                session_total=total_fans_acquired,
-                today_total=total_fans_acquired,
-                average_per_run=average_per_run,
-                screenshot=screenshot
-            )
-    except Exception as e:
-        log_warning(f"Failed to send Discord webhook: {e}")
+    # Handle notification and fan merging
+    run_fans, total_fans_acquired = notify_run_completion(
+        screenshot, current_restart_count, max_restart_times, total_fans_acquired
+    )
     
     # Check if we should continue
     should_continue, reason = should_continue_restarting(
@@ -688,14 +705,22 @@ def career_lobby_check(screenshot=None) -> bool:
     restart_config = load_restart_config()
     restart_enabled = restart_config.get('restart_enabled', False)
     
+    # Check if complete career screen is visible
+    if check_complete_career_screen(screenshot):
+        # Even if restart is disabled, we might want to send the webhook (User Request)
+        if not restart_enabled:
+            log_info("Restart is disabled but Career Completion detected - Sending Webhook")
+            # For single run, run_number=1, max_runs=1 (conceptually)
+            notify_run_completion(screenshot, 0, 1, 0)
+            log_info(f"Restart is disabled - stopping bot after webhook")
+            return False
+
+        log_info(f"Complete Career screen detected - starting restart workflow")
+        return run_restart_workflow()
+    
     if not restart_enabled:
         log_info(f"Restart is disabled - stopping bot")
         return False
-    
-    # Check if complete career screen is visible
-    if check_complete_career_screen(screenshot):
-        log_info(f"Complete Career screen detected - starting restart workflow")
-        return run_restart_workflow()
     
     return True  # Continue with normal career lobby
 

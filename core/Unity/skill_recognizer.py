@@ -568,8 +568,8 @@ def generate_debug_image(screenshot, locations, confidence, brightness_info=None
         log_debug(f"Error generating debug image: {e}")
         return None
 
-def scan_all_skills_with_scroll(swipe_start_x=898, swipe_start_y=1200, swipe_end_x=974, swipe_end_y=500,
-                               swipe_duration=500, confidence=0.9, brightness_threshold=150, max_scrolls=20):
+def scan_all_skills_with_scroll(swipe_start_x=507, swipe_start_y=1525, swipe_end_x=507, swipe_end_y=690,
+                               swipe_duration=500, confidence=0.9, brightness_threshold=150, max_scrolls=30):
     """
     Scan all available skills by scrolling through the list until duplicates are found.
     Uses optimized swipe settings for faster scrolling.
@@ -580,7 +580,7 @@ def scan_all_skills_with_scroll(swipe_start_x=898, swipe_start_y=1200, swipe_end
         swipe_duration: Swipe duration in milliseconds (default: 300ms)
         confidence: Template matching confidence (default: 0.9)
         brightness_threshold: Brightness threshold for available buttons (default: 150)
-        max_scrolls: Maximum number of scrolls to prevent infinite loops (default: 20)
+        max_scrolls: Maximum number of scrolls to prevent infinite loops (default: 30)
     
     Returns:
         dict: {
@@ -659,7 +659,7 @@ def scan_all_skills_with_scroll(swipe_start_x=898, swipe_start_y=1200, swipe_end
                     swipe_start_x, swipe_start_y,
                     swipe_end_x, swipe_end_y,
                     swipe_duration,
-                    504, 750  # tap coordinates to stabilize scroll
+                    507, 750  # tap coordinates to stabilize scroll
                 )
                 
                 if not success:

@@ -105,13 +105,13 @@ class AdvancedTab(QScrollArea):
         
         self.debug_mode = QCheckBox("Debug Mode")
         self.debug_mode.stateChanged.connect(
-            lambda v: (self.main_window.update_config_value("debug_mode", v == Qt.Checked), self.main_window.save_config())
+            lambda v: (self.main_window.update_config_value("debug_mode", v == Qt.CheckState.Checked.value), self.main_window.save_config())
         )
         debug_layout.addWidget(self.debug_mode)
         
         self.stop_on_failure = QCheckBox("Stop on Event Detection Failure")
         self.stop_on_failure.stateChanged.connect(
-            lambda v: (self.main_window.update_config_value("stop_on_event_detection_failure", v == Qt.Checked), self.main_window.save_config())
+            lambda v: (self.main_window.update_config_value("stop_on_event_detection_failure", v == Qt.CheckState.Checked.value), self.main_window.save_config())
         )
         debug_layout.addWidget(self.stop_on_failure)
         
@@ -124,13 +124,13 @@ class AdvancedTab(QScrollArea):
         
         self.auto_update = QCheckBox("Auto Update")
         self.auto_update.stateChanged.connect(
-            lambda v: self._update_config("update", "auto_update", v == Qt.Checked)
+            lambda v: self._update_config("update", "auto_update", v == Qt.CheckState.Checked.value)
         )
         update_layout.addWidget(self.auto_update, 0, 0, 1, 2)
         
         self.install_deps = QCheckBox("Install Dependencies")
         self.install_deps.stateChanged.connect(
-            lambda v: self._update_config("update", "install_dependencies", v == Qt.Checked)
+            lambda v: self._update_config("update", "install_dependencies", v == Qt.CheckState.Checked.value)
         )
         update_layout.addWidget(self.install_deps, 1, 0, 1, 2)
         

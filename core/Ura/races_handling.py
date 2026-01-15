@@ -139,6 +139,29 @@ def check_race_in_database(year=None):
         log_debug(f"check_race_in_database: Error: {e}")
         return False
 
+def _normalize_ocr_text(text: str) -> str:
+    """Normalize OCR text to fix common misreadings.
+    
+    Common OCR errors:
+    - O (letter) misread as 0 (zero) or vice versa
+    - l (lowercase L) misread as 1 (one)
+    - I (uppercase i) misread as 1 (one)
+    """
+    import re
+    
+    if not text:
+        return text
+    
+    # For distance patterns, convert O to 0 (e.g., "200Om" -> "2000m", "120Om" -> "1200m")
+    # Match patterns like digits followed by O and then 'm'
+    text = re.sub(r'(\d+)O([mM])', r'\g<1>0\2', text)
+    
+    # Also handle multiple O's like "20OOm" -> "2000m"
+    text = re.sub(r'(\d+)O+([mM])', lambda m: m.group(1) + '0' * m.group(0).count('O') + m.group(2), text)
+    
+    return text
+
+
 def find_target_race_in_screenshot(screenshot, race_description):
     """Find target race in a given screenshot and return fan center coordinates"""
     matches = locate_all_on_screen("assets/races/fan.png", confidence=0.8, region=(390, 1138, 513, 1495))
@@ -151,6 +174,9 @@ def find_target_race_in_screenshot(screenshot, race_description):
     unique_fans = deduplicated_matches(matches, threshold=30)
     log_debug(f"After deduplication: {len(unique_fans)} unique fans")
     
+    # Normalize the race description for comparison
+    normalized_description = _normalize_ocr_text(race_description) if race_description else ""
+    
     for i, (x, y, w, h) in enumerate(unique_fans):
         center_x, center_y = x + w//2, y + h//2
         
@@ -158,10 +184,13 @@ def find_target_race_in_screenshot(screenshot, race_description):
         ox, oy, ow, oh = center_x + OCR_OFFSET[0], center_y + OCR_OFFSET[1], OCR_OFFSET[2], OCR_OFFSET[3]
         text = extract_text(screenshot.crop((ox, oy, ox + ow, oy + oh)))
         
-        log_debug(f"Fan {i+1} at ({center_x}, {center_y}) - OCR text: '{text}'")
+        # Normalize OCR text to fix common misreadings (O -> 0, etc.)
+        normalized_text = _normalize_ocr_text(text) if text else ""
         
-        # Check if the race description appears in the OCR text
-        if race_description and text and race_description.lower() in text.lower():
+        log_debug(f"Fan {i+1} at ({center_x}, {center_y}) - OCR text: '{text}' -> normalized: '{normalized_text}'")
+        
+        # Check if the race description appears in the normalized OCR text
+        if normalized_description and normalized_text and normalized_description.lower() in normalized_text.lower():
             log_debug(f"Found race with description '{race_description}' at fan center ({center_x}, {center_y})")
             return center_x, center_y
     

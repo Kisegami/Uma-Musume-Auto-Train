@@ -38,13 +38,13 @@ class OthersTab(QScrollArea):
         
         self.debug_mode = QCheckBox("Debug Mode")
         self.debug_mode.stateChanged.connect(
-            lambda v: self._update_and_save("debug_mode", v == Qt.Checked)
+            lambda v: self._update_and_save("debug_mode", v == Qt.CheckState.Checked.value)
         )
         debug_layout.addWidget(self.debug_mode)
         
         self.stop_on_failure = QCheckBox("Stop Bot on Event Detection Failure")
         self.stop_on_failure.stateChanged.connect(
-            lambda v: self._update_and_save("stop_on_event_detection_failure", v == Qt.Checked)
+            lambda v: self._update_and_save("stop_on_event_detection_failure", v == Qt.CheckState.Checked.value)
         )
         debug_layout.addWidget(self.stop_on_failure)
         
@@ -131,7 +131,7 @@ class OthersTab(QScrollArea):
     def _on_webhook_enabled_changed(self, state):
         """Handle webhook enabled checkbox change"""
         webhook_config = self._get_webhook_config()
-        webhook_config["enabled"] = state == Qt.Checked
+        webhook_config["enabled"] = state == Qt.CheckState.Checked.value
         self._save_webhook_config(webhook_config)
     
     def _save_webhook_url(self):
@@ -143,7 +143,7 @@ class OthersTab(QScrollArea):
     def _on_notify_complete_changed(self, state):
         """Handle notify on complete checkbox change"""
         webhook_config = self._get_webhook_config()
-        webhook_config["notify_on_run_complete"] = state == Qt.Checked
+        webhook_config["notify_on_run_complete"] = state == Qt.CheckState.Checked.value
         self._save_webhook_config(webhook_config)
     
     def _test_webhook(self):
@@ -155,7 +155,15 @@ class OthersTab(QScrollArea):
         
         try:
             from utils.discord_webhook import send_test_webhook
-            success, message = send_test_webhook(url)
+            # Try to take a screenshot for the test
+            try:
+                from utils.screenshot import take_screenshot
+                screenshot = take_screenshot()
+            except Exception as e:
+                print(f"Failed to take screenshot for test: {e}")
+                screenshot = None
+                
+            success, message = send_test_webhook(url, screenshot=screenshot)
             
             if success:
                 QMessageBox.information(self, "Test Webhook", f"✅ {message}")

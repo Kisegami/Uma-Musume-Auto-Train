@@ -57,11 +57,22 @@ def _get_easyocr_reader():
             log_warning("EasyOCR GPU requested but CUDA not available. Falling back to Tesseract.")
             return None
         
-        log_info("Initializing EasyOCR GPU reader...")
-        _easyocr_reader = easyocr.Reader(['en'], gpu=True)
+        log_info("Initializing EasyOCR GPU reader with english_g2 model...")
+        
+        # Use custom model from utils/models directory
+        import os
+        utils_dir = os.path.dirname(os.path.abspath(__file__))
+        model_dir = os.path.join(utils_dir, 'models')
+        
+        _easyocr_reader = easyocr.Reader(
+            ['en'],
+            gpu=True,
+            model_storage_directory=model_dir,
+            recog_network='english_g2'
+        )
         
         gpu_name = torch.cuda.get_device_name(0) if torch.cuda.device_count() > 0 else "Unknown"
-        log_info(f"EasyOCR GPU initialized successfully using {gpu_name}")
+        log_info(f"EasyOCR GPU initialized successfully with english_g2 model using {gpu_name}")
         
         return _easyocr_reader
         
@@ -98,7 +109,22 @@ def _extract_text_easyocr_gpu(pil_img: Image.Image) -> str:
             # RGBA - convert to RGB
             img_np = img_np[:, :, :3]
         
-        results = reader.readtext(img_np)
+        # Use direct OCR with relaxed parameters for better small text detection
+        # detail=0 returns just text strings, paragraph=False treats each line separately
+        # low_text=0.3 and link_threshold=0.3 help detect smaller text
+        results = reader.readtext(
+            img_np,
+            detail=1,
+            paragraph=False,
+            contrast_ths=0.1,
+            adjust_contrast=0.5,
+            text_threshold=0.5,
+            low_text=0.3,
+            link_threshold=0.3
+        )
+        
+        if not results:
+            return ""
         
         # Sort by x-coordinate (left-to-right) for correct reading order
         sorted_results = sorted(results, key=lambda r: min(p[0] for p in r[0]))
@@ -133,7 +159,21 @@ def _extract_number_easyocr_gpu(pil_img: Image.Image) -> str:
         elif len(img_np.shape) == 3 and img_np.shape[2] == 4:
             img_np = img_np[:, :, :3]
         
-        results = reader.readtext(img_np)
+        # Use relaxed parameters for better small text/number detection
+        results = reader.readtext(
+            img_np,
+            detail=1,
+            paragraph=False,
+            contrast_ths=0.1,
+            adjust_contrast=0.5,
+            text_threshold=0.5,
+            low_text=0.3,
+            link_threshold=0.3,
+            allowlist='0123456789%'  # Only detect digits and percent sign
+        )
+        
+        if not results:
+            return ""
         
         # Extract only digits from results
         text_parts = [result[1] for result in results]

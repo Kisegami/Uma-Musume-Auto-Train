@@ -167,12 +167,13 @@ def send_run_complete_webhook(
         return False
 
 
-def send_test_webhook(webhook_url: str) -> tuple[bool, str]:
+def send_test_webhook(webhook_url: str, screenshot: Optional[Image.Image] = None) -> tuple[bool, str]:
     """
     Send a test message to verify webhook URL.
     
     Args:
         webhook_url: Discord webhook URL to test
+        screenshot: Optional PIL Image to attach
     
     Returns:
         tuple: (success: bool, message: str)
@@ -208,11 +209,32 @@ def send_test_webhook(webhook_url: str) -> tuple[bool, str]:
     }
     
     try:
-        response = requests.post(
-            webhook_url,
-            json=payload,
-            timeout=10
-        )
+        # Prepare files for multipart upload if screenshot provided
+        if screenshot is not None:
+            # Convert PIL Image to bytes
+            img_byte_arr = io.BytesIO()
+            screenshot.save(img_byte_arr, format='PNG')
+            img_byte_arr.seek(0)
+            
+            # Add image to embed
+            embed["image"] = {"url": "attachment://test_capture.png"}
+            
+            files = {
+                'file': ('test_capture.png', img_byte_arr, 'image/png')
+            }
+            
+            response = requests.post(
+                webhook_url,
+                data={'payload_json': json.dumps(payload)},
+                files=files,
+                timeout=10
+            )
+        else:
+            response = requests.post(
+                webhook_url,
+                json=payload,
+                timeout=10
+            )
         
         if response.status_code in [200, 204]:
             return True, "Webhook test successful!"

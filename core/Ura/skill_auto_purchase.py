@@ -12,13 +12,13 @@ _config = load_main_config()
 DEBUG_MODE = _config.get("debug_mode", False)
 
 # Skill list swipe coordinates (optimized for skill screen)
-SKILL_LIST_CENTER_X = 898
-SKILL_LIST_TOP_Y = 500
-SKILL_LIST_BOTTOM_Y = 1200  # Updated: tested value
-SKILL_LIST_SCROLL_TARGET_TOP = 1200
-SKILL_LIST_SCROLL_TARGET_BOTTOM = 500
+SKILL_LIST_CENTER_X = 507
+SKILL_LIST_TOP_Y = 690     
+SKILL_LIST_BOTTOM_Y = 1525  # Updated: tested value
+SKILL_LIST_SCROLL_TARGET_TOP = 1525
+SKILL_LIST_SCROLL_TARGET_BOTTOM = 690
 SKILL_LIST_SWIPE_DURATION = 500  # Updated: tested value
-SKILL_LIST_TAP_X = 504
+SKILL_LIST_TAP_X = 507
 SKILL_LIST_TAP_Y = 750
 
 
@@ -45,7 +45,7 @@ def swipe_skill_list_up_fast(wait_before=0.3):
         SKILL_LIST_CENTER_X, SKILL_LIST_TOP_Y, 
         SKILL_LIST_CENTER_X, SKILL_LIST_SCROLL_TARGET_TOP, 
         SKILL_LIST_SWIPE_DURATION,
-        SKILL_LIST_TAP_X, SKILL_LIST_TAP_Y
+        447, 841
     )
 
 def swipe_skill_list_down_slow(wait_before=0.3):
@@ -65,7 +65,7 @@ def swipe_skill_list_down_slow(wait_before=0.3):
         SKILL_LIST_CENTER_X, SKILL_LIST_BOTTOM_Y,
         SKILL_LIST_CENTER_X, SKILL_LIST_SCROLL_TARGET_BOTTOM,
         SKILL_LIST_SWIPE_DURATION,
-        SKILL_LIST_TAP_X, SKILL_LIST_TAP_Y
+        447, 841
     )
 
 
@@ -329,7 +329,7 @@ def fast_swipe_to_top(end_career=False):
     
     log_debug(f"Successfully navigated to top of skill list")
 
-def execute_skill_purchases(purchase_plan, max_scrolls=20, end_career=False):
+def execute_skill_purchases(purchase_plan, max_scrolls=30, end_career=False):
     """
     Execute the automated skill purchase plan.
     

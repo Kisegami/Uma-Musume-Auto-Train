@@ -53,7 +53,7 @@ class ModeTab(QScrollArea):
         
         self.restart_enabled = QCheckBox("Enable Career Restart")
         self.restart_enabled.stateChanged.connect(
-            lambda v: self._update_config("restart_career", "restart_enabled", v == Qt.Checked)
+            lambda v: self._update_config("restart_career", "restart_enabled", v == Qt.CheckState.Checked.value)
         )
         restart_layout.addWidget(self.restart_enabled, 0, 0, 1, 2)
         
@@ -83,7 +83,7 @@ class ModeTab(QScrollArea):
         
         self.include_guests = QCheckBox("Include Guests (Legacy)")
         self.include_guests.stateChanged.connect(
-            lambda v: self._update_config("auto_start_career", "include_guests_legacy", v == Qt.Checked)
+            lambda v: self._update_config("auto_start_career", "include_guests_legacy", v == Qt.CheckState.Checked.value)
         )
         auto_layout.addWidget(self.include_guests, 0, 0, 1, 2)
         
@@ -105,7 +105,7 @@ class ModeTab(QScrollArea):
         
         self.auto_charge = QCheckBox("Restore TP using TP Bottle")
         self.auto_charge.stateChanged.connect(
-            lambda v: self._update_config("auto_start_career", "auto_charge_tp", v == Qt.Checked)
+            lambda v: self._update_config("auto_start_career", "auto_charge_tp", v == Qt.CheckState.Checked.value)
         )
         auto_layout.addWidget(self.auto_charge, 3, 0, 1, 2)
         
@@ -117,7 +117,7 @@ class ModeTab(QScrollArea):
         
         self.use_dating = QCheckBox("Use Dating Instead of Rest")
         self.use_dating.stateChanged.connect(
-            lambda v: self._update_config("dating", "use_dating_instead_of_rest", v == Qt.Checked)
+            lambda v: self._update_config("dating", "use_dating_instead_of_rest", v == Qt.CheckState.Checked.value)
         )
         dating_layout.addWidget(self.use_dating)
         

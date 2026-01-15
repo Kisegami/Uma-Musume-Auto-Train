@@ -184,6 +184,52 @@ class PerformanceTab(QScrollArea):
         
         layout.addWidget(ocr_group)
         
+        # ==================== Input Method Settings ====================
+        input_group = QGroupBox("Input Method")
+        input_layout = QVBoxLayout(input_group)
+        input_layout.setSpacing(12)
+        
+        # Input method dropdown row
+        input_method_row = QHBoxLayout()
+        input_method_row.addWidget(QLabel("Input Method:"))
+        self.input_method_combo = QComboBox()
+        self.input_method_combo.addItems(["ADB (Default)", "MaaTouch (Faster)"])
+        self.input_method_combo.currentTextChanged.connect(self._on_input_method_change)
+        input_method_row.addWidget(self.input_method_combo)
+        input_method_row.addStretch()
+        input_layout.addLayout(input_method_row)
+        
+        # MaaTouch status frame (hidden by default)
+        self.maatouch_status_frame = QFrame()
+        maatouch_status_layout = QVBoxLayout(self.maatouch_status_frame)
+        maatouch_status_layout.setContentsMargins(0, 8, 0, 0)
+        
+        # Status label
+        self.maatouch_status_label = QLabel()
+        self.maatouch_status_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
+        maatouch_status_layout.addWidget(self.maatouch_status_label)
+        
+        # Action buttons row
+        maatouch_actions_row = QHBoxLayout()
+        
+        self.maatouch_install_btn = QPushButton("📦 Install MaaTouch")
+        self.maatouch_install_btn.setToolTip("Push MaaTouch binary to device")
+        self.maatouch_install_btn.clicked.connect(self._install_maatouch)
+        maatouch_actions_row.addWidget(self.maatouch_install_btn)
+        
+        self.maatouch_benchmark_btn = QPushButton("🔬 Run Benchmark")
+        self.maatouch_benchmark_btn.setToolTip("Compare ADB vs MaaTouch input speed")
+        self.maatouch_benchmark_btn.clicked.connect(self._run_input_benchmark)
+        maatouch_actions_row.addWidget(self.maatouch_benchmark_btn)
+        
+        maatouch_actions_row.addStretch()
+        maatouch_status_layout.addLayout(maatouch_actions_row)
+        
+        self.maatouch_status_frame.setVisible(False)
+        input_layout.addWidget(self.maatouch_status_frame)
+        
+        layout.addWidget(input_group)
+        
         # ==================== Capture Settings ====================
         capture_group = QGroupBox("Screenshot Capture Settings")
         capture_layout = QGridLayout(capture_group)
@@ -549,6 +595,131 @@ class PerformanceTab(QScrollArea):
         
         self._check_easyocr_status()  # Refresh status
     
+    def _on_input_method_change(self, value):
+        """Handle input method change"""
+        if "MaaTouch" in value:
+            self.main_window.update_config_value("input_method", "maatouch")
+            self.maatouch_status_frame.setVisible(True)
+            self._check_maatouch_status()
+        else:
+            self.main_window.update_config_value("input_method", "adb")
+            self.maatouch_status_frame.setVisible(False)
+        
+        # Reload input method in utils.input module
+        try:
+            from utils.input import reload_input_method
+            reload_input_method()
+        except:
+            pass
+    
+    def _check_maatouch_status(self):
+        """Check and display MaaTouch status"""
+        try:
+            from utils.maatouch import _find_maatouch_binary, MaaTouchConnection
+            
+            binary_path = _find_maatouch_binary()
+            if binary_path:
+                self.maatouch_status_label.setText("✓ MaaTouch binary found")
+                self.maatouch_status_label.setStyleSheet(f"color: {COLORS['accent_green']}; font-weight: bold;")
+                self.maatouch_install_btn.setText("📦 Reinstall MaaTouch")
+            else:
+                self.maatouch_status_label.setText("✗ MaaTouch binary not found")
+                self.maatouch_status_label.setStyleSheet(f"color: {COLORS['accent_orange']};")
+                self.maatouch_install_btn.setText("📦 Install MaaTouch")
+        except Exception as e:
+            self.maatouch_status_label.setText(f"✗ Error: {str(e)}")
+            self.maatouch_status_label.setStyleSheet(f"color: {COLORS['accent_red']};")
+    
+    def _install_maatouch(self):
+        """Install MaaTouch binary to device"""
+        try:
+            from utils.maatouch import MaaTouchConnection
+            conn = MaaTouchConnection()
+            if conn.install():
+                QMessageBox.information(
+                    self, "Install Complete",
+                    "✓ MaaTouch installed successfully!"
+                )
+            else:
+                QMessageBox.warning(
+                    self, "Install Failed",
+                    "✗ Failed to install MaaTouch. Check if emulator is connected."
+                )
+            self._check_maatouch_status()
+        except Exception as e:
+            QMessageBox.warning(
+                self, "Install Failed",
+                f"✗ Error: {str(e)}"
+            )
+    
+    def _run_input_benchmark(self):
+        """Run input method benchmark"""
+        result = QMessageBox.information(
+            self, "Input Benchmark",
+            "⚠️ Make sure the emulator is running before continuing.\n\n"
+            "This will run a quick benchmark comparing ADB vs MaaTouch tap speed.\n\n"
+            "Continue?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.Yes
+        )
+        
+        if result != QMessageBox.Yes:
+            return
+        
+        try:
+            import time
+            import statistics
+            from utils.input import _adb_tap
+            from utils.maatouch import MaaTouchConnection
+            
+            num_taps = 20
+            test_x, test_y = 540, 960
+            
+            # Test ADB
+            adb_times = []
+            for _ in range(num_taps):
+                start = time.perf_counter()
+                _adb_tap(test_x, test_y)
+                adb_times.append((time.perf_counter() - start) * 1000)
+            
+            # Test MaaTouch
+            conn = MaaTouchConnection()
+            if not conn.install():
+                QMessageBox.warning(self, "Benchmark Failed", "Failed to install MaaTouch")
+                return
+            if not conn.connect():
+                QMessageBox.warning(self, "Benchmark Failed", "Failed to connect to MaaTouch")
+                return
+            
+            maatouch_times = []
+            for _ in range(num_taps):
+                start = time.perf_counter()
+                conn.tap(test_x, test_y)
+                maatouch_times.append((time.perf_counter() - start) * 1000)
+            
+            conn.disconnect()
+            
+            # Calculate results
+            adb_avg = statistics.mean(adb_times)
+            maatouch_avg = statistics.mean(maatouch_times)
+            speedup = adb_avg / maatouch_avg if maatouch_avg > 0 else 0
+            
+            QMessageBox.information(
+                self, "Benchmark Results",
+                f"Input Method Benchmark ({num_taps} taps each)\n"
+                f"{'='*40}\n\n"
+                f"ADB avg:      {adb_avg:.2f}ms\n"
+                f"MaaTouch avg: {maatouch_avg:.2f}ms\n\n"
+                f"MaaTouch is {speedup:.1f}x faster (per command)\n\n"
+                f"Note: MaaTouch times measure command sending only.\n"
+                f"Real benefit is eliminating subprocess spawn overhead."
+            )
+        except Exception as e:
+            QMessageBox.warning(
+                self, "Benchmark Failed",
+                f"Error running benchmark: {str(e)}"
+            )
+    
     def _on_capture_method_change(self, value):
         """Handle capture method change"""
         self.main_window.update_config_value("capture_method", value)
@@ -581,6 +752,18 @@ class PerformanceTab(QScrollArea):
             self.ocr_status_frame.setVisible(False)
             self.tesseract_benchmark_btn.setVisible(True)
         self.ocr_method_combo.blockSignals(False)
+        
+        # Input method - block signals
+        self.input_method_combo.blockSignals(True)
+        input_method = config.get("input_method", "adb")
+        if input_method == "maatouch":
+            self.input_method_combo.setCurrentIndex(1)
+            self.maatouch_status_frame.setVisible(True)
+            self._check_maatouch_status()
+        else:
+            self.input_method_combo.setCurrentIndex(0)
+            self.maatouch_status_frame.setVisible(False)
+        self.input_method_combo.blockSignals(False)
         
         self.capture_combo.setCurrentText(config.get("capture_method", "auto"))
         
