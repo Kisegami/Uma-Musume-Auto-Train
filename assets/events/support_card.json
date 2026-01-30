@@ -6865,5 +6865,474 @@
       "Bottom Option": "Stamina +5\r\nWit +5\r\nTamamo Cross bond +5"
     },
     "CardSlug": "10027-tamamo-cross"
+  },
+  {
+    "EventName": "(❯) Drawn In",
+    "EventOptions": {
+      "": "Stamina +10\r\nWit +5"
+    },
+    "CardSlug": "30075-manhattan-cafe"
+  },
+  {
+    "EventName": "(❯❯) Discovery",
+    "EventOptions": {
+      "Top Option": "Randomly either\r\nStamina +10\r\nWit +10\r\nLong Corners ○ hint +1\r\nManhattan Cafe bond +5\r\nor\r\nor\r\nEnergy +15\r\nLong Corners ○ hint +1\r\nGet Night Owl status\r\nManhattan Cafe bond +5"
+    },
+    "CardSlug": "30075-manhattan-cafe"
+  },
+  {
+    "EventName": "(❯❯) Discovery",
+    "EventOptions": {
+      "Bottom Option": "Energy +15\r\nManhattan Cafe bond +5"
+    },
+    "CardSlug": "30075-manhattan-cafe"
+  },
+  {
+    "EventName": "(❯❯❯) Shadowing",
+    "EventOptions": {
+      "": "Stamina +15\r\nStamina Siphon hint +1\r\nManhattan Cafe bond +5"
+    },
+    "CardSlug": "30075-manhattan-cafe"
+  },
+  {
+    "EventName": "Solo Nighttime Run",
+    "EventOptions": {
+      "Top Option": "Stamina +10\r\nManhattan Cafe bond +5"
+    },
+    "CardSlug": "30075-manhattan-cafe"
+  },
+  {
+    "EventName": "Solo Nighttime Run",
+    "EventOptions": {
+      "Bottom Option": "Energy +10\r\nStamina +5\r\nManhattan Cafe bond +5"
+    },
+    "CardSlug": "30075-manhattan-cafe"
+  },
+  {
+    "EventName": "A Taste of Silence",
+    "EventOptions": {
+      "Top Option": "Stamina +5\r\nSkill points +15\r\nManhattan Cafe bond +5"
+    },
+    "CardSlug": "30075-manhattan-cafe"
+  },
+  {
+    "EventName": "A Taste of Silence",
+    "EventOptions": {
+      "Bottom Option": "Non-Standard Distance ○ hint +1\r\nManhattan Cafe bond +5"
+    },
+    "CardSlug": "30075-manhattan-cafe"
+  },
+  {
+    "EventName": "(❯) Don't Give Up!",
+    "EventOptions": {
+      "": "Energy -10\r\nSpeed +12\r\nPower +12\r\nInari One bond +5"
+    },
+    "CardSlug": "20032-inari-one"
+  },
+  {
+    "EventName": "(❯❯) A Good Ruckus!",
+    "EventOptions": {
+      "Top Option": "Energy -5\r\nMood +2\r\nSpeed +3\r\nPower +3\r\nGuts +3\r\nInari One bond +5"
+    },
+    "CardSlug": "20032-inari-one"
+  },
+  {
+    "EventName": "(❯❯) A Good Ruckus!",
+    "EventOptions": {
+      "Bottom Option": "Energy -5\r\nSpeed +10\r\nOi Racecourse ○ hint +3\r\nInari One bond +5"
+    },
+    "CardSlug": "20032-inari-one"
+  },
+  {
+    "EventName": "Let's Tussle! Booyah!",
+    "EventOptions": {
+      "Top Option": "Energy -5\r\nPower +15\r\nInari One bond +5"
+    },
+    "CardSlug": "20032-inari-one"
+  },
+  {
+    "EventName": "Let's Tussle! Booyah!",
+    "EventOptions": {
+      "Bottom Option": "Mood +1\r\nGuts +5\r\nInari One bond +5"
+    },
+    "CardSlug": "20032-inari-one"
+  },
+  {
+    "EventName": "Mikoshi, Heave Ho!",
+    "EventOptions": {
+      "Top Option": "Skill points +15\r\nInari One bond +5"
+    },
+    "CardSlug": "20032-inari-one"
+  },
+  {
+    "EventName": "Mikoshi, Heave Ho!",
+    "EventOptions": {
+      "Bottom Option": "Kyoto Racecourse ○ hint +1\r\nInari One bond +5"
+    },
+    "CardSlug": "20032-inari-one"
+  },
+  {
+    "EventName": "Let's Tussle! Booyah!",
+    "EventOptions": {
+      "Top Option": "Energy -5\r\nPower +15\r\nInari One bond +5"
+    },
+    "CardSlug": "10068-inari-one"
+  },
+  {
+    "EventName": "Let's Tussle! Booyah!",
+    "EventOptions": {
+      "Bottom Option": "Mood +1\r\nGuts +5\r\nInari One bond +5"
+    },
+    "CardSlug": "10068-inari-one"
+  },
+  {
+    "EventName": "Mikoshi, Heave Ho!",
+    "EventOptions": {
+      "Top Option": "Skill points +15\r\nInari One bond +5"
+    },
+    "CardSlug": "10068-inari-one"
+  },
+  {
+    "EventName": "Mikoshi, Heave Ho!",
+    "EventOptions": {
+      "Bottom Option": "Kyoto Racecourse ○ hint +1\r\nInari One bond +5"
+    },
+    "CardSlug": "10068-inari-one"
+  },
+  {
+    "EventName": "Wonderful New Shoes",
+    "EventOptions": {
+      "Top Option": "Speed +5\r\nSkill points +10\r\nFine Motion bond +5"
+    },
+    "CardSlug": "10028-fine-motion"
+  },
+  {
+    "EventName": "Wonderful New Shoes",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nStamina +5\r\nSkill points +20\r\nFine Motion bond +5"
+    },
+    "CardSlug": "10028-fine-motion"
+  },
+  {
+    "EventName": "Reminiscent Clover",
+    "EventOptions": {
+      "Top Option": "Corner Adept ○ hint +1\r\nFine Motion bond +5"
+    },
+    "CardSlug": "10028-fine-motion"
+  },
+  {
+    "EventName": "Reminiscent Clover",
+    "EventOptions": {
+      "Bottom Option": "Guts +15\r\nFine Motion bond +5"
+    },
+    "CardSlug": "10028-fine-motion"
+  },
+  {
+    "EventName": "Last-Minute Modal Theory",
+    "EventOptions": {
+      "Top Option": "Power +15\r\nBiwa Hayahide bond +5"
+    },
+    "CardSlug": "10029-biwa-hayahide"
+  },
+  {
+    "EventName": "Last-Minute Modal Theory",
+    "EventOptions": {
+      "Bottom Option": "Speed +10\r\nSkill points +15\r\nBiwa Hayahide bond +5"
+    },
+    "CardSlug": "10029-biwa-hayahide"
+  },
+  {
+    "EventName": "Step-Out-of-Your-Comfort-Zone Theory",
+    "EventOptions": {
+      "Top Option": "Energy -10\r\nInside Scoop hint +1\r\nBiwa Hayahide bond +5"
+    },
+    "CardSlug": "10029-biwa-hayahide"
+  },
+  {
+    "EventName": "Step-Out-of-Your-Comfort-Zone Theory",
+    "EventOptions": {
+      "Bottom Option": "Energy +10\r\nStamina +10\r\nBiwa Hayahide bond +5"
+    },
+    "CardSlug": "10029-biwa-hayahide"
+  },
+  {
+    "EventName": "Snack Advice for Mayano!",
+    "EventOptions": {
+      "Top Option": "Stamina +5\r\nGuts +5\r\nMayano Top Gun bond +5"
+    },
+    "CardSlug": "10030-mayano-top-gun"
+  },
+  {
+    "EventName": "Snack Advice for Mayano!",
+    "EventOptions": {
+      "Bottom Option": "Stamina +10\r\nMayano Top Gun bond +5"
+    },
+    "CardSlug": "10030-mayano-top-gun"
+  },
+  {
+    "EventName": "Fashion Advice for Mayano!",
+    "EventOptions": {
+      "Top Option": "Straightaway Adept hint +1\r\nMayano Top Gun bond +5"
+    },
+    "CardSlug": "10030-mayano-top-gun"
+  },
+  {
+    "EventName": "Fashion Advice for Mayano!",
+    "EventOptions": {
+      "Bottom Option": "Stamina +10\r\nMayano Top Gun bond +5"
+    },
+    "CardSlug": "10030-mayano-top-gun"
+  },
+  {
+    "EventName": "Solo Nighttime Run",
+    "EventOptions": {
+      "Top Option": "Stamina +10\r\nManhattan Cafe bond +5"
+    },
+    "CardSlug": "10031-manhattan-cafe"
+  },
+  {
+    "EventName": "Solo Nighttime Run",
+    "EventOptions": {
+      "Bottom Option": "Energy +10\r\nStamina +5\r\nManhattan Cafe bond +5"
+    },
+    "CardSlug": "10031-manhattan-cafe"
+  },
+  {
+    "EventName": "A Taste of Silence",
+    "EventOptions": {
+      "Top Option": "Stamina +5\r\nSkill points +15\r\nManhattan Cafe bond +5"
+    },
+    "CardSlug": "10031-manhattan-cafe"
+  },
+  {
+    "EventName": "A Taste of Silence",
+    "EventOptions": {
+      "Bottom Option": "Non-Standard Distance ○ hint +1\r\nManhattan Cafe bond +5"
+    },
+    "CardSlug": "10031-manhattan-cafe"
+  },
+  {
+    "EventName": "Do No Harm",
+    "EventOptions": {
+      "Top Option": "Energy -10\r\nStamina +5\r\nPower +15\r\nMihono Bourbon bond +5"
+    },
+    "CardSlug": "10032-mihono-bourbon"
+  },
+  {
+    "EventName": "Do No Harm",
+    "EventOptions": {
+      "Bottom Option": "Energy +10\r\nWit +5\r\nMihono Bourbon bond +5"
+    },
+    "CardSlug": "10032-mihono-bourbon"
+  },
+  {
+    "EventName": "Orders Must Be Followed",
+    "EventOptions": {
+      "Top Option": "Focus hint +1\r\nMihono Bourbon bond +5"
+    },
+    "CardSlug": "10032-mihono-bourbon"
+  },
+  {
+    "EventName": "Orders Must Be Followed",
+    "EventOptions": {
+      "Bottom Option": "Speed +10\r\nSkill points +15\r\nMihono Bourbon bond +5"
+    },
+    "CardSlug": "10032-mihono-bourbon"
+  },
+  {
+    "EventName": "My Muscles and Me, Onward to Tomorrow!",
+    "EventOptions": {
+      "Top Option": "Energy -10\r\nPower +15\r\nMejiro Ryan bond +5"
+    },
+    "CardSlug": "10033-mejiro-ryan"
+  },
+  {
+    "EventName": "My Muscles and Me, Onward to Tomorrow!",
+    "EventOptions": {
+      "Bottom Option": "Maximum Energy +4\r\nPower +5\r\nMejiro Ryan bond +5"
+    },
+    "CardSlug": "10033-mejiro-ryan"
+  },
+  {
+    "EventName": "It's Not Like I Like Romance!",
+    "EventOptions": {
+      "Top Option": "Pace Strategy hint +1\r\nMejiro Ryan bond +5"
+    },
+    "CardSlug": "10033-mejiro-ryan"
+  },
+  {
+    "EventName": "It's Not Like I Like Romance!",
+    "EventOptions": {
+      "Bottom Option": "Energy +30\r\nMejiro Ryan bond +5"
+    },
+    "CardSlug": "10033-mejiro-ryan"
+  },
+  {
+    "EventName": "For a Spiffy Concert",
+    "EventOptions": {
+      "Top Option": "Guts +10\r\nYukino Bijin bond +5"
+    },
+    "CardSlug": "10034-yukino-bijin"
+  },
+  {
+    "EventName": "For a Spiffy Concert",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nGuts +15\r\nYukino Bijin bond +5"
+    },
+    "CardSlug": "10034-yukino-bijin"
+  },
+  {
+    "EventName": "Aiming for the City Spots",
+    "EventOptions": {
+      "Top Option": "Energy -10\r\nMood +1\r\nGuts +10\r\nYukino Bijin bond +5"
+    },
+    "CardSlug": "10034-yukino-bijin"
+  },
+  {
+    "EventName": "Aiming for the City Spots",
+    "EventOptions": {
+      "Bottom Option": "Corner Acceleration ○ hint +1\r\nYukino Bijin bond +5"
+    },
+    "CardSlug": "10034-yukino-bijin"
+  },
+  {
+    "EventName": "It's a Game of Tag!",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nSpeed +5\r\nInes Fujin bond +5"
+    },
+    "CardSlug": "10035-ines-fujin"
+  },
+  {
+    "EventName": "It's a Game of Tag!",
+    "EventOptions": {
+      "Bottom Option": "Fast-Paced hint +1\r\nInes Fujin bond +5"
+    },
+    "CardSlug": "10035-ines-fujin"
+  },
+  {
+    "EventName": "Ten Minutes Left!",
+    "EventOptions": {
+      "Top Option": "Guts +15\r\nInes Fujin bond +5"
+    },
+    "CardSlug": "10035-ines-fujin"
+  },
+  {
+    "EventName": "Ten Minutes Left!",
+    "EventOptions": {
+      "Bottom Option": "Wit +15\r\nInes Fujin bond +5"
+    },
+    "CardSlug": "10035-ines-fujin"
+  },
+  {
+    "EventName": "The Correlation between Sleep and Efficiency",
+    "EventOptions": {
+      "Top Option": "Power +5\r\nWit +5\r\nAgnes Tachyon bond +5"
+    },
+    "CardSlug": "10036-agnes-tachyon"
+  },
+  {
+    "EventName": "The Correlation between Sleep and Efficiency",
+    "EventOptions": {
+      "Bottom Option": "Wit +10\r\nAgnes Tachyon bond +5"
+    },
+    "CardSlug": "10036-agnes-tachyon"
+  },
+  {
+    "EventName": "Happenstance Introduced Through Intervention",
+    "EventOptions": {
+      "Top Option": "Late Surger Savvy ○ hint +1\r\nAgnes Tachyon bond +5"
+    },
+    "CardSlug": "10036-agnes-tachyon"
+  },
+  {
+    "EventName": "Happenstance Introduced Through Intervention",
+    "EventOptions": {
+      "Bottom Option": "Wit +10\r\nAgnes Tachyon bond +5"
+    },
+    "CardSlug": "10036-agnes-tachyon"
+  },
+  {
+    "EventName": "//Verification Required",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nGuts +5\r\nAir Shakur bond +5"
+    },
+    "CardSlug": "10037-air-shakur"
+  },
+  {
+    "EventName": "//Verification Required",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nStamina +5\r\nGuts +10\r\nAir Shakur bond +5"
+    },
+    "CardSlug": "10037-air-shakur"
+  },
+  {
+    "EventName": "//Absolute Desire",
+    "EventOptions": {
+      "Top Option": "Pace Strategy hint +1\r\nAir Shakur bond +5"
+    },
+    "CardSlug": "10037-air-shakur"
+  },
+  {
+    "EventName": "//Absolute Desire",
+    "EventOptions": {
+      "Bottom Option": "Maximum Energy +4\r\nGuts +5\r\nAir Shakur bond +5"
+    },
+    "CardSlug": "10037-air-shakur"
+  },
+  {
+    "EventName": "Unforeseen Lunch",
+    "EventOptions": {
+      "Top Option": "Energy +15\r\nEishin Flash bond +5"
+    },
+    "CardSlug": "10038-eishin-flash"
+  },
+  {
+    "EventName": "Unforeseen Lunch",
+    "EventOptions": {
+      "Bottom Option": "Speed +5\r\nGuts +5\r\nEishin Flash bond +5"
+    },
+    "CardSlug": "10038-eishin-flash"
+  },
+  {
+    "EventName": "Responding to the Unforeseen",
+    "EventOptions": {
+      "Top Option": "Guts +10\r\nEishin Flash bond +5"
+    },
+    "CardSlug": "10038-eishin-flash"
+  },
+  {
+    "EventName": "Responding to the Unforeseen",
+    "EventOptions": {
+      "Bottom Option": "Target in Sight ○ hint +1\r\nEishin Flash bond +5"
+    },
+    "CardSlug": "10038-eishin-flash"
+  },
+  {
+    "EventName": "Chants Are the Life of a Concert ☆",
+    "EventOptions": {
+      "Top Option": "Stamina +5\r\nGuts +10\r\nSmart Falcon bond +5"
+    },
+    "CardSlug": "10039-smart-falcon"
+  },
+  {
+    "EventName": "Chants Are the Life of a Concert ☆",
+    "EventOptions": {
+      "Bottom Option": "Wit +15\r\nSmart Falcon bond +5"
+    },
+    "CardSlug": "10039-smart-falcon"
+  },
+  {
+    "EventName": "If I'm Cute, Come to My Show! ☆",
+    "EventOptions": {
+      "Top Option": "Energy -10\r\nPower +10\r\nFinal Push hint +1\r\nSmart Falcon bond +5"
+    },
+    "CardSlug": "10039-smart-falcon"
+  },
+  {
+    "EventName": "If I'm Cute, Come to My Show! ☆",
+    "EventOptions": {
+      "Bottom Option": "Energy +10\r\nWit +5\r\nSmart Falcon bond +5"
+    },
+    "CardSlug": "10039-smart-falcon"
   }
 ]

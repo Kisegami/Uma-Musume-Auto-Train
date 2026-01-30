@@ -29,26 +29,29 @@ _cache_lifetime = 300  # Cache valid for 5 minutes
 
 # Optimized swipe functions for skill list navigation
 # These replace hardcoded coordinates and consolidate swipe logic
-def swipe_skill_list_up_fast(wait_before=0.3):
+def swipe_skill_list_up_fast(wait_before=0.3, wait_after=0.3):
     """
     Swipe up in skill list (fast) - used to go to top of list.
     Swipes DOWN on screen to scroll UP in the list.
     
     Args:
         wait_before: Seconds to wait before performing swipe (default: 0.3)
+        wait_after: Seconds to wait after swipe for UI to settle (default: 0.3)
     
     Returns:
         bool: True if swipe was successful, False otherwise
     """
     time.sleep(wait_before)
-    return swipe_and_tap(
+    result = swipe_and_tap(
         SKILL_LIST_CENTER_X, SKILL_LIST_TOP_Y, 
         SKILL_LIST_CENTER_X, SKILL_LIST_SCROLL_TARGET_TOP, 
         SKILL_LIST_SWIPE_DURATION,
         447, 841
     )
+    time.sleep(wait_after)  # Wait for UI animation to complete
+    return result
 
-def swipe_skill_list_down_slow(wait_before=0.3):
+def swipe_skill_list_down_slow(wait_before=0.3, wait_after=0.3):
     """
     Swipe down in skill list - used for careful navigation.
     Swipes UP on screen to scroll DOWN in the list.
@@ -56,17 +59,20 @@ def swipe_skill_list_down_slow(wait_before=0.3):
     
     Args:
         wait_before: Seconds to wait before performing swipe (default: 0.3)
+        wait_after: Seconds to wait after swipe for UI to settle (default: 0.3)
     
     Returns:
         bool: True if swipe was successful, False otherwise
     """
     time.sleep(wait_before)
-    return swipe_and_tap(
+    result = swipe_and_tap(
         SKILL_LIST_CENTER_X, SKILL_LIST_BOTTOM_Y,
         SKILL_LIST_CENTER_X, SKILL_LIST_SCROLL_TARGET_BOTTOM,
         SKILL_LIST_SWIPE_DURATION,
         447, 841
     )
+    time.sleep(wait_after)  # Wait for UI animation to complete
+    return result
 
 
 def cache_skill_points(points: int):

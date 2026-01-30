@@ -1,0 +1,32 @@
+{
+  "skill_priority": [
+    "Sprint Corners",
+    "Sprint Straightaways",
+    "Turbo Sprint",
+    "Rushing Gale!",
+    "It's On!",
+    "Slipstream",
+    "Playtime's Over!",
+    "Tail Held High",
+    "Ignited Spirit PWR",
+    "Ignited Spirit SPD",
+    "Highlander",
+    "No Stopping Me!",
+    "Head-On",
+    "Speed Star",
+    "Pace Chaser Corners",
+    "Pace Chaser Straightaways",
+    "Uma Stan",
+    "Left-Handed",
+    "Winter Runner",
+    "Wet Conditions",
+    "Standard Distance",
+    "Snowy Days"
+  ],
+  "gold_skill_upgrades": {
+    "Turbo Sprint": "Sprinting Gear",
+    "Rushing Gale!": "Straightaway Acceleration",
+    "It's On!": "Ramp Up",
+    "No Stopping Me!": "Nimble Navigator"
+  }
+}

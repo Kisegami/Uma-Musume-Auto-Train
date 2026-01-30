@@ -666,6 +666,9 @@ def scan_all_skills_with_scroll(swipe_start_x=507, swipe_start_y=1525, swipe_end
                     log_debug(f"Failed to perform swipe, stopping scan")
                     break
                 
+                # Wait for UI animation to complete before next screenshot
+                time.sleep(0.3)
+                
                 # Wait a bit when no skills found to let scroll stabilize
                 if no_skills_found:
                     time.sleep(0.2)

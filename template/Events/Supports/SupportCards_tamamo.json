@@ -1,0 +1,115 @@
+{
+    "TemplateName": "tamamo",
+    "CustomChoices": [
+        {
+            "EventName": "(❯) Some Very Green Friends",
+            "CardSlug": "20023-sweep-tosho",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "(❯❯) Premeditated Mischief",
+            "CardSlug": "20023-sweep-tosho",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "Miracle ☆ Escape!",
+            "CardSlug": "20023-sweep-tosho",
+            "SelectedOption": "Bottom Option"
+        },
+        {
+            "EventName": "Wonderful ☆ Mistake!",
+            "CardSlug": "20023-sweep-tosho",
+            "SelectedOption": "Bottom Option"
+        },
+        {
+            "EventName": "Enemies on Main Street",
+            "CardSlug": "30005-vodka",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "The Coolest Line",
+            "CardSlug": "30005-vodka",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "(❯❯) Paying It Forward",
+            "CardSlug": "30028-kitasan-black",
+            "SelectedOption": "Bottom Option"
+        },
+        {
+            "EventName": "Ah, Friendship",
+            "CardSlug": "30028-kitasan-black",
+            "SelectedOption": "Bottom Option"
+        },
+        {
+            "EventName": "Ah, Home Sweet Home",
+            "CardSlug": "30028-kitasan-black",
+            "SelectedOption": "Bottom Option"
+        },
+        {
+            "EventName": "(❯❯) Diamond Fixation",
+            "CardSlug": "30029-satono-diamond",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "(❯❯❯) Only for You",
+            "CardSlug": "30029-satono-diamond",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "I Love Complicated Things!",
+            "CardSlug": "30029-satono-diamond",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "I Love New Things!",
+            "CardSlug": "30029-satono-diamond",
+            "SelectedOption": "Bottom Option"
+        },
+        {
+            "EventName": "(❯) Rainy Day, Floating Flowers",
+            "CardSlug": "30034-rice-shower",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "(❯❯) Magical Flowers, Forever Fair",
+            "CardSlug": "30034-rice-shower",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "A Page About Cloudy Weather",
+            "CardSlug": "30034-rice-shower",
+            "SelectedOption": "Bottom Option"
+        },
+        {
+            "EventName": "A Page of Flower Shop Assistance",
+            "CardSlug": "30034-rice-shower",
+            "SelectedOption": "Bottom Option"
+        },
+        {
+            "EventName": "(❯❯❯) Picture Their Joy",
+            "CardSlug": "30036-riko-kashimoto",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "The Kashimoto Art of Tidying Up",
+            "CardSlug": "30036-riko-kashimoto",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "Unexpected Side",
+            "CardSlug": "30036-riko-kashimoto",
+            "SelectedOption": "Middle Option"
+        },
+        {
+            "EventName": "Lone Wolf",
+            "CardSlug": "30044-narita-brian",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "Student Council Member!",
+            "CardSlug": "30044-narita-brian",
+            "SelectedOption": "Bottom Option"
+        }
+    ]
+}

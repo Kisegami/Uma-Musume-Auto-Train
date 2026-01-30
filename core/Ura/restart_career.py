@@ -23,6 +23,29 @@ from core.Ura.skill_auto_purchase import click_image_button
 from core.Ura.ocr import extract_text, extract_number
 from utils.config_loader import load_main_config
 
+# Module-level state for persistent restart tracking across function calls
+_restart_state = {
+    'restart_count': 0,
+    'total_fans_acquired': 0,
+    'session_active': False
+}
+
+
+def reset_restart_state():
+    """Reset restart state for a new session."""
+    global _restart_state
+    _restart_state = {
+        'restart_count': 0,
+        'total_fans_acquired': 0,
+        'session_active': False
+    }
+    log_info("Restart state reset for new session")
+
+
+def get_restart_state() -> Dict[str, Any]:
+    """Get current restart state."""
+    return _restart_state.copy()
+
 
 def load_restart_config() -> Dict[str, Any]:
     """Load restart career configuration from config.json"""
@@ -619,8 +642,13 @@ def complete_career(current_restart_count: int, max_restart_times: int,
 
 
 def execute_restart_cycle(current_restart_count: int, max_restart_times: int, 
-                         total_fans_acquired: int, total_fans_requirement: int) -> Tuple[bool, int, int]:
-    """Execute one complete restart cycle"""
+                         total_fans_acquired: int, total_fans_requirement: int) -> Tuple[bool, int, int, bool]:
+    """Execute one complete restart cycle.
+    
+    Returns:
+        Tuple of (success, new_restart_count, new_total_fans, career_started)
+        - career_started: True if a new career was started and we should exit the restart loop
+    """
     log_info(f"\n=== Restart Cycle {current_restart_count + 1}/{max_restart_times} ===")
     
     # Complete the current career
@@ -630,19 +658,31 @@ def execute_restart_cycle(current_restart_count: int, max_restart_times: int,
     
     if not success:
         log_info(f"Failed to complete career - stopping workflow")
-        return False, current_restart_count, total_fans_acquired
+        return False, current_restart_count, total_fans_acquired, False
     
     # Start new career
     if not start_career():
         log_info(f"Failed to start new career")
-        return False, new_restart_count, new_total_fans
+        return False, new_restart_count, new_total_fans, False
     
     log_info(f"✓ Restart cycle {new_restart_count} completed successfully")
-    return True, new_restart_count, new_total_fans
+    # Return True with career_started=True to signal we should exit the loop
+    # and let the main bot handle gameplay until next career completion
+    return True, new_restart_count, new_total_fans, True
 
 
 def run_restart_workflow() -> bool:
-    """Main restart workflow - continues until criteria are met"""
+    """Main restart workflow - executes ONE complete career and starts next.
+    
+    This function completes the current career and starts a new one.
+    After starting a new career, it returns True to let the main bot loop
+    handle gameplay. The workflow will be triggered again when the next
+    career completion is detected.
+    
+    Uses module-level _restart_state to persist counts across calls.
+    """
+    global _restart_state
+    
     log_info(f"=== Starting Career Restart Workflow ===")
     
     # Load configuration
@@ -659,42 +699,46 @@ def run_restart_workflow() -> bool:
         log_info(f"Restart is disabled in config")
         return False
     
-    # Runtime state - managed in function scope
-    current_restart_count = 0
-    total_fans_acquired = 0
+    # Use persistent state
+    current_restart_count = _restart_state['restart_count']
+    total_fans_acquired = _restart_state['total_fans_acquired']
     
-    # Continue restarting until criteria are met
-    while True:
-        should_continue, reason = should_continue_restarting(
-            current_restart_count, max_restart_times, total_fans_acquired, total_fans_requirement
-        )
-        if not should_continue:
-            log_info(f"Restart criteria met: {reason}")
-            break
-        
-        success, new_restart_count, new_total_fans = execute_restart_cycle(
-            current_restart_count, max_restart_times, total_fans_acquired, total_fans_requirement
-        )
-        
-        if not success:
-            # Check if we reached completion criteria
-            should_continue, reason = should_continue_restarting(
-                new_restart_count, max_restart_times, new_total_fans, total_fans_requirement
-            )
-            if not should_continue:
-                log_info(f"Career completion criteria met: {reason}")
-                break
-            else:
-                log_info(f"Restart cycle failed")
-                break
-        
-        # Update state for next iteration
-        current_restart_count = new_restart_count
-        total_fans_acquired = new_total_fans
+    log_info(f"Current session state: {current_restart_count} restarts, {total_fans_acquired} total fans")
+    
+    # Check if we should continue
+    should_continue, reason = should_continue_restarting(
+        current_restart_count, max_restart_times, total_fans_acquired, total_fans_requirement
+    )
+    if not should_continue:
+        log_info(f"Restart criteria met: {reason}")
+        reset_restart_state()  # Reset for next session
+        return False
+    
+    # Execute one restart cycle
+    success, new_restart_count, new_total_fans, career_started = execute_restart_cycle(
+        current_restart_count, max_restart_times, total_fans_acquired, total_fans_requirement
+    )
+    
+    if not success:
+        log_info(f"Restart cycle failed")
+        return False
+    
+    # Update persistent state
+    _restart_state['restart_count'] = new_restart_count
+    _restart_state['total_fans_acquired'] = new_total_fans
+    _restart_state['session_active'] = True
+    
+    if career_started:
+        # New career was started - return True to let main bot handle gameplay
+        # The restart workflow will be triggered again when career completion is detected
+        log_info(f"=== New career started - returning control to main bot ===")
+        log_info(f"Session progress: {new_restart_count}/{max_restart_times} restarts, {new_total_fans} total fans")
+        return True
     
     log_info(f"=== Career Restart Workflow Complete ===")
-    log_info(f"Total restarts completed: {current_restart_count}")
-    log_info(f"Total fans acquired: {total_fans_acquired}")
+    log_info(f"Total restarts completed: {new_restart_count}")
+    log_info(f"Total fans acquired: {new_total_fans}")
+    reset_restart_state()  # Reset for next session
     
     return True
 

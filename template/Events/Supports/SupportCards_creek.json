@@ -1,0 +1,105 @@
+{
+    "TemplateName": "creek",
+    "CustomChoices": [
+        {
+            "EventName": "(❯) Some Very Green Friends",
+            "CardSlug": "20023-sweep-tosho",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "(❯❯) Premeditated Mischief",
+            "CardSlug": "20023-sweep-tosho",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "Miracle ☆ Escape!",
+            "CardSlug": "20023-sweep-tosho",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "Wonderful ☆ Mistake!",
+            "CardSlug": "20023-sweep-tosho",
+            "SelectedOption": "Bottom Option"
+        },
+        {
+            "EventName": "Enemies on Main Street",
+            "CardSlug": "30005-vodka",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "The Coolest Line",
+            "CardSlug": "30005-vodka",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "Enough to Break into a Dash!",
+            "CardSlug": "30015-sakura-bakushin-o",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "Genius Efficiency!",
+            "CardSlug": "30015-sakura-bakushin-o",
+            "SelectedOption": "Bottom Option"
+        },
+        {
+            "EventName": "(❯❯) Paying It Forward",
+            "CardSlug": "30028-kitasan-black",
+            "SelectedOption": "Bottom Option"
+        },
+        {
+            "EventName": "Ah, Friendship",
+            "CardSlug": "30028-kitasan-black",
+            "SelectedOption": "Bottom Option"
+        },
+        {
+            "EventName": "Ah, Home Sweet Home",
+            "CardSlug": "30028-kitasan-black",
+            "SelectedOption": "Bottom Option"
+        },
+        {
+            "EventName": "(❯) Rainy Day, Floating Flowers",
+            "CardSlug": "30034-rice-shower",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "(❯❯) Magical Flowers, Forever Fair",
+            "CardSlug": "30034-rice-shower",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "A Page About Cloudy Weather",
+            "CardSlug": "30034-rice-shower",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "A Page of Flower Shop Assistance",
+            "CardSlug": "30034-rice-shower",
+            "SelectedOption": "Bottom Option"
+        },
+        {
+            "EventName": "Lone Wolf",
+            "CardSlug": "30044-narita-brian",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "Student Council Member!",
+            "CardSlug": "30044-narita-brian",
+            "SelectedOption": "Bottom Option"
+        },
+        {
+            "EventName": "(❯❯) Dazzling and Marvelous ☆",
+            "CardSlug": "30074-marvelous-sunday",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "How To Be More Marvelous ☆",
+            "CardSlug": "30074-marvelous-sunday",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "Marvelous, No Question ☆",
+            "CardSlug": "30074-marvelous-sunday",
+            "SelectedOption": "Top Option"
+        }
+    ]
+}
