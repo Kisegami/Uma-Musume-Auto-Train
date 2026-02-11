@@ -60,3 +60,4 @@ debug_*.png
 tests/
 *.exe
 test_*.py
+old/
