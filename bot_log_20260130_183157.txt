@@ -1,0 +1,439 @@
+[18:25:43] Uma Musume Auto-Train initialized
+[18:25:43] Config: config.json
+[18:26:08] Config saved
+[18:26:13] Config saved
+[18:26:16] Config saved
+[18:26:18] Config saved
+[18:26:26] Config saved
+[18:26:31] Config saved
+[18:26:38] Config saved
+[18:26:39] Config saved
+[18:26:43] Config saved
+[18:26:43] Config saved
+[18:26:44] Config saved
+[18:26:48] Config saved
+[18:26:49] Config saved
+[18:26:49] Config saved
+[18:26:56] Config saved
+[18:26:57] Config saved
+[18:26:57] Config saved
+[18:27:04] Config saved
+[18:27:12] Config saved
+[18:27:13] Config saved
+[18:27:20] Config saved
+[18:27:24] Config saved
+[18:27:26] Config saved
+[18:29:33] Config saved
+[18:29:39] start_bot() called
+[18:29:39] BotController exists, calling start_bot()
+[18:29:39] [auto-detect] emulator_type=LDPlayer9, device_address=emulator-5556, capture_method=ldopengl
+[18:29:39] Config saved
+[18:29:39] [auto-detect] config saved after resolving emulator/device/capture
+[18:29:39] Starting Uma Musume Auto-Train Bot...
+[18:29:39] Bot started successfully
+[18:29:39] Checking ADB connection...
+[18:29:39] Found main.py, starting automation...
+[18:29:39] Bot process started successfully
+[18:29:39] Process PID: 279096
+[18:29:39] Process poll: None
+[18:29:39] Starting output monitor loop...
+[18:29:40] INFO - Uma Auto - Unity Cup Version!
+[18:29:40] INFO - ========================================
+[18:29:40] INFO - Mode: UNITY
+[18:29:40] INFO - Connected devices: 1
+[18:29:40] INFO - emulator-5556
+[18:29:40] INFO - Initialized LDOpenGL capture: LDPlayer-1 (1080x1920)
+[18:29:40] INFO - Device screen size: 1080x1920
+[18:29:40] INFO - Device model: SM-G973N
+[18:29:40] INFO - Android version: 9
+[18:29:40] INFO -
+[18:29:40] INFO - SUCCESS: Starting automation...
+[18:29:40] INFO - Make sure Umamusume Unity Cup is running on your device!
+[18:29:40] INFO - Press Ctrl+C to stop the automation.
+[18:29:40] INFO - ========================================
+[18:29:44] INFO - Initializing EasyOCR GPU reader with english_g2 model...
+[18:29:46] INFO - EasyOCR GPU initialized successfully with english_g2 model using NVIDIA GeForce RTX 5070
+[18:29:47] INFO -
+[18:29:47] INFO - === GAME STATUS ===
+[18:29:47] INFO - Year: Junior Year Pre-Debutt
+[18:29:47] INFO - Mood: NORMAL
+[18:29:47] INFO - Goal Name: [ » TE PR
+[18:29:47] INFO - Status: Tu M Jumior Make Dedul
+[18:29:47] INFO - Energy: 100.0% (Minimum: 30%)
+[18:29:47] INFO - Current stats: SPD: 111, STA: 126, PWR: 171, GUTS: 98, WIT: 97
+[18:29:47] INFO - Dating Available: False
+[18:29:47] INFO - Decision: Criteria met or conditions not suitable for racing
+[18:29:47] INFO -
+[18:29:48] INFO - Mood is low but energy is too high (100.0% > 90%), skipping recreation
+[18:29:48] ERROR - MaaTouch process exited: Aborted
+[18:29:50] ERROR - MaaTouch process exited: Aborted
+[18:29:53] INFO -
+[18:29:53] [SPD]
+[18:29:53] INFO - -
+[18:29:53] INFO - hint=False
+[18:29:53] INFO - spirit_training=0 (total: 0, extra: 0)
+[18:29:53] INFO - spirit_training_extra=0
+[18:29:53] INFO - spirit_burst=0
+[18:29:53] INFO - Fail: 100% - Confident: 0.00
+[18:29:53] INFO - Score: 0.0
+[18:29:53] ERROR - MaaTouch process exited: Aborted
+[18:29:55] Stopping bot...
+[18:29:55] Terminating bot process...
+[18:29:55] Bot process terminated
+[18:29:55] Bot stopped
+[18:29:55] Bot process terminated gracefully
+[18:29:55] Bot stopped successfully
+[18:29:55] Bot stopped
+[18:30:26] start_bot() called
+[18:30:26] BotController exists, calling start_bot()
+[18:30:26] [auto-detect] emulator_type=LDPlayer9, device_address=emulator-5556, capture_method=ldopengl
+[18:30:26] Config saved
+[18:30:26] [auto-detect] config saved after resolving emulator/device/capture
+[18:30:26] Starting Uma Musume Auto-Train Bot...
+[18:30:26] Bot started successfully
+[18:30:26] Checking ADB connection...
+[18:30:26] Found main.py, starting automation...
+[18:30:26] Bot process started successfully
+[18:30:26] Process PID: 294416
+[18:30:26] Process poll: None
+[18:30:26] Starting output monitor loop...
+[18:30:27] INFO - Uma Auto - Unity Cup Version!
+[18:30:27] INFO - ========================================
+[18:30:27] INFO - Mode: UNITY
+[18:30:27] INFO - Connected devices: 1
+[18:30:27] INFO - emulator-5556
+[18:30:27] INFO - Initialized LDOpenGL capture: LDPlayer-1 (1080x1920)
+[18:30:27] INFO - Device screen size: 1080x1920
+[18:30:27] INFO - Device model: SM-G973N
+[18:30:27] INFO - Android version: 9
+[18:30:27] INFO -
+[18:30:27] INFO - SUCCESS: Starting automation...
+[18:30:27] INFO - Make sure Umamusume Unity Cup is running on your device!
+[18:30:27] INFO - Press Ctrl+C to stop the automation.
+[18:30:27] INFO - ========================================
+[18:30:31] INFO - Initializing EasyOCR GPU reader with english_g2 model...
+[18:30:32] INFO - EasyOCR GPU initialized successfully with english_g2 model using NVIDIA GeForce RTX 5070
+[18:30:33] INFO -
+[18:30:33] INFO - === GAME STATUS ===
+[18:30:33] INFO - Year: Junior Year Pre-Debutt
+[18:30:33] INFO - Mood: NORMAL
+[18:30:33] INFO - Goal Name: [ » TE PR
+[18:30:33] INFO - Status: Tu M Jumior Make Dedul
+[18:30:33] INFO - Energy: 100.0% (Minimum: 30%)
+[18:30:33] INFO - Current stats: SPD: 111, STA: 126, PWR: 171, GUTS: 98, WIT: 97
+[18:30:33] INFO - Dating Available: False
+[18:30:33] INFO - Decision: Criteria met or conditions not suitable for racing
+[18:30:33] INFO -
+[18:30:33] INFO - Mood is low but energy is too high (100.0% > 90%), skipping recreation
+[18:30:34] INFO - MaaTouch connected: max_x=1080, max_y=1920
+[18:30:36] INFO -
+[18:30:36] [SPD]
+[18:30:36] INFO - SPD1: 2
+[18:30:36] INFO - hint=False
+[18:30:36] INFO - spirit_training=0 (total: 0, extra: 0)
+[18:30:36] INFO - spirit_training_extra=0
+[18:30:36] INFO - spirit_burst=0
+[18:30:36] INFO - Fail: 0% - Confident: 0.96
+[18:30:36] INFO - Score: 1.1
+[18:30:36] INFO -
+[18:30:36] [STA]
+[18:30:36] INFO - PWR1: 2
+[18:30:36] INFO - hint=False
+[18:30:36] INFO - spirit_training=0 (total: 0, extra: 0)
+[18:30:36] INFO - spirit_training_extra=0
+[18:30:36] INFO - spirit_burst=0
+[18:30:36] INFO - Fail: 0% - Confident: 0.96
+[18:30:36] INFO - Score: 1.1
+[18:30:37] INFO -
+[18:30:37] [PWR]
+[18:30:37] INFO - PWR1: 2
+[18:30:37] INFO - hint=False
+[18:30:37] INFO - spirit_training=0 (total: 0, extra: 0)
+[18:30:37] INFO - spirit_training_extra=0
+[18:30:37] INFO - spirit_burst=0
+[18:30:37] INFO - Fail: 0% - Confident: 0.93
+[18:30:37] INFO - Score: 1.1
+[18:30:38] INFO -
+[18:30:38] [GUTS]
+[18:30:38] INFO - STA1: 2
+[18:30:38] INFO - hint=False
+[18:30:38] INFO - spirit_training=0 (total: 0, extra: 0)
+[18:30:38] INFO - spirit_training_extra=0
+[18:30:38] INFO - spirit_burst=0
+[18:30:38] INFO - Fail: 0% - Confident: 0.95
+[18:30:38] INFO - Score: 1.1
+[18:30:39] INFO -
+[18:30:39] [WIT]
+[18:30:39] INFO - SPD1: 2, SPD2: 2
+[18:30:39] INFO - hint=False
+[18:30:39] INFO - spirit_training=0 (total: 0, extra: 0)
+[18:30:39] INFO - spirit_training_extra=0
+[18:30:39] INFO - spirit_burst=0
+[18:30:39] INFO - Fail: 0% - Confident: 0.96
+[18:30:39] INFO - Score: 2.2
+[18:30:39] INFO -
+[18:30:39] === Overall ===
+[18:30:39] INFO - SPD: Score=1.10, Fail=0% - Confident: 0.96
+[18:30:39] INFO - STA: Score=1.10, Fail=0% - Confident: 0.96
+[18:30:39] INFO - PWR: Score=1.10, Fail=0% - Confident: 0.93
+[18:30:39] INFO - GUTS: Score=1.10, Fail=0% - Confident: 0.95
+[18:30:39] INFO - WIT: Score=2.20, Fail=0% - Confident: 0.96
+[18:30:39] INFO - Selected WIT training based on scoring algorithm
+[18:30:42] INFO - Should be in career lobby.
+[18:30:43] INFO - Should be in career lobby.
+[18:30:44] INFO - Should be in career lobby.
+[18:30:46] INFO -
+[18:30:46] INFO - === GAME STATUS ===
+[18:30:46] INFO - Year: Junior Year Pre-Debutt
+[18:30:46] INFO - Mood: NORMAL
+[18:30:46] INFO - Goal Name: [ . TEE EW Te PE
+[18:30:46] INFO - Status: tun In Junior Mlake Dedut
+[18:30:46] INFO - Energy: 100.0% (Minimum: 30%)
+[18:30:46] INFO - Current stats: SPD: 114, STA: 126, PWR: 171, GUTS: 98, WIT: 105
+[18:30:46] INFO - Dating Available: False
+[18:30:46] INFO - Decision: Criteria met or conditions not suitable for racing
+[18:30:46] INFO -
+[18:30:46] INFO - Mood is low but energy is too high (100.0% > 90%), skipping recreation
+[18:30:48] INFO -
+[18:30:48] [SPD]
+[18:30:48] INFO - PWR1: 2
+[18:30:48] INFO - hint=False
+[18:30:48] INFO - spirit_training=0 (total: 0, extra: 0)
+[18:30:48] INFO - spirit_training_extra=0
+[18:30:48] INFO - spirit_burst=0
+[18:30:48] INFO - Fail: 0% - Confident: 0.96
+[18:30:48] INFO - Score: 1.1
+[18:30:49] INFO -
+[18:30:49] [STA]
+[18:30:49] INFO - SPD1: 2
+[18:30:49] INFO - hint=False
+[18:30:49] INFO - spirit_training=0 (total: 0, extra: 0)
+[18:30:49] INFO - spirit_training_extra=0
+[18:30:49] INFO - spirit_burst=0
+[18:30:49] INFO - Fail: 0% - Confident: 0.95
+[18:30:49] INFO - Score: 1.1
+[18:30:51] INFO -
+[18:30:51] [PWR]
+[18:30:51] INFO - -
+[18:30:51] INFO - hint=False
+[18:30:51] INFO - spirit_training=0 (total: 0, extra: 0)
+[18:30:51] INFO - spirit_training_extra=0
+[18:30:51] INFO - spirit_burst=0
+[18:30:51] INFO - Fail: 0% - Confident: 0.93
+[18:30:51] INFO - Score: 0.0
+[18:30:52] INFO -
+[18:30:52] [GUTS]
+[18:30:52] INFO - STA1: 2
+[18:30:52] INFO - hint=False
+[18:30:52] INFO - spirit_training=0 (total: 0, extra: 0)
+[18:30:52] INFO - spirit_training_extra=0
+[18:30:52] INFO - spirit_burst=0
+[18:30:52] INFO - Fail: 0% - Confident: 0.94
+[18:30:52] INFO - Score: 1.1
+[18:30:53] INFO -
+[18:30:53] [WIT]
+[18:30:53] INFO - SPD1: 2, PWR1: 2
+[18:30:53] INFO - hint=True
+[18:30:53] INFO - spirit_training=0 (total: 0, extra: 0)
+[18:30:53] INFO - spirit_training_extra=0
+[18:30:53] INFO - spirit_burst=0
+[18:30:53] INFO - Fail: 0% - Confident: 0.96
+[18:30:53] INFO - Score: 2.4
+[18:30:53] INFO -
+[18:30:53] === Overall ===
+[18:30:53] INFO - SPD: Score=1.10, Fail=0% - Confident: 0.96
+[18:30:53] INFO - STA: Score=1.10, Fail=0% - Confident: 0.95
+[18:30:53] INFO - PWR: Score=0.00, Fail=0% - Confident: 0.93
+[18:30:53] INFO - GUTS: Score=1.10, Fail=0% - Confident: 0.94
+[18:30:53] INFO - WIT: Score=2.40, Fail=0% - Confident: 0.96
+[18:30:53] INFO - Selected WIT training based on scoring algorithm
+[18:30:56] INFO - Should be in career lobby.
+[18:30:57] INFO - Should be in career lobby.
+[18:30:58] INFO - Should be in career lobby.
+[18:31:00] INFO - Should be in career lobby.
+[18:31:01] INFO - Should be in career lobby.
+[18:31:02] INFO - Should be in career lobby.
+[18:31:03] INFO - Should be in career lobby.
+[18:31:04] INFO - Should be in career lobby.
+[18:31:04] INFO - Event detected, analyzing choices...
+[18:31:04] INFO - Event detected, scan event
+[18:31:05] INFO - Event found: Tutorial
+[18:31:05] INFO - Loaded custom Uma event template: Super Creek (Halloween) (33 events)
+[18:31:05] INFO - Loaded custom Support Card template: creek (20 events)
+[18:31:05] INFO - 🎯 Hardcoded event: Tutorial - choosing 2nd choice
+[18:31:05] INFO - Choose choice: 2
+[18:31:05] INFO - Clicking choice 2 at position (np.int64(73), np.int64(1335))
+[18:31:05] INFO - Successfully selected choice 2
+[18:31:08] INFO -
+[18:31:08] INFO - === GAME STATUS ===
+[18:31:08] INFO - Year: Junior Year Pre-Debutt
+[18:31:08] INFO - Mood: NORMAL
+[18:31:08] INFO - Goal Name: [ . TEE EW Te PE
+[18:31:08] INFO - Status: tun In Junior Mlake Dedut
+[18:31:08] INFO - Energy: 100.0% (Minimum: 30%)
+[18:31:08] INFO - Current stats: SPD: 116, STA: 126, PWR: 171, GUTS: 98, WIT: 112
+[18:31:08] INFO - Dating Available: False
+[18:31:08] INFO - Decision: Criteria met or conditions not suitable for racing
+[18:31:08] INFO -
+[18:31:08] INFO - Mood is low but energy is too high (100.0% > 90%), skipping recreation
+[18:31:10] INFO -
+[18:31:10] [SPD]
+[18:31:10] INFO - SPD1: 2
+[18:31:10] INFO - hint=False
+[18:31:10] INFO - spirit_training=0 (total: 0, extra: 0)
+[18:31:10] INFO - spirit_training_extra=0
+[18:31:10] INFO - spirit_burst=0
+[18:31:10] INFO - Fail: 0% - Confident: 0.94
+[18:31:10] INFO - Score: 1.1
+[18:31:11] INFO -
+[18:31:11] [STA]
+[18:31:11] INFO - -
+[18:31:11] INFO - hint=False
+[18:31:11] INFO - spirit_training=0 (total: 0, extra: 0)
+[18:31:11] INFO - spirit_training_extra=0
+[18:31:11] INFO - spirit_burst=0
+[18:31:11] INFO - Fail: 0% - Confident: 0.96
+[18:31:11] INFO - Score: 0.0
+[18:31:12] INFO -
+[18:31:12] [PWR]
+[18:31:12] INFO - -
+[18:31:12] INFO - hint=False
+[18:31:12] INFO - spirit_training=0 (total: 0, extra: 0)
+[18:31:12] INFO - spirit_training_extra=0
+[18:31:12] INFO - spirit_burst=0
+[18:31:12] INFO - Fail: 0% - Confident: 0.95
+[18:31:12] INFO - Score: 0.0
+[18:31:13] INFO -
+[18:31:13] [GUTS]
+[18:31:13] INFO - PWR1: 2, PWR2: 2
+[18:31:13] INFO - hint=False
+[18:31:13] INFO - spirit_training=1 (total: 1, extra: 0)
+[18:31:13] INFO - spirit_training_extra=0
+[18:31:13] INFO - spirit_burst=0
+[18:31:13] INFO - Fail: 0% - Confident: 0.94
+[18:31:13] INFO - Score: 2.7
+[18:31:14] INFO -
+[18:31:14] [WIT]
+[18:31:14] INFO - SPD1: 2
+[18:31:14] INFO - hint=False
+[18:31:14] INFO - spirit_training=1 (total: 1, extra: 0)
+[18:31:14] INFO - spirit_training_extra=0
+[18:31:14] INFO - spirit_burst=0
+[18:31:14] INFO - Fail: 0% - Confident: 0.95
+[18:31:14] INFO - Score: 1.6
+[18:31:14] INFO -
+[18:31:15] === Overall ===
+[18:31:15] INFO - SPD: Score=1.10, Fail=0% - Confident: 0.94
+[18:31:15] INFO - STA: Score=0.00, Fail=0% - Confident: 0.96
+[18:31:15] INFO - PWR: Score=0.00, Fail=0% - Confident: 0.95
+[18:31:15] INFO - GUTS: Score=2.70, Fail=0% - Confident: 0.94
+[18:31:15] INFO - WIT: Score=1.60, Fail=0% - Confident: 0.95
+[18:31:15] INFO - Selected GUTS training based on scoring algorithm
+[18:31:17] INFO - Should be in career lobby.
+[18:31:18] INFO - Should be in career lobby.
+[18:31:19] INFO - Should be in career lobby.
+[18:31:20] INFO - Should be in career lobby.
+[18:31:21] INFO - Should be in career lobby.
+[18:31:23] INFO - Should be in career lobby.
+[18:31:24] INFO - Should be in career lobby.
+[18:31:24] INFO - Event detected, analyzing choices...
+[18:31:24] INFO - Event detected, scan event
+[18:31:25] INFO - Event found: One-Day Experience Ceramics
+[18:31:25] INFO - Unknown event - not found in database
+[18:31:25] INFO - Choices found: 2
+[18:31:25] WARNING - Event analysis failed, falling back to top choice
+[18:31:26] INFO - Event detected, analyzing choices...
+[18:31:26] INFO - Event detected, scan event
+[18:31:26] INFO - [INFO] Event choices not visible after delay, skipping analysis
+[18:31:28] INFO - Should be in career lobby.
+[18:31:30] INFO -
+[18:31:30] INFO - === GAME STATUS ===
+[18:31:30] INFO - Year: Junior Year Pre-Debutt
+[18:31:30] INFO - Mood: NORMAL
+[18:31:30] INFO - Goal Name: [ . TEE EW Te PE
+[18:31:30] INFO - Status: tun In Junior Mlake Dedut
+[18:31:30] INFO - Energy: 82.2% (Minimum: 30%)
+[18:31:30] INFO - Current stats: SPD: 125, STA: 126, PWR: 177, GUTS: 106, WIT: 117
+[18:31:30] INFO - Dating Available: False
+[18:31:30] INFO - Decision: Criteria met or conditions not suitable for racing
+[18:31:30] INFO -
+[18:31:30] INFO - Mood is low, trying recreation to increase mood
+[18:31:38] INFO - Event detected, analyzing choices...
+[18:31:38] INFO - Event detected, scan event
+[18:31:39] INFO - Event found: Some Very Green Friends
+[18:31:39] INFO - 🎯 Custom template match: Some Very Green Friends → Top Option
+[18:31:39] INFO - Choose choice: 1
+[18:31:39] INFO - Clicking choice 1 at position (np.int64(73), np.int64(1136))
+[18:31:39] INFO - Successfully selected choice 1
+[18:31:41] INFO - Should be in career lobby.
+[18:31:42] INFO - Should be in career lobby.
+[18:31:44] INFO -
+[18:31:44] INFO - === GAME STATUS ===
+[18:31:44] INFO - Year: Junior Year Pre-Debutt
+[18:31:44] INFO - Mood: GOOD
+[18:31:44] INFO - Goal Name: [ . TEE EW Te PE
+[18:31:44] INFO - Status: tun In Junior Mlake Dedut
+[18:31:44] INFO - Energy: 92.3% (Minimum: 30%)
+[18:31:44] INFO - Current stats: SPD: 130, STA: 126, PWR: 177, GUTS: 106, WIT: 117
+[18:31:45] INFO - Dating Available: False
+[18:31:45] INFO - Decision: Criteria met or conditions not suitable for racing
+[18:31:45] INFO -
+[18:31:47] INFO -
+[18:31:47] [SPD]
+[18:31:47] INFO - SPD1: 2, PWR1: 2, PWR2: 2
+[18:31:47] INFO - hint=False
+[18:31:47] INFO - spirit_training=1 (total: 1, extra: 0)
+[18:31:47] INFO - spirit_training_extra=0
+[18:31:47] INFO - spirit_burst=0
+[18:31:47] INFO - Fail: 0% - Confident: 0.94
+[18:31:47] INFO - Score: 3.8
+[18:31:48] INFO -
+[18:31:48] [STA]
+[18:31:48] INFO - -
+[18:31:48] INFO - hint=False
+[18:31:48] INFO - spirit_training=2 (total: 2, extra: 0)
+[18:31:48] INFO - spirit_training_extra=0
+[18:31:48] INFO - spirit_burst=0
+[18:31:48] INFO - Fail: 0% - Confident: 0.96
+[18:31:48] INFO - Score: 1.0
+[18:31:49] INFO -
+[18:31:49] [PWR]
+[18:31:49] INFO - SPD1: 2
+[18:31:49] INFO - hint=False
+[18:31:49] INFO - spirit_training=1 (total: 1, extra: 0)
+[18:31:49] INFO - spirit_training_extra=0
+[18:31:49] INFO - spirit_burst=0
+[18:31:49] INFO - Fail: 0% - Confident: 0.94
+[18:31:49] INFO - Score: 1.6
+[18:31:50] INFO -
+[18:31:50] [GUTS]
+[18:31:50] INFO - SPD1: 2, STA1: 2
+[18:31:50] INFO - hint=False
+[18:31:50] INFO - spirit_training=2 (total: 2, extra: 0)
+[18:31:50] INFO - spirit_training_extra=0
+[18:31:50] INFO - spirit_burst=0
+[18:31:50] INFO - Fail: 0% - Confident: 0.96
+[18:31:50] INFO - Score: 3.2
+[18:31:51] INFO -
+[18:31:51] [WIT]
+[18:31:51] INFO - -
+[18:31:51] INFO - hint=False
+[18:31:51] INFO - spirit_training=0 (total: 0, extra: 0)
+[18:31:51] INFO - spirit_training_extra=0
+[18:31:51] INFO - spirit_burst=0
+[18:31:51] INFO - Fail: 0% - Confident: 0.96
+[18:31:51] INFO - Score: 0.0
+[18:31:51] INFO -
+[18:31:51] === Overall ===
+[18:31:51] INFO - SPD: Score=3.80, Fail=0% - Confident: 0.94
+[18:31:51] INFO - STA: Score=1.00, Fail=0% - Confident: 0.96
+[18:31:51] INFO - PWR: Score=1.60, Fail=0% - Confident: 0.94
+[18:31:51] INFO - GUTS: Score=3.20, Fail=0% - Confident: 0.96
+[18:31:51] INFO - WIT: Score=0.00, Fail=0% - Confident: 0.96
+[18:31:51] INFO - Selected SPD training based on scoring algorithm
+[18:31:54] INFO - Should be in career lobby.
+[18:31:55] INFO - Should be in career lobby.
+[18:31:56] INFO - Should be in career lobby.
+[18:31:57] INFO - Should be in career lobby.
+[18:31:58] INFO - Should be in career lobby.
+[18:31:59] INFO - Should be in career lobby.

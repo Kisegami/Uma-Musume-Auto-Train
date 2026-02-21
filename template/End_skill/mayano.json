@@ -1,0 +1,10 @@
+{
+  "skill_priority": [
+    "No Stopping Me!",
+    "It's On!"
+  ],
+  "gold_skill_upgrades": {
+    "No Stopping Me!": "Nimble Navigator",
+    "It's On!": "Ramp Up"
+  }
+}

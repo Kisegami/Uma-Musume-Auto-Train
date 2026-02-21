@@ -12,11 +12,13 @@ _config = load_main_config()
 DEBUG_MODE = _config.get("debug_mode", False)
 
 # Skill list swipe coordinates (stable values)
+# Coordinates and duration tuned via tests/test_swipe_realtime.py
 SKILL_LIST_CENTER_X = 504
-SKILL_LIST_TOP_Y = 926
+SKILL_LIST_TOP_Y = 900
 SKILL_LIST_BOTTOM_Y = 1490
 SKILL_LIST_SCROLL_TARGET_TOP = 1490
-SKILL_LIST_SCROLL_TARGET_BOTTOM = 926
+SKILL_LIST_SCROLL_TARGET_BOTTOM = 900
+SKILL_LIST_SWIPE_DURATION_MS = 840
 
 
 # Global cache for skill points to avoid re-detection
@@ -40,8 +42,9 @@ def swipe_skill_list_up_fast(wait_before=0.5, wait_after=1.5):
     """
     time.sleep(wait_before)
     result = perform_swipe(
-        SKILL_LIST_CENTER_X, SKILL_LIST_TOP_Y, 
-        SKILL_LIST_CENTER_X, SKILL_LIST_SCROLL_TARGET_TOP
+        SKILL_LIST_CENTER_X, SKILL_LIST_TOP_Y,
+        SKILL_LIST_CENTER_X, SKILL_LIST_SCROLL_TARGET_TOP,
+        SKILL_LIST_SWIPE_DURATION_MS
     )
     time.sleep(wait_after)  # Wait for scroll animation to complete
     return result
@@ -61,7 +64,8 @@ def swipe_skill_list_down_slow(wait_before=0.5, wait_after=1.5):
     time.sleep(wait_before)
     result = perform_swipe(
         SKILL_LIST_CENTER_X, SKILL_LIST_BOTTOM_Y,
-        SKILL_LIST_CENTER_X, SKILL_LIST_SCROLL_TARGET_BOTTOM
+        SKILL_LIST_CENTER_X, SKILL_LIST_SCROLL_TARGET_BOTTOM,
+        SKILL_LIST_SWIPE_DURATION_MS
     )
     time.sleep(wait_after)  # Wait for scroll animation to complete
     return result

@@ -77,6 +77,21 @@
             "SelectedOption": "Bottom Option"
         },
         {
+            "EventName": "(❯) Night of Ill Portent",
+            "CardSlug": "30043-nakayama-festa",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "Sundown Showdown",
+            "CardSlug": "30043-nakayama-festa",
+            "SelectedOption": "Top Option"
+        },
+        {
+            "EventName": "Sundown Solo Supper",
+            "CardSlug": "30043-nakayama-festa",
+            "SelectedOption": "Bottom Option"
+        },
+        {
             "EventName": "Lone Wolf",
             "CardSlug": "30044-narita-brian",
             "SelectedOption": "Top Option"
