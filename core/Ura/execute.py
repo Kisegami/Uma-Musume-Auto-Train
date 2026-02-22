@@ -48,6 +48,7 @@ RETRY_RACE = racing_config_section.get("retry_race", config.get("retry_race", Tr
 
 from utils.log import log_debug, log_info, log_warning, log_error, log_success
 from utils.template_matching import deduplicated_matches, wait_for_image
+from utils.device import reopen_and_resume_career
 
 def is_infirmary_active_adb(button_location, screenshot=None):
     """
@@ -184,6 +185,13 @@ def career_lobby():
     # Track last day we attempted a custom race but failed, to avoid re-checking within same day
     last_failed_custom_race_day = None
 
+    # ── Lobby-stuck watchdog ──────────────────────────────────────────────
+    # Tracks time spent spinning while NOT in lobby. Starts at the first
+    # tazuna_hint check, resets the moment the lobby is confirmed.
+    LOBBY_STUCK_TIMEOUT = 60  # seconds; purely lobby-wait time
+    _lobby_wait_start = None  # None = not currently waiting for lobby
+    # ─────────────────────────────────────────────────────────────────────
+
     # Program start
     while True:
         log_debug(f"\n===== Starting new loop iteration =====")
@@ -214,6 +222,7 @@ def career_lobby():
         log_debug(f"Checking for claw machine...")
         claw_matches = match_template(screenshot, "assets/buttons/claw.png", confidence=0.8)
         if claw_matches:
+            _lobby_wait_start = None
             claw_machine()
             continue
         
@@ -225,6 +234,7 @@ def career_lobby():
             center = (x + w//2, y + h//2)
             log_info(f"OK button found, clicking it.")
             tap(center[0], center[1])
+            _lobby_wait_start = None
             continue
         
         # Check for events
@@ -241,6 +251,7 @@ def career_lobby():
                     if click_success:
                         log_info(f"Successfully selected choice {choice_number}")
                         time.sleep(0.5)
+                        _lobby_wait_start = None
                         continue
                     else:
                         log_warning(f"Failed to click event choice, falling back to top choice")
@@ -248,17 +259,20 @@ def career_lobby():
                         x, y, w, h = event_matches[0]
                         center = (x + w//2, y + h//2)
                         tap(center[0], center[1])
+                        _lobby_wait_start = None
                         continue
                 else:
                     # If no choice locations were returned, skip clicking and continue loop
                     if not choice_locations:
                         log_debug(f"Skipping event click due to no visible choices after stabilization")
+                        _lobby_wait_start = None
                         continue
                     log_warning(f"Event analysis failed, falling back to top choice")
                     # Fallback using existing match
                     x, y, w, h = event_matches[0]
                     center = (x + w//2, y + h//2)
                     tap(center[0], center[1])
+                    _lobby_wait_start = None
                     continue
             else:
                 log_debug(f"No events found")
@@ -278,6 +292,7 @@ def career_lobby():
             center = (x + w//2, y + h//2)
             log_info(f"Inspiration found.")
             tap(center[0], center[1])
+            _lobby_wait_start = None
             continue
 
         # Check cancel button
@@ -288,6 +303,7 @@ def career_lobby():
             center = (x + w//2, y + h//2)
             log_debug(f"Clicking cancel_btn.png at position {center}")
             tap(center[0], center[1])
+            _lobby_wait_start = None
             continue
 
         # Check next button
@@ -298,6 +314,7 @@ def career_lobby():
             center = (x + w//2, y + h//2)
             log_debug(f"Clicking next_btn.png at position {center}")
             tap(center[0], center[1])
+            _lobby_wait_start = None
             continue
 
         # Check if current menu is in career lobby
@@ -305,9 +322,23 @@ def career_lobby():
         tazuna_hint = locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.8)
 
         if tazuna_hint is None:
+            # ── Watchdog: start / check lobby-wait timer ──────────────────
+            if _lobby_wait_start is None:
+                _lobby_wait_start = time.time()
+                log_debug(f"[Watchdog] Lobby wait timer started.")
+            elif time.time() - _lobby_wait_start > LOBBY_STUCK_TIMEOUT:
+                log_warning(f"[Watchdog] Stuck waiting for lobby >{LOBBY_STUCK_TIMEOUT}s — restarting game...")
+                try:
+                    reopen_and_resume_career()
+                except Exception as _wde:
+                    log_error(f"[Watchdog] Reopen failed: {_wde}")
+                _lobby_wait_start = None
+            # ─────────────────────────────────────────────────────────────
             log_info(f"Should be in career lobby.")
             continue
 
+        # Lobby confirmed — reset watchdog timer
+        _lobby_wait_start = None
         log_debug(f"Confirmed in career lobby")
         time.sleep(0.5)
         # Take a fresh screenshot after confirming lobby to ensure stable UI state
