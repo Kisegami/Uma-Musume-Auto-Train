@@ -144,6 +144,32 @@ class SkillTab(QScrollArea):
         
         layout.addWidget(self.end_skill_group)
         
+        # ==================== Support Card Filter Section ====================
+        self.support_filter_group = QGroupBox("Support Card Filter (Restart Career)")
+        support_filter_layout = QGridLayout(self.support_filter_group)
+        support_filter_layout.setSpacing(12)
+        
+        # Note label
+        support_note = QLabel("⚠️ These filters are checked via OCR during auto start career")
+        support_note.setStyleSheet(f"color: {COLORS['accent_orange']}; font-size: 11px;")
+        support_filter_layout.addWidget(support_note, 0, 0, 1, 2)
+        
+        # Support Speciality
+        support_filter_layout.addWidget(QLabel("Support Speciality:"), 1, 0)
+        self.speciality_combo = QComboBox()
+        self.speciality_combo.addItems(["SPD", "STA", "PWR", "GUTS", "WIT", "PAL"])
+        self.speciality_combo.currentTextChanged.connect(self._save_support_filter)
+        support_filter_layout.addWidget(self.speciality_combo, 1, 1)
+        
+        # Support Rarity
+        support_filter_layout.addWidget(QLabel("Support Rarity:"), 2, 0)
+        self.rarity_combo = QComboBox()
+        self.rarity_combo.addItems(["R", "SR", "SSR"])
+        self.rarity_combo.currentTextChanged.connect(self._save_support_filter)
+        support_filter_layout.addWidget(self.rarity_combo, 2, 1)
+        
+        layout.addWidget(self.support_filter_group)
+        
         layout.addStretch()
         self.setWidget(container)
     
@@ -218,6 +244,17 @@ class SkillTab(QScrollArea):
         idx = self.end_skill_dropdown.findText(end_skill_file)
         if idx >= 0:
             self.end_skill_dropdown.setCurrentIndex(idx)
+            
+        # Support Filters
+        auto_start = config.get("auto_start_career", {})
+        
+        self.speciality_combo.blockSignals(True)
+        self.speciality_combo.setCurrentText(auto_start.get("support_speciality", "STA"))
+        self.speciality_combo.blockSignals(False)
+        
+        self.rarity_combo.blockSignals(True)
+        self.rarity_combo.setCurrentText(auto_start.get("support_rarity", "SSR"))
+        self.rarity_combo.blockSignals(False)
         
         self._loading = False
     
@@ -312,6 +349,20 @@ class SkillTab(QScrollArea):
         
 
         config["restart_career"]["end_skill_file"] = f"template/End_skill/{self.end_skill_dropdown.currentText()}"
+        
+        self.main_window.save_config()
+        
+    def _save_support_filter(self):
+        """Save support filter settings to auto_start_career config"""
+        if getattr(self, '_loading', False):
+            return
+            
+        config = self.main_window.get_config()
+        if "auto_start_career" not in config:
+            config["auto_start_career"] = {}
+            
+        config["auto_start_career"]["support_speciality"] = self.speciality_combo.currentText()
+        config["auto_start_career"]["support_rarity"] = self.rarity_combo.currentText()
         
         self.main_window.save_config()
     

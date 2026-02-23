@@ -2,7 +2,8 @@ import time
 import os
 import json
 from core.Unity.skill_recognizer import take_screenshot, recognize_skill_up_locations
-from utils.input import perform_swipe, tap, tap_on_image
+from utils.input import tap, tap_on_image
+from utils.skill_swipe import swipe_skill_list_down_slow
 from core.Unity.skill_purchase_optimizer import fuzzy_match_skill_name
 from utils.log import log_debug, log_info, log_warning, log_error
 from utils.config_loader import load_main_config
@@ -11,64 +12,11 @@ from utils.config_loader import load_main_config
 _config = load_main_config()
 DEBUG_MODE = _config.get("debug_mode", False)
 
-# Skill list swipe coordinates (stable values)
-# Coordinates and duration tuned via tests/test_swipe_realtime.py
-SKILL_LIST_CENTER_X = 504
-SKILL_LIST_TOP_Y = 900
-SKILL_LIST_BOTTOM_Y = 1490
-SKILL_LIST_SCROLL_TARGET_TOP = 1490
-SKILL_LIST_SCROLL_TARGET_BOTTOM = 900
-SKILL_LIST_SWIPE_DURATION_MS = 840
-
 
 # Global cache for skill points to avoid re-detection
 _skill_points_cache = None
 _cache_timestamp = 0
 _cache_lifetime = 300  # Cache valid for 5 minutes
-
-# Optimized swipe functions for skill list navigation
-# These replace hardcoded coordinates and consolidate swipe logic
-def swipe_skill_list_up_fast(wait_before=0.5, wait_after=1.5):
-    """
-    Swipe up in skill list (fast) - used to go to top of list.
-    Swipes DOWN on screen to scroll UP in the list.
-    
-    Args:
-        wait_before: Seconds to wait before performing swipe (default: 0.5)
-        wait_after: Seconds to wait after swipe for UI to settle (default: 1.5)
-    
-    Returns:
-        bool: True if swipe was successful, False otherwise
-    """
-    time.sleep(wait_before)
-    result = perform_swipe(
-        SKILL_LIST_CENTER_X, SKILL_LIST_TOP_Y,
-        SKILL_LIST_CENTER_X, SKILL_LIST_SCROLL_TARGET_TOP,
-        SKILL_LIST_SWIPE_DURATION_MS
-    )
-    time.sleep(wait_after)  # Wait for scroll animation to complete
-    return result
-
-def swipe_skill_list_down_slow(wait_before=0.5, wait_after=1.5):
-    """
-    Swipe down in skill list - used for careful navigation.
-    Swipes UP on screen to scroll DOWN in the list.
-    
-    Args:
-        wait_before: Seconds to wait before performing swipe (default: 0.5)
-        wait_after: Seconds to wait after swipe for UI to settle (default: 1.5)
-    
-    Returns:
-        bool: True if swipe was successful, False otherwise
-    """
-    time.sleep(wait_before)
-    result = perform_swipe(
-        SKILL_LIST_CENTER_X, SKILL_LIST_BOTTOM_Y,
-        SKILL_LIST_CENTER_X, SKILL_LIST_SCROLL_TARGET_BOTTOM,
-        SKILL_LIST_SWIPE_DURATION_MS
-    )
-    time.sleep(wait_after)  # Wait for scroll animation to complete
-    return result
 
 
 def cache_skill_points(points: int):

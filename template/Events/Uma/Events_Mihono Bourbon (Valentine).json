@@ -1,0 +1,17 @@
+{
+    "UmaName": "Mihono Bourbon (Valentine)",
+    "UmaSlug": "102602-mihono-bourbon",
+    "CustomChoices": {
+        "Not Found": "Top Option",
+        "Operation: Execute Orders": "Top Option",
+        "Operation: Extra Classes": "Bottom Option",
+        "Operation: Excursion Trouble": "Top Option",
+        "Brutal Training": "Top Option",
+        "The Perfect Dessert": "Top Option",
+        "Let's Make Memories": "Top Option",
+        "Bourbon's Challenge?": "Bottom Option",
+        "You're Irreplaceable to Me": "Middle Option",
+        "Operation: Dance Fever": "Bottom Option",
+        "Operation: Festival Fun": "Top Option"
+    }
+}

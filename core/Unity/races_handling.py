@@ -198,13 +198,13 @@ def find_target_race_in_screenshot(screenshot, race_description):
 
 def execute_race_after_selection():
     """Execute race after race selection - handles race button tapping and race execution"""
-    log_debug(f"Executing race after selection...")
+    log_info(f"Race Execute - Starting race after selection...")
     
     # Wait for race button to appear after selecting race
-    log_debug(f"Waiting for race button to appear after race selection...")
+    log_info(f"Race Execute - Waiting for race button...")
     race_btn = wait_for_image("assets/buttons/race_btn.png", timeout=10)
     if not race_btn:
-        log_debug(f"Race button not found after 10 seconds")
+        log_warning(f"Race Execute - Race button not found after 10s")
         return False
     
     # Click race button twice to start the race
@@ -217,7 +217,7 @@ def execute_race_after_selection():
     
     # Race starts automatically after clicking race button twice
     # Use the existing race_prep function to handle strategy and race execution
-    log_debug(f"Race started automatically, calling race_prep...")
+    log_info(f"Race Execute - Race started, calling race_prep...")
     race_prep()
     # time.sleep(1)
     # Handle post-race actions
@@ -226,14 +226,14 @@ def execute_race_after_selection():
 
 def search_race_with_swiping(race_description, year, max_swipes=3):
     """Helper function to search for a race with swiping - eliminates duplicate code"""
-    log_debug(f"Looking for: {race_description}")
+    log_info(f"Race Search - Looking for: {race_description}")
     
     # Take screenshot and search for the race
     screenshot = take_screenshot()
     target_x, target_y = find_target_race_in_screenshot(screenshot, race_description)
     
     if target_x and target_y:
-        log_debug(f"Race found! Tapping at ({target_x}, {target_y})")
+        log_info(f"Race Search - Race found on initial screen! Tapping at ({target_x}, {target_y})")
         tap(target_x, target_y)
         time.sleep(0.5)
         return True
@@ -253,12 +253,12 @@ def search_race_with_swiping(race_description, year, max_swipes=3):
         target_x, target_y = find_target_race_in_screenshot(screenshot, race_description)
         
         if target_x and target_y:
-            log_debug(f"Race found after swipe {swipe_num}! Tapping at ({target_x}, {target_y})")
+            log_info(f"Race Search - Race found after swipe {swipe_num}! Tapping at ({target_x}, {target_y})")
             tap(target_x, target_y)
             # time.sleep(0.5)
             return True
     
-    log_debug(f"Race not found after all swipes")
+    log_info(f"Race Search - Race not found after {max_swipes} swipes")
     return False
 
 def race_day():
@@ -272,26 +272,26 @@ def race_day():
         log_info(f"Race Day - Checking skill points cap...")
         check_skill_points_cap()
     
-    log_debug(f"Clicking race day button...")
+    log_info(f"Race Day - Clicking race day button...")
     if tap_on_image("assets/buttons/race_day_btn.png", min_search=10):
-        log_debug(f"Race day button clicked, clicking OK button...")
+        log_info(f"Race Day - Race day button clicked, clicking OK button...")
         time.sleep(0.5)
         tap_on_image("assets/buttons/ok_btn.png", confidence=0.6, min_search=2)
         
         # Wait for race selection screen to appear by waiting for race button
-        log_debug(f"Waiting for race selection screen to appear...")
+        log_info(f"Race Day - Waiting for race selection screen...")
         race_btn_found = wait_for_image("assets/buttons/race_btn.png", timeout=10)
         if not race_btn_found:
-            log_debug(f"Race button not found after 10 seconds, failed to enter race selection screen")
+            log_info(f"Race Day - Race button not found after 10s, failed to enter race selection")
             return False
         
-        log_debug(f"Race selection screen appeared, proceeding with race selection...")
+        log_info(f"Race Day - Race selection screen appeared, selecting race...")
         
         # Try to find and click race button with better error handling
         race_clicked = False
         for attempt in range(3):  # Try up to 3 times
             if tap_on_image("assets/buttons/race_btn.png", confidence=0.7, min_search=1):
-                log_debug(f"Race button clicked successfully, attempt {attempt + 1}")
+                log_info(f"Race Day - Race button clicked (attempt {attempt + 1})")
                 time.sleep(0.5)  # Wait between clicks
                 
                 # Click race button twice like in race_select
@@ -310,10 +310,10 @@ def race_day():
                 time.sleep(0.5)
         
         if not race_clicked:
-            log_debug(f"Failed to click race button after all attempts")
+            log_info(f"Race Day - Failed to click race button after all attempts")
             return False
             
-        log_debug(f"Starting race preparation...")
+        log_info(f"Race Day - Starting race preparation...")
         race_prep()
         # time.sleep(1)
         
@@ -331,7 +331,7 @@ def race_day():
             # Check for clock icon (race failure)
             clock_matches = match_template(screenshot, "assets/icons/clock.png", confidence=0.8)
             if clock_matches:
-                log_debug(f"Clock icon found - race failed (attempt {retry_count}), handling retry...")
+                log_info(f"Race Day - Race FAILED (clock icon detected, attempt {retry_count}), handling retry...")
                 # Handle race retry
                 handle_race_retry_if_failed()
                 # Continue the loop to check again after retry
@@ -340,7 +340,7 @@ def race_day():
             # Check for next button
             next_matches = match_template(screenshot, "assets/buttons/next_btn.png", confidence=0.8)
             if next_matches:
-                log_debug(f"Next button found after {retry_count} attempts - proceeding with after_race...")
+                log_info(f"Race Day - Race complete (next button found after {retry_count} attempts)")
                 after_race()
                 return True
             
@@ -349,7 +349,7 @@ def race_day():
             time.sleep(0.2)  # 200ms interval
         
         # Safety check to prevent infinite loops
-        log_debug(f"Safety limit reached ({max_retries_per_race} attempts), proceeding with after_race...")
+        log_info(f"Race Day - Safety limit reached ({max_retries_per_race} attempts), proceeding with after_race")
         after_race()
         return True
     return False
@@ -408,14 +408,14 @@ def check_strategy_before_race(region=(660, 974, 378, 120)) -> bool:
             return False
         
         matches = current_strategy == expected_strategy
-        log_debug(f"Current: {current_strategy}, Expected: {expected_strategy}, Match: {matches}")
+        log_info(f"Strategy Check - Current: {current_strategy}, Expected: {expected_strategy}, Match: {matches}")
         
         if matches:
             log_debug(f"Strategy matches config, proceeding with race")
             return True
         
         # Strategy doesn't match, try to change it
-        log_debug(f"Strategy mismatch, changing to {expected_strategy}")
+        log_info(f"Strategy Check - Mismatch, changing to {expected_strategy}")
         
         if change_strategy_before_race(expected_strategy):
             # Recheck after change
@@ -494,7 +494,7 @@ def change_strategy_before_race(expected_strategy: str) -> bool:
 
 def race_prep():
     """Prepare for race"""
-    log_debug(f"Preparing for race...")
+    log_info(f"Race Prep - Preparing for race...")
     
     # Wait for view results button with polling (200ms interval, tap between checks)
     log_debug(f"Waiting for view results button...")
@@ -508,7 +508,7 @@ def race_prep():
         if view_result_matches:
             x, y, w, h = view_result_matches[0]
             view_result_btn = (x + w//2, y + h//2)
-            log_debug(f"Found view results button at {view_result_btn} (attempt {attempt + 1})")
+            log_info(f"Race Prep - Found view results button (attempt {attempt + 1})")
             break
         
         # Tap middle of screen between checks to advance UI
@@ -516,15 +516,15 @@ def race_prep():
         time.sleep(0.2)  # 200ms interval
     
     if not view_result_btn:
-        log_debug(f"View results button not found after {max_attempts} attempts")
+        log_warning(f"Race Prep - View results button not found after {max_attempts} attempts")
         return
     
     # Check and ensure strategy matches config before race
     if not check_strategy_before_race():
-        log_debug(f"Failed to ensure correct strategy, proceeding anyway...")
+        log_info(f"Race Prep - Strategy check failed, proceeding anyway...")
 
         # Tap view results button
-    log_debug(f"Tapping view results button...")
+    log_info(f"Race Prep - Tapping view results button...")
     tap(view_result_btn[0], view_result_btn[1])
     
     # Wait for next button or race to start with polling (200ms interval, tap between checks)
@@ -539,7 +539,7 @@ def race_prep():
         if next_matches:
             x, y, w, h = next_matches[0]
             next_btn = (x + w//2, y + h//2)
-            log_debug(f"Found next button at {next_btn} (attempt {attempt + 1})")
+            log_info(f"Race Prep - Next button found, race starting (attempt {attempt + 1})")
             # Tap next button
             tap(next_btn[0], next_btn[1])
             race_started = True
@@ -548,7 +548,7 @@ def race_prep():
         # Check if race has started (view results button disappeared)
         view_result_check = match_template(screenshot, "assets/buttons/view_results.png", confidence=0.8)
         if not view_result_check:
-            log_debug(f"View results button disappeared, race may have started (attempt {attempt + 1})")
+            log_info(f"Race Prep - View results disappeared, race starting (attempt {attempt + 1})")
             race_started = True
             break
         
@@ -557,7 +557,7 @@ def race_prep():
         time.sleep(0.2)  # 200ms interval
     
     if not race_started:
-        log_debug(f"Race did not start after {max_attempts} attempts")
+        log_warning(f"Race Prep - Race did not start after {max_attempts} attempts")
 
 def handle_race_retry_if_failed():
     """Detect race failure on race day and retry based on config.
@@ -603,7 +603,7 @@ def handle_race_retry_if_failed():
 
 def after_race():
     """Handle post-race actions"""
-    log_debug(f"Handling post-race actions...")
+    log_info(f"After Race - Handling post-race actions...")
     
     # Wait for first next button with polling (200ms interval, tap between checks)
     log_debug(f"Waiting for first next button...")
@@ -618,7 +618,7 @@ def after_race():
         if next_matches:
             x, y, w, h = next_matches[0]
             next_btn = (x + w//2, y + h//2)
-            log_debug(f"Found first next button at {next_btn} (attempt {attempt + 1})")
+            log_info(f"After Race - Found first next button (attempt {attempt + 1})")
             # Tap next button
             tap(next_btn[0], next_btn[1])
             break
@@ -626,7 +626,7 @@ def after_race():
         # Also check for clock icon (race failure can occur here too)
         clock_matches = match_template(screenshot, "assets/icons/clock.png", confidence=0.8)
         if clock_matches:
-            log_debug(f"Clock icon found during after_race, handling retry...")
+            log_info(f"After Race - Clock icon found, handling retry...")
             handle_race_retry_if_failed()
             # Restart waiting for next button after retry
             attempt = -1  # Will be incremented to 0 in next iteration
@@ -637,7 +637,7 @@ def after_race():
         time.sleep(0.2)  # 200ms interval
     
     if not next_btn:
-        log_debug(f"First next button not found after {max_attempts} attempts")
+        log_warning(f"After Race - First next button not found after {max_attempts} attempts")
     
     # Wait for second next button with polling and spam tap until it appears
     log_debug(f"Waiting for second next button (spam tapping)...")
@@ -651,7 +651,7 @@ def after_race():
         if next2_matches:
             x, y, w, h = next2_matches[0]
             next2_btn = (x + w//2, y + h//2)
-            log_debug(f"Found second next button at {next2_btn} (attempt {attempt + 1})")
+            log_info(f"After Race - Found second next button (attempt {attempt + 1})")
             # Tap next2 button
             tap(next2_btn[0], next2_btn[1])
             break
@@ -659,7 +659,7 @@ def after_race():
         # Also check for clock icon (race failure can occur here too)
         clock_matches = match_template(screenshot, "assets/icons/clock.png", confidence=0.8)
         if clock_matches:
-            log_debug(f"Clock icon found during after_race (second next), handling retry...")
+            log_info(f"After Race - Clock icon found during second next, handling retry...")
             handle_race_retry_if_failed()
             # Restart waiting for next buttons after retry
             # Re-check first next button
@@ -675,17 +675,17 @@ def after_race():
         time.sleep(0.2)  # 200ms interval
     
     if not next2_btn:
-        log_debug(f"Second next button not found after {max_attempts} attempts")
+        log_warning(f"After Race - Second next button not found after {max_attempts} attempts")
     
-    log_debug(f"Post-race actions complete")
+    log_info(f"After Race - Post-race actions complete")
 
 def enter_race_selection_screen():
     """Helper function to enter race selection screen - eliminates duplicate code"""
-    log_debug(f"Entering race selection screen...")
+    log_info(f"Race Select - Entering race selection screen...")
     
     # Tap races button
     if not tap_on_image("assets/buttons/races_btn.png", min_search=10):
-        log_debug(f"Failed to find races button")
+        log_warning(f"Race Select - Failed to find races button")
         return False
     
     time.sleep(0.5)
@@ -704,7 +704,7 @@ def enter_race_selection_screen():
         log_debug(f"Race button not found after 10 seconds, race list may not have loaded")
         return False
     
-    log_debug(f"Race button appeared, race list is on screen")
+    log_info(f"Race Select - Race list loaded, ready for selection")
     return True
 
 def check_and_select_maiden_race():
@@ -713,7 +713,7 @@ def check_and_select_maiden_race():
     maiden_races = locate_all_on_screen("assets/races/maiden.png", confidence=0.8)
     
     if maiden_races:
-        log_debug(f"Found {len(maiden_races)} maiden race(s)!")
+        log_info(f"Maiden Race - Found {len(maiden_races)} maiden race(s)!")
         
         # Sort by Y coordinate (highest Y = top of screen)
         maiden_races.sort(key=lambda x: x[1])  # Sort by Y coordinate
@@ -724,7 +724,7 @@ def check_and_select_maiden_race():
         maiden_center_x = maiden_x + maiden_w // 2
         maiden_center_y = maiden_y + maiden_h // 2
         
-        log_debug(f"Selecting top maiden race at ({maiden_center_x}, {maiden_center_y})")
+        log_info(f"Maiden Race - Selecting top maiden race at ({maiden_center_x}, {maiden_center_y})")
         log_debug(f"Tapping on maiden race...")
         
         tap(maiden_center_x, maiden_center_y)
@@ -738,13 +738,13 @@ def check_and_select_maiden_race():
 
 def find_and_do_race():
     """Find and execute race using intelligent race selection - replaces old do_race()"""
-    log_debug(f"Starting intelligent race selection...")
+    log_info(f"Race Selection - Starting intelligent race selection...")
     
     try:
         # 1. Setup common environment
         year = check_current_year()
         if not year:
-            log_debug(f"Could not detect current year")
+            log_warning(f"Race Selection - Could not detect current year")
             return False
         
         # 2. Load configuration and race data
@@ -818,10 +818,10 @@ def find_and_do_race():
                     best_fans = fans
         
         if not best_race:
-            log_debug(f"No suitable race found")
+            log_info(f"Race Selection - No suitable race found")
             return False
         
-        log_debug(f"Best race selected: {best_race} ({best_grade})")
+        log_info(f"Race Selection - Best race: {best_race} ({best_grade})")
         
         # 4. Enter race selection screen
         if not enter_race_selection_screen():
@@ -830,7 +830,7 @@ def find_and_do_race():
         # 5. Check for maiden races first (priority over database selection)
         log_debug(f"Checking for maiden races...")
         if check_and_select_maiden_race():
-            log_debug(f"Maiden race selected successfully!")
+            log_info(f"Race Selection - Maiden race selected successfully!")
             # Execute the race after selection
             return execute_race_after_selection()
         
@@ -838,16 +838,16 @@ def find_and_do_race():
         
         # 6. Find and choose the selected race using OCR
         log_debug(f"Searching for selected race in Race Select Screen...")
-        log_debug(f"Looking for: {best_race}")
+        log_info(f"Race Selection - Searching for: {best_race}")
         
         # Get race description for OCR matching
         race_info = race_data[year][best_race]
         race_description = race_info.get("description", "")
-        log_debug(f"Race description: {race_description}")
+        log_info(f"Race Selection - Description: {race_description}")
         
         # Search for race with swiping using the same logic as test file
         if search_race_with_swiping(race_description, year):
-            log_debug(f"Race selection completed successfully!")
+            log_info(f"Race Selection - Race selection completed successfully!")
             # Execute the race after selection
             return execute_race_after_selection()
         
@@ -893,7 +893,7 @@ def do_custom_race():
         if not custom_race or custom_race.strip() == "":
             return False
         
-        log_debug(f"Custom race found: {custom_race}")
+        log_info(f"Custom Race - Custom race found for {year}: {custom_race}")
         
         # 4. Enter race selection screen
         if not enter_race_selection_screen():
@@ -903,7 +903,7 @@ def do_custom_race():
         # 5. Check for maiden races first (priority over custom race)
         log_debug(f"Checking for maiden races...")
         if check_and_select_maiden_race():
-            log_debug(f"Maiden race selected successfully!")
+            log_info(f"Custom Race - Maiden race selected instead!")
             # Execute the race after selection
             return execute_race_after_selection()
         
@@ -932,12 +932,12 @@ def do_custom_race():
         
         # Search for race with swiping
         if search_race_with_swiping(race_description, year):
-            log_debug(f"Custom race selection completed successfully!")
+            log_info(f"Custom Race - Race selection completed successfully!")
             # Execute the race after selection
             return execute_race_after_selection()
         
         # If not found, try to navigate back to lobby to resume loop cleanly
-        log_debug(f"Custom race not found after search - navigating back to lobby")
+        log_info(f"Custom Race - Race not found after search, navigating back to lobby")
         # Try tapping the back button image first; if not found, tap a likely back position
         if not tap_on_image("assets/buttons/back_btn.png", confidence=0.6, min_search=3):
             # Fallback: common back coordinate in race selection

@@ -295,12 +295,82 @@ def load_config():
 from utils.template_matching import wait_for_image
 
 
-def filter_support():
-    """Filter support cards based on configuration."""
-    log_info(f"Filtering support cards...")
+def filter_support() -> bool:
+    """Filter support cards based on configuration utilizing OCR to check status.
+    Returns False if support template is strictly required but fundamentally unfindable."""
+    log_info(f"Checking support card filter status...")
     
     config = load_config()
     auto_start_career = config.get('auto_start_career', {})
+    
+    # Check filter status via OCR
+    screenshot = take_screenshot()
+    filter_status_region = (399, 1593, 585, 1647)
+    cropped_filter = screenshot.crop(filter_status_region)
+    filter_text = extract_text(cropped_filter)
+    
+    # Clean text to ease matching
+    clean_text = filter_text.strip().upper()
+    log_info(f"Filter OCR text: '{clean_text}'")
+    
+    if "OFF" in clean_text:
+        log_info("Filters are OFF, applying filter settings...")
+        support_speciality = auto_start_career.get('support_speciality', 'SPEED')
+        support_rarity = auto_start_career.get('support_rarity', 'SSR')
+        
+        # Tap filter button
+        tap(696, 1621)
+        time.sleep(0.5)
+        
+        # Tap additional filter coordinate
+        tap(774, 206)
+        time.sleep(0.5)
+
+        # Reset filter
+        screen_for_reset = take_screenshot()
+        reset_filter_matches = match_template(screen_for_reset, "assets/buttons/reset_filter.png", confidence=0.8)
+        if reset_filter_matches:
+            x, y, w, h = reset_filter_matches[0]
+            center = (x + w//2, y + h//2)
+            tap(center[0], center[1])
+            time.sleep(0.5)
+        
+        # Set support speciality
+        support_speciality_coords = {
+            "SPD": (102, 627),
+            "STA": (444, 623),
+            "PWR": (786, 618),
+            "GUTS": (109, 741),
+            "WIT": (442, 732),
+            "PAL": (777, 731),
+        }
+        
+        if support_speciality in support_speciality_coords:
+            x, y = support_speciality_coords[support_speciality]
+            tap(x, y)
+            time.sleep(0.5)
+        
+        # Set support rarity
+        support_rarity_coords = {
+            "R": (102, 408),
+            "SR": (437, 414),
+            "SSR": (777, 410),
+        }
+        
+        if support_rarity in support_rarity_coords:
+            x, y = support_rarity_coords[support_rarity]
+            tap(x, y)
+            time.sleep(0.5)
+        
+        # OK button after filter selection
+        ok_matches = match_template(take_screenshot(), "assets/buttons/ok_btn.png", confidence=0.6)
+        if ok_matches:
+            x, y, w, h = ok_matches[0]
+            center = (x + w//2, y + h//2)
+            tap(center[0], center[1])
+            time.sleep(1.0) # Wait for filter to apply
+    else:
+        log_info("Filters are already ON (or not OFF), skipping filter setup...")
 
     # Use template selection when enabled
     use_templates = auto_start_career.get('use_support_templates', False)
@@ -313,23 +383,60 @@ def filter_support():
             template_path = os.path.abspath(template_path)
             if os.path.exists(template_path):
                 log_info(f"Support template mode ON -> using '{template_name}' at '{template_path}'")
-                screenshot = take_screenshot()
-                matches = match_template(screenshot, template_path, confidence=0.7)
-                log_info(f"Template matches found: {len(matches) if matches else 0}")
-                if matches:
-                    x, y, w, h = matches[0]
-                    center = (x + w//2, y + h//2)
-                    tap(center[0], center[1])
-                    time.sleep(0.5)
-                    return
-                else:
-                    log_warning("Support template enabled but no match found on screen; falling back to following card.")
-            else:
-                log_warning(f"Support template enabled but template file missing at '{template_path}'; falling back to following card.")
+            max_refreshes = 3
+            max_scrolls_per_refresh = 3
+            
+            for refresh_attempt in range(max_refreshes + 1): # 0 is initial load, 1-3 are actual refreshes
+                for scroll_attempt in range(max_scrolls_per_refresh + 1): # 0 is initial view, 1-3 are scrolls
+                    screenshot = take_screenshot()
+                    matches = match_template(screenshot, template_path, confidence=0.7)
+                    
+                    if matches:
+                        log_info(f"Template '{template_name}' found!")
+                        x, y, w, h = matches[0]
+                        center = (x + w//2, y + h//2)
+                        tap(center[0], center[1])
+                        time.sleep(0.5)
+                        return True
+                    else:
+                        if scroll_attempt < max_scrolls_per_refresh:
+                            log_warning(f"No match found on screen (Refresh {refresh_attempt}, Scroll {scroll_attempt}); attempting to scroll.")
+                            from utils.support_swipe import swipe_support_list_down
+                            swipe_support_list_down(wait_before=0.5, wait_after=1.5)
+                        else:
+                            log_warning(f"Max scrolls reached for this refresh cycle.")
+                            
+                # If we exhausted all scrolls and didn't find it, we try to refresh if we have attempts left
+                if refresh_attempt < max_refreshes:
+                    log_info(f"Attempting to refresh support cards list (Refresh {refresh_attempt + 1}/{max_refreshes})...")
+                    # Tap refresh button
+                    refresh_matches = match_template(take_screenshot(), "assets/buttons/supports_refresh.png", confidence=0.8)
+                    if refresh_matches:
+                        x, y, w, h = refresh_matches[0]
+                        center = (x + w//2, y + h//2)
+                        tap(center[0], center[1])
+                        time.sleep(1.0)
+                        
+                        # Tap OK button for refresh confirm
+                        ok_matches = match_template(take_screenshot(), "assets/buttons/ok_btn.png", confidence=0.6)
+                        if ok_matches:
+                            x, y, w, h = ok_matches[0]
+                            center = (x + w//2, y + h//2)
+                            tap(center[0], center[1])
+                            time.sleep(1.5) # Wait for list to reload
+                    else:
+                         log_warning("Could not find refresh button. Exiting refresh loop.")
+                         break # Break to outer error handling if refresh button simply isn't there
+                         
+            # If we exhausted all refreshes and all their scrolls
+            log_error("Cannot find template support card and stop the bot instead choose the first following supports cards")
+            return False
         else:
-            log_warning("Support template enabled but template name not set; falling back to following card.")
+            log_warning(f"Support template enabled but template name not set; falling back to following card.")
+            # Note: Explicit fallback requested by user ONLY if the setting is true but the file name is not set
+            # If it is set but can't be found on screen, we return False per instructions.
 
-    # Fallback: select first following card
+    # Fallback: select first following card (only reached if use_templates is False or template name strictly empty)
     time.sleep(1)
     screenshot = take_screenshot()
     following_matches = match_template(screenshot, "assets/icons/following.png", confidence=0.8)
@@ -340,6 +447,8 @@ def filter_support():
         center = (x + w//2, y + h//2)
         tap(center[0], center[1])
         time.sleep(0.5)
+        
+    return True
 
 
 def restore_tp() -> bool:
@@ -484,7 +593,9 @@ def start_career() -> bool:
         
         # Step 5: Filter support
         log_info(f"Filtering...")
-        filter_support()
+        if filter_support() is False:
+            return False
+            
         time.sleep(1)
         
         # Step 6: Start Career 1

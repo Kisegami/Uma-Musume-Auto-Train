@@ -1,0 +1,11 @@
+{
+  "skill_priority": [
+    "Professor of Curvature",
+    "Escape Artist",
+    "Groundwork",
+    "Rushing Gale!"
+  ],
+  "gold_skill_upgrades": {
+    "Escape Artist": "Fast-Paced"
+  }
+}

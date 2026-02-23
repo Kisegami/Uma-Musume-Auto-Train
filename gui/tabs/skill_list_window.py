@@ -277,17 +277,26 @@ class DragCard(QFrame):
         """Add hover effect."""
         if not self.is_dragging:
             s = STYLES[self.rarity]
-            current_style = self.styleSheet()
-            # Change background on hover
-            new_style = current_style.replace(s['bg'], s['bg_hover'])
-            self.setStyleSheet(new_style)
+            self.setStyleSheet(f"""
+                QFrame {{
+                    background-color: {s['bg_hover']}; 
+                    border: 2px solid {s['border']}; 
+                    border-radius: 12px;
+                }}
+            """)
         super().enterEvent(e)
     
     def leaveEvent(self, e):
         """Remove hover effect."""
         if not self.is_dragging:
-            # Parent will refresh the style
-            self.parent_dialog._refresh()
+            s = STYLES[self.rarity]
+            self.setStyleSheet(f"""
+                QFrame {{
+                    background-color: {s['bg']}; 
+                    border: 2px solid {s['border']}; 
+                    border-radius: 12px;
+                }}
+            """)
         super().leaveEvent(e)
 
 
@@ -419,6 +428,7 @@ class SkillListWindow(QDialog):
                 padding: 8px 12px;
                 font-size: 13px;
                 background: white;
+                color: black;
             }}
             QLineEdit:focus {{
                 border: 2px solid {COLORS['accent_blue']};
@@ -426,6 +436,11 @@ class SkillListWindow(QDialog):
         """)
         # Use deduplicated names (base names only) for autocomplete
         completer = QCompleter(get_deduplicated_skill_names())
+        
+        # Style the popup of the completer so its text is readable too if needed
+        popup = completer.popup()
+        popup.setStyleSheet("background-color: white; color: black;")
+        
         completer.setCaseSensitivity(Qt.CaseInsensitive)
         completer.setFilterMode(Qt.MatchContains)
         self.entry.setCompleter(completer)
@@ -472,6 +487,7 @@ class SkillListWindow(QDialog):
         self.scroll.setWidgetResizable(True)
         self.scroll.setFrameShape(QFrame.NoFrame)
         self.scroll.setStyleSheet(f"background-color: {COLORS['bg_card']}; border-radius: 8px;")
+        self.scroll.verticalScrollBar().setSingleStep(15)
         
         self.container = QWidget()
         self.cards_layout = QVBoxLayout(self.container)

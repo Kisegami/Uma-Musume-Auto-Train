@@ -61,3 +61,4 @@ tests/
 *.exe
 test_*.py
 old/
+.vscode

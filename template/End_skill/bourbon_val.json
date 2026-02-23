@@ -1,0 +1,20 @@
+{
+  "skill_priority": [
+    "No Stopping Me!",
+    "It's On!",
+    "Early Lead",
+    "Front Runner Corners",
+    "Second Wind",
+    "Productive Plan",
+    "Final Push",
+    "Leader's Pride",
+    "Fast-Paced",
+    "Front Runner Straightaways",
+    "Ignited Spirit SPD",
+    "Ignited Spirit STA"
+  ],
+  "gold_skill_upgrades": {
+    "No Stopping Me!": "Nimble Navigator",
+    "It's On!": "Ramp Up"
+  }
+}
