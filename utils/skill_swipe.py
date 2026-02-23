@@ -8,7 +8,7 @@ Coordinates and duration tuned via tests/test_swipe_realtime.py
 """
 import time
 from utils.input import perform_swipe
-from utils.log import log_debug
+from utils.config_loader import load_config_section
 
 # Skill list swipe coordinates (stable values)
 SKILL_LIST_CENTER_X = 504
@@ -30,10 +30,16 @@ def swipe_skill_list_down_slow(wait_before=0.5, wait_after=1.8):
         bool: True if swipe was successful, False otherwise
     """
     time.sleep(wait_before)
+    
+    # Load swipe time offset from config
+    skills_config = load_config_section("skills", {})
+    offset = skills_config.get("swipe_time_offset", 0)
+    duration = max(100, SKILL_LIST_SWIPE_DURATION_MS + offset)
+    
     result = perform_swipe(
         SKILL_LIST_CENTER_X, SKILL_LIST_START_Y,
         SKILL_LIST_CENTER_X, SKILL_LIST_END_Y,
-        SKILL_LIST_SWIPE_DURATION_MS
+        duration
     )
     time.sleep(wait_after)  # Wait for scroll animation to complete
     return result

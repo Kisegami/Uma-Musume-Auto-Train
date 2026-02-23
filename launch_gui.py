@@ -162,6 +162,12 @@ def main():
     app.setApplicationName("Uma Musume Auto-Train")
     app.setApplicationVersion("2.0")
     
+    # Set application icon
+    icon_path = os.path.join(script_dir, "gui", "app.ico")
+    if os.path.exists(icon_path):
+        from PySide6.QtGui import QIcon
+        app.setWindowIcon(QIcon(icon_path))
+    
     # Note: High DPI scaling is enabled by default in Qt6/PySide6
     
     print("[OK] Application initialized")

@@ -175,6 +175,32 @@ class RestartTab(QScrollArea):
         
         layout.addWidget(self.support_group)
         
+        # ==================== Support Card Filter Section ====================
+        self.support_filter_group = QGroupBox("Support Card Filter")
+        support_filter_layout = QGridLayout(self.support_filter_group)
+        support_filter_layout.setSpacing(12)
+        
+        # Note label
+        support_note = QLabel("⚠️ These filters are checked via OCR during auto start career")
+        support_note.setStyleSheet(f"color: {COLORS['accent_orange']}; font-size: 11px;")
+        support_filter_layout.addWidget(support_note, 0, 0, 1, 2)
+        
+        # Support Speciality
+        support_filter_layout.addWidget(QLabel("Support Speciality:"), 1, 0)
+        self.speciality_combo = QComboBox()
+        self.speciality_combo.addItems(["SPD", "STA", "PWR", "GUTS", "WIT", "PAL"])
+        self.speciality_combo.currentTextChanged.connect(self._save_support_filter)
+        support_filter_layout.addWidget(self.speciality_combo, 1, 1)
+        
+        # Support Rarity
+        support_filter_layout.addWidget(QLabel("Support Rarity:"), 2, 0)
+        self.rarity_combo = QComboBox()
+        self.rarity_combo.addItems(["R", "SR", "SSR"])
+        self.rarity_combo.currentTextChanged.connect(self._save_support_filter)
+        support_filter_layout.addWidget(self.rarity_combo, 2, 1)
+        
+        layout.addWidget(self.support_filter_group)
+        
         layout.addStretch()
         self.setWidget(container)
     
@@ -197,6 +223,7 @@ class RestartTab(QScrollArea):
         enabled = self.restart_enabled.isChecked()
         self.criteria_widget.setVisible(enabled)
         self.support_group.setVisible(enabled)
+        self.support_filter_group.setVisible(enabled)
         self._save_restart()
     
     def _toggle_template_controls(self):
@@ -294,9 +321,19 @@ class RestartTab(QScrollArea):
             if idx >= 0:
                 self.template_combo.setCurrentIndex(idx)
         
+        # Support Filters
+        self.speciality_combo.blockSignals(True)
+        self.speciality_combo.setCurrentText(auto_start.get("support_speciality", "STA"))
+        self.speciality_combo.blockSignals(False)
+        
+        self.rarity_combo.blockSignals(True)
+        self.rarity_combo.setCurrentText(auto_start.get("support_rarity", "SSR"))
+        self.rarity_combo.blockSignals(False)
+        
         # Update visibility
         self.criteria_widget.setVisible(self.restart_enabled.isChecked())
         self.support_group.setVisible(self.restart_enabled.isChecked())
+        self.support_filter_group.setVisible(self.restart_enabled.isChecked())
         visible = self.use_templates.isChecked()
         self.template_row.setVisible(visible)
         self.preview_label.setVisible(visible)
@@ -343,6 +380,20 @@ class RestartTab(QScrollArea):
         template = self.template_combo.currentText()
         if template != "No templates":
             config["auto_start_career"]["support_template_name"] = template
+        
+        self.main_window.save_config()
+    
+    def _save_support_filter(self):
+        """Save support filter settings to auto_start_career config"""
+        if getattr(self, '_loading', False):
+            return
+            
+        config = self.main_window.get_config()
+        if "auto_start_career" not in config:
+            config["auto_start_career"] = {}
+            
+        config["auto_start_career"]["support_speciality"] = self.speciality_combo.currentText()
+        config["auto_start_career"]["support_rarity"] = self.rarity_combo.currentText()
         
         self.main_window.save_config()
     

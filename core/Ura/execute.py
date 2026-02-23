@@ -190,6 +190,7 @@ def career_lobby():
     # tazuna_hint check, resets the moment the lobby is confirmed.
     LOBBY_STUCK_TIMEOUT = 60  # seconds; purely lobby-wait time
     _lobby_wait_start = None  # None = not currently waiting for lobby
+    _waiting_for_lobby_logged = False
     # ─────────────────────────────────────────────────────────────────────
 
     # Program start
@@ -334,11 +335,14 @@ def career_lobby():
                     log_error(f"[Watchdog] Reopen failed: {_wde}")
                 _lobby_wait_start = None
             # ─────────────────────────────────────────────────────────────
-            log_info(f"Should be in career lobby.")
+            if not _waiting_for_lobby_logged:
+                log_info(f"Waiting for Career lobby")
+                _waiting_for_lobby_logged = True
             continue
 
         # Lobby confirmed — reset watchdog timer
         _lobby_wait_start = None
+        _waiting_for_lobby_logged = False
         log_debug(f"Confirmed in career lobby")
         time.sleep(0.5)
         # Take a fresh screenshot after confirming lobby to ensure stable UI state

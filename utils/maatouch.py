@@ -114,7 +114,7 @@ class MaaTouchConnection:
         log_info("MaaTouch installed successfully")
         return True
     
-    def connect(self) -> bool:
+    def connect(self, auto_install: bool = True) -> bool:
         """
         Start MaaTouch and establish socket connection.
         
@@ -209,12 +209,22 @@ class MaaTouchConnection:
                     continue
             
             log_error("Timeout waiting for MaaTouch initialization")
+            if auto_install:
+                log_info("Attempting auto-install of MaaTouch binary...")
+                if self.install():
+                    log_info("Auto-install successful, retrying connection...")
+                    return self.connect(auto_install=False)
             return False
             
         except Exception as e:
             log_error(f"Failed to connect to MaaTouch: {e}")
             import traceback
             traceback.print_exc()
+            if auto_install:
+                log_info("Attempting auto-install of MaaTouch binary after exception...")
+                if self.install():
+                    log_info("Auto-install successful, retrying connection...")
+                    return self.connect(auto_install=False)
             return False
 
     

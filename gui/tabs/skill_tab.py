@@ -8,6 +8,7 @@ import os
 import json
 import glob
 import shutil
+import threading
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox,
     QSpinBox, QGroupBox, QGridLayout, QFrame, QScrollArea, QCheckBox, QPushButton,
@@ -144,31 +145,52 @@ class SkillTab(QScrollArea):
         
         layout.addWidget(self.end_skill_group)
         
-        # ==================== Support Card Filter Section ====================
-        self.support_filter_group = QGroupBox("Support Card Filter (Restart Career)")
-        support_filter_layout = QGridLayout(self.support_filter_group)
-        support_filter_layout.setSpacing(12)
+        # ==================== Skill List Swipe Offset Section ====================
+        self.swipe_offset_group = QGroupBox("Skill list swipe offset")
+        swipe_offset_layout = QVBoxLayout(self.swipe_offset_group)
+        swipe_offset_layout.setSpacing(12)
         
-        # Note label
-        support_note = QLabel("⚠️ These filters are checked via OCR during auto start career")
-        support_note.setStyleSheet(f"color: {COLORS['accent_orange']}; font-size: 11px;")
-        support_filter_layout.addWidget(support_note, 0, 0, 1, 2)
+        # Description label
+        desc_text = (
+            "Because each devices might have different performance so if you see the swipe in skill list look wrong, "
+            "please modify the offset to your prefered.\n\n"
+            "Maximum value: +2000 ms\nMinimum value: -2000 ms\n"
+            "Hint: Increase offset (+) for a shorter swipe distance, decrease offset (-) for a longer swipe distance."
+        )
+        desc_label = QLabel(desc_text)
+        desc_label.setWordWrap(True)
+        desc_label.setStyleSheet("color: white; font-size: 12px;")
+        swipe_offset_layout.addWidget(desc_label)
         
-        # Support Speciality
-        support_filter_layout.addWidget(QLabel("Support Speciality:"), 1, 0)
-        self.speciality_combo = QComboBox()
-        self.speciality_combo.addItems(["SPD", "STA", "PWR", "GUTS", "WIT", "PAL"])
-        self.speciality_combo.currentTextChanged.connect(self._save_support_filter)
-        support_filter_layout.addWidget(self.speciality_combo, 1, 1)
+        # Spinbox layout
+        spinbox_layout = QHBoxLayout()
+        spinbox_layout.addWidget(QLabel("Offset (ms):"))
+        self.swipe_offset_spin = QSpinBox()
+        self.swipe_offset_spin.setRange(-2000, 2000)
+        self.swipe_offset_spin.valueChanged.connect(self._save_skill)
+        self.swipe_offset_spin.setMinimumWidth(100)
+        spinbox_layout.addWidget(self.swipe_offset_spin)
+        spinbox_layout.addStretch()
+        swipe_offset_layout.addLayout(spinbox_layout)
         
-        # Support Rarity
-        support_filter_layout.addWidget(QLabel("Support Rarity:"), 2, 0)
-        self.rarity_combo = QComboBox()
-        self.rarity_combo.addItems(["R", "SR", "SSR"])
-        self.rarity_combo.currentTextChanged.connect(self._save_support_filter)
-        support_filter_layout.addWidget(self.rarity_combo, 2, 1)
+        # Test buttons
+        test_buttons_layout = QHBoxLayout()
+        test_single_btn = QPushButton("Test Single Swipe")
+        test_single_btn.clicked.connect(self._test_single_swipe)
+        test_multiple_btn = QPushButton("Test Multiple Swipes")
+        test_multiple_btn.clicked.connect(self._test_multiple_swipes)
         
-        layout.addWidget(self.support_filter_group)
+        test_buttons_layout.addWidget(test_single_btn)
+        test_buttons_layout.addWidget(test_multiple_btn)
+        test_buttons_layout.addStretch()
+        swipe_offset_layout.addLayout(test_buttons_layout)
+        
+        # Test note
+        test_note_label = QLabel("⚠️ Note: Make sure the game is open on the skill list screen before testing.")
+        test_note_label.setStyleSheet(f"color: {COLORS['accent_orange']}; font-size: 11px;")
+        swipe_offset_layout.addWidget(test_note_label)
+        
+        layout.addWidget(self.swipe_offset_group)
         
         layout.addStretch()
         self.setWidget(container)
@@ -220,6 +242,10 @@ class SkillTab(QScrollArea):
         self.skill_cap_spin.setValue(skills.get("skill_point_cap", 400))
         self.skill_cap_spin.blockSignals(False)
         
+        self.swipe_offset_spin.blockSignals(True)
+        self.swipe_offset_spin.setValue(skills.get("swipe_time_offset", 0))
+        self.swipe_offset_spin.blockSignals(False)
+        
         self.purchase_combo.blockSignals(True)
         self.purchase_combo.setCurrentText(skills.get("skill_purchase", "auto"))
         self.purchase_combo.blockSignals(False)
@@ -245,16 +271,6 @@ class SkillTab(QScrollArea):
         if idx >= 0:
             self.end_skill_dropdown.setCurrentIndex(idx)
             
-        # Support Filters
-        auto_start = config.get("auto_start_career", {})
-        
-        self.speciality_combo.blockSignals(True)
-        self.speciality_combo.setCurrentText(auto_start.get("support_speciality", "STA"))
-        self.speciality_combo.blockSignals(False)
-        
-        self.rarity_combo.blockSignals(True)
-        self.rarity_combo.setCurrentText(auto_start.get("support_rarity", "SSR"))
-        self.rarity_combo.blockSignals(False)
         
         self._loading = False
     
@@ -269,6 +285,7 @@ class SkillTab(QScrollArea):
         
         config["skills"]["enable_skill_point_check"] = self.enable_skill_check.isChecked()
         config["skills"]["skill_point_cap"] = self.skill_cap_spin.value()
+        config["skills"]["swipe_time_offset"] = self.swipe_offset_spin.value()
         config["skills"]["skill_purchase"] = self.purchase_combo.currentText()
         config["skills"]["skill_file"] = f"template/skills/{self.skill_dropdown.currentText()}"
         
@@ -352,19 +369,6 @@ class SkillTab(QScrollArea):
         
         self.main_window.save_config()
         
-    def _save_support_filter(self):
-        """Save support filter settings to auto_start_career config"""
-        if getattr(self, '_loading', False):
-            return
-            
-        config = self.main_window.get_config()
-        if "auto_start_career" not in config:
-            config["auto_start_career"] = {}
-            
-        config["auto_start_career"]["support_speciality"] = self.speciality_combo.currentText()
-        config["auto_start_career"]["support_rarity"] = self.rarity_combo.currentText()
-        
-        self.main_window.save_config()
     
     def _add_end_skill_template(self):
         """Add new end skill template"""
@@ -408,3 +412,21 @@ class SkillTab(QScrollArea):
         from .skill_list_window import SkillListWindow
         dialog = SkillListWindow(self, path)
         dialog.exec()
+
+    # ==================== Swipe Test Methods ====================
+    def _test_single_swipe(self):
+        """Run single swipe test in background thread"""
+        def run_test():
+            from utils.skill_swipe import swipe_skill_list_down_slow
+            swipe_skill_list_down_slow(wait_before=1.0)
+            
+        threading.Thread(target=run_test, daemon=True).start()
+        
+    def _test_multiple_swipes(self):
+        """Run multiple swipe test in background thread"""
+        def run_test():
+            from core.Unity.skill_recognizer import scan_all_skills_with_scroll
+            scan_all_skills_with_scroll(max_scrolls=20)
+            
+        threading.Thread(target=run_test, daemon=True).start()
+

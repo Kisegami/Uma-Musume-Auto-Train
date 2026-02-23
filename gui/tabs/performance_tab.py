@@ -212,10 +212,6 @@ class PerformanceTab(QScrollArea):
         # Action buttons row
         maatouch_actions_row = QHBoxLayout()
         
-        self.maatouch_install_btn = QPushButton("📦 Install MaaTouch")
-        self.maatouch_install_btn.setToolTip("Push MaaTouch binary to device")
-        self.maatouch_install_btn.clicked.connect(self._install_maatouch)
-        maatouch_actions_row.addWidget(self.maatouch_install_btn)
         
         self.maatouch_benchmark_btn = QPushButton("🔬 Run Benchmark")
         self.maatouch_benchmark_btn.setToolTip("Compare ADB vs MaaTouch input speed")
@@ -615,42 +611,18 @@ class PerformanceTab(QScrollArea):
     def _check_maatouch_status(self):
         """Check and display MaaTouch status"""
         try:
-            from utils.maatouch import _find_maatouch_binary, MaaTouchConnection
+            from utils.maatouch import _find_maatouch_binary
             
             binary_path = _find_maatouch_binary()
             if binary_path:
-                self.maatouch_status_label.setText("✓ MaaTouch binary found")
+                self.maatouch_status_label.setText("✓ MaaTouch binary found locally (will auto-install to device)")
                 self.maatouch_status_label.setStyleSheet(f"color: {COLORS['accent_green']}; font-weight: bold;")
-                self.maatouch_install_btn.setText("📦 Reinstall MaaTouch")
             else:
-                self.maatouch_status_label.setText("✗ MaaTouch binary not found")
+                self.maatouch_status_label.setText("✗ MaaTouch binary not found locally")
                 self.maatouch_status_label.setStyleSheet(f"color: {COLORS['accent_orange']};")
-                self.maatouch_install_btn.setText("📦 Install MaaTouch")
         except Exception as e:
             self.maatouch_status_label.setText(f"✗ Error: {str(e)}")
             self.maatouch_status_label.setStyleSheet(f"color: {COLORS['accent_red']};")
-    
-    def _install_maatouch(self):
-        """Install MaaTouch binary to device"""
-        try:
-            from utils.maatouch import MaaTouchConnection
-            conn = MaaTouchConnection()
-            if conn.install():
-                QMessageBox.information(
-                    self, "Install Complete",
-                    "✓ MaaTouch installed successfully!"
-                )
-            else:
-                QMessageBox.warning(
-                    self, "Install Failed",
-                    "✗ Failed to install MaaTouch. Check if emulator is connected."
-                )
-            self._check_maatouch_status()
-        except Exception as e:
-            QMessageBox.warning(
-                self, "Install Failed",
-                f"✗ Error: {str(e)}"
-            )
     
     def _run_input_benchmark(self):
         """Run input method benchmark"""
@@ -684,11 +656,8 @@ class PerformanceTab(QScrollArea):
             
             # Test MaaTouch
             conn = MaaTouchConnection()
-            if not conn.install():
-                QMessageBox.warning(self, "Benchmark Failed", "Failed to install MaaTouch")
-                return
             if not conn.connect():
-                QMessageBox.warning(self, "Benchmark Failed", "Failed to connect to MaaTouch")
+                QMessageBox.warning(self, "Benchmark Failed", "Failed to connect to MaaTouch (auto-install may have failed)")
                 return
             
             maatouch_times = []

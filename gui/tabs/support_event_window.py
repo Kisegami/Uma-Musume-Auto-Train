@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
     QScrollArea, QWidget, QFrame, QMessageBox, QCompleter
 )
 from PySide6.QtCore import Qt, QTimer, QStringListModel, QSize
-from PySide6.QtGui import QPixmap
+from PySide6.QtGui import QPixmap, QStandardItemModel, QStandardItem, QIcon
 
 from ..styles import COLORS, MAIN_STYLESHEET
 
@@ -86,10 +86,14 @@ class SupportEventWindow(QDialog):
                 display = f"{event_name}  [{slug_display}]" if card_slug else event_name
                 self.event_lookup[display] = (event_name, card_slug)
             
+            # Build unique cards list
+            self.unique_cards = sorted(list(set(evt["CardSlug"] for evt in self.all_events if evt.get("CardSlug"))))
+            
         except Exception as e:
             print(f"Error loading events: {e}")
             self.all_events = []
             self.event_lookup = {}
+            self.unique_cards = []
     
     def _load_template(self):
         """Load existing template"""
@@ -136,16 +140,92 @@ class SupportEventWindow(QDialog):
             border-radius: 10px;
             padding: 8px;
         """)
-        add_layout = QHBoxLayout(add_frame)
+        add_layout = QVBoxLayout(add_frame)
         add_layout.setContentsMargins(12, 8, 12, 8)
+        add_layout.setSpacing(12)
         
-        add_layout.addWidget(QLabel("Add Event:"))
+        # 1. Add Support Card row
+        card_layout = QHBoxLayout()
+        card_layout_label = QLabel("Add Support Card:")
+        card_layout_label.setFixedWidth(130)
+        card_layout.addWidget(card_layout_label)
+        
+        self.card_search_entry = QLineEdit()
+        self.card_search_entry.setPlaceholderText("Type to search support cards...")
+        self.card_search_entry.setMinimumWidth(500)
+        self.card_search_entry.returnPressed.connect(self._add_card_events_from_completer)
+        card_layout.addWidget(self.card_search_entry)
+        
+        # Setup completer for support cards with icons
+        self.card_completer_model = QStandardItemModel()
+        for card_slug in self.unique_cards:
+            item = QStandardItem(card_slug)
+            image_path = os.path.join(SUPPORT_IMAGES_PATH, f"{card_slug}.png")
+            if os.path.exists(image_path):
+                # Use QIcon for the item
+                item.setIcon(QIcon(image_path))
+            self.card_completer_model.appendRow(item)
+            
+        self.card_completer = QCompleter(self.card_completer_model, self)
+        self.card_completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self.card_completer.setFilterMode(Qt.MatchContains)
+        self.card_completer.setCompletionMode(QCompleter.PopupCompletion)
+        self.card_completer.setMaxVisibleItems(10)
+        self.card_completer.activated.connect(self._on_card_completer_activated)
+        
+        # Style the completer popup to show icons nicely
+        card_popup = self.card_completer.popup()
+        card_popup.setIconSize(QSize(40, 40))
+        card_popup.setStyleSheet(f"""
+            QListView {{
+                background-color: {COLORS['bg_card']};
+                border: 2px solid {COLORS['accent_primary']};
+                border-radius: 8px;
+                padding: 4px;
+                outline: none;
+                color: {COLORS['text_primary']};
+            }}
+            QListView::item {{
+                padding: 4px;
+                border-radius: 4px;
+            }}
+            QListView::item:hover {{
+                background-color: {COLORS['bg_hover']};
+            }}
+            QListView::item:selected {{
+                background-color: {COLORS['accent_primary']};
+                color: white;
+            }}
+        """)
+        
+        self.card_search_entry.setCompleter(self.card_completer)
+        
+        add_card_btn = QPushButton(" Add Card Events")
+        add_card_btn.setIcon(qta.icon('fa5s.layer-group', color='white'))
+        add_card_btn.setIconSize(QSize(16, 16))
+        add_card_btn.setStyleSheet(f"""
+            background-color: {COLORS['accent_blue']};
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+        """)
+        add_card_btn.clicked.connect(self._add_card_events_from_completer)
+        card_layout.addWidget(add_card_btn)
+        add_layout.addLayout(card_layout)
+        
+        # 2. Add Event row
+        event_layout = QHBoxLayout()
+        event_layout_label = QLabel("Add Single Event:")
+        event_layout_label.setFixedWidth(130)
+        event_layout.addWidget(event_layout_label)
         
         self.search_entry = QLineEdit()
         self.search_entry.setPlaceholderText("Type to search events...")
         self.search_entry.setMinimumWidth(500)
         self.search_entry.returnPressed.connect(self._add_event_from_completer)
-        add_layout.addWidget(self.search_entry)
+        event_layout.addWidget(self.search_entry)
         
         # Setup completer with all event display strings
         display_strings = sorted(self.event_lookup.keys(), key=lambda x: (self.event_lookup[x][1], x))
@@ -195,7 +275,9 @@ class SupportEventWindow(QDialog):
             font-weight: 500;
         """)
         add_btn.clicked.connect(self._add_event_from_completer)
-        add_layout.addWidget(add_btn)
+        event_layout.addWidget(add_btn)
+        add_layout.addLayout(event_layout)
+        
         layout.addWidget(add_frame)
         
         # Info
@@ -273,6 +355,31 @@ class SupportEventWindow(QDialog):
         self.scroll = scroll
         layout.addWidget(scroll)
         
+        # Deck Preview section
+        deck_label = QLabel("Deck Preview:")
+        deck_label.setStyleSheet(f"color: {COLORS['text_secondary']}; font-weight: bold; margin-top: 8px;")
+        layout.addWidget(deck_label)
+        
+        # Horizontal scroll area for card thumbnails
+        self.deck_scroll = QScrollArea()
+        self.deck_scroll.setWidgetResizable(True)
+        self.deck_scroll.setFixedHeight(100)
+        self.deck_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.deck_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.deck_scroll.setStyleSheet("background-color: #2a2a2a; border-radius: 8px;")
+        
+        self.deck_container = QWidget()
+        self.deck_container.setStyleSheet("background: transparent;")
+        self.deck_layout = QHBoxLayout(self.deck_container)
+        self.deck_layout.setContentsMargins(8, 8, 8, 8)
+        self.deck_layout.setSpacing(8)
+        self.deck_layout.addStretch()
+        self.deck_scroll.setWidget(self.deck_container)
+        
+        layout.addWidget(self.deck_scroll)
+
+        self._update_deck_preview()
+        
         # Footer buttons
         footer = QHBoxLayout()
         footer.addStretch()
@@ -288,6 +395,116 @@ class SupportEventWindow(QDialog):
         
         layout.addLayout(footer)
     
+    def _update_deck_preview(self):
+        """Update the deck preview with unique support cards from current choices"""
+        # Clear existing
+        while self.deck_layout.count():
+            item = self.deck_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+                
+        # Get unique card slugs from current choices
+        current_deck_slugs = []
+        seen = set()
+        for c in self.custom_choices:
+            slug = c.get("CardSlug")
+            if slug and slug not in seen:
+                seen.add(slug)
+                current_deck_slugs.append(slug)
+                
+        # Sort them by slug
+        current_deck_slugs.sort()
+        
+        if not current_deck_slugs:
+            empty_label = QLabel("No support cards added yet.")
+            empty_label.setStyleSheet(f"color: {COLORS['text_muted']}; font-style: italic;")
+            self.deck_layout.addWidget(empty_label)
+            self.deck_layout.addStretch()
+            return
+            
+        for card_slug in current_deck_slugs:
+            card_widget = QLabel()
+            card_widget.setToolTip(card_slug)
+            
+            image_path = os.path.join(SUPPORT_IMAGES_PATH, f"{card_slug}.png")
+            if os.path.exists(image_path):
+                pixmap = QPixmap(image_path)
+                if not pixmap.isNull():
+                    scaled = pixmap.scaledToHeight(80, Qt.SmoothTransformation)
+                    card_widget.setPixmap(scaled)
+                else:
+                    card_widget.setText(card_slug[:10])
+            else:
+                card_widget.setText(card_slug[:10])
+                card_widget.setStyleSheet(f"color: {COLORS['text_secondary']}; padding: 8px; background: #3a3a3a; border-radius: 4px;")
+                
+            self.deck_layout.addWidget(card_widget)
+            
+        self.deck_layout.addStretch()
+
+    def _on_card_completer_activated(self, text):
+        """Handle card completer selection"""
+        self._add_card_events(text)
+        
+    def _add_card_events_from_completer(self):
+        """Add events for card from search entry text"""
+        text = self.card_search_entry.text().strip()
+        if not text:
+            return
+        
+        # Find exact match
+        if text in self.unique_cards:
+            self._add_card_events(text)
+            return
+            
+        # Try partial match (case-insensitive)
+        for card_slug in self.unique_cards:
+            if text.lower() in card_slug.lower():
+                self._add_card_events(card_slug)
+                return
+                
+        QMessageBox.warning(self, "Not Found", f"Support Card '{text}' not found.")
+        
+    def _add_card_events(self, card_slug):
+        """Add all events for a given support card"""
+        events_added = 0
+        
+        for evt in self.all_events:
+            if evt.get("CardSlug") == card_slug:
+                event_name = evt.get("EventName")
+                unique_key = f"{event_name}|{card_slug}"
+                
+                # Check if it's already added
+                exists = False
+                for choice in self.custom_choices:
+                    if choice.get("EventName") == event_name and choice.get("CardSlug") == card_slug:
+                        exists = True
+                        break
+                        
+                if not exists:
+                    self.custom_choices.append({
+                        "EventName": event_name,
+                        "CardSlug": card_slug,
+                        "SelectedOption": ""
+                    })
+                    events_added += 1
+                    
+        if events_added > 0:
+            self._resort_and_rebuild()
+            self._update_count()
+            self.card_search_entry.clear()
+            QMessageBox.information(
+                self, 
+                "Success", 
+                f"Added {events_added} event(s) for '{card_slug}'."
+            )
+        else:
+            QMessageBox.information(
+                self, 
+                "Already Present", 
+                f"All events for '{card_slug}' are already added."
+            )
+
     def _on_completer_activated(self, text):
         """Handle completer selection"""
         if text in self.event_lookup:
@@ -628,6 +845,8 @@ class SupportEventWindow(QDialog):
             self._add_event_row(choice)
         
         self._update_row_numbers()
+        if hasattr(self, 'deck_layout'):
+            self._update_deck_preview()
     
     def _remove_event(self, unique_key, row_widget):
         """Remove an event"""
@@ -646,6 +865,8 @@ class SupportEventWindow(QDialog):
         row_widget.deleteLater()
         self._update_row_numbers()
         self._update_count()
+        if hasattr(self, 'deck_layout'):
+            self._update_deck_preview()
     
     def _update_count(self):
         """Update event count"""
