@@ -399,6 +399,16 @@ class RestartTab(QScrollArea):
     
     def _add_template(self):
         """Capture emulator screen, crop, and save as a new template."""
+        reply = QMessageBox.information(
+            self, 
+            "Information", 
+            "Please open the Friend support card pick list before adding.",
+            QMessageBox.Ok | QMessageBox.Cancel
+        )
+        
+        if reply != QMessageBox.Ok:
+            return
+
         try:
             from utils.screenshot import take_screenshot
         except ImportError:

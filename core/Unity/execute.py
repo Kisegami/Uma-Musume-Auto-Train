@@ -127,14 +127,14 @@ def do_rest():
         from utils.input import tap
         tap(back_btn[0], back_btn[1])
         time.sleep(1.0)  # Wait for lobby to load
-    tazuna_hint = locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.7)
+    tazuna_hint = locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.95)
     if not tazuna_hint:
         log_debug(f"tazuna_hint.png not found, taking screenshot again to ensure we are in the lobby...")
         time.sleep(0.7)
         # Take a new screenshot and try again
         from utils.screenshot import take_screenshot
         take_screenshot()
-        tazuna_hint = locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.7)
+        tazuna_hint = locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.95)
         if not tazuna_hint:
             log_warning(f"Still not in lobby after retrying screenshot. Rest button search may fail.")
     # Now look for rest buttons in the lobby
@@ -382,9 +382,20 @@ def career_lobby():
 
         # Check if current menu is in career lobby
         log_debug(f"Checking if in career lobby...")
-        tazuna_hint = locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.8)
+        tazuna_hint = locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.95)
 
         if tazuna_hint is None:
+            # Check for back button to navigate back to lobby
+            back_btn_matches = match_template(screenshot, "assets/buttons/back_btn.png", confidence=0.8)
+            if back_btn_matches:
+                x, y, w, h = back_btn_matches[0]
+                center = (x + w//2, y + h//2)
+                log_info(f"Back button found, tapping to return to lobby...")
+                tap(center[0], center[1])
+                _lobby_wait_start = None
+                time.sleep(0.5)
+                continue
+
             # ── Watchdog: start / check lobby-wait timer ──────────────────
             if _lobby_wait_start is None:
                 _lobby_wait_start = time.time()

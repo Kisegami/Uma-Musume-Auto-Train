@@ -30,6 +30,7 @@ from .tabs.skill_tab import SkillTab
 from .tabs.restart_tab import RestartTab
 from .tabs.others_tab import OthersTab
 from .tabs.update_tab import UpdateTab
+from .tabs.donation_tab import DonationTab
 
 
 class SidebarButton(QPushButton):
@@ -179,6 +180,8 @@ class MainWindow(QMainWindow):
             ("Restart", "fa5s.redo"),
             ("Others", "fa5s.wrench"),
             ("Update", "fa5s.download"),
+            ("Discord", "fa5b.discord"),
+            ("Donation", "fa5s.heart"),
         ]
         
         for text, icon in nav_items:
@@ -219,6 +222,7 @@ class MainWindow(QMainWindow):
         self.restart_page = RestartTab(self)
         self.others_page = OthersTab(self)
         self.update_page = UpdateTab(self)
+        self.donation_page = DonationTab(self)
         
         self.page_stack.addWidget(self.main_page)
         self.page_stack.addWidget(self.performance_page)
@@ -229,6 +233,7 @@ class MainWindow(QMainWindow):
         self.page_stack.addWidget(self.restart_page)
         self.page_stack.addWidget(self.others_page)
         self.page_stack.addWidget(self.update_page)
+        self.page_stack.addWidget(self.donation_page)
         
         content_layout.addWidget(self.page_stack, stretch=2)
         
@@ -253,6 +258,11 @@ class MainWindow(QMainWindow):
     
     def _on_nav_clicked(self, page_name):
         """Handle navigation button click"""
+        # Discord opens a prompt instead of a page
+        if page_name == "Discord":
+            self._open_discord_prompt()
+            return
+        
         page_map = {
             "Main": 0,
             "Performance": 1,
@@ -263,6 +273,7 @@ class MainWindow(QMainWindow):
             "Restart": 6,
             "Others": 7,
             "Update": 8,
+            "Donation": 9,
         }
         
         # Update button states
@@ -272,6 +283,19 @@ class MainWindow(QMainWindow):
         # Switch page
         if page_name in page_map:
             self.page_stack.setCurrentIndex(page_map[page_name])
+    
+    def _open_discord_prompt(self):
+        """Show a prompt asking user if they want to join the Discord server"""
+        from PySide6.QtGui import QDesktopServices
+        from PySide6.QtCore import QUrl
+        
+        reply = QMessageBox.question(
+            self, "Join Discord",
+            "Do you want to join my Discord Server for Updates and Supports?",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes
+        )
+        if reply == QMessageBox.Yes:
+            QDesktopServices.openUrl(QUrl("http://discord.gg/PhVmBtfsKp"))
     
     def _toggle_bot(self):
         """Toggle bot start/stop"""
