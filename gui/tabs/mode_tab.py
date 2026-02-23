@@ -104,10 +104,15 @@ class ModeTab(QScrollArea):
         auto_layout.addWidget(self.rarity_combo, 2, 1)
         
         self.auto_charge = QCheckBox("Restore TP using TP Bottle")
-        self.auto_charge.stateChanged.connect(
-            lambda v: self._update_config("auto_start_career", "auto_charge_tp", v == Qt.CheckState.Checked.value)
-        )
+        self.auto_charge.stateChanged.connect(self._on_auto_charge_changed)
         auto_layout.addWidget(self.auto_charge, 3, 0, 1, 2)
+        
+        self.auto_charge_carats = QCheckBox("Use Carats to restore TP (needs \"Restore TP using TP Bottle\")")
+        self.auto_charge_carats.stateChanged.connect(
+            lambda v: self._update_config("auto_start_career", "auto_charge_tp_carats", v == Qt.CheckState.Checked.value)
+        )
+        self.auto_charge_carats.setEnabled(False) # Default to false until config is loaded
+        auto_layout.addWidget(self.auto_charge_carats, 4, 0, 1, 2)
         
         layout.addWidget(auto_group)
         
@@ -145,6 +150,10 @@ class ModeTab(QScrollArea):
         self.specialty_combo.setCurrentText(auto_start.get("support_speciality", "STA"))
         self.rarity_combo.setCurrentText(auto_start.get("support_rarity", "SSR"))
         self.auto_charge.setChecked(auto_start.get("auto_charge_tp", True))
+        self.auto_charge_carats.setChecked(auto_start.get("auto_charge_tp_carats", False))
+        
+        # Initial state for Carats checkbox based on TP bottle checkbox
+        self.auto_charge_carats.setEnabled(self.auto_charge.isChecked())
         
         # Dating
         dating = config.get("dating", {})
@@ -153,3 +162,11 @@ class ModeTab(QScrollArea):
     def _update_config(self, parent, key, value):
         """Update config value"""
         self.main_window.update_nested_config_value(parent, key, value)
+        
+    def _on_auto_charge_changed(self, state):
+        """Handle auto charge config value and dependent checkboxes"""
+        is_checked = state == Qt.CheckState.Checked.value
+        self._update_config("auto_start_career", "auto_charge_tp", is_checked)
+        self.auto_charge_carats.setEnabled(is_checked)
+        if not is_checked:
+            self.auto_charge_carats.setChecked(False)

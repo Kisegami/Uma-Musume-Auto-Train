@@ -452,12 +452,16 @@ def filter_support() -> bool:
 
 
 def restore_tp() -> bool:
-    """Restore TP using TP bottle when out of TP.
+    """Restore TP using TP bottle or Carats when out of TP.
     
     Returns:
-        bool: True if TP restored successfully, False if no bottles available
+        bool: True if TP restored successfully, False if no bottles/carats available
     """
     log_info("=== Restoring TP ===")
+    
+    config = load_config()
+    auto_start_career = config.get('auto_start_career', {})
+    use_carats = auto_start_career.get('auto_charge_tp_carats', False)
     
     # Step 1: Tap restore button
     if not click_image_button("assets/buttons/restore_btn.png", "restore button", max_attempts=5):
@@ -467,22 +471,45 @@ def restore_tp() -> bool:
     time.sleep(1)
     
     # Step 2: Wait for TP bottle to appear
-    tp_bottle_matches = wait_for_image("assets/icons/tp_bottle.png", timeout=10, confidence=0.8)
-    if not tp_bottle_matches:
-        log_error("Out of TP Bottle")
-        return False
+    tp_bottle_matches = wait_for_image("assets/icons/tp_bottle.png", timeout=5, confidence=0.8)
     
-    # Step 3: Calculate Use button position (offset from bottle)
-    # TP Bottle at (131, 481) → Use button at (912, 481)
-    # X offset = 912 - 131 = 781
-    bottle_x, bottle_y = tp_bottle_matches[0], tp_bottle_matches[1]
-    use_btn_x = bottle_x + 781
-    use_btn_y = bottle_y
-    
-    log_info(f"TP bottle at ({bottle_x}, {bottle_y}), tapping Use at ({use_btn_x}, {use_btn_y})")
-    tap(use_btn_x, use_btn_y)
-    time.sleep(1)
-    
+    if tp_bottle_matches:
+        # Step 3: Calculate Use button position (offset from bottle)
+        # TP Bottle at (131, 481) → Use button at (912, 481)
+        # X offset = 912 - 131 = 781
+        bottle_x, bottle_y = tp_bottle_matches[0], tp_bottle_matches[1]
+        use_btn_x = bottle_x + 781
+        use_btn_y = bottle_y
+        
+        log_info(f"TP bottle at ({bottle_x}, {bottle_y}), tapping Use at ({use_btn_x}, {use_btn_y})")
+        tap(use_btn_x, use_btn_y)
+        time.sleep(1)
+    else:
+        log_warning("Out of TP Bottle")
+        if use_carats:
+            log_info("Trying to restore using Carats instead")
+            tp_carats_matches = wait_for_image("assets/icons/tp_carats.png", timeout=5, confidence=0.8)
+            if not tp_carats_matches:
+                log_error("Carats icon not found")
+                return False
+                
+            carats_x, carats_y = tp_carats_matches[0], tp_carats_matches[1]
+            use_btn_x = carats_x + 781
+            use_btn_y = carats_y
+            
+            log_info(f"Carats icon at ({carats_x}, {carats_y}), tapping Use at ({use_btn_x}, {use_btn_y})")
+            tap(use_btn_x, use_btn_y)
+            time.sleep(1)
+            
+            # For Carats, tap the tp_plus button before confirming
+            if not click_image_button("assets/buttons/tp_plus.png", "tp plus button", max_attempts=5):
+                log_warning("Failed to tap tp plus button")
+                return False
+            time.sleep(0.5)
+        else:
+            log_error("Carats restore not enabled, stopping bot")
+            return False
+            
     # Step 4: Tap OK button
     if not click_image_button("assets/buttons/ok_restore.png", "OK button", max_attempts=10):
         log_warning("Failed to tap OK button")

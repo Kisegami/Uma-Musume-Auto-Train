@@ -115,8 +115,14 @@ class RestartTab(QScrollArea):
         
         # Restore TP checkbox
         self.restore_tp_checkbox = QCheckBox("Restore TP using TP Bottle")
-        self.restore_tp_checkbox.stateChanged.connect(self._save_restart)
+        self.restore_tp_checkbox.stateChanged.connect(self._on_restore_tp_changed)
         criteria_layout.addWidget(self.restore_tp_checkbox)
+        
+        # Restore TP Carats checkbox
+        self.restore_tp_carats_checkbox = QCheckBox("Use Carats to restore TP (needs \"Restore TP using TP Bottle\")")
+        self.restore_tp_carats_checkbox.stateChanged.connect(self._save_restart)
+        self.restore_tp_carats_checkbox.setEnabled(False) # Default to false until config is loaded
+        criteria_layout.addWidget(self.restore_tp_carats_checkbox)
         
         restart_layout.addWidget(self.criteria_widget)
         layout.addWidget(restart_group)
@@ -271,6 +277,12 @@ class RestartTab(QScrollArea):
         self.restore_tp_checkbox.setChecked(auto_start.get("auto_charge_tp", True))
         self.restore_tp_checkbox.blockSignals(False)
         
+        self.restore_tp_carats_checkbox.blockSignals(True)
+        self.restore_tp_carats_checkbox.setChecked(auto_start.get("auto_charge_tp_carats", False))
+        # Initial state for Carats checkbox based on TP bottle checkbox
+        self.restore_tp_carats_checkbox.setEnabled(self.restore_tp_checkbox.isChecked())
+        self.restore_tp_carats_checkbox.blockSignals(False)
+        
         # Support templates
         self.use_templates.blockSignals(True)
         self.use_templates.setChecked(auto_start.get("use_support_templates", False))
@@ -292,6 +304,14 @@ class RestartTab(QScrollArea):
             self._update_template_preview()
         
         self._loading = False
+    
+    def _on_restore_tp_changed(self, state):
+        """Handle auto charge config value and dependent checkboxes"""
+        is_checked = state == Qt.CheckState.Checked.value
+        self.restore_tp_carats_checkbox.setEnabled(is_checked)
+        if not is_checked:
+            self.restore_tp_carats_checkbox.setChecked(False)
+        self._save_restart()
     
     def _save_restart(self):
         """Save restart settings"""
@@ -319,6 +339,7 @@ class RestartTab(QScrollArea):
         
         config["auto_start_career"]["use_support_templates"] = self.use_templates.isChecked()
         config["auto_start_career"]["auto_charge_tp"] = self.restore_tp_checkbox.isChecked()
+        config["auto_start_career"]["auto_charge_tp_carats"] = self.restore_tp_carats_checkbox.isChecked()
         template = self.template_combo.currentText()
         if template != "No templates":
             config["auto_start_career"]["support_template_name"] = template
