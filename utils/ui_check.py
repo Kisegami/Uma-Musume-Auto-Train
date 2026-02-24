@@ -5,6 +5,7 @@ from utils.recognizer import locate_on_screen
 from utils.log import log_info, log_warning, log_error, log_debug
 from utils.input import tap
 from utils.template_matching import wait_for_image
+from utils.device import reopen_and_resume_career
 
 # --- Dynamically load career_lobby based on mode ---
 from utils.config_loader import load_main_config
@@ -261,23 +262,19 @@ def career_ui_check():
 
 def ui_check():
     """
-    Run the UI check sequence
+    Run the UI check sequence.
+    Detects the current screen state and routes to the appropriate handler.
+    career_ui_check() handles all career-related screens and enters
+    career_lobby() WITHOUT timeout for the permanent automation loop.
     """
     log_info("Starting UI check...")
     
-    # 1. Run career lobby check with 5 second timeout
-    log_info("Running career lobby check (5s timeout)...")
-    try:
-        career_lobby_func = get_career_lobby()
-        career_lobby_func(timeout=5)
-    except Exception as e:
-        log_warning(f"Career lobby check failed: {e}")
+    # 1. Try career UI check first — detects lobby, race, events, back button, etc.
+    #    When it finds the lobby, it enters career_lobby() WITHOUT timeout
+    log_info("Checking for career UI elements...")
+    if career_ui_check():
+        return True
 
-    log_info("Career lobby check done. Checking for specific UI screens...")
-
-    # Now take a screenshot to check 
-    screenshot = take_screenshot()
-    
     # 2. Check home_theater.png
     if locate_on_screen("assets/ui/home_theater.png", confidence=0.8):
         Home_run()
@@ -293,15 +290,10 @@ def ui_check():
         reconnect()
         return True
         
-    # 5. If nothing above run, restart the game
+    # 5. If nothing above matched, restart the game
     log_warning("No recognized UI elements found after checks. Restarting the game...")
-    if reopen_and_resume_career:
-        reopen_and_resume_career()
-        return True
-    else:
-        log_error("Restart function (reopen_and_resume_career) not available or imported!")
-        
-    return False
+    reopen_and_resume_career()
+    return True
 
 if __name__ == "__main__":
     ui_check()

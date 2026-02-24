@@ -49,6 +49,7 @@ RETRY_RACE = racing_config_section.get("retry_race", config.get("retry_race", Tr
 from utils.log import log_debug, log_info, log_warning, log_error, log_success
 from utils.template_matching import deduplicated_matches, wait_for_image
 from utils.device import reopen_and_resume_career
+from utils.ui_check import career_ui_check
 
 def is_infirmary_active_adb(button_location, screenshot=None):
     """
@@ -192,7 +193,7 @@ def career_lobby(timeout=None):
     # ── Lobby-stuck watchdog ──────────────────────────────────────────────
     # Tracks time spent spinning while NOT in lobby. Starts at the first
     # tazuna_hint check, resets the moment the lobby is confirmed.
-    LOBBY_STUCK_TIMEOUT = 60  # seconds; purely lobby-wait time
+    LOBBY_STUCK_TIMEOUT = 20  # seconds; purely lobby-wait time
     _lobby_wait_start = None  # None = not currently waiting for lobby
     _waiting_for_lobby_logged = False
     # ─────────────────────────────────────────────────────────────────────
@@ -339,11 +340,24 @@ def career_lobby(timeout=None):
                 _lobby_wait_start = time.time()
                 log_debug(f"[Watchdog] Lobby wait timer started.")
             elif time.time() - _lobby_wait_start > LOBBY_STUCK_TIMEOUT:
-                log_warning(f"[Watchdog] Stuck waiting for lobby >{LOBBY_STUCK_TIMEOUT}s — restarting game...")
-                try:
-                    reopen_and_resume_career()
-                except Exception as _wde:
-                    log_error(f"[Watchdog] Reopen failed: {_wde}")
+                log_warning(f"[Watchdog] Stuck waiting for lobby >{LOBBY_STUCK_TIMEOUT}s — attempting career_ui_check before restart...")
+                _recovered = False
+                for _ui_attempt in range(3):
+                    log_info(f"[Watchdog] Running career_ui_check - Attempt {_ui_attempt + 1}/3...")
+                    try:
+                        if career_ui_check():
+                            log_info(f"[Watchdog] career_ui_check recovered on attempt {_ui_attempt + 1}")
+                            _recovered = True
+                            break
+                    except Exception as _uce:
+                        log_warning(f"[Watchdog] career_ui_check attempt {_ui_attempt + 1} failed: {_uce}")
+                    time.sleep(1)
+                if not _recovered:
+                    log_warning(f"[Watchdog] career_ui_check failed 3 times — restarting game...")
+                    try:
+                        reopen_and_resume_career()
+                    except Exception as _wde:
+                        log_error(f"[Watchdog] Reopen failed: {_wde}")
                 _lobby_wait_start = None
             # ─────────────────────────────────────────────────────────────
             if not _waiting_for_lobby_logged:
