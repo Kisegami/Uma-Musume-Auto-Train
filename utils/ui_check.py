@@ -271,9 +271,12 @@ def ui_check():
     
     # 1. Try career UI check first — detects lobby, race, events, back button, etc.
     #    When it finds the lobby, it enters career_lobby() WITHOUT timeout
-    log_info("Checking for career UI elements...")
-    if career_ui_check():
-        return True
+    #    Run up to 3 times to allow screen transitions to settle
+    for attempt in range(3):
+        log_info(f"Checking for career UI elements (attempt {attempt + 1}/3)...")
+        if career_ui_check():
+            return True
+        time.sleep(1)
 
     # 2. Check home_theater.png
     if locate_on_screen("assets/ui/home_theater.png", confidence=0.8):
