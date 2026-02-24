@@ -54,6 +54,7 @@
   "racing": {
     "strategy": "FRONT",
     "retry_race": true,
+    "buy_clock_carats": false,
     "allowed_grades": [
       "G1",
       "G2"

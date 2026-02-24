@@ -31,9 +31,11 @@ try:
     config = _load_config()
     racing_config = config.get("racing", {})
     RETRY_RACE = racing_config.get("retry_race", True)
+    BUY_CLOCK_CARATS = racing_config.get("buy_clock_carats", False)
 except Exception:
     config = {}
     RETRY_RACE = True
+    BUY_CLOCK_CARATS = False
 
 # Region offsets from fan center (same as test code)
 GRADE_OFFSET = (-118, -115, 93, 69)  # x, y, width, height
@@ -588,6 +590,17 @@ def handle_race_retry_if_failed():
             log_info(f"Try Again button not found. Attempting helper click...")
             # Fallback: attempt generic click using click helper
             tap_on_image("assets/buttons/try_again.png", confidence=0.8, min_search=10)
+
+        # Check for clock purchase popup (user is out of clocks)
+        time.sleep(2)
+        clock_purchase = locate_on_screen("assets/ui/clock_purchase.png", confidence=0.8)
+        if clock_purchase:
+            if BUY_CLOCK_CARATS:
+                log_info(f"Out of clocks - buying clock with carats...")
+                tap_on_image("assets/buttons/ok_btn.png", confidence=0.6, min_search=5)
+            else:
+                log_info(f"Out of clocks and buy_clock_carats is disabled. Stopping automation.")
+                raise SystemExit(0)
 
         # Wait before re-prepping the race
         log_info(f"Waiting 5 seconds before retrying the race...")
