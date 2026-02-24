@@ -349,6 +349,8 @@ def career_lobby(timeout=None):
                             log_info(f"[Watchdog] career_ui_check recovered on attempt {_ui_attempt + 1}")
                             _recovered = True
                             break
+                    except RuntimeError:
+                        raise  # Bot-stop signals must propagate
                     except Exception as _uce:
                         log_warning(f"[Watchdog] career_ui_check attempt {_ui_attempt + 1} failed: {_uce}")
                     time.sleep(1)

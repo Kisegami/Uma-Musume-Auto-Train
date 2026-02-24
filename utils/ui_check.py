@@ -245,7 +245,9 @@ def career_ui_check():
        locate_on_screen("assets/unity/unity_cup.png", confidence=0.8):
         log_info("Found Lobby, continue automation...")
         career_lobby_func = get_career_lobby()
-        career_lobby_func()
+        result = career_lobby_func()
+        if result is False:
+            raise RuntimeError("Bot stopped by career_lobby — do not restart.")
         return True
         
     # 4. Check connection error
