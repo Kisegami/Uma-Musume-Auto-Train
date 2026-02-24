@@ -471,7 +471,7 @@ def restore_tp() -> bool:
     time.sleep(1)
     
     # Step 2: Wait for TP bottle to appear
-    tp_bottle_matches = wait_for_image("assets/icons/tp_bottle.png", timeout=5, confidence=0.8)
+    tp_bottle_matches = wait_for_image("assets/icons/tp_bottle.png", timeout=1, confidence=0.8)
     
     if tp_bottle_matches:
         # Step 3: Calculate Use button position (offset from bottle)

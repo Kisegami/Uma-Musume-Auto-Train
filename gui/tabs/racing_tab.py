@@ -106,8 +106,14 @@ class RacingTab(QScrollArea):
         
         # Race Retry
         self.retry_race = QCheckBox("Race Retry using Clock")
-        self.retry_race.stateChanged.connect(self._save_racing)
+        self.retry_race.stateChanged.connect(self._on_retry_race_changed)
         settings_layout.addWidget(self.retry_race)
+        
+        # Buy clock using Carats (dependent on retry_race)
+        self.buy_clock_carats = QCheckBox("Buy clock using Carats")
+        self.buy_clock_carats.stateChanged.connect(self._save_racing)
+        self.buy_clock_carats.setVisible(False)
+        settings_layout.addWidget(self.buy_clock_carats)
         
         layout.addWidget(settings_group)
         
@@ -161,6 +167,14 @@ class RacingTab(QScrollArea):
         self.custom_file_widget.setVisible(self.do_custom_race.isChecked())
         self._save_racing()
     
+    def _on_retry_race_changed(self, state):
+        """Handle retry race checkbox and dependent buy_clock_carats checkbox"""
+        is_checked = state == Qt.CheckState.Checked.value
+        self.buy_clock_carats.setVisible(is_checked)
+        if not is_checked:
+            self.buy_clock_carats.setChecked(False)
+        self._save_racing()
+    
     def _load_custom_race_templates(self):
         """Load available custom race templates"""
         import os
@@ -208,6 +222,12 @@ class RacingTab(QScrollArea):
         self.retry_race.setChecked(racing.get("retry_race", True))
         self.retry_race.blockSignals(False)
         
+        # Buy clock carats
+        self.buy_clock_carats.blockSignals(True)
+        self.buy_clock_carats.setChecked(racing.get("buy_clock_carats", False))
+        self.buy_clock_carats.setVisible(self.retry_race.isChecked())
+        self.buy_clock_carats.blockSignals(False)
+        
         # Custom race
         self.do_custom_race.blockSignals(True)
         self.do_custom_race.setChecked(racing.get("do_custom_race", True))
@@ -238,6 +258,7 @@ class RacingTab(QScrollArea):
         config["racing"]["allowed_distances"] = [d for d, cb in self.allowed_distances_vars.items() if cb.isChecked()]
         config["racing"]["strategy"] = self.strategy_combo.currentText()
         config["racing"]["retry_race"] = self.retry_race.isChecked()
+        config["racing"]["buy_clock_carats"] = self.buy_clock_carats.isChecked()
         config["racing"]["do_custom_race"] = self.do_custom_race.isChecked()
         config["racing"]["custom_race_file"] = f"template/races/{self.custom_file_combo.currentText()}"
         
