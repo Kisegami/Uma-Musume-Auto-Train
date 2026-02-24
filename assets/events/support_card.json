@@ -7334,5 +7334,978 @@
       "Bottom Option": "Energy +10\r\nWit +5\r\nSmart Falcon bond +5"
     },
     "CardSlug": "10039-smart-falcon"
+  },
+  {
+    "EventName": "(❯) Nourishment for a Flower Bud",
+    "EventOptions": {
+      "": "Wit +10\r\nSkill points +10\r\nNishino Flower bond +5"
+    },
+    "CardSlug": "30082-nishino-flower"
+  },
+  {
+    "EventName": "(❯❯) I'm Gonna Be a Mommy!",
+    "EventOptions": {
+      "Top Option": "Skill points +15\r\nShifting Gears hint +1\r\nNishino Flower bond +5"
+    },
+    "CardSlug": "30082-nishino-flower"
+  },
+  {
+    "EventName": "(❯❯) I'm Gonna Be a Mommy!",
+    "EventOptions": {
+      "Middle Option": "Mood +1\r\nHeal a negative status effect\r\nNishino Flower bond +10"
+    },
+    "CardSlug": "30082-nishino-flower"
+  },
+  {
+    "EventName": "(❯❯) I'm Gonna Be a Mommy!",
+    "EventOptions": {
+      "Bottom Option": "Power +25\r\nNishino Flower bond -5\r\nEvent chain ended"
+    },
+    "CardSlug": "30082-nishino-flower"
+  },
+  {
+    "EventName": "(❯❯❯) Blooming Emotions, with Love",
+    "EventOptions": {
+      "": "Energy +20\r\nDetermined Descent hint +1"
+    },
+    "CardSlug": "30082-nishino-flower"
+  },
+  {
+    "EventName": "Warmth, Love, and Lunch",
+    "EventOptions": {
+      "Top Option": "Get Charming ○ status\r\nNishino Flower bond +5"
+    },
+    "CardSlug": "30082-nishino-flower"
+  },
+  {
+    "EventName": "Warmth, Love, and Lunch",
+    "EventOptions": {
+      "Bottom Option": "Energy +20\r\nNishino Flower bond +5"
+    },
+    "CardSlug": "30082-nishino-flower"
+  },
+  {
+    "EventName": "Let's Bloom Beautifully ♪",
+    "EventOptions": {
+      "Top Option": "Wit +15\r\nNishino Flower bond +5"
+    },
+    "CardSlug": "30082-nishino-flower"
+  },
+  {
+    "EventName": "Let's Bloom Beautifully ♪",
+    "EventOptions": {
+      "Bottom Option": "Speed +10\r\nPower +5\r\nNishino Flower bond +5"
+    },
+    "CardSlug": "30082-nishino-flower"
+  },
+  {
+    "EventName": "(❯) Uma Kids Footrace Meet",
+    "EventOptions": {
+      "Top Option": "Guts +5\r\nGroundwork hint +1\r\nSakura Bakushin O bond +5"
+    },
+    "CardSlug": "30083-sakura-bakushin-o"
+  },
+  {
+    "EventName": "(❯) Uma Kids Footrace Meet",
+    "EventOptions": {
+      "Bottom Option": "Maximum Energy +4\r\nSpeed +5\r\nSakura Bakushin O bond +5"
+    },
+    "CardSlug": "30083-sakura-bakushin-o"
+  },
+  {
+    "EventName": "(❯❯) Chasing My Sister",
+    "EventOptions": {
+      "Top Option": "Guts +10\r\nSpeed +5\r\nSakura Bakushin O bond +5"
+    },
+    "CardSlug": "30083-sakura-bakushin-o"
+  },
+  {
+    "EventName": "(❯❯) Chasing My Sister",
+    "EventOptions": {
+      "Bottom Option": "Skill points +30\r\nEvent chain ended"
+    },
+    "CardSlug": "30083-sakura-bakushin-o"
+  },
+  {
+    "EventName": "(❯❯❯) Just the Way You Are",
+    "EventOptions": {
+      "": "Randomly either\r\nSpeed +15\r\nGuts +15\r\nIn High Spirits hint +3\r\nor\r\nor\r\nSpeed +5\r\nGuts +5\r\nLight as a Feather hint +3"
+    },
+    "CardSlug": "30083-sakura-bakushin-o"
+  },
+  {
+    "EventName": "Genius Efficiency!",
+    "EventOptions": {
+      "Top Option": "Speed +15\r\nSakura Bakushin O bond +5"
+    },
+    "CardSlug": "30083-sakura-bakushin-o"
+  },
+  {
+    "EventName": "Genius Efficiency!",
+    "EventOptions": {
+      "Bottom Option": "Speed +5\r\nPower +10\r\nSakura Bakushin O bond +5"
+    },
+    "CardSlug": "30083-sakura-bakushin-o"
+  },
+  {
+    "EventName": "Enough to Break into a Dash!",
+    "EventOptions": {
+      "Top Option": "Gap Closer hint +1\r\nSakura Bakushin O bond +5"
+    },
+    "CardSlug": "30083-sakura-bakushin-o"
+  },
+  {
+    "EventName": "Enough to Break into a Dash!",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nSpeed +10\r\nPower +5\r\nSakura Bakushin O bond +5"
+    },
+    "CardSlug": "30083-sakura-bakushin-o"
+  },
+  {
+    "EventName": "(❯) Leave It to the Roomie",
+    "EventOptions": {
+      "Top Option": "Speed +10\r\nStamina +5\r\nTosen Jordan bond +5"
+    },
+    "CardSlug": "30084-tosen-jordan"
+  },
+  {
+    "EventName": "(❯) Leave It to the Roomie",
+    "EventOptions": {
+      "Bottom Option": "Energy +10\r\nTosen Jordan bond +5"
+    },
+    "CardSlug": "30084-tosen-jordan"
+  },
+  {
+    "EventName": "(❯❯) A Gal's Gotta Glam",
+    "EventOptions": {
+      "": "Speed +10\r\nSkill points +10"
+    },
+    "CardSlug": "30084-tosen-jordan"
+  },
+  {
+    "EventName": "(❯❯❯) If You Got It, Own It",
+    "EventOptions": {
+      "": "Randomly either\r\nEnergy -10\r\nSpeed +15\r\nBreath of Fresh Air hint +3\r\nor\r\nor\r\nEnergy -10\r\nSpeed +10\r\nStraightaway Recovery hint +3"
+    },
+    "CardSlug": "30084-tosen-jordan"
+  },
+  {
+    "EventName": "Doomscrolling the Time Away",
+    "EventOptions": {
+      "Top Option": "Mood +1\r\nSpeed +5\r\nTosen Jordan bond +5"
+    },
+    "CardSlug": "30084-tosen-jordan"
+  },
+  {
+    "EventName": "Doomscrolling the Time Away",
+    "EventOptions": {
+      "Bottom Option": "Stamina +10\r\nTosen Jordan bond +5"
+    },
+    "CardSlug": "30084-tosen-jordan"
+  },
+  {
+    "EventName": "Sponsored Posts Can Be Low-Key Sus",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nMood +1\r\nTosen Jordan bond +5"
+    },
+    "CardSlug": "30084-tosen-jordan"
+  },
+  {
+    "EventName": "Sponsored Posts Can Be Low-Key Sus",
+    "EventOptions": {
+      "Bottom Option": "Lucky Seven hint +1\r\nTosen Jordan bond +5"
+    },
+    "CardSlug": "30084-tosen-jordan"
+  },
+  {
+    "EventName": "(❯) Trusty Teamwork?!",
+    "EventOptions": {
+      "": "Randomly either\r\nEnergy +30\r\nMood +1\r\n1 random stat +11\r\nSasami Anshinzawa bond +5\r\nor\r\nor\r\nEnergy +10\r\nMood -1\r\nSasami Anshinzawa bond +5"
+    },
+    "CardSlug": "30080-sasami-anshinzawa"
+  },
+  {
+    "EventName": "(❯❯) Storied ☆ Sunglasses",
+    "EventOptions": {
+      "": "Randomly either\r\nEnergy +30\r\nMood +1\r\n2 random stats +11\r\nSasami Anshinzawa bond +5\r\nor\r\nor\r\nEnergy +10\r\nMood -1\r\nSasami Anshinzawa bond +5"
+    },
+    "CardSlug": "30080-sasami-anshinzawa"
+  },
+  {
+    "EventName": "(❯❯❯) The Final Race ☆ For a Worry-Free Future!",
+    "EventOptions": {
+      "Top Option": "Randomly either\r\nEnergy +30\r\nAll stats +11\r\nSkill points +22\r\nNothing Ventured hint +3\r\nSasami Anshinzawa bond +5\r\nor\r\nor\r\nEnergy -10\r\nMood -2\r\nSasami Anshinzawa bond +5"
+    },
+    "CardSlug": "30080-sasami-anshinzawa"
+  },
+  {
+    "EventName": "(❯❯❯) The Final Race ☆ For a Worry-Free Future!",
+    "EventOptions": {
+      "Bottom Option": "Randomly either\r\nFull energy recovery\r\nMood +1\r\nNothing Ventured hint +1\r\nSasami Anshinzawa bond +5\r\nor\r\nor\r\nEnergy +20\r\nRisky Business hint +1\r\nSasami Anshinzawa bond +5"
+    },
+    "CardSlug": "30080-sasami-anshinzawa"
+  },
+  {
+    "EventName": "The Applications of Acupuncture",
+    "EventOptions": {
+      "": "Randomly either\r\n1 random stat +11\r\nSasami Anshinzawa bond +5\r\n(random) Get Fast Learner status\r\nor\r\nor\r\nSkill points +55\r\nObtain Wallflower skill\r\nSasami Anshinzawa bond +5"
+    },
+    "CardSlug": "30080-sasami-anshinzawa"
+  },
+  {
+    "EventName": "A Pleasant Practice Partner?",
+    "EventOptions": {
+      "Top Option": "Randomly either\r\nMaximum Energy +4\r\nEnergy +10\r\nMood +1\r\nSasami Anshinzawa bond +10\r\nCan start dating\r\nor\r\nor\r\nSkill points +55\r\nObtain Corner Recovery × skill\r\nSasami Anshinzawa bond +5\r\nCan start dating"
+    },
+    "CardSlug": "30080-sasami-anshinzawa"
+  },
+  {
+    "EventName": "A Pleasant Practice Partner?",
+    "EventOptions": {
+      "Middle Option": "Mood +1\r\nStamina +11\r\nSasami Anshinzawa bond +5\r\nCan start dating"
+    },
+    "CardSlug": "30080-sasami-anshinzawa"
+  },
+  {
+    "EventName": "A Pleasant Practice Partner?",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nSkill points +110\r\nRisky Business hint +1\r\nObtain Running Idle skill\r\nSasami Anshinzawa bond -10\r\nEvent chain ended"
+    },
+    "CardSlug": "30080-sasami-anshinzawa"
+  },
+  {
+    "EventName": "Just a Poke ☆",
+    "EventOptions": {
+      "": "Randomly either\r\nAll stats +3\r\n(random) Get Practice Perfect ○ status\r\nSasami Anshinzawa bond +5\r\nor\r\nor\r\nEnergy -10\r\nMood -2\r\nSasami Anshinzawa bond +5"
+    },
+    "CardSlug": "30080-sasami-anshinzawa"
+  },
+  {
+    "EventName": "Suspicious, But Safe?!",
+    "EventOptions": {
+      "": "1 random stat +22\r\nSasami Anshinzawa bond +5"
+    },
+    "CardSlug": "30080-sasami-anshinzawa"
+  },
+  {
+    "EventName": "An Accurate Acupuncturist ☆",
+    "EventOptions": {
+      "": "Randomly either\r\nEnergy +2\r\n1 random stat +4\r\nSasami Anshinzawa bond +5\r\nor\r\nor\r\nEnergy -5\r\nSasami Anshinzawa bond +5"
+    },
+    "CardSlug": "30080-sasami-anshinzawa"
+  },
+  {
+    "EventName": "Healing Hot Spring Holiday ☆",
+    "EventOptions": {
+      "": "2 random stats +16\r\nSkill points +49"
+    },
+    "CardSlug": "30080-sasami-anshinzawa"
+  },
+  {
+    "EventName": "An Encouraging Entrustment?!",
+    "EventOptions": {
+      "": "2 random stats +11\r\nSkill points +33"
+    },
+    "CardSlug": "30080-sasami-anshinzawa"
+  },
+  {
+    "EventName": "A Bond Bolstered by Booze?",
+    "EventOptions": {
+      "": "Energy +10\r\n2 random stats +11\r\nUma Stan hint +3\r\nSasami Anshinzawa bond +5"
+    },
+    "CardSlug": "30080-sasami-anshinzawa"
+  },
+  {
+    "EventName": "(❯) Ayabe Shows Concern",
+    "EventOptions": {
+      "Top Option": "Randomly either\r\nPower +5\r\nWit +15\r\nFlustered Pace Chasers hint +2\r\nAdmire Vega bond +5\r\nor\r\nor\r\nPower +5\r\nWit +10\r\nAdmire Vega bond +5"
+    },
+    "CardSlug": "30077-admire-vega"
+  },
+  {
+    "EventName": "(❯) Ayabe Shows Concern",
+    "EventOptions": {
+      "Bottom Option": "Energy +15\r\nAdmire Vega bond +5"
+    },
+    "CardSlug": "30077-admire-vega"
+  },
+  {
+    "EventName": "(❯❯) Ayabe Doesn't Cut Corners",
+    "EventOptions": {
+      "": "Power +7\r\nWit +7"
+    },
+    "CardSlug": "30077-admire-vega"
+  },
+  {
+    "EventName": "(❯❯❯) Ayabe Won't Be Disheartened!",
+    "EventOptions": {
+      "Top Option": "Power +15\r\nWit +10\r\nDaring Strike hint +1\r\nAdmire Vega bond +5"
+    },
+    "CardSlug": "30077-admire-vega"
+  },
+  {
+    "EventName": "(❯❯❯) Ayabe Won't Be Disheartened!",
+    "EventOptions": {
+      "Bottom Option": "Speed +15\r\nSkill points +30\r\nAdmire Vega bond +5"
+    },
+    "CardSlug": "30077-admire-vega"
+  },
+  {
+    "EventName": "Awkward Triangulum",
+    "EventOptions": {
+      "Top Option": "Power +15\r\nAdmire Vega bond +5"
+    },
+    "CardSlug": "30077-admire-vega"
+  },
+  {
+    "EventName": "Awkward Triangulum",
+    "EventOptions": {
+      "Bottom Option": "Energy +10\r\nAdmire Vega bond +5"
+    },
+    "CardSlug": "30077-admire-vega"
+  },
+  {
+    "EventName": "Lonesome Cepheus",
+    "EventOptions": {
+      "Top Option": "Subdued Pace Chasers hint +1\r\nAdmire Vega bond +5"
+    },
+    "CardSlug": "30077-admire-vega"
+  },
+  {
+    "EventName": "Lonesome Cepheus",
+    "EventOptions": {
+      "Bottom Option": "Wit +10\r\nAdmire Vega bond +5"
+    },
+    "CardSlug": "30077-admire-vega"
+  },
+  {
+    "EventName": "(❯) Mystery Fortune Ritual!",
+    "EventOptions": {
+      "Top Option": "Randomly either\r\nAll stats +7\r\nMatikanefukukitaru bond +7\r\nor\r\nor\r\nWit +4\r\nEvent chain ended"
+    },
+    "CardSlug": "30078-matikanefukukitaru"
+  },
+  {
+    "EventName": "(❯) Mystery Fortune Ritual!",
+    "EventOptions": {
+      "Bottom Option": "Energy +5\r\nMatikanefukukitaru bond +5\r\nEvent chain ended"
+    },
+    "CardSlug": "30078-matikanefukukitaru"
+  },
+  {
+    "EventName": "(❯❯) Fortune Favors the Friends!",
+    "EventOptions": {
+      "Top Option": "Randomly either\r\nAll stats +7\r\nMatikanefukukitaru bond +7\r\nor\r\nor\r\nWit +4\r\nEvent chain ended"
+    },
+    "CardSlug": "30078-matikanefukukitaru"
+  },
+  {
+    "EventName": "(❯❯) Fortune Favors the Friends!",
+    "EventOptions": {
+      "Bottom Option": "Energy +5\r\nMatikanefukukitaru bond +5\r\nEvent chain ended"
+    },
+    "CardSlug": "30078-matikanefukukitaru"
+  },
+  {
+    "EventName": "(❯❯❯) Finding Miraculous Joy!",
+    "EventOptions": {
+      "": "Randomly either\r\nAll stats +7\r\nSkill points +77\r\nSuper Lucky Seven hint +3\r\nMatikanefukukitaru bond +7\r\nor\r\nor\r\nAll stats +7\r\nSkill points +7\r\nSuper Lucky Seven hint +1\r\nMatikanefukukitaru bond +7\r\nor\r\nor\r\nSkill points +7\r\nLucky Seven hint +3\r\nMatikanefukukitaru bond +7"
+    },
+    "CardSlug": "30078-matikanefukukitaru"
+  },
+  {
+    "EventName": "Maximum Spirituality",
+    "EventOptions": {
+      "Top Option": "Wit +5\r\nSkill points +15\r\nMatikanefukukitaru bond +5"
+    },
+    "CardSlug": "30078-matikanefukukitaru"
+  },
+  {
+    "EventName": "Maximum Spirituality",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nSpeed +5\r\nStamina +5\r\nPower +5\r\nMatikanefukukitaru bond +5"
+    },
+    "CardSlug": "30078-matikanefukukitaru"
+  },
+  {
+    "EventName": "When Piety and Kindness Intersect",
+    "EventOptions": {
+      "Top Option": "Skill points +30\r\nMatikanefukukitaru bond +5"
+    },
+    "CardSlug": "30078-matikanefukukitaru"
+  },
+  {
+    "EventName": "When Piety and Kindness Intersect",
+    "EventOptions": {
+      "Bottom Option": "Energy +20\r\nMatikanefukukitaru bond +5"
+    },
+    "CardSlug": "30078-matikanefukukitaru"
+  },
+  {
+    "EventName": "(❯) Doomsday for the Overlord?!",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nMeisho Doto bond +5"
+    },
+    "CardSlug": "30079-meisho-doto"
+  },
+  {
+    "EventName": "(❯) Doomsday for the Overlord?!",
+    "EventOptions": {
+      "Bottom Option": "Stamina +5\r\nMedium Corners ○ hint +1\r\nMeisho Doto bond +5"
+    },
+    "CardSlug": "30079-meisho-doto"
+  },
+  {
+    "EventName": "(❯❯) Coupon Gone Wrong",
+    "EventOptions": {
+      "": "Speed +3\r\nStamina +3\r\nPower +3\r\nSkill points +10"
+    },
+    "CardSlug": "30079-meisho-doto"
+  },
+  {
+    "EventName": "(❯❯❯) New Recruit",
+    "EventOptions": {
+      "": "Energy -20\r\nSpeed +5\r\nStamina +10\r\nKiller Tunes hint +3\r\nMeisho Doto bond +5"
+    },
+    "CardSlug": "30079-meisho-doto"
+  },
+  {
+    "EventName": "I... Will Change",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nMood +1\r\nMeisho Doto bond +5"
+    },
+    "CardSlug": "30079-meisho-doto"
+  },
+  {
+    "EventName": "I... Will Change",
+    "EventOptions": {
+      "Bottom Option": "Guts +15\r\nMeisho Doto bond +5"
+    },
+    "CardSlug": "30079-meisho-doto"
+  },
+  {
+    "EventName": "Please... Buy Some Carrots",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nWit +5\r\nMeisho Doto bond +5"
+    },
+    "CardSlug": "30079-meisho-doto"
+  },
+  {
+    "EventName": "Please... Buy Some Carrots",
+    "EventOptions": {
+      "Bottom Option": "Pace Chaser Corners ○ hint +1\r\nMeisho Doto bond +5"
+    },
+    "CardSlug": "30079-meisho-doto"
+  },
+  {
+    "EventName": "(❯) Guided to Scenery",
+    "EventOptions": {
+      "": "Speed +15"
+    },
+    "CardSlug": "30076-silence-suzuka"
+  },
+  {
+    "EventName": "(❯❯) Shared Scenery",
+    "EventOptions": {
+      "": "Skill points +20"
+    },
+    "CardSlug": "30076-silence-suzuka"
+  },
+  {
+    "EventName": "(❯❯❯) The Scenery Ahead",
+    "EventOptions": {
+      "": "Speed +15\r\nTrackblazer hint +1"
+    },
+    "CardSlug": "30076-silence-suzuka"
+  },
+  {
+    "EventName": "On and On",
+    "EventOptions": {
+      "Top Option": "Speed +10\r\nStamina +5\r\nSilence Suzuka bond +5"
+    },
+    "CardSlug": "30076-silence-suzuka"
+  },
+  {
+    "EventName": "On and On",
+    "EventOptions": {
+      "Bottom Option": "Speed +15\r\nSilence Suzuka bond +5"
+    },
+    "CardSlug": "30076-silence-suzuka"
+  },
+  {
+    "EventName": "What Should I Do?",
+    "EventOptions": {
+      "Top Option": "Speed +5\r\nStamina +5\r\nWit +5\r\nSilence Suzuka bond +5"
+    },
+    "CardSlug": "30076-silence-suzuka"
+  },
+  {
+    "EventName": "What Should I Do?",
+    "EventOptions": {
+      "Bottom Option": "Left-Handed ○ hint +1\r\nSilence Suzuka bond +5"
+    },
+    "CardSlug": "30076-silence-suzuka"
+  },
+  {
+    "EventName": "(❯) Rhapsody of Kindness",
+    "EventOptions": {
+      "Top Option": "Mood +1\r\nSpeed +5\r\nTamamo Cross bond +5"
+    },
+    "CardSlug": "20022-tamamo-cross"
+  },
+  {
+    "EventName": "(❯) Rhapsody of Kindness",
+    "EventOptions": {
+      "Bottom Option": "Energy +10\r\nStamina +5\r\nTamamo Cross bond +5"
+    },
+    "CardSlug": "20022-tamamo-cross"
+  },
+  {
+    "EventName": "(❯❯) The Path of Profit and People",
+    "EventOptions": {
+      "Top Option": "Speed +10\r\nSkill points +10\r\nPace Chaser Corners ○ hint +1\r\nTamamo Cross bond +5"
+    },
+    "CardSlug": "20022-tamamo-cross"
+  },
+  {
+    "EventName": "(❯❯) The Path of Profit and People",
+    "EventOptions": {
+      "Bottom Option": "Stamina +10\r\nSkill points +10\r\nLate Surger Corners ○ hint +1\r\nTamamo Cross bond +5"
+    },
+    "CardSlug": "20022-tamamo-cross"
+  },
+  {
+    "EventName": "Tamamo's School Tour",
+    "EventOptions": {
+      "Top Option": "Wit +10\r\nTamamo Cross bond +5"
+    },
+    "CardSlug": "20022-tamamo-cross"
+  },
+  {
+    "EventName": "Tamamo's School Tour",
+    "EventOptions": {
+      "Bottom Option": "Stamina +5\r\nGuts +5\r\nTamamo Cross bond +5"
+    },
+    "CardSlug": "20022-tamamo-cross"
+  },
+  {
+    "EventName": "A Battle I Can't Lose!",
+    "EventOptions": {
+      "Top Option": "Calm in a Crowd hint +1\r\nTamamo Cross bond +5"
+    },
+    "CardSlug": "20022-tamamo-cross"
+  },
+  {
+    "EventName": "A Battle I Can't Lose!",
+    "EventOptions": {
+      "Bottom Option": "Stamina +5\r\nWit +5\r\nTamamo Cross bond +5"
+    },
+    "CardSlug": "20022-tamamo-cross"
+  },
+  {
+    "EventName": "(❯) Trusty Teamwork?!",
+    "EventOptions": {
+      "": "Randomly either\r\nEnergy +30\r\nMood +1\r\n1 random stat +10\r\nSasami Anshinzawa bond +5\r\nor\r\nor\r\nEnergy +10\r\nMood -1\r\nSasami Anshinzawa bond +5"
+    },
+    "CardSlug": "10074-sasami-anshinzawa"
+  },
+  {
+    "EventName": "(❯❯) Storied ☆ Sunglasses",
+    "EventOptions": {
+      "": "Randomly either\r\nEnergy +30\r\nMood +1\r\n2 random stats +10\r\nSasami Anshinzawa bond +5\r\nor\r\nor\r\nEnergy +10\r\nMood -1\r\nSasami Anshinzawa bond +5"
+    },
+    "CardSlug": "10074-sasami-anshinzawa"
+  },
+  {
+    "EventName": "(❯❯❯) The Final Race ☆ For a Worry-Free Future!",
+    "EventOptions": {
+      "Top Option": "Randomly either\r\nEnergy +10\r\nAll stats +3\r\nSkill points +10\r\nRisky Business hint +3\r\nSasami Anshinzawa bond +5\r\nor\r\nor\r\nEnergy -10\r\nMood -2\r\nSasami Anshinzawa bond +5"
+    },
+    "CardSlug": "10074-sasami-anshinzawa"
+  },
+  {
+    "EventName": "(❯❯❯) The Final Race ☆ For a Worry-Free Future!",
+    "EventOptions": {
+      "Bottom Option": "Energy +20\r\nMood +1\r\nRisky Business hint +1\r\nSasami Anshinzawa bond +5"
+    },
+    "CardSlug": "10074-sasami-anshinzawa"
+  },
+  {
+    "EventName": "The Applications of Acupuncture",
+    "EventOptions": {
+      "": "Randomly either\r\n1 random stat +10\r\nSasami Anshinzawa bond +5\r\n(random) Get Fast Learner status\r\nor\r\nor\r\nSkill points +52\r\nObtain Wallflower skill\r\nSasami Anshinzawa bond +5"
+    },
+    "CardSlug": "10074-sasami-anshinzawa"
+  },
+  {
+    "EventName": "A Pleasant Practice Partner?",
+    "EventOptions": {
+      "Top Option": "Randomly either\r\nMaximum Energy +4\r\nEnergy +10\r\nMood +1\r\nSasami Anshinzawa bond +10\r\nCan start dating\r\nor\r\nor\r\nSkill points +52\r\nObtain Corner Recovery × skill\r\nSasami Anshinzawa bond +5\r\nCan start dating"
+    },
+    "CardSlug": "10074-sasami-anshinzawa"
+  },
+  {
+    "EventName": "A Pleasant Practice Partner?",
+    "EventOptions": {
+      "Middle Option": "Mood +1\r\nStamina +10\r\nSasami Anshinzawa bond +5\r\nCan start dating"
+    },
+    "CardSlug": "10074-sasami-anshinzawa"
+  },
+  {
+    "EventName": "A Pleasant Practice Partner?",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nSkill points +105\r\nRisky Business hint +1\r\nObtain Running Idle skill\r\nSasami Anshinzawa bond -10\r\nEvent chain ended"
+    },
+    "CardSlug": "10074-sasami-anshinzawa"
+  },
+  {
+    "EventName": "Just a Poke ☆",
+    "EventOptions": {
+      "": "Randomly either\r\nAll stats +3\r\n(random) Get Practice Perfect ○ status\r\nSasami Anshinzawa bond +5\r\nor\r\nor\r\nEnergy -10\r\nMood -2\r\nSasami Anshinzawa bond +5"
+    },
+    "CardSlug": "10074-sasami-anshinzawa"
+  },
+  {
+    "EventName": "Suspicious, But Safe?!",
+    "EventOptions": {
+      "": "1 random stat +21\r\nSasami Anshinzawa bond +5"
+    },
+    "CardSlug": "10074-sasami-anshinzawa"
+  },
+  {
+    "EventName": "An Accurate Acupuncturist ☆",
+    "EventOptions": {
+      "": "Randomly either\r\nEnergy +2\r\n1 random stat +4\r\nSasami Anshinzawa bond +5\r\nor\r\nor\r\nEnergy -5\r\nSasami Anshinzawa bond +5"
+    },
+    "CardSlug": "10074-sasami-anshinzawa"
+  },
+  {
+    "EventName": "Healing Hot Spring Holiday ☆",
+    "EventOptions": {
+      "": "2 random stats +15\r\nSkill points +47"
+    },
+    "CardSlug": "10074-sasami-anshinzawa"
+  },
+  {
+    "EventName": "An Encouraging Entrustment?!",
+    "EventOptions": {
+      "": "2 random stats +10\r\nSkill points +31"
+    },
+    "CardSlug": "10074-sasami-anshinzawa"
+  },
+  {
+    "EventName": "A Bond Bolstered by Booze?",
+    "EventOptions": {
+      "": "Energy +10\r\n2 random stats +10\r\nUma Stan hint +3\r\nSasami Anshinzawa bond +5"
+    },
+    "CardSlug": "10074-sasami-anshinzawa"
+  },
+  {
+    "EventName": "Awkward Triangulum",
+    "EventOptions": {
+      "Top Option": "Power +15\r\nAdmire Vega bond +5"
+    },
+    "CardSlug": "10075-admire-vega"
+  },
+  {
+    "EventName": "Awkward Triangulum",
+    "EventOptions": {
+      "Bottom Option": "Energy +10\r\nAdmire Vega bond +5"
+    },
+    "CardSlug": "10075-admire-vega"
+  },
+  {
+    "EventName": "Lonesome Cepheus",
+    "EventOptions": {
+      "Top Option": "Subdued Pace Chasers hint +1\r\nAdmire Vega bond +5"
+    },
+    "CardSlug": "10075-admire-vega"
+  },
+  {
+    "EventName": "Lonesome Cepheus",
+    "EventOptions": {
+      "Bottom Option": "Wit +10\r\nAdmire Vega bond +5"
+    },
+    "CardSlug": "10075-admire-vega"
+  },
+  {
+    "EventName": "Just Leave Me Alone",
+    "EventOptions": {
+      "Top Option": "Stamina +5\r\nSkill points +15\r\nNarita Taishin bond +5"
+    },
+    "CardSlug": "10040-narita-taishin"
+  },
+  {
+    "EventName": "Just Leave Me Alone",
+    "EventOptions": {
+      "Bottom Option": "Power +5\r\nSkill points +15\r\nNarita Taishin bond +5"
+    },
+    "CardSlug": "10040-narita-taishin"
+  },
+  {
+    "EventName": "Just Don't Bother Me",
+    "EventOptions": {
+      "Top Option": "Pressure hint +1\r\nNarita Taishin bond +5"
+    },
+    "CardSlug": "10040-narita-taishin"
+  },
+  {
+    "EventName": "Just Don't Bother Me",
+    "EventOptions": {
+      "Bottom Option": "Skill points +30\r\nNarita Taishin bond +5"
+    },
+    "CardSlug": "10040-narita-taishin"
+  },
+  {
+    "EventName": "Warmth, Love, and Lunch",
+    "EventOptions": {
+      "Top Option": "Get Charming ○ status\r\nNishino Flower bond +5"
+    },
+    "CardSlug": "10041-nishino-flower"
+  },
+  {
+    "EventName": "Warmth, Love, and Lunch",
+    "EventOptions": {
+      "Bottom Option": "Energy +20\r\nNishino Flower bond +5"
+    },
+    "CardSlug": "10041-nishino-flower"
+  },
+  {
+    "EventName": "Let's Bloom Beautifully ♪",
+    "EventOptions": {
+      "Top Option": "Wit +15\r\nNishino Flower bond +5"
+    },
+    "CardSlug": "10041-nishino-flower"
+  },
+  {
+    "EventName": "Let's Bloom Beautifully ♪",
+    "EventOptions": {
+      "Bottom Option": "Speed +10\r\nPower +5\r\nNishino Flower bond +5"
+    },
+    "CardSlug": "10041-nishino-flower"
+  },
+  {
+    "EventName": "A Hero's Woes",
+    "EventOptions": {
+      "Top Option": "Energy +15\r\nBiko Pegasus bond +5"
+    },
+    "CardSlug": "10042-biko-pegasus"
+  },
+  {
+    "EventName": "A Hero's Woes",
+    "EventOptions": {
+      "Bottom Option": "Energy +5\r\nPower +5\r\nBiko Pegasus bond +5"
+    },
+    "CardSlug": "10042-biko-pegasus"
+  },
+  {
+    "EventName": "Preparing My Special Move!",
+    "EventOptions": {
+      "Top Option": "Sprint Straightaways ○ hint +1\r\nBiko Pegasus bond +5"
+    },
+    "CardSlug": "10042-biko-pegasus"
+  },
+  {
+    "EventName": "Preparing My Special Move!",
+    "EventOptions": {
+      "Bottom Option": "Energy +30\r\nBiko Pegasus bond +5"
+    },
+    "CardSlug": "10042-biko-pegasus"
+  },
+  {
+    "EventName": "Marvelous, No Question ☆",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nSpeed +5\r\nMarvelous Sunday bond +5"
+    },
+    "CardSlug": "10043-marvelous-sunday"
+  },
+  {
+    "EventName": "Marvelous, No Question ☆",
+    "EventOptions": {
+      "Bottom Option": "Mood +1\r\nSpeed +5\r\nMarvelous Sunday bond +5"
+    },
+    "CardSlug": "10043-marvelous-sunday"
+  },
+  {
+    "EventName": "How To Be More Marvelous ☆",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nMood +1\r\nMarvelous Sunday bond +5"
+    },
+    "CardSlug": "10043-marvelous-sunday"
+  },
+  {
+    "EventName": "How To Be More Marvelous ☆",
+    "EventOptions": {
+      "Bottom Option": "Hanshin Racecourse ○ hint +1\r\nMarvelous Sunday bond +5"
+    },
+    "CardSlug": "10043-marvelous-sunday"
+  },
+  {
+    "EventName": "Maximum Spirituality",
+    "EventOptions": {
+      "Top Option": "Wit +5\r\nSkill points +15\r\nMatikanefukukitaru bond +5"
+    },
+    "CardSlug": "10044-matikanefukukitaru"
+  },
+  {
+    "EventName": "Maximum Spirituality",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nSpeed +5\r\nStamina +5\r\nPower +5\r\nMatikanefukukitaru bond +5"
+    },
+    "CardSlug": "10044-matikanefukukitaru"
+  },
+  {
+    "EventName": "When Piety and Kindness Intersect",
+    "EventOptions": {
+      "Top Option": "Skill points +30\r\nMatikanefukukitaru bond +5"
+    },
+    "CardSlug": "10044-matikanefukukitaru"
+  },
+  {
+    "EventName": "When Piety and Kindness Intersect",
+    "EventOptions": {
+      "Bottom Option": "Energy +20\r\nMatikanefukukitaru bond +5"
+    },
+    "CardSlug": "10044-matikanefukukitaru"
+  },
+  {
+    "EventName": "I... Will Change",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nMood +1\r\nMeisho Doto bond +5"
+    },
+    "CardSlug": "10045-meisho-doto"
+  },
+  {
+    "EventName": "I... Will Change",
+    "EventOptions": {
+      "Bottom Option": "Guts +15\r\nMeisho Doto bond +5"
+    },
+    "CardSlug": "10045-meisho-doto"
+  },
+  {
+    "EventName": "Please... Buy Some Carrots",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nWit +5\r\nMeisho Doto bond +5"
+    },
+    "CardSlug": "10045-meisho-doto"
+  },
+  {
+    "EventName": "Please... Buy Some Carrots",
+    "EventOptions": {
+      "Bottom Option": "Pace Chaser Corners ○ hint +1\r\nMeisho Doto bond +5"
+    },
+    "CardSlug": "10045-meisho-doto"
+  },
+  {
+    "EventName": "Give It a Try",
+    "EventOptions": {
+      "Top Option": "Energy +15\r\nMejiro Dober bond +5"
+    },
+    "CardSlug": "10046-mejiro-dober"
+  },
+  {
+    "EventName": "Give It a Try",
+    "EventOptions": {
+      "Bottom Option": "Mood +1\r\nSkill points +15\r\nMejiro Dober bond +5"
+    },
+    "CardSlug": "10046-mejiro-dober"
+  },
+  {
+    "EventName": "Hope She'll Like It...",
+    "EventOptions": {
+      "Top Option": "Skill points +45\r\nMejiro Dober bond +5"
+    },
+    "CardSlug": "10046-mejiro-dober"
+  },
+  {
+    "EventName": "Hope She'll Like It...",
+    "EventOptions": {
+      "Bottom Option": "Unyielding Spirit hint +1\r\nMejiro Dober bond +5"
+    },
+    "CardSlug": "10046-mejiro-dober"
+  },
+  {
+    "EventName": "Not like Meow",
+    "EventOptions": {
+      "Top Option": "Energy +20\r\nNice Nature bond +5"
+    },
+    "CardSlug": "10047-nice-nature"
+  },
+  {
+    "EventName": "Not like Meow",
+    "EventOptions": {
+      "Bottom Option": "Energy +10\r\nWit +5\r\nNice Nature bond +5"
+    },
+    "CardSlug": "10047-nice-nature"
+  },
+  {
+    "EventName": "(Delicious) Burden",
+    "EventOptions": {
+      "Top Option": "Ramp Up hint +1\r\nNice Nature bond +5"
+    },
+    "CardSlug": "10047-nice-nature"
+  },
+  {
+    "EventName": "(Delicious) Burden",
+    "EventOptions": {
+      "Bottom Option": "Mood +1\r\nMaximum Energy +4\r\nNice Nature bond +5"
+    },
+    "CardSlug": "10047-nice-nature"
+  },
+  {
+    "EventName": "You May Socialize With Me!",
+    "EventOptions": {
+      "Top Option": "Energy -20\r\nSpeed +10\r\nPower +10\r\nWit +5\r\nKing Halo bond +5"
+    },
+    "CardSlug": "10048-king-halo"
+  },
+  {
+    "EventName": "You May Socialize With Me!",
+    "EventOptions": {
+      "Bottom Option": "Mood -1\r\nGuts +25\r\nKing Halo bond +5"
+    },
+    "CardSlug": "10048-king-halo"
+  },
+  {
+    "EventName": "You May Advise Me!",
+    "EventOptions": {
+      "Top Option": "Guts +10\r\nWit +5\r\nKing Halo bond +5"
+    },
+    "CardSlug": "10048-king-halo"
+  },
+  {
+    "EventName": "You May Advise Me!",
+    "EventOptions": {
+      "Bottom Option": "Homestretch Haste hint +1\r\nKing Halo bond +5"
+    },
+    "CardSlug": "10048-king-halo"
+  },
+  {
+    "EventName": "Sleight of Hand",
+    "EventOptions": {
+      "Top Option": "Wit +5\r\nSkill points +15\r\nFuji Kiseki bond +5"
+    },
+    "CardSlug": "10049-fuji-kiseki"
+  },
+  {
+    "EventName": "Sleight of Hand",
+    "EventOptions": {
+      "Bottom Option": "Power +5\r\nSkill points +15\r\nFuji Kiseki bond +5"
+    },
+    "CardSlug": "10049-fuji-kiseki"
+  },
+  {
+    "EventName": "Misdirection",
+    "EventOptions": {
+      "Top Option": "Prepared to Pass hint +1\r\nFuji Kiseki bond +5"
+    },
+    "CardSlug": "10049-fuji-kiseki"
+  },
+  {
+    "EventName": "Misdirection",
+    "EventOptions": {
+      "Bottom Option": "Skill points +30\r\nFuji Kiseki bond +5"
+    },
+    "CardSlug": "10049-fuji-kiseki"
   }
 ]
