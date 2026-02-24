@@ -247,7 +247,7 @@ def reopen_and_resume_career() -> bool:
 
     # ── Step 5: wait for lobby (tazuna_hint) ──────────────────────────────
     log_info("[Watchdog] Waiting for lobby (tazuna_hint)...")
-    lobby = wait_for_image("assets/ui/tazuna_hint.png", timeout=60, confidence=0.95)
+    lobby = wait_for_image("assets/ui/tazuna_hint.png", timeout=60, confidence=0.9)
     if not lobby:
         log_warning("[Watchdog] Lobby not confirmed after resume.")
         return False

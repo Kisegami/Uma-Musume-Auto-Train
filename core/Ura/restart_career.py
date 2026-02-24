@@ -699,7 +699,7 @@ def start_career() -> bool:
             return False
         
         # Step 13: Wait for Tazuna hint
-        tazuna_hint_matches = wait_for_image("assets/ui/tazuna_hint.png", timeout=60, confidence=0.95)
+        tazuna_hint_matches = wait_for_image("assets/ui/tazuna_hint.png", timeout=60, confidence=0.9)
         if tazuna_hint_matches:
             log_info(f"Career start completed!")
             return True
