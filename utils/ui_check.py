@@ -260,23 +260,24 @@ def career_ui_check():
     log_warning("No recognized UI elements found in career_ui_check.")
     return False
 
-def ui_check():
+def ui_check(startup=False):
     """
     Run the UI check sequence.
     Detects the current screen state and routes to the appropriate handler.
     career_ui_check() handles all career-related screens and enters
     career_lobby() WITHOUT timeout for the permanent automation loop.
+    
+    Args:
+        startup: If True (initial launch), stops the bot on unrecognized UI.
+                 If False (called from watchdog/reopen), restarts the game instead.
     """
     log_info("Starting UI check...")
     
-    # 1. Try career UI check first — detects lobby, race, events, back button, etc.
+    # 1. Try career UI check — detects lobby, race, events, back button, etc.
     #    When it finds the lobby, it enters career_lobby() WITHOUT timeout
-    #    Run up to 3 times to allow screen transitions to settle
-    for attempt in range(3):
-        log_info(f"Checking for career UI elements (attempt {attempt + 1}/3)...")
-        if career_ui_check():
-            return True
-        time.sleep(1)
+    log_info("Checking for career UI elements...")
+    if career_ui_check():
+        return True
 
     # 2. Check home_theater.png
     if locate_on_screen("assets/ui/home_theater.png", confidence=0.8):
@@ -293,10 +294,22 @@ def ui_check():
         reconnect()
         return True
         
-    # 5. If nothing above matched, restart the game
-    log_warning("No recognized UI elements found after checks. Restarting the game...")
-    reopen_and_resume_career()
-    return True
+    # 5. Nothing recognized
+    if startup:
+        # First launch — stop the bot so user can check what's on screen
+        log_error("No recognized UI elements found at startup! Saving debug screenshot...")
+        try:
+            screenshot = take_screenshot()
+            screenshot.save("debug_unknown_ui.png")
+            log_error("Unknown UI screenshot saved to debug_unknown_ui.png")
+        except Exception as e:
+            log_error(f"Failed to save debug screenshot: {e}")
+        raise RuntimeError("Unknown UI state at startup — stopping bot. Check debug_unknown_ui.png")
+    else:
+        # Called from watchdog/reopen — restart the game
+        log_warning("No recognized UI elements found after checks. Restarting the game...")
+        reopen_and_resume_career()
+        return True
 
 if __name__ == "__main__":
     ui_check()
