@@ -232,41 +232,8 @@ def reopen_and_resume_career() -> bool:
         log_warning("[Watchdog] Home screen not found — giving up.")
         return False
 
-<<<<<<< HEAD
-    # ── Step 4a: tap ongoing_career ────────────────────────────────────────
-    time.sleep(5)  # wait for screen to stabilise before tapping Ongoing Career
-    screenshot = take_screenshot()
-    ongoing = match_template(screenshot, "assets/buttons/ongoing_career.png", confidence=0.8)
-    if ongoing:
-        x, y, w, h = ongoing[0]
-        tap(x + w // 2, y + h // 2)
-        log_info("[Watchdog] Tapped 'Ongoing Career'.")
-    time.sleep(1.5)
-
-    # ── Step 4b: wait for resume_career ───────────────────────────────────
-    log_info("[Watchdog] Waiting for 'Resume Career' button...")
-    resume = wait_for_image("assets/buttons/resume_career.png", timeout=30, confidence=0.8)
-    if not resume:
-        log_warning("[Watchdog] 'Resume Career' button not found.")
-        return False
-
-    tap(resume[0], resume[1])
-    log_info("[Watchdog] Tapped 'Resume Career'.")
-    time.sleep(2)
-
-    # ── Step 5: wait for lobby (tazuna_hint) ──────────────────────────────
-    log_info("[Watchdog] Waiting for lobby (tazuna_hint)...")
-    lobby = wait_for_image("assets/ui/tazuna_hint.png", timeout=60, confidence=0.9)
-    if not lobby:
-        log_warning("[Watchdog] Lobby not confirmed after resume.")
-        return False
-
-    log_info("[Watchdog] Lobby confirmed — resuming automation.")
-    return True
-=======
     # ── Step 4: delegate to ui_check for navigation ───────────────────────
     log_info("[Watchdog] Delegating to ui_check()...")
     from utils.ui_check import ui_check
     return ui_check()
->>>>>>> ee8dd665507ec548acbb1680e60f1d31c760bb2b
 
