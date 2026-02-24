@@ -178,8 +178,12 @@ def do_recreation():
     else:
         log_debug(f"No recreation button found")
 
-def career_lobby():
-    """Main career lobby loop"""
+def career_lobby(timeout=None):
+    """Main career lobby loop
+    Args:
+        timeout: Optional timeout in seconds. If set, the loop exits after
+                 this duration instead of running forever. Used by ui_check().
+    """
     # Use existing config loaded at module level
     MINIMUM_MOOD = training_config_section.get("minimum_mood", config.get("minimum_mood", "GREAT"))
     # Track last day we attempted a custom race but failed, to avoid re-checking within same day
@@ -193,8 +197,15 @@ def career_lobby():
     _waiting_for_lobby_logged = False
     # ─────────────────────────────────────────────────────────────────────
 
+    # Timeout support for bounded checks (e.g. from ui_check)
+    _timeout_start = time.time() if timeout else None
+
     # Program start
     while True:
+        # Check timeout if set
+        if _timeout_start and (time.time() - _timeout_start) > timeout:
+            log_info(f"Career lobby timeout reached ({timeout}s), returning to caller")
+            return True
         log_debug(f"\n===== Starting new loop iteration =====")
         
         # Take screenshot first for all checks

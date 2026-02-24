@@ -217,8 +217,12 @@ def do_recreation():
             screenshot.save("debug_recreation_no_cancel.png")
             log_debug(f"Saved debug screenshot to debug_recreation_no_cancel.png")
 
-def career_lobby():
-    """Main career lobby loop"""
+def career_lobby(timeout=None):
+    """Main career lobby loop
+    Args:
+        timeout: Optional timeout in seconds. If set, the loop exits after
+                 this duration instead of running forever. Used by ui_check().
+    """
     # Use existing config loaded at module level
     training_config_section = config.get("training", {})
     MINIMUM_MOOD = training_config_section.get("minimum_mood", "GREAT")
@@ -231,8 +235,15 @@ def career_lobby():
     _waiting_for_lobby_logged = False
     # ─────────────────────────────────────────────────────────────────────
 
+    # Timeout support for bounded checks (e.g. from ui_check)
+    _timeout_start = time.time() if timeout else None
+
     # Program start
     while True:
+        # Check timeout if set
+        if _timeout_start and (time.time() - _timeout_start) > timeout:
+            log_info(f"Career lobby timeout reached ({timeout}s), returning to caller")
+            return True
         log_debug(f"\n===== Starting new loop iteration =====")
         
         # Take screenshot first for all checks

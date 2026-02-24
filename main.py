@@ -41,12 +41,12 @@ def load_full_config():
 config = load_full_config()
 mode = config.get("mode", "ura").lower()
 
+from utils.ui_check import ui_check
+
 # Import the appropriate execute module based on mode
 if mode == "unity":
-    from core.Unity.execute import career_lobby
     mode_name = "Unity Cup"
 else:
-    from core.Ura.execute import career_lobby
     mode_name = "URA"
 
 from utils.device import run_adb, _get_adb_path
@@ -154,7 +154,8 @@ def main():
     log_info("=" * 40)
     
     try:
-        career_lobby()
+        while True:
+            ui_check()
     except KeyboardInterrupt:
         log_info("")
         log_warning("Automation stopped by user.")
