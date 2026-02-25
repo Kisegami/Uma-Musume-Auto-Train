@@ -37,7 +37,7 @@ def do_dating():
     try:
         # Step 0: Wait for tazuna_hint to confirm we're in the lobby
         log_debug(f"Waiting for tazuna_hint to confirm we're in lobby...")
-        tazuna_hint = wait_for_image("assets/ui/tazuna_hint.png", timeout=10, confidence=0.95)
+        tazuna_hint = wait_for_image("assets/ui/tazuna_hint.png", timeout=10, confidence=0.9)
         if not tazuna_hint:
             log_warning(f"tazuna_hint not found after waiting - may not be in lobby")
             # Take screenshot and save debug image
