@@ -257,7 +257,15 @@ def career_ui_check():
     # 5. Check view results
     if locate_on_screen("assets/buttons/view_results.png", confidence=0.8):
         continue_race()
-        return True
+        log_info("Race finished. Waiting 5 seconds before career UI check...")
+        time.sleep(5)
+        for attempt in range(3):
+            log_info(f"Post-race career_ui_check - Attempt {attempt + 1}/3...")
+            if career_ui_check():
+                return True
+            time.sleep(1)
+        log_warning("Failed to find career UI after race (3 attempts).")
+        return False
 
     log_warning("No recognized UI elements found in career_ui_check.")
     return False

@@ -1,0 +1,12 @@
+{
+  "skill_priority": [
+    "Professor of Curvature",
+    "Swinging Maestro",
+    "Corner Connoisseur",
+    "Gourmand",
+    "Pace Chaser Corners"
+  ],
+  "gold_skill_upgrades": {
+    "Corner Connoisseur": "Corner Acceleration"
+  }
+}
