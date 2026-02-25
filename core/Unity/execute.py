@@ -231,7 +231,7 @@ def career_lobby(timeout=None):
     # ── Lobby-stuck watchdog ──────────────────────────────────────────────
     # Tracks time spent spinning while NOT in lobby. Starts at the first
     # tazuna_hint check, resets the moment the lobby is confirmed.
-    LOBBY_STUCK_TIMEOUT = 20  # seconds; purely lobby-wait time
+    LOBBY_STUCK_TIMEOUT = 30  # seconds; purely lobby-wait time
     _lobby_wait_start = None  # None = not currently waiting for lobby
     _waiting_for_lobby_logged = False
     # ─────────────────────────────────────────────────────────────────────
@@ -479,11 +479,7 @@ def career_lobby(timeout=None):
         criteria_text = check_criteria(screenshot)
         
         log_info("")
-        log_info("=== GAME STATUS ===")
-        log_info(f"Year: {year}")
-        log_info(f"Mood: {mood}")
-        log_info(f"Goal Name: {goal_data}")
-        log_info(f"Status: {criteria_text}")
+        log_info(f"=== {year} | Mood: {mood} | Goal: {goal_data} | {criteria_text} ===")
 
         # Check for maiden (2-star) race opportunity in career lobby
         # Only check if year is not Pre-Debut
@@ -534,8 +530,6 @@ def career_lobby(timeout=None):
         training_config_section = config.get("training", {})
         min_energy = training_config_section.get("min_energy", 30)
         
-        log_info(f"Energy: {energy_percentage:.1f}% (Minimum: {min_energy}%)")
-        
         # Early check for race day to avoid rest_in_june on race day
         goal_matches_early = match_template(screenshot, "assets/unity/goal.png", confidence=0.8)
         is_race_day_early = bool(goal_matches_early)
@@ -548,17 +542,19 @@ def career_lobby(timeout=None):
             continue
         
         # Get and display current stats
+        current_stats = {}
         try:
             from core.Unity.state import check_current_stats
             current_stats = check_current_stats(screenshot)
-            stats_str = f"SPD: {current_stats.get('spd', 0)}, STA: {current_stats.get('sta', 0)}, PWR: {current_stats.get('pwr', 0)}, GUTS: {current_stats.get('guts', 0)}, WIT: {current_stats.get('wit', 0)}"
-            log_info(f"Current stats: {stats_str}")
+            stats_str = f"SPD:{current_stats.get('spd', 0)} STA:{current_stats.get('sta', 0)} PWR:{current_stats.get('pwr', 0)} GUTS:{current_stats.get('guts', 0)} WIT:{current_stats.get('wit', 0)}"
         except Exception as e:
             log_debug(f"Could not get current stats: {e}")
+            stats_str = "N/A"
         
-        # Check and display dating availability
+        # Check dating availability
         dating_available = check_dating_available(screenshot)
-        log_info(f"Dating Available: {dating_available}")
+        
+        log_info(f"Energy: {energy_percentage:.1f}%(min:{min_energy}%) | Stats: {stats_str} | Dating: {dating_available}")
         
         # Check if goals criteria are NOT met AND it is not Pre-Debut
         # Prioritize racing when criteria are not met to help achieve goals

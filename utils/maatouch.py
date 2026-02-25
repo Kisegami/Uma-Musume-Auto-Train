@@ -95,12 +95,39 @@ class MaaTouchConnection:
         # Create socket-like wrapper around stdout
         return process
     
+    def _kill_device_process(self):
+        """Kill any running MaaTouch app_process on the device"""
+        # MaaTouch runs as: app_process / com.shxyke.MaaTouch.App
+        # We need to kill it on the device side, not just the local subprocess
+        result = self._adb_command(
+            ['shell', 'pkill', '-f', 'com.shxyke.MaaTouch']
+        )
+        if result.returncode == 0:
+            log_info("Killed existing MaaTouch process on device")
+            import time as _time
+            _time.sleep(0.5)  # Give the device a moment to clean up
+        else:
+            log_debug("No existing MaaTouch process found on device (this is normal)")
+    
+    def uninstall(self) -> bool:
+        """Remove existing MaaTouch binary from device"""
+        log_info("Removing existing MaaTouch binary from device...")
+        result = self._adb_command(['shell', 'rm', '-f', self.REMOTE_PATH])
+        if result.returncode != 0:
+            log_warning(f"Failed to remove MaaTouch binary: {result.stderr.decode()}")
+            return False
+        log_info("Existing MaaTouch binary removed")
+        return True
+    
     def install(self) -> bool:
         """Push MaaTouch binary to device"""
         local_path = _find_maatouch_binary()
         if not local_path:
             log_error("MaaTouch binary not found in toolkit/bin/")
             return False
+        
+        # Remove existing binary first to ensure clean install
+        self.uninstall()
         
         log_info(f"Installing MaaTouch from {local_path}")
         result = self._adb_command(['push', local_path, self.REMOTE_PATH])
@@ -127,8 +154,11 @@ class MaaTouchConnection:
         if self._connected:
             return True
         
-        # Close any existing connection
+        # Close any existing local connection
         self.disconnect()
+        
+        # Kill any stale MaaTouch process on the device
+        self._kill_device_process()
         
         # Build command - use a single string command for shell
         shell_cmd = f'CLASSPATH={self.REMOTE_PATH} app_process / com.shxyke.MaaTouch.App'
@@ -208,8 +238,22 @@ class MaaTouchConnection:
                 except queue.Empty:
                     continue
             
+            # Log stderr for diagnostics (non-blocking)
+            try:
+                import selectors
+                sel = selectors.DefaultSelector()
+                sel.register(process.stderr, selectors.EVENT_READ)
+                ready = sel.select(timeout=0.1)
+                if ready:
+                    stderr_data = process.stderr.read1(4096) if hasattr(process.stderr, 'read1') else b''
+                    if stderr_data:
+                        log_warning(f"MaaTouch stderr: {stderr_data.decode(errors='replace').strip()}")
+                sel.close()
+            except:
+                pass
             log_error("Timeout waiting for MaaTouch initialization")
             if auto_install:
+                self.disconnect()
                 log_info("Attempting auto-install of MaaTouch binary...")
                 if self.install():
                     log_info("Auto-install successful, retrying connection...")
@@ -221,6 +265,7 @@ class MaaTouchConnection:
             import traceback
             traceback.print_exc()
             if auto_install:
+                self.disconnect()
                 log_info("Attempting auto-install of MaaTouch binary after exception...")
                 if self.install():
                     log_info("Auto-install successful, retrying connection...")

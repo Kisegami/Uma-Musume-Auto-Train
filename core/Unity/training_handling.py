@@ -98,6 +98,7 @@ def check_training(go_back=True, year=None, current_stats=None):
     }
     results = {}
     skipped_stats = []
+    log_info("--- Training ---")
 
     for key, coords in training_coords.items():
         # Early stat cap check - skip analysis if stat is already at/above cap
@@ -210,28 +211,35 @@ def check_training(go_back=True, year=None, current_stats=None):
             "score": score
         }
         
-        log_info(f"\n[{key.upper()}]")
-        
+        # Build compact support card summary
         if detailed_support:
-            support_lines = []
+            support_parts = []
             for card_type, entries in detailed_support.items():
                 for idx, entry in enumerate(entries, start=1):
                     level = entry['bond_level']
                     is_rainbow = (card_type == key and level >= 4)
-                    label = f"{card_type.upper()}{idx}: {level}"
+                    label = f"{card_type.upper()}{idx}:{level}"
                     if is_rainbow:
-                        label += " (Rainbow)"
-                    support_lines.append(label)
-            log_info(f", ".join(support_lines))
+                        label += "(R)"
+                    support_parts.append(label)
+            support_str = ",".join(support_parts)
         else:
-            log_info(f"-")
+            support_str = "-"
         
-        log_info(f"hint={hint_found}")
-        log_info(f"spirit_training={spirit_count_adjusted} (total: {spirit_count}, extra: {spirit_training_extra_count})")
-        log_info(f"spirit_training_extra={spirit_training_extra_count}")
-        log_info(f"spirit_burst={spirit_burst_count}")
-        log_info(f"Fail: {failure_chance}% - Confident: {confidence:.2f}")
-        log_info(f"Score: {score}")
+        # Build compact extras string
+        extras = []
+        if hint_found:
+            extras.append("hint")
+        if spirit_count_adjusted > 0:
+            extras.append(f"spirit:{spirit_count_adjusted}")
+        if spirit_burst_count > 0:
+            extras.append(f"burst:{spirit_burst_count}")
+        if spirit_training_extra_count > 0:
+            extras.append(f"sp_extra:{spirit_training_extra_count}")
+        extras_str = " " + " ".join(extras) if extras else ""
+
+        # Single compact line per training type
+        log_info(f"  {key.upper():>4}: Score={score:.1f} Fail={failure_chance}%({confidence:.0%}) | {support_str}{extras_str}")
 
         # Save per-stat debug overlay when in debug mode
         if DEBUG_MODE:
@@ -246,14 +254,6 @@ def check_training(go_back=True, year=None, current_stats=None):
                 confidence=confidence,
                 score=score,
             )
-        
-
-    # Print overall summary
-    log_info(f"\n=== Overall ===")
-    for k in ["spd", "sta", "pwr", "guts", "wit"]:
-        if k in results:
-            data = results[k]
-            log_info(f"{k.upper()}: Score={data['score']:.2f}, Fail={data['failure']}% - Confident: {data['confidence']:.2f}")
     
     # Only go back if requested
     if go_back:
