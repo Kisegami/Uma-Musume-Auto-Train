@@ -212,6 +212,10 @@ class PerformanceTab(QScrollArea):
         # Action buttons row
         maatouch_actions_row = QHBoxLayout()
         
+        self.maatouch_install_btn = QPushButton("🔄 Reinstall MaaTouch")
+        self.maatouch_install_btn.setToolTip("Push MaaTouch binary to the device")
+        self.maatouch_install_btn.clicked.connect(self._install_maatouch)
+        maatouch_actions_row.addWidget(self.maatouch_install_btn)
         
         self.maatouch_benchmark_btn = QPushButton("🔬 Run Benchmark")
         self.maatouch_benchmark_btn.setToolTip("Compare ADB vs MaaTouch input speed")
@@ -623,6 +627,39 @@ class PerformanceTab(QScrollArea):
         except Exception as e:
             self.maatouch_status_label.setText(f"✗ Error: {str(e)}")
             self.maatouch_status_label.setStyleSheet(f"color: {COLORS['accent_red']};")
+    
+    def _install_maatouch(self):
+        """Install/reinstall MaaTouch binary on the device"""
+        try:
+            from utils.maatouch import MaaTouchConnection
+            
+            self.maatouch_install_btn.setEnabled(False)
+            self.maatouch_install_btn.setText("Installing...")
+            
+            conn = MaaTouchConnection()
+            success = conn.install()
+            
+            self.maatouch_install_btn.setEnabled(True)
+            self.maatouch_install_btn.setText("🔄 Reinstall MaaTouch")
+            
+            if success:
+                QMessageBox.information(
+                    self, "MaaTouch Install",
+                    "✓ MaaTouch binary installed successfully on the device."
+                )
+            else:
+                QMessageBox.warning(
+                    self, "MaaTouch Install",
+                    "✗ Failed to install MaaTouch binary.\n\n"
+                    "Make sure the emulator is running and ADB is connected."
+                )
+        except Exception as e:
+            self.maatouch_install_btn.setEnabled(True)
+            self.maatouch_install_btn.setText("🔄 Reinstall MaaTouch")
+            QMessageBox.warning(
+                self, "MaaTouch Install",
+                f"✗ Error: {str(e)}"
+            )
     
     def _run_input_benchmark(self):
         """Run input method benchmark"""
