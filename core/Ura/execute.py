@@ -406,8 +406,11 @@ def career_lobby(timeout=None):
         goal_data = check_goal_name(screenshot)
         criteria_text = check_criteria(screenshot)
         
-        log_info("")
-        log_info(f"=== {year} | Turn: {turn} | Mood: {mood} | Goal: {goal_data} | {criteria_text} ===")
+        log_info(f"=== GAME STATUS ===")
+        log_info(f"Year: {year}")
+        log_info(f"Mood: {mood}")
+        log_info(f"Goal Name: {goal_data}")
+        log_info(f"Status: {criteria_text}")
 
         # Check for maiden (2-star) race opportunity in career lobby
         # Only check if year is not Pre-Debut
@@ -456,6 +459,7 @@ def career_lobby(timeout=None):
         log_debug(f"Checking energy bar...")
         energy_percentage = check_energy_bar(screenshot)
         min_energy = training_config_section.get("min_energy", config.get("min_energy", 30))
+        log_info(f"Energy: {energy_percentage:.1f}% (Minimum: {min_energy}%)")
         # Check for rest in June to save energy for summer (skip on Race Day)
         rest_in_june_enabled = training_config_section.get("rest_in_june", False)
         if rest_in_june_enabled and "Jun" in year and "Junior" not in year and energy_percentage <= 60 and turn != "Race Day":
@@ -467,12 +471,13 @@ def career_lobby(timeout=None):
         current_stats = {}
         try:
             current_stats = check_current_stats(screenshot)
-            stats_str = f"SPD:{current_stats.get('spd', 0)} STA:{current_stats.get('sta', 0)} PWR:{current_stats.get('pwr', 0)} GUTS:{current_stats.get('guts', 0)} WIT:{current_stats.get('wit', 0)}"
+            stats_str = f"SPD: {current_stats.get('spd', 0)}, STA: {current_stats.get('sta', 0)}, PWR: {current_stats.get('pwr', 0)}, GUTS: {current_stats.get('guts', 0)}, WIT: {current_stats.get('wit', 0)}"
         except Exception as e:
             log_debug(f"Could not get current stats: {e}")
             stats_str = "N/A"
         
-        log_info(f"Energy: {energy_percentage:.1f}%(min:{min_energy}%) | Stats: {stats_str}")
+        log_info(f"Current stats: {stats_str}")
+        log_info(f"")
         
         # Check if goals criteria are NOT met AND it is not Pre-Debut AND turn is less than 10
         # Prioritize racing when criteria are not met to help achieve goals
