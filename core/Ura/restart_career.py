@@ -11,9 +11,9 @@ import time
 from typing import Dict, Any, Optional, Tuple
 
 # Add the project root to the path so we can import our modules
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(PROJECT_ROOT)
-SUPPORTS_DIR = os.path.join(PROJECT_ROOT, "supports")
+SUPPORTS_DIR = os.path.join(PROJECT_ROOT, "template", "supports")
 os.makedirs(SUPPORTS_DIR, exist_ok=True)
 
 from utils.recognizer import match_template
