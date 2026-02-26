@@ -68,14 +68,20 @@ def go_to_training():
     log_debug(f"Going to training screen...")
     return tap_on_image("assets/buttons/training_btn.png", min_search=10)
 
-def check_training(go_back=True):
+def check_training(go_back=True, current_stats=None):
     """Check training results using fixed coordinates, collecting support counts,
     bond levels and hint presence in one hover pass before computing failure rates.
     
     Args:
         go_back (bool): If True, tap back to lobby after checking. If False, stay on training screen.
+        current_stats (dict, optional): Current character stats to check against caps. If provided,
+            training types where the stat is already at/above cap will be skipped to save time.
     """
     log_debug(f"Checking training options...")
+    
+    # Load stat caps from config for early filtering
+    training_config = config.get("training", {})
+    stat_caps = training_config.get("stat_caps", config.get("stat_caps", {}))
     
     # Fixed coordinates for each training type
     training_coords = {
@@ -86,8 +92,28 @@ def check_training(go_back=True):
         "wit": (936, 1572)
     }
     results = {}
+    skipped_stats = []
 
     for key, coords in training_coords.items():
+        # Early stat cap check - skip analysis if stat is already at/above cap
+        if current_stats:
+            current_stat_value = current_stats.get(key, 0)
+            stat_cap = stat_caps.get(key, 1200)  # Default cap is 1200 (very high = no cap)
+            if current_stat_value >= stat_cap:
+                log_info(f"[{key.upper()}] SKIPPED - stat {current_stat_value} >= cap {stat_cap}")
+                skipped_stats.append(key)
+                # Add placeholder result with score 0 so it won't be selected
+                results[key] = {
+                    "support": {},
+                    "support_detail": {},
+                    "hint": False,
+                    "total_support": 0,
+                    "failure": 100,  # Set high to prevent selection
+                    "confidence": 1.0,
+                    "score": 0,
+                    "skipped": True
+                }
+                continue
         log_debug(f"Checking {key.upper()} training at coordinates {coords}...")
         
         # Proper hover simulation: move to position, hold, check, move away, release
@@ -547,9 +573,28 @@ def choose_best_training(training_results, config, current_stats):
         "wit": min_score_config.get("wit", default_min_score)
     }
     
-    # Filter out training options with failure rates above maximum
-    safe_options = {k: v for k, v in training_results.items() 
-                   if v.get('failure', 100) <= max_failure}
+    # Gambling train config - increases max failure for high score training
+    gambling_enabled = config.get("gambling_train_enabled", False)
+    gambling_failure_increase = config.get("gambling_train_failure_increase", 5)
+    gambling_score_per_increase = config.get("gambling_train_score_per_increase", 1.0)
+    
+    # Filter out training options with failure rates above maximum (with gambling train adjustments)
+    safe_options = {}
+    for k, v in training_results.items():
+        failure_rate = v.get('failure', 100)
+        score = v.get('score', 0)
+        
+        # Calculate effective max failure for this training option
+        effective_max_failure = max_failure
+        if gambling_enabled and gambling_score_per_increase > 0:
+            # Increase max failure based on score (e.g., +5% for each 1.0 score)
+            score_multiplier = int(score / gambling_score_per_increase)
+            effective_max_failure = max_failure + (gambling_failure_increase * score_multiplier)
+            if score_multiplier > 0:
+                log_debug(f"  {k.upper()}: Gambling train applied, effective max failure = {effective_max_failure}% (score={score:.1f})")
+        
+        if failure_rate <= effective_max_failure:
+            safe_options[k] = v
     
     if not safe_options:
         log_debug(f" No training options with failure rate <= {max_failure}%")
@@ -632,6 +677,17 @@ def calculate_training_score(support_detail, hint_found, training_type):
     for card_type, entries in support_detail.items():
         for entry in entries:
             level = entry['bond_level']
+            
+            # Friend support cards have separate scoring logic
+            if card_type == "friend":
+                # Friend with bond < 3: add configurable points
+                # Friend with bond >= 3: add 0 points (no need to raise bond)
+                if level < 3:
+                    score += scoring_rules.get("friend_support", {}).get("points", 0.5)
+                # else: bond >= 3, add 0 points (skip)
+                continue
+            
+            # Normal support card scoring
             is_rainbow = (card_type == training_type and level >= 4)
             
             if is_rainbow:

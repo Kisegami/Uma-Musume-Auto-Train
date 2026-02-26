@@ -1,126 +1,134 @@
-import customtkinter as ctk
-import tkinter as tk
+"""
+Status Panel for PySide6 GUI
+Compact training status display.
+"""
 
-# Import centralized font management
-try:
-    from .font_manager import get_font_manager, get_font, get_font_tuple
-except ImportError:
-    from font_manager import get_font_manager, get_font, get_font_tuple
+from PySide6.QtWidgets import (
+    QWidget, QVBoxLayout, QHBoxLayout, QFrame, QLabel, QProgressBar, QGridLayout
+)
+from PySide6.QtCore import Qt
 
-class StatusPanel(ctk.CTkFrame):
-    def __init__(self, parent, main_window, colors):
-        super().__init__(parent, fg_color=colors['bg_medium'], corner_radius=15)
-        self.main_window = main_window
-        self.colors = colors
+from .styles import COLORS
 
-        # Title label
-        title_label = ctk.CTkLabel(self, text="Real-time Status", font=get_font('status_title'), text_color=colors['text_light'])
-        title_label.pack(pady=(15, 10))
 
-        # Create status display widgets
-        self.create_status_widgets()
-
-        # Initialize with default values
-        self.update_status("Unknown Year", 0.0, "Unknown", "Unknown", False, {})
+class StatusPanel(QFrame):
+    """Compact status panel"""
     
-    def create_status_widgets(self):
-        """Create all status display widgets with modern rounded cards"""
-        # Main content frame - no expand to prevent blank space
-        content_frame = ctk.CTkFrame(self, fg_color="transparent")
-        content_frame.pack(fill=tk.X, padx=15, pady=(0, 15))
+    def __init__(self, main_window):
+        super().__init__()
+        self.main_window = main_window
+        self.setObjectName("card")
+        self.setMaximumHeight(200)
         
-        # Top row - Year and Energy (modern rounded cards)
-        top_frame = ctk.CTkFrame(content_frame, fg_color="transparent")
-        top_frame.pack(fill=tk.X, pady=(0, 10))
+        self._create_ui()
+    
+    def _create_ui(self):
+        """Create status UI"""
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(16, 12, 16, 12)
+        layout.setSpacing(8)
         
-        # Year display card
-        year_card = ctk.CTkFrame(top_frame, fg_color=self.colors['bg_light'], corner_radius=8)
-        year_card.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 5))
-        ctk.CTkLabel(year_card, text="YEAR", font=get_font('status_label'), text_color=self.colors['text_gray']).pack(pady=(8, 2))
-        self.year_label = ctk.CTkLabel(year_card, text="Unknown", font=get_font('status_value'), text_color=self.colors['text_light'])
-        self.year_label.pack(pady=(0, 8))
+        # Title row
+        header = QHBoxLayout()
+        title = QLabel("Status")
+        title.setObjectName("sectionTitle")
+        header.addWidget(title)
+        header.addStretch()
+        layout.addLayout(header)
         
-        # Energy display card
-        energy_card = ctk.CTkFrame(top_frame, fg_color=self.colors['bg_light'], corner_radius=8)
-        energy_card.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        ctk.CTkLabel(energy_card, text="ENERGY", font=get_font('status_label'), text_color=self.colors['text_gray']).pack(pady=(8, 2))
-        self.energy_label = ctk.CTkLabel(energy_card, text="0.0%", font=get_font('status_value'), text_color=self.colors['text_light'])
-        self.energy_label.pack(pady=(0, 8))
+        # Info grid: Year (wider), Energy, Mood (Turn removed)
+        info_grid = QGridLayout()
+        info_grid.setSpacing(12)
         
-        # Middle row - Turn, Mood, Goal (modern rounded cards)
-        middle_frame = ctk.CTkFrame(content_frame, fg_color="transparent")
-        middle_frame.pack(fill=tk.X, pady=(0, 10))
+        # Mood colors mapping
+        self.mood_colors = {
+            "GREAT": "#ec4899",    # Pink
+            "GOOD": "#f97316",     # Orange
+            "NORMAL": "#eab308",   # Yellow
+            "BAD": "#3b82f6",      # Blue
+            "AWFUL": "#a855f7"     # Purple
+        }
         
-        # Turn display card
-        turn_card = ctk.CTkFrame(middle_frame, fg_color=self.colors['bg_light'], corner_radius=8)
-        turn_card.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 5))
-        ctk.CTkLabel(turn_card, text="TURN", font=get_font('status_label'), text_color=self.colors['text_gray']).pack(pady=(8, 2))
-        self.turn_label = ctk.CTkLabel(turn_card, text="Unknown", font=get_font('status_value'), text_color=self.colors['text_light'])
-        self.turn_label.pack(pady=(0, 8))
+        # Year takes 2 columns for more space
+        self.year_val = self._add_info_item(info_grid, "Year", "Unknown Year", 0, 0, colspan=2)
+        self.energy_val = self._add_info_item(info_grid, "Energy", "100%", 0, 2)
+        self.mood_val = self._add_info_item(info_grid, "Mood", "GREAT", 0, 3)
         
-        # Mood display card
-        mood_card = ctk.CTkFrame(middle_frame, fg_color=self.colors['bg_light'], corner_radius=8)
-        mood_card.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 5))
-        ctk.CTkLabel(mood_card, text="MOOD", font=get_font('status_label'), text_color=self.colors['text_gray']).pack(pady=(8, 2))
-        self.mood_label = ctk.CTkLabel(mood_card, text="Unknown", font=get_font('status_value'), text_color=self.colors['text_light'])
-        self.mood_label.pack(pady=(0, 8))
+        # Initialize mood with pink color for GREAT
+        self.mood_val.setStyleSheet(f"color: {self.mood_colors['GREAT']}; font-size: 14px; font-weight: bold;")
         
-        # Goal display card
-        goal_card = ctk.CTkFrame(middle_frame, fg_color=self.colors['bg_light'], corner_radius=8)
-        goal_card.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        ctk.CTkLabel(goal_card, text="GOAL", font=get_font('status_label'), text_color=self.colors['text_gray']).pack(pady=(8, 2))
-        self.goal_label = ctk.CTkLabel(goal_card, text="❓", font=get_font('title_large'), text_color=self.colors['text_light'])
-        self.goal_label.pack(pady=(0, 8))
+        layout.addLayout(info_grid)
         
-        # Bottom row - Stats (beautiful stat cards)
-        stats_frame = ctk.CTkFrame(content_frame, fg_color="transparent")
-        stats_frame.pack(fill=tk.X)
+        # Stat bars (compact)
+        stats_grid = QGridLayout()
+        stats_grid.setSpacing(6)
         
-        # Create stat display cards
-        self.stat_labels = {}
-        stats = ['SPD', 'STA', 'PWR', 'GUTS', 'WIT']
+        self.stat_bars = {}
+        stats = [("spd", "SPD", "#3b82f6"), ("sta", "STA", "#ef4444"),
+                 ("pwr", "PWR", "#eab308"), ("guts", "GUT", "#ec4899"),
+                 ("wit", "WIT", "#22c55e")]
         
-        for i, stat in enumerate(stats):
-            stat_card = ctk.CTkFrame(stats_frame, fg_color=self.colors['bg_light'], corner_radius=8)
-            stat_card.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 3) if i < len(stats) - 1 else (0, 0))
+        for i, (key, label, color) in enumerate(stats):
+            lbl = QLabel(label)
+            lbl.setFixedWidth(35)
+            lbl.setStyleSheet(f"color: {COLORS['text_secondary']}; font-size: 11px;")
+            stats_grid.addWidget(lbl, i, 0)
             
-            ctk.CTkLabel(stat_card, text=stat, font=get_font('body_small'), text_color=self.colors['text_gray']).pack(pady=(6, 2))
-            stat_label = ctk.CTkLabel(stat_card, text="0", font=get_font('body_large'), text_color=self.colors['text_light'])
-            stat_label.pack(pady=(0, 6))
-            self.stat_labels[stat.lower()] = stat_label
+            bar = QProgressBar()
+            bar.setRange(0, 1200)
+            bar.setValue(0)
+            bar.setTextVisible(True)
+            bar.setFormat("%v")
+            bar.setFixedHeight(16)
+            bar.setStyleSheet(f"""
+                QProgressBar {{ background-color: {COLORS['bg_input']}; border: none; border-radius: 3px; font-size: 10px; }}
+                QProgressBar::chunk {{ background-color: {color}; border-radius: 3px; }}
+            """)
+            stats_grid.addWidget(bar, i, 1)
+            self.stat_bars[key] = bar
+        
+        layout.addLayout(stats_grid)
+    
+    def _add_info_item(self, grid, label, value, row, col, colspan=1):
+        widget = QWidget()
+        vl = QVBoxLayout(widget)
+        vl.setContentsMargins(0, 0, 0, 0)
+        vl.setSpacing(2)
+        
+        lbl = QLabel(label)
+        lbl.setStyleSheet(f"color: {COLORS['text_muted']}; font-size: 11px;")
+        vl.addWidget(lbl)
+        
+        val = QLabel(value)
+        val.setStyleSheet(f"color: {COLORS['text_primary']}; font-size: 14px; font-weight: bold;")
+        vl.addWidget(val)
+        
+        grid.addWidget(widget, row, col, 1, colspan)
+        return val
     
     def update_status(self, year, energy, turn, mood, goal_met, stats):
-        """Update the status panel with real-time data"""
-        # Update year
-        self.year_label.configure(text=str(year))
+        """Update all values"""
+        self.year_val.setText(str(year))
+        self.energy_val.setText(f"{energy}%")
         
-        # Update energy
-        self.energy_label.configure(text=f"{energy:.1f}%")
+        # Update mood with color
+        mood_upper = mood.upper()
+        self.mood_val.setText(mood_upper)
+        mood_color = self.mood_colors.get(mood_upper, COLORS['text_primary'])
+        self.mood_val.setStyleSheet(f"color: {mood_color}; font-size: 14px; font-weight: bold;")
         
-        # Update turn
-        self.turn_label.configure(text=str(turn))
-        
-        # Update mood
-        self.mood_label.configure(text=str(mood))
-        
-        # Update goal status
-        if goal_met:
-            self.goal_label.configure(text="✅", text_color=self.colors['accent_green'])
-        else:
-            self.goal_label.configure(text="❌", text_color=self.colors['accent_red'])
-        
-        # Update stats
-        for stat_name, stat_label in self.stat_labels.items():
-            stat_value = stats.get(stat_name, 0)
-            stat_label.configure(text=str(stat_value))
+        if stats:
+            for key, val in stats.items():
+                if key in self.stat_bars:
+                    self.stat_bars[key].setValue(int(val))
     
-    def update_from_bot_data(self, bot_data):
-        """Update status from bot data dictionary"""
-        year = bot_data.get('year', 'Unknown Year')
-        energy = bot_data.get('energy', 0.0)
-        turn = bot_data.get('turn', 'Unknown')
-        mood = bot_data.get('mood', 'Unknown')
-        goal_met = bot_data.get('goal_met', False)
-        stats = bot_data.get('stats', {})
+    def update_from_bot_data(self, status):
+        """Update from bot controller data format (compatibility method)"""
+        year = status.get('year', 'Unknown Year')
+        energy = status.get('energy', 0)
+        turn = status.get('turn', 'Unknown')
+        mood = status.get('mood', 'Unknown')
+        goal_met = status.get('goal_met', False)
+        stats = status.get('stats', {})
         
         self.update_status(year, energy, turn, mood, goal_met, stats)

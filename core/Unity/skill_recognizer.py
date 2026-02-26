@@ -7,6 +7,7 @@ import re
 import json
 from utils.screenshot import take_screenshot
 from utils.input import perform_swipe
+from utils.skill_swipe import swipe_skill_list_down_slow
 
 from utils.log import log_debug, log_info, log_warning, log_error
 
@@ -568,15 +569,12 @@ def generate_debug_image(screenshot, locations, confidence, brightness_info=None
         log_debug(f"Error generating debug image: {e}")
         return None
 
-def scan_all_skills_with_scroll(swipe_start_x=504, swipe_start_y=1490, swipe_end_x=504, swipe_end_y=926,
-                               confidence=0.9, brightness_threshold=150, max_scrolls=20):
+def scan_all_skills_with_scroll(confidence=0.9, brightness_threshold=150, max_scrolls=20):
     """
     Scan all available skills by scrolling through the list until duplicates are found.
     Uses optimized slow swipe for smooth scrolling without acceleration.
     
     Args:
-        swipe_start_x, swipe_start_y: Starting coordinates for swipe
-        swipe_end_x, swipe_end_y: Ending coordinates for swipe
         confidence: Template matching confidence (default: 0.9)
         brightness_threshold: Brightness threshold for available buttons (default: 150)
         max_scrolls: Maximum number of scrolls to prevent infinite loops (default: 20)
@@ -650,15 +648,11 @@ def scan_all_skills_with_scroll(swipe_start_x=504, swipe_start_y=1490, swipe_end
             scrolls_performed += 1
             if scrolls_performed < max_scrolls:
                 log_debug(f"Scrolling")
-                time.sleep(0.5)  # Wait before swipe to ensure UI is ready
-                success = perform_swipe(swipe_start_x, swipe_start_y, swipe_end_x, swipe_end_y)
+                success = swipe_skill_list_down_slow(wait_before=0.5, wait_after=1.5)
                 
                 if not success:
                     log_debug(f"Failed to perform swipe, stopping scan")
                     break
-                
-                # Wait for scroll animation to complete
-                time.sleep(1.5)
         
         # Summary
         log_debug(f"=" * 60)

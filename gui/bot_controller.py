@@ -7,8 +7,17 @@ import json
 import queue
 import re
 from datetime import datetime
-from tkinter import messagebox
+from PySide6.QtWidgets import QMessageBox
+from PySide6.QtCore import QMetaObject, Qt, Q_ARG, QObject, Signal, Slot
 from utils.emulator_detect import resolve_emulator_connection, EmulatorManager, Emulator
+from utils.device import _get_adb_path
+
+
+class LogSignaler(QObject):
+    """Qt signal emitter for thread-safe GUI updates"""
+    log_signal = Signal(str, str)  # message, level
+    status_signal = Signal(dict)  # status data
+    bot_stopped_signal = Signal()  # emitted when bot stops automatically
 
 class BotController:
     def __init__(self, main_window):
@@ -18,6 +27,11 @@ class BotController:
         self.status_update_thread = None
         self.log_monitor_thread = None
         self.bot_process = None  # Store process reference for termination
+        
+        # Qt signal emitter for thread-safe GUI updates
+        self.signaler = LogSignaler()
+        self.signaler.log_signal.connect(self._on_log_signal)
+        self.signaler.status_signal.connect(self._on_status_signal)
         
         # Queues for communication between threads
         self.status_queue = queue.Queue()
@@ -40,10 +54,22 @@ class BotController:
         }
         
         # Status update interval
-        self.status_update_interval = 1.0  # seconds
+        self.status_update_interval = 0.1  # 100ms for responsive updates
         
         # Start status update thread
         self.start_status_updates()
+    
+    @Slot(str, str)
+    def _on_log_signal(self, message, level):
+        """Handle log signal on main thread"""
+        if hasattr(self.main_window, 'log_panel'):
+            self.main_window.log_panel.add_log_entry(message, level)
+    
+    @Slot(dict)
+    def _on_status_signal(self, status):
+        """Handle status signal on main thread"""
+        if hasattr(self.main_window, 'status_panel'):
+            self.main_window.status_panel.update_from_bot_data(status)
     
     def start_status_updates(self):
         """Start the status update thread"""
@@ -58,11 +84,16 @@ class BotController:
         cfg = self.main_window.get_config()
         emulator_type = cfg.get("emulator_type", "").strip()
         if not emulator_type:
-            messagebox.showerror("Emulator required", "Please choose an emulator type before starting.")
+            QMessageBox.critical(None, "Emulator required", "Please choose an emulator type before starting.")
             return False
 
         adb_cfg = cfg.get("adb_config", {})
-        adb_path = adb_cfg.get("adb_path", "adb")
+        # Use the smart ADB path resolver that checks bundled ADB and falls back gracefully
+        try:
+            adb_path = _get_adb_path()
+        except Exception:
+            # Fallback to config value if resolver fails
+            adb_path = adb_cfg.get("adb_path", "adb")
         device_address = adb_cfg.get("device_address", "")
 
         manager = EmulatorManager()
@@ -85,21 +116,41 @@ class BotController:
             except Exception as e:
                 self.main_window.add_log(f"[auto-detect] instance listing failed: {e}", "warning")
 
-            inst, serial, running = resolve_emulator_connection(emulator_type, adb_path=adb_path)
+            try:
+                inst, serial, running = resolve_emulator_connection(emulator_type, adb_path=adb_path)
+            except FileNotFoundError as e:
+                # ADB not found - show user-friendly error
+                error_msg = str(e)
+                self.main_window.add_log(f"[auto-detect] ADB error: {error_msg}", "error")
+                QMessageBox.critical(
+                    None,
+                    "ADB Not Found",
+                    f"ADB executable not found.\n\n{error_msg}\n\n"
+                    "Please configure ADB before starting the bot."
+                )
+                return False
+            except Exception as e:
+                # Other errors during emulator detection
+                self.main_window.add_log(f"[auto-detect] Error: {e}", "error")
+                QMessageBox.critical(None, "Emulator Detection Error", f"Failed to detect emulator: {e}")
+                return False
+            
             self.main_window.add_log(
                 f"[auto-detect] adb running serials for type={emulator_type}: {running}",
                 "info"
             )
             if serial is None:
                 if not running:
-                    messagebox.showerror(
+                    QMessageBox.critical(
+                        None,
                         "No emulator running",
                         "No running emulator detected for the selected type. "
                         "Please start the emulator and try again."
                     )
                     return False
                 else:
-                    messagebox.showerror(
+                    QMessageBox.critical(
+                        None,
                         "Multiple emulators",
                         "Multiple running emulators detected. Close others or set the ADB address manually."
                     )
@@ -122,8 +173,12 @@ class BotController:
                 exe_dir = os.path.dirname(chosen_instance.path)
                 parent_dir = os.path.dirname(exe_dir)
                 cfg.setdefault("nemu_ipc_config", {})
-                cfg["nemu_ipc_config"]["nemu_folder"] = parent_dir
-                cfg["nemu_ipc_config"]["instance_id"] = chosen_instance.mumu12_id or 0
+                # Only set nemu_folder if not already configured
+                if not cfg["nemu_ipc_config"].get("nemu_folder"):
+                    cfg["nemu_ipc_config"]["nemu_folder"] = parent_dir
+                # Only set instance_id if not already configured (use None check, not falsy check)
+                if cfg["nemu_ipc_config"].get("instance_id") is None:
+                    cfg["nemu_ipc_config"]["instance_id"] = chosen_instance.mumu12_id or 0
                 cfg["nemu_ipc_config"]["display_id"] = cfg["nemu_ipc_config"].get("display_id", 0)
                 cfg["nemu_ipc_config"]["timeout"] = cfg["nemu_ipc_config"].get("timeout", 1.0)
                 self.main_window.add_log(
@@ -158,7 +213,8 @@ class BotController:
                     self.main_window.add_log(
                         f"[auto-detect] Filled MuMu nemu_folder={parent_dir} from instance path", "info"
                     )
-                if not cfg["nemu_ipc_config"].get("instance_id"):
+                # Use None check, not falsy check (instance_id=0 is valid)
+                if cfg["nemu_ipc_config"].get("instance_id") is None:
                     cfg["nemu_ipc_config"]["instance_id"] = chosen_instance.mumu12_id or 0
             if emulator_type == Emulator.LDPlayer9 and chosen_instance:
                 exe_dir = os.path.dirname(chosen_instance.path)
@@ -168,7 +224,8 @@ class BotController:
                     self.main_window.add_log(
                         f"[auto-detect] Filled LDPlayer ld_folder={exe_dir} from instance path", "info"
                     )
-                if cfg["ldopengl_config"].get("instance_id") in [None, ""]:
+                # Use None check (instance_id=0 is valid)
+                if cfg["ldopengl_config"].get("instance_id") is None:
                     if chosen_instance.ldplayer_id is not None:
                         cfg["ldopengl_config"]["instance_id"] = chosen_instance.ldplayer_id
 
@@ -289,6 +346,8 @@ class BotController:
                         pythonpath = pythonpath + os.pathsep + env["PYTHONPATH"]
                     env["PYTHONPATH"] = pythonpath
                     
+                    env["PYTHONUNBUFFERED"] = "1"  # Force unbuffered output
+
                     self.bot_process = subprocess.Popen(
                         [sys.executable, '-u', 'main.py'],  # -u for unbuffered output
                         stdout=subprocess.PIPE,
@@ -303,17 +362,22 @@ class BotController:
                     )
                     
                     self.main_window.add_log("Bot process started successfully", "success")
+                    self.main_window.add_log(f"Process PID: {self.bot_process.pid}", "info")
+                    self.main_window.add_log(f"Process poll: {self.bot_process.poll()}", "info")
                     
                     # Monitor the process output
+                    self.main_window.add_log("Starting output monitor loop...", "info")
                     while self.bot_running and self.bot_process and self.bot_process.poll() is None:
                         try:
                             output = self.bot_process.stdout.readline()
                             if output:
                                 # Process the output for status updates and logging
-                                self.process_bot_output(output.strip())
+                                stripped = output.strip()
+                                # process_bot_output handles adding to log queue
+                                self.process_bot_output(stripped)
                             else:
                                 # No output, but process might still be running
-                                time.sleep(0.1)
+                                time.sleep(0.05)
                         except UnicodeDecodeError as e:
                             # Handle Unicode decoding errors gracefully
                             print(f"Unicode decode error in bot output: {e}")
@@ -358,14 +422,8 @@ class BotController:
                     pass
             self.bot_running = False
             self.main_window.add_log("Bot stopped", "warning")
-            # Ensure main window state and button reflect auto-stop
-            try:
-                self.main_window.bot_running = False
-                if hasattr(self.main_window, 'log_panel') and hasattr(self.main_window, 'root'):
-                    # Update button on the main UI thread
-                    self.main_window.root.after(0, self.main_window.log_panel.update_start_stop_button, False)
-            except Exception:
-                pass
+            # Emit signal to notify main window that bot has stopped
+            self.signaler.bot_stopped_signal.emit()
     
     def process_bot_output(self, output):
         """Process bot output to extract status updates and logs"""
@@ -481,6 +539,7 @@ class BotController:
                 stats = self.parse_stats_from_text(stats_text)
                 if stats:
                     self.update_status('stats', stats, partial=True)
+            
                     
         except Exception as e:
             # Don't log parsing errors to avoid spam, but print to console for debugging
@@ -530,8 +589,8 @@ class BotController:
                 try:
                     while not self.status_queue.empty():
                         status = self.status_queue.get_nowait()
-                        # Update GUI status panel
-                        self.main_window.root.after(0, self.update_gui_status, status)
+                        # Emit signal (thread-safe Qt way)
+                        self.signaler.status_signal.emit(status)
                 except queue.Empty:
                     pass
                 
@@ -539,8 +598,9 @@ class BotController:
                 try:
                     while not self.log_queue.empty():
                         log_entry = self.log_queue.get_nowait()
-                        # Add to GUI log panel
-                        self.main_window.root.after(0, self.add_log_to_gui, log_entry)
+                        # Emit signal (thread-safe Qt way)
+                        level = self.determine_log_level(log_entry)
+                        self.signaler.log_signal.emit(log_entry, level)
                 except queue.Empty:
                     pass
                 
