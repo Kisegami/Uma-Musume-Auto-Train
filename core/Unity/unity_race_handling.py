@@ -173,6 +173,7 @@ def unity_race_workflow():
     screenshot = take_screenshot()
 
     log_info("[UnityRace] Trying to begin showdown...")
+    time.sleep(0.2)  # 200ms delay before tapping begin showdown
     _wait_and_double_tap("assets/unity/begin_showdown.png", timeout=20)
 
     log_info("[UnityRace] Waiting for 'See All Race Results'...")

@@ -72,15 +72,21 @@ def go_to_training():
         time.sleep(0.5)
     return success
 
-def check_training(go_back=True, year=None):
+def check_training(go_back=True, year=None, current_stats=None):
     """Check training results using fixed coordinates, collecting support counts,
     bond levels and hint presence in one hover pass before computing failure rates.
     
     Args:
         go_back (bool): If True, go back to lobby after checking. If False, stay on training screen.
         year (str, optional): Current year to adjust scoring (e.g., "Finale Underway")
+        current_stats (dict, optional): Current character stats to check against caps. If provided,
+            training types where the stat is already at/above cap will be skipped to save time.
     """
     log_debug(f"Checking training options...")
+    
+    # Load stat caps from config for early filtering
+    training_config = config.get("training", {})
+    stat_caps = training_config.get("stat_caps", {})
     
     # Fixed coordinates for each training type
     training_coords = {
@@ -91,8 +97,30 @@ def check_training(go_back=True, year=None):
         "wit": (936, 1572)
     }
     results = {}
+    skipped_stats = []
+    log_info("--- Training ---")
 
     for key, coords in training_coords.items():
+        # Early stat cap check - skip analysis if stat is already at/above cap
+        if current_stats:
+            current_stat_value = current_stats.get(key, 0)
+            stat_cap = stat_caps.get(key, 1200)  # Default cap is 1200 (very high = no cap)
+            if current_stat_value >= stat_cap:
+                log_info(f"[{key.upper()}] SKIPPED - stat {current_stat_value} >= cap {stat_cap}")
+                skipped_stats.append(key)
+                # Add placeholder result with score 0 so it won't be selected
+                results[key] = {
+                    "support": {},
+                    "support_detail": {},
+                    "hint": False,
+                    "spirit_training_extra": 0,
+                    "total_support": 0,
+                    "failure": 100,  # Set high to prevent selection
+                    "confidence": 1.0,
+                    "score": 0,
+                    "skipped": True
+                }
+                continue
         log_debug(f"Checking {key.upper()} training at coordinates {coords}...")
         
         # Proper hover simulation: move to position, hold, check, move away, release
@@ -183,28 +211,35 @@ def check_training(go_back=True, year=None):
             "score": score
         }
         
-        log_info(f"\n[{key.upper()}]")
-        
+        # Build compact support card summary
         if detailed_support:
-            support_lines = []
+            support_parts = []
             for card_type, entries in detailed_support.items():
                 for idx, entry in enumerate(entries, start=1):
                     level = entry['bond_level']
                     is_rainbow = (card_type == key and level >= 4)
-                    label = f"{card_type.upper()}{idx}: {level}"
+                    label = f"{card_type.upper()}{idx}:{level}"
                     if is_rainbow:
-                        label += " (Rainbow)"
-                    support_lines.append(label)
-            log_info(f", ".join(support_lines))
+                        label += "(R)"
+                    support_parts.append(label)
+            support_str = ",".join(support_parts)
         else:
-            log_info(f"-")
+            support_str = "-"
         
-        log_info(f"hint={hint_found}")
-        log_info(f"spirit_training={spirit_count_adjusted} (total: {spirit_count}, extra: {spirit_training_extra_count})")
-        log_info(f"spirit_training_extra={spirit_training_extra_count}")
-        log_info(f"spirit_burst={spirit_burst_count}")
-        log_info(f"Fail: {failure_chance}% - Confident: {confidence:.2f}")
-        log_info(f"Score: {score}")
+        # Build compact extras string
+        extras = []
+        if hint_found:
+            extras.append("hint")
+        if spirit_count_adjusted > 0:
+            extras.append(f"spirit:{spirit_count_adjusted}")
+        if spirit_burst_count > 0:
+            extras.append(f"burst:{spirit_burst_count}")
+        if spirit_training_extra_count > 0:
+            extras.append(f"sp_extra:{spirit_training_extra_count}")
+        extras_str = " " + " ".join(extras) if extras else ""
+
+        # Single compact line per training type
+        log_info(f"  {key.upper():>4}: Score={score:.1f} Fail={failure_chance}%({confidence:.0%}) | {support_str}{extras_str}")
 
         # Save per-stat debug overlay when in debug mode
         if DEBUG_MODE:
@@ -219,14 +254,6 @@ def check_training(go_back=True, year=None):
                 confidence=confidence,
                 score=score,
             )
-        
-
-    # Print overall summary
-    log_info(f"\n=== Overall ===")
-    for k in ["spd", "sta", "pwr", "guts", "wit"]:
-        if k in results:
-            data = results[k]
-            log_info(f"{k.upper()}: Score={data['score']:.2f}, Fail={data['failure']}% - Confident: {data['confidence']:.2f}")
     
     # Only go back if requested
     if go_back:
@@ -844,9 +871,28 @@ def choose_best_training(training_results, config, current_stats):
         "wit": min_score_config.get("wit", default_min_score)
     }
     
-    # Filter out training options with failure rates above maximum
-    safe_options = {k: v for k, v in training_results.items() 
-                   if v.get('failure', 100) <= max_failure}
+    # Gambling train config - increases max failure for high score training
+    gambling_enabled = config.get("gambling_train_enabled", False)
+    gambling_failure_increase = config.get("gambling_train_failure_increase", 5)
+    gambling_score_per_increase = config.get("gambling_train_score_per_increase", 1.0)
+    
+    # Filter out training options with failure rates above maximum (with gambling train adjustments)
+    safe_options = {}
+    for k, v in training_results.items():
+        failure_rate = v.get('failure', 100)
+        score = v.get('score', 0)
+        
+        # Calculate effective max failure for this training option
+        effective_max_failure = max_failure
+        if gambling_enabled and gambling_score_per_increase > 0:
+            # Increase max failure based on score (e.g., +5% for each 1.0 score)
+            score_multiplier = int(score / gambling_score_per_increase)
+            effective_max_failure = max_failure + (gambling_failure_increase * score_multiplier)
+            if score_multiplier > 0:
+                log_debug(f"  {k.upper()}: Gambling train applied, effective max failure = {effective_max_failure}% (score={score:.1f})")
+        
+        if failure_rate <= effective_max_failure:
+            safe_options[k] = v
     
     if not safe_options:
         log_debug(f" No training options with failure rate <= {max_failure}%")
@@ -951,6 +997,17 @@ def calculate_training_score(support_detail, hint_found, spirit_count, spirit_bu
     for card_type, entries in support_detail.items():
         for entry in entries:
             level = entry['bond_level']
+            
+            # Friend support cards have separate scoring logic
+            if card_type == "friend":
+                # Friend with bond < 3: add configurable points
+                # Friend with bond >= 3: add 0 points (no need to raise bond)
+                if level < 3:
+                    score += scoring_rules.get("friend_support", {}).get("points", 0.5)
+                # else: bond >= 3, add 0 points (skip)
+                continue
+            
+            # Normal support card scoring
             is_rainbow = (card_type == training_type and level >= 4)
             
             if is_rainbow:

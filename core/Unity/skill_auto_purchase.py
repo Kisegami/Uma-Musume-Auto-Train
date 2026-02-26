@@ -2,60 +2,21 @@ import time
 import os
 import json
 from core.Unity.skill_recognizer import take_screenshot, recognize_skill_up_locations
-from utils.input import perform_swipe, tap, tap_on_image
+from utils.input import tap, tap_on_image
+from utils.skill_swipe import swipe_skill_list_down_slow
 from core.Unity.skill_purchase_optimizer import fuzzy_match_skill_name
 from utils.log import log_debug, log_info, log_warning, log_error
+from utils.config_loader import load_main_config
 
-# Skill list swipe coordinates (optimized for skill screen)
-SKILL_LIST_CENTER_X = 504
-SKILL_LIST_TOP_Y = 800
-SKILL_LIST_BOTTOM_Y = 1492
-SKILL_LIST_SCROLL_TARGET_TOP = 1400
-SKILL_LIST_SCROLL_TARGET_BOTTOM = 926
+# Load config and check debug mode
+_config = load_main_config()
+DEBUG_MODE = _config.get("debug_mode", False)
 
 
 # Global cache for skill points to avoid re-detection
 _skill_points_cache = None
 _cache_timestamp = 0
 _cache_lifetime = 300  # Cache valid for 5 minutes
-
-# Optimized swipe functions for skill list navigation
-# These replace hardcoded coordinates and consolidate swipe logic
-def swipe_skill_list_up_fast(wait_before=0.5):
-    """
-    Swipe up in skill list (fast) - used to go to top of list.
-    Swipes DOWN on screen to scroll UP in the list.
-    
-    Args:
-        wait_before: Seconds to wait before performing swipe (default: 0.5)
-    
-    Returns:
-        bool: True if swipe was successful, False otherwise
-    """
-    time.sleep(wait_before)
-    return perform_swipe(
-        SKILL_LIST_CENTER_X, SKILL_LIST_TOP_Y, 
-        SKILL_LIST_CENTER_X, SKILL_LIST_SCROLL_TARGET_TOP, 
-        duration_ms=300
-    )
-
-def swipe_skill_list_down_slow(wait_before=0.5):
-    """
-    Swipe down in skill list (slow) - used for careful navigation.
-    Swipes UP on screen to scroll DOWN in the list.
-    
-    Args:
-        wait_before: Seconds to wait before performing swipe (default: 0.5)
-    
-    Returns:
-        bool: True if swipe was successful, False otherwise
-    """
-    time.sleep(wait_before)
-    return perform_swipe(
-        SKILL_LIST_CENTER_X, SKILL_LIST_BOTTOM_Y,
-        SKILL_LIST_CENTER_X, SKILL_LIST_SCROLL_TARGET_BOTTOM,
-        duration_ms=1050
-    )
 
 
 def cache_skill_points(points: int):
@@ -105,9 +66,10 @@ def extract_skill_points(screenshot=None):
         # Crop the skill points region
         points_crop = screenshot.crop(skill_points_region)
         
-        # Save original debug image
-        points_crop.save("debug_skill_points.png")
-        log_debug(f"Saved skill points debug image: debug_skill_points.png")
+        # Save original debug image (only when debug mode is enabled)
+        if DEBUG_MODE:
+            points_crop.save("debug_skill_points.png")
+            log_debug(f"Saved skill points debug image: debug_skill_points.png")
         
         # Optimized OCR - precise region makes simple approach work perfectly
         from core.Unity.ocr import extract_text, extract_number
@@ -317,7 +279,7 @@ def fast_swipe_to_top(end_career=False):
     
     log_debug(f"Successfully navigated to top of skill list")
 
-def execute_skill_purchases(purchase_plan, max_scrolls=20, end_career=False):
+def execute_skill_purchases(purchase_plan, max_scrolls=30, end_career=False):
     """
     Execute the automated skill purchase plan.
     
@@ -432,12 +394,10 @@ def execute_skill_purchases(purchase_plan, max_scrolls=20, end_career=False):
             # Continue scrolling if we haven't found all skills
             if remaining_skills and scrolls_performed < max_scrolls:
                 log_debug(f"Scrolling down to find more skills")
-                success = swipe_skill_list_down_slow(wait_before=0.5)
+                success = swipe_skill_list_down_slow(wait_before=0.1)
                 if not success:
                     log_error(f"Failed to scroll, stopping search")
                     break
-                
-                time.sleep(1.5)  # Wait for scroll animation
         
         # Step 3: Click confirm button
         if purchased_skills:

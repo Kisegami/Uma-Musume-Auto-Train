@@ -48,6 +48,8 @@ RETRY_RACE = racing_config_section.get("retry_race", config.get("retry_race", Tr
 
 from utils.log import log_debug, log_info, log_warning, log_error, log_success
 from utils.template_matching import deduplicated_matches, wait_for_image
+from utils.device import reopen_and_resume_career
+from utils.ui_check import career_ui_check
 
 def is_infirmary_active_adb(button_location, screenshot=None):
     """
@@ -124,14 +126,14 @@ def do_rest():
         from utils.input import tap
         tap(back_btn[0], back_btn[1])
         time.sleep(1.0)  # Wait for lobby to load
-    tazuna_hint = locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.7)
+    tazuna_hint = locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.9)
     if not tazuna_hint:
         log_debug(f"tazuna_hint.png not found, taking screenshot again to ensure we are in the lobby...")
         time.sleep(0.7)
         # Take a new screenshot and try again
         from utils.screenshot import take_screenshot
         take_screenshot()
-        tazuna_hint = locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.7)
+        tazuna_hint = locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.9)
         if not tazuna_hint:
             log_warning(f"Still not in lobby after retrying screenshot. Rest button search may fail.")
     # Now look for rest buttons in the lobby
@@ -177,15 +179,34 @@ def do_recreation():
     else:
         log_debug(f"No recreation button found")
 
-def career_lobby():
-    """Main career lobby loop"""
+def career_lobby(timeout=None):
+    """Main career lobby loop
+    Args:
+        timeout: Optional timeout in seconds. If set, the loop exits after
+                 this duration instead of running forever. Used by ui_check().
+    """
     # Use existing config loaded at module level
     MINIMUM_MOOD = training_config_section.get("minimum_mood", config.get("minimum_mood", "GREAT"))
     # Track last day we attempted a custom race but failed, to avoid re-checking within same day
     last_failed_custom_race_day = None
 
+    # ── Lobby-stuck watchdog ──────────────────────────────────────────────
+    # Tracks time spent spinning while NOT in lobby. Starts at the first
+    # tazuna_hint check, resets the moment the lobby is confirmed.
+    LOBBY_STUCK_TIMEOUT = 30  # seconds; purely lobby-wait time
+    _lobby_wait_start = None  # None = not currently waiting for lobby
+    _waiting_for_lobby_logged = False
+    # ─────────────────────────────────────────────────────────────────────
+
+    # Timeout support for bounded checks (e.g. from ui_check)
+    _timeout_start = time.time() if timeout else None
+
     # Program start
     while True:
+        # Check timeout if set
+        if _timeout_start and (time.time() - _timeout_start) > timeout:
+            log_info(f"Career lobby timeout reached ({timeout}s), returning to caller")
+            return True
         log_debug(f"\n===== Starting new loop iteration =====")
         
         # Take screenshot first for all checks
@@ -214,6 +235,7 @@ def career_lobby():
         log_debug(f"Checking for claw machine...")
         claw_matches = match_template(screenshot, "assets/buttons/claw.png", confidence=0.8)
         if claw_matches:
+            _lobby_wait_start = None
             claw_machine()
             continue
         
@@ -225,6 +247,7 @@ def career_lobby():
             center = (x + w//2, y + h//2)
             log_info(f"OK button found, clicking it.")
             tap(center[0], center[1])
+            _lobby_wait_start = None
             continue
         
         # Check for events
@@ -241,6 +264,7 @@ def career_lobby():
                     if click_success:
                         log_info(f"Successfully selected choice {choice_number}")
                         time.sleep(0.5)
+                        _lobby_wait_start = None
                         continue
                     else:
                         log_warning(f"Failed to click event choice, falling back to top choice")
@@ -248,17 +272,20 @@ def career_lobby():
                         x, y, w, h = event_matches[0]
                         center = (x + w//2, y + h//2)
                         tap(center[0], center[1])
+                        _lobby_wait_start = None
                         continue
                 else:
                     # If no choice locations were returned, skip clicking and continue loop
                     if not choice_locations:
                         log_debug(f"Skipping event click due to no visible choices after stabilization")
+                        _lobby_wait_start = None
                         continue
                     log_warning(f"Event analysis failed, falling back to top choice")
                     # Fallback using existing match
                     x, y, w, h = event_matches[0]
                     center = (x + w//2, y + h//2)
                     tap(center[0], center[1])
+                    _lobby_wait_start = None
                     continue
             else:
                 log_debug(f"No events found")
@@ -278,6 +305,7 @@ def career_lobby():
             center = (x + w//2, y + h//2)
             log_info(f"Inspiration found.")
             tap(center[0], center[1])
+            _lobby_wait_start = None
             continue
 
         # Check cancel button
@@ -288,6 +316,7 @@ def career_lobby():
             center = (x + w//2, y + h//2)
             log_debug(f"Clicking cancel_btn.png at position {center}")
             tap(center[0], center[1])
+            _lobby_wait_start = None
             continue
 
         # Check next button
@@ -298,16 +327,49 @@ def career_lobby():
             center = (x + w//2, y + h//2)
             log_debug(f"Clicking next_btn.png at position {center}")
             tap(center[0], center[1])
+            _lobby_wait_start = None
             continue
 
         # Check if current menu is in career lobby
         log_debug(f"Checking if in career lobby...")
-        tazuna_hint = locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.8)
+        tazuna_hint = locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.9)
 
         if tazuna_hint is None:
-            log_info(f"Should be in career lobby.")
+            # ── Watchdog: start / check lobby-wait timer ──────────────────
+            if _lobby_wait_start is None:
+                _lobby_wait_start = time.time()
+                log_debug(f"[Watchdog] Lobby wait timer started.")
+            elif time.time() - _lobby_wait_start > LOBBY_STUCK_TIMEOUT:
+                log_warning(f"[Watchdog] Stuck waiting for lobby >{LOBBY_STUCK_TIMEOUT}s — attempting career_ui_check before restart...")
+                _recovered = False
+                for _ui_attempt in range(3):
+                    log_info(f"[Watchdog] Running career_ui_check - Attempt {_ui_attempt + 1}/3...")
+                    try:
+                        if career_ui_check():
+                            log_info(f"[Watchdog] career_ui_check recovered on attempt {_ui_attempt + 1}")
+                            _recovered = True
+                            break
+                    except RuntimeError:
+                        raise  # Bot-stop signals must propagate
+                    except Exception as _uce:
+                        log_warning(f"[Watchdog] career_ui_check attempt {_ui_attempt + 1} failed: {_uce}")
+                    time.sleep(1)
+                if not _recovered:
+                    log_warning(f"[Watchdog] career_ui_check failed 3 times — restarting game...")
+                    try:
+                        reopen_and_resume_career()
+                    except Exception as _wde:
+                        log_error(f"[Watchdog] Reopen failed: {_wde}")
+                _lobby_wait_start = None
+            # ─────────────────────────────────────────────────────────────
+            if not _waiting_for_lobby_logged:
+                log_info(f"Waiting for Career lobby")
+                _waiting_for_lobby_logged = True
             continue
 
+        # Lobby confirmed — reset watchdog timer
+        _lobby_wait_start = None
+        _waiting_for_lobby_logged = False
         log_debug(f"Confirmed in career lobby")
         time.sleep(0.5)
         # Take a fresh screenshot after confirming lobby to ensure stable UI state
@@ -344,13 +406,52 @@ def career_lobby():
         goal_data = check_goal_name(screenshot)
         criteria_text = check_criteria(screenshot)
         
-        log_info("")
-        log_info("=== GAME STATUS ===")
+        log_info(f"=== GAME STATUS ===")
         log_info(f"Year: {year}")
         log_info(f"Mood: {mood}")
-        log_info(f"Turn: {turn}")
         log_info(f"Goal Name: {goal_data}")
         log_info(f"Status: {criteria_text}")
+
+        # Check for maiden (2-star) race opportunity in career lobby
+        # Only check if year is not Pre-Debut
+        if not is_pre_debut_year(year):
+            log_debug(f"Checking for maiden race icon in lobby...")
+            # Check for maiden_lobby.png in specific region (x=0, y=1123, width=378, height=111)
+            maiden_lobby_region = (0, 1123, 378, 111)
+            maiden_lobby_matches = match_template(screenshot, "assets/icons/maiden_lobby.png", confidence=0.8, region=maiden_lobby_region)
+            
+            if maiden_lobby_matches:
+                log_info(f"Maiden race icon found in lobby! Checking for 2-star races...")
+                
+                # Navigate to race menu
+                if tap_on_image("assets/buttons/races_btn.png", min_search=10):
+                    time.sleep(0.5)
+                    # Handle OK button if it appears
+                    tap_on_image("assets/buttons/ok_btn.png", confidence=0.5, min_search=2)
+                    time.sleep(0.5)
+                    
+                    # Take fresh screenshot to check for 2-star race
+                    race_screenshot = take_screenshot()
+                    two_star_matches = match_template(race_screenshot, "assets/races/2_star_race.png", confidence=0.8)
+                    
+                    if two_star_matches:
+                        log_info(f"2-star race found! Tapping to select...")
+                        x, y, w, h = two_star_matches[0]
+                        center_x, center_y = x + w//2, y + h//2
+                        tap(center_x, center_y)
+                        time.sleep(0.5)
+                        
+                        # Execute the race after selection
+                        from core.Ura.races_handling import execute_race_after_selection
+                        if execute_race_after_selection():
+                            log_info(f"2-star race completed successfully!")
+                            continue
+                    else:
+                        log_debug(f"No 2-star race found, tapping back to continue normally...")
+                        tap_on_image("assets/buttons/back_btn.png", confidence=0.8, min_search=5)
+                        time.sleep(0.5)
+            else:
+                log_debug(f"No maiden race icon in lobby")
 
         log_debug(f"Mood index: {mood_index}, Minimum mood index: {minimum_mood}")
         
@@ -358,21 +459,25 @@ def career_lobby():
         log_debug(f"Checking energy bar...")
         energy_percentage = check_energy_bar(screenshot)
         min_energy = training_config_section.get("min_energy", config.get("min_energy", 30))
-        
         log_info(f"Energy: {energy_percentage:.1f}% (Minimum: {min_energy}%)")
+        # Check for rest in June to save energy for summer (skip on Race Day)
+        rest_in_june_enabled = training_config_section.get("rest_in_june", False)
+        if rest_in_june_enabled and "Jun" in year and "Junior" not in year and energy_percentage <= 60 and turn != "Race Day":
+            log_info(f"Rest in June enabled - Energy <= 60%. Going to rest to save energy for summer.")
+            do_rest()
+            continue
         
-        # Get and display current stats
+        # Get current stats
         current_stats = {}
         try:
             current_stats = check_current_stats(screenshot)
-            stats_str = (
-                f"SPD: {current_stats.get('spd', 0)}, STA: {current_stats.get('sta', 0)}, "
-                f"PWR: {current_stats.get('pwr', 0)}, GUTS: {current_stats.get('guts', 0)}, "
-                f"WIT: {current_stats.get('wit', 0)}"
-            )
-            log_info(f"Current stats: {stats_str}")
+            stats_str = f"SPD: {current_stats.get('spd', 0)}, STA: {current_stats.get('sta', 0)}, PWR: {current_stats.get('pwr', 0)}, GUTS: {current_stats.get('guts', 0)}, WIT: {current_stats.get('wit', 0)}"
         except Exception as e:
             log_debug(f"Could not get current stats: {e}")
+            stats_str = "N/A"
+        
+        log_info(f"Current stats: {stats_str}")
+        log_info(f"")
         
         # Check if goals criteria are NOT met AND it is not Pre-Debut AND turn is less than 10
         # Prioritize racing when criteria are not met to help achieve goals
@@ -493,7 +598,7 @@ def career_lobby():
         # Last, do training
         log_debug(f"Analyzing training options...")
         time.sleep(0.5)
-        results_training = check_training(go_back=False)
+        results_training = check_training(go_back=False, current_stats=current_stats)
         
         log_debug(f"Deciding best training action using scoring algorithm...")
         
@@ -613,17 +718,35 @@ def career_lobby():
                         
                     else:
                         log_info(f"Prioritizing race due to insufficient training scores.")
-                        log_info(f"Training Race Check: Looking for race due to insufficient training scores...")
-                        race_found = find_and_do_race()
-                        if race_found:
-                            log_info(f"Training Race Result: Found Race")
-                            continue
-                        else:
-                            log_info(f"Training Race Result: No Race Found")
-                            # If no race found, go back and try training instead of resting by default
-                            tap_on_image("assets/buttons/back_btn.png", text="[INFO] Race not found. Trying training instead.")
+                        log_info(f"Training Race Check: Checking database for available races...")
+                        
+                        # Check database while still on training screen (no navigation)
+                        from core.Ura.races_handling import check_race_in_database
+                        race_available = check_race_in_database(year)
+                        
+                        if race_available:
+                            log_info(f"Good race found in database. Going back to lobby to do race.")
+                            # Go back to lobby and do the race
+                            tap_on_image("assets/buttons/back_btn.png", text="[INFO] Going back to lobby to search for race...")
                             time.sleep(0.5)
-                            # Try training with relaxed thresholds
+                            race_found = find_and_do_race()
+                            if race_found:
+                                log_info(f"Training Race Result: Race executed successfully")
+                                continue
+                            else:
+                                log_info(f"Training Race Result: Race execution failed")
+                                # Go back to training and use relaxed config
+                                if not go_to_training():
+                                    log_warning("Could not return to training screen. Choosing to rest.")
+                                    do_rest()
+                                    continue
+                        else:
+                            log_info(f"No good race found in database.")
+                        
+                        # No race available - check energy to decide next action
+                        # We're still on training screen
+                        if energy_percentage >= 50:
+                            log_info(f"Energy is {energy_percentage:.1f}% (>= 50%). Using relaxed scoring to train.")
                             relaxed_config = dict(training_config)
                             relaxed_config['min_score'] = {
                                 "spd": 0.0,
@@ -632,19 +755,21 @@ def career_lobby():
                                 "guts": 0.0,
                                 "wit": 0.0
                             }
-                            fallback_training = choose_best_training(results_training, relaxed_config, current_stats)
-                            if fallback_training:
-                                log_info(f"Proceeding with training ({fallback_training.upper()}) after race not found")
-                                do_train(fallback_training)
+                            relaxed_training = choose_best_training(results_training, relaxed_config, current_stats)
+                            if relaxed_training:
+                                log_info(f"Proceeding with training ({relaxed_training.upper()}) using relaxed scoring")
+                                do_train(relaxed_training, already_on_training_screen=True)
                                 continue
                             else:
-                                wit_score = results_training.get('wit', {}).get('score', 0)
-                                if wit_score < 1.0:
-                                    log_info(f"No viable training after relaxation and race not found. Choosing to rest.")
-                                    do_rest()
-                                else:
-                                    log_info(f"No training selected after relaxation. Choosing to rest.")
-                                    do_rest()
+                                log_info(f"No training found even with relaxed scoring. Going back to rest.")
+                                tap_on_image("assets/buttons/back_btn.png")
+                                time.sleep(0.3)
+                                do_rest()
+                        else:
+                            log_info(f"Energy is {energy_percentage:.1f}% (< 50%). Going back to lobby to rest.")
+                            tap_on_image("assets/buttons/back_btn.png")
+                            time.sleep(0.3)
+                            do_rest()
             else:
                 # Race prioritization disabled: if no training was chosen here, rest
                 # (min_score and failure thresholds are still enforced)

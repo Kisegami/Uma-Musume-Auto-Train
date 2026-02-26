@@ -36,11 +36,22 @@ project_root = _get_project_root()
 config = load_main_config(os.path.join(project_root, "config.json"))
 DEBUG_MODE = config.get("debug_mode", False)
 
+# Unity Team name to asset mapping for "A Team at Last" event
+UNITY_TEAM_ASSETS = {
+    "Happy Hoppers": "assets/unity/team_happy_hoppers.png",
+    "Sunny Runners": "assets/unity/team_sunny_runners.png",
+    "Carrot Pudding": "assets/unity/team_carrot_pudding.png",
+    "Blue Bloom": "assets/unity/team_blue_bloom.png",
+    # "Team Carrot" has no asset - uses last choice (fallback)
+}
+
 # Cache for event databases to avoid reloading JSON files
 _event_cache = {
     "support_card": None,
     "uma_data": None,
-    "ura_finale": None
+    "ura_finale": None,
+    "custom_uma_events": None,
+    "custom_support_events": None
 }
 
 def _load_event_databases():
@@ -75,6 +86,144 @@ def _load_event_databases():
             _event_cache["ura_finale"] = []
     
     return _event_cache
+
+
+def _load_custom_event_templates():
+    """Load custom event templates from config.json's events section
+    
+    Loads:
+    - Uma events from: template/Events/Uma/Events_{uma_event_file}.json
+    - Support card events from: template/Events/Supports/SupportCards_{support_card_template}.json
+    """
+    global _event_cache
+    
+    # Only load once (cache check)
+    if _event_cache["custom_uma_events"] is not None or _event_cache["custom_support_events"] is not None:
+        return _event_cache
+    
+    events_config = config.get("events", {})
+    project_root = _get_project_root()
+    
+    # Load Uma event template
+    uma_event_file = events_config.get("uma_event_file", "")
+    if uma_event_file:
+        uma_template_path = os.path.join(project_root, "template", "Events", "Uma", f"Events_{uma_event_file}.json")
+        if os.path.exists(uma_template_path):
+            try:
+                with open(uma_template_path, "r", encoding="utf-8-sig") as f:
+                    uma_data = json.load(f)
+                    _event_cache["custom_uma_events"] = uma_data.get("CustomChoices", {})
+                    log_info(f"Loaded custom Uma event template: {uma_event_file} ({len(_event_cache['custom_uma_events'])} events)")
+            except Exception as e:
+                log_warning(f"Error loading Uma event template {uma_event_file}: {e}")
+                _event_cache["custom_uma_events"] = {}
+        else:
+            log_debug(f"Uma event template not found: {uma_template_path}")
+            _event_cache["custom_uma_events"] = {}
+    else:
+        _event_cache["custom_uma_events"] = {}
+    
+    # Load Support Card event template
+    support_template = events_config.get("support_card_template", "")
+    if support_template:
+        support_template_path = os.path.join(project_root, "template", "Events", "Supports", f"SupportCards_{support_template}.json")
+        if os.path.exists(support_template_path):
+            try:
+                with open(support_template_path, "r", encoding="utf-8-sig") as f:
+                    support_data = json.load(f)
+                    # Convert array format to dict for quick lookup
+                    custom_choices = support_data.get("CustomChoices", [])
+                    _event_cache["custom_support_events"] = {item["EventName"]: item["SelectedOption"] for item in custom_choices}
+                    log_info(f"Loaded custom Support Card template: {support_template} ({len(_event_cache['custom_support_events'])} events)")
+            except Exception as e:
+                log_warning(f"Error loading Support Card template {support_template}: {e}")
+                _event_cache["custom_support_events"] = {}
+        else:
+            log_debug(f"Support Card template not found: {support_template_path}")
+            _event_cache["custom_support_events"] = {}
+    else:
+        _event_cache["custom_support_events"] = {}
+    
+    return _event_cache
+
+
+def _normalize_event_name(name: str) -> str:
+    """Remove special markers and symbols from event names for matching
+    
+    Removes: (❯), (❯❯), (❯❯❯), ♪, and extra whitespace
+    """
+    result = name.replace("(❯)", "").replace("(❯❯)", "").replace("(❯❯❯)", "").replace("♪", "")
+    return result.strip()
+
+
+def search_custom_events(event_name):
+    """Search for event in custom templates (from config.json)
+    
+    Args:
+        event_name: The event name to search for
+        
+    Returns:
+        str or None: The pre-configured option (e.g., "Top Option") if found, None otherwise
+    """
+    # Ensure custom templates are loaded
+    _load_custom_event_templates()
+    
+    # Normalize the search term
+    normalized_search = _normalize_event_name(event_name).lower()
+    
+    # Check Uma events first
+    if _event_cache["custom_uma_events"]:
+        # Try exact match first
+        if event_name in _event_cache["custom_uma_events"]:
+            return _event_cache["custom_uma_events"][event_name]
+        
+        # Try normalized exact match
+        for custom_event, selected_option in _event_cache["custom_uma_events"].items():
+            normalized_custom = _normalize_event_name(custom_event).lower()
+            if normalized_custom == normalized_search:
+                return selected_option
+        
+        # Try prefix match (e.g., "Solid Showing" matches "Solid Showing (G1)")
+        for custom_event, selected_option in _event_cache["custom_uma_events"].items():
+            normalized_custom = _normalize_event_name(custom_event).lower()
+            if normalized_custom.startswith(normalized_search) and len(normalized_search) >= 5:
+                log_debug(f"Prefix match: '{event_name}' → '{custom_event}'")
+                return selected_option
+        
+        # Try substring/contains match (e.g., "Get Well Soon!" matches "Failed training (Get Well Soon!)")
+        for custom_event, selected_option in _event_cache["custom_uma_events"].items():
+            normalized_custom = _normalize_event_name(custom_event).lower()
+            if len(normalized_search) >= 5 and normalized_search in normalized_custom:
+                log_debug(f"Substring match: '{event_name}' → '{custom_event}'")
+                return selected_option
+    
+    # Check Support Card events
+    if _event_cache["custom_support_events"]:
+        # Try exact match first
+        if event_name in _event_cache["custom_support_events"]:
+            return _event_cache["custom_support_events"][event_name]
+        
+        # Try normalized exact match
+        for custom_event, selected_option in _event_cache["custom_support_events"].items():
+            normalized_custom = _normalize_event_name(custom_event).lower()
+            if normalized_custom == normalized_search:
+                return selected_option
+        
+        # Try prefix match
+        for custom_event, selected_option in _event_cache["custom_support_events"].items():
+            normalized_custom = _normalize_event_name(custom_event).lower()
+            if normalized_custom.startswith(normalized_search) and len(normalized_search) >= 5:
+                log_debug(f"Prefix match: '{event_name}' → '{custom_event}'")
+                return selected_option
+        
+        # Try substring/contains match
+        for custom_event, selected_option in _event_cache["custom_support_events"].items():
+            normalized_custom = _normalize_event_name(custom_event).lower()
+            if len(normalized_search) >= 5 and normalized_search in normalized_custom:
+                log_debug(f"Substring match: '{event_name}' → '{custom_event}'")
+                return selected_option
+    
+    return None
 
 
 # Cache for event names (for OCR matching)
@@ -663,10 +812,11 @@ def handle_event_choice():
         if not event_name:
             log_error(f"❌ EVENT DETECTION FAILED: No text detected in event region")
             
-            # Save debug image for analysis
-            debug_filename = f"debug_event_detection_failure_{int(time.time())}.png"
-            event_image.save(debug_filename)
-            log_error(f"❌ Debug image saved to: {debug_filename}")
+            # Save debug image for analysis (only when debug mode is enabled)
+            if DEBUG_MODE:
+                debug_filename = f"debug_event_detection_failure_{int(time.time())}.png"
+                event_image.save(debug_filename)
+                log_error(f"❌ Debug image saved to: {debug_filename}")
             log_error(f"❌ Event region coordinates: {event_region}")
             log_error(f"❌ Image size: {event_image.size}")
             log_error(f"❌ Check the OCR logs above for what text was detected (if any)")
@@ -685,6 +835,38 @@ def handle_event_choice():
         
         log_info(f"Event found: {event_name}")
 
+        # Check custom event templates first (from config.json)
+        custom_choice = search_custom_events(event_name)
+        if custom_choice:
+            log_info(f"🎯 Custom template match: {event_name} → {custom_choice}")
+            choices_found, choice_locations = count_event_choices()
+            
+            # Map custom_choice to choice number
+            choice_number = 1
+            if choices_found == 2:
+                if "top" in custom_choice.lower():
+                    choice_number = 1
+                elif "bottom" in custom_choice.lower():
+                    choice_number = 2
+            elif choices_found == 3:
+                if "top" in custom_choice.lower():
+                    choice_number = 1
+                elif "middle" in custom_choice.lower():
+                    choice_number = 2
+                elif "bottom" in custom_choice.lower():
+                    choice_number = 3
+            elif choices_found >= 4:
+                option_match = re.search(r'option\s*(\d+)', custom_choice.lower())
+                if option_match:
+                    choice_number = int(option_match.group(1))
+            
+            if choice_number > choices_found:
+                log_warning(f"Custom choice {choice_number} exceeds available choices ({choices_found}), defaulting to first")
+                choice_number = 1
+            
+            log_info(f"Choose choice: {choice_number}")
+            return choice_number, True, choice_locations
+
         # Hardcoded event handling
         # Handle "Tutorial" event - always choose 2nd choice
         if "Tutorial" in event_name:
@@ -697,17 +879,67 @@ def handle_event_choice():
                 log_warning(f"Tutorial event detected but only {choices_found} choice(s) available, defaulting to first choice")
                 return 1, True, choice_locations
         
-        # Handle "A Team at Last" event - always choose bottom (last) choice
+        # Handle "A Team at Last" event - select team based on config
         if "A Team at Last" in event_name or "Team at Last" in event_name:
-            log_info("🎯 Hardcoded event: A Team at Last - choosing bottom (last) choice")
+            team_name = config.get("unity_team_name", "Team Carrot")
+            log_info(f"🎯 Hardcoded event: A Team at Last - configured team: {team_name}")
             choices_found, choice_locations = count_event_choices()
-            if choices_found > 0:
-                choice_number = choices_found  # Last choice
-                log_info(f"Choose choice: {choice_number} (bottom/last choice)")
-                return choice_number, True, choice_locations
-            else:
+            
+            if choices_found == 0:
                 log_warning(f"A Team at Last event detected but no choices available, defaulting to first choice")
                 return 1, True, choice_locations
+            
+            # If Team Carrot or fallback, use last choice
+            if team_name not in UNITY_TEAM_ASSETS:
+                log_info(f"Using fallback: last choice (Team Carrot)")
+                choice_number = choices_found
+                log_info(f"Choose choice: {choice_number} (bottom/last choice)")
+                return choice_number, True, choice_locations
+            
+            # Template match to find the correct team choice
+            asset_path = UNITY_TEAM_ASSETS[team_name]
+            if not os.path.exists(asset_path):
+                log_warning(f"Team asset not found: {asset_path}, falling back to last choice")
+                choice_number = choices_found
+                log_info(f"Choose choice: {choice_number} (fallback)")
+                return choice_number, True, choice_locations
+            
+            # Take screenshot and find team icon
+            screenshot = take_screenshot()
+            img_cv = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+            template = cv2.imread(asset_path)
+            
+            if template is None:
+                log_warning(f"Could not load team template: {asset_path}, falling back to last choice")
+                choice_number = choices_found
+                return choice_number, True, choice_locations
+            
+            # Template matching on FULL SCREEN (not region)
+            result = cv2.matchTemplate(img_cv, template, cv2.TM_CCOEFF_NORMED)
+            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
+            
+            if max_val >= 0.7:
+                # Found team icon, calculate which choice it belongs to
+                team_y = max_loc[1] + template.shape[0] // 2
+                log_debug(f"Team {team_name} found at y={team_y}, confidence={max_val:.2f}")
+                
+                # Map icon Y position to choice number by comparing with choice locations
+                for i, (cx, cy, cw, ch) in enumerate(choice_locations):
+                    choice_center_y = cy + ch // 2
+                    # Check if team icon Y is within range of this choice
+                    if abs(team_y - choice_center_y) < 200:
+                        choice_number = i + 1
+                        log_info(f"Choose choice: {choice_number} ({team_name})")
+                        return choice_number, True, choice_locations
+                
+                log_warning(f"Could not map team icon position to choice, falling back to last choice")
+                choice_number = choices_found
+                return choice_number, True, choice_locations
+            else:
+                log_warning(f"Team {team_name} not found on screen (max_val={max_val:.2f}), falling back to last choice")
+                choice_number = choices_found
+                log_info(f"Choose choice: {choice_number} (fallback)")
+                return choice_number, True, choice_locations
 
         # Search for event in database
         found_events = search_events_exact(event_name)

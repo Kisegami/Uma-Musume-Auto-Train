@@ -11,9 +11,9 @@ import time
 from typing import Dict, Any, Optional, Tuple
 
 # Add the project root to the path so we can import our modules
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(PROJECT_ROOT)
-SUPPORTS_DIR = os.path.join(PROJECT_ROOT, "supports")
+SUPPORTS_DIR = os.path.join(PROJECT_ROOT, "template", "supports")
 os.makedirs(SUPPORTS_DIR, exist_ok=True)
 
 from utils.recognizer import match_template
@@ -22,6 +22,29 @@ from utils.input import tap
 from core.Ura.skill_auto_purchase import click_image_button
 from core.Ura.ocr import extract_text, extract_number
 from utils.config_loader import load_main_config
+
+# Module-level state for persistent restart tracking across function calls
+_restart_state = {
+    'restart_count': 0,
+    'total_fans_acquired': 0,
+    'session_active': False
+}
+
+
+def reset_restart_state():
+    """Reset restart state for a new session."""
+    global _restart_state
+    _restart_state = {
+        'restart_count': 0,
+        'total_fans_acquired': 0,
+        'session_active': False
+    }
+    log_info("Restart state reset for new session")
+
+
+def get_restart_state() -> Dict[str, Any]:
+    """Get current restart state."""
+    return _restart_state.copy()
 
 
 def load_restart_config() -> Dict[str, Any]:
@@ -93,7 +116,7 @@ def should_continue_restarting(current_restart_count: int, max_restart_times: in
 
 
 def execute_skill_purchase_workflow(available_points: int):
-    """Execute the skill purchase workflow"""
+    """Execute the skill purchase workflow with merged priorities (main → end → budget)"""
     log_info(f"=== Auto Skill Purchase Workflow ===")
     
     # Import here to avoid circular imports
@@ -117,9 +140,50 @@ def execute_skill_purchase_workflow(available_points: int):
     if all_available_skills:
         # Deduplicate and optimize skill purchase
         deduplicated_skills = deduplicate_skills(all_available_skills, similarity_threshold=0.8)
-        config = load_skill_config()
+        
+        # Load main skill config
+        main_config = load_skill_config()
+        
+        # Load end skill config (always used during restart career)
+        restart_config = load_restart_config()
+        end_skill_file = restart_config.get("end_skill_file", "")
+        
+        # Merge configs: main priority list + end skill priority list
+        merged_config = {
+            "skill_priority": list(main_config.get("skill_priority", [])),
+            "gold_skill_upgrades": dict(main_config.get("gold_skill_upgrades", {}))
+        }
+        
+        if end_skill_file:
+            try:
+                import json
+                import os
+                # Handle relative path
+                if not os.path.isabs(end_skill_file):
+                    end_skill_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), end_skill_file)
+                
+                if os.path.exists(end_skill_file):
+                    with open(end_skill_file, 'r', encoding='utf-8') as f:
+                        end_config = json.load(f)
+                    
+                    # Append end skill priorities (avoid duplicates)
+                    existing_priorities = set(merged_config["skill_priority"])
+                    for skill in end_config.get("skill_priority", []):
+                        if skill not in existing_priorities:
+                            merged_config["skill_priority"].append(skill)
+                            existing_priorities.add(skill)
+                    
+                    # Merge gold skill upgrades
+                    merged_config["gold_skill_upgrades"].update(end_config.get("gold_skill_upgrades", {}))
+                    
+                    log_info(f"Merged end skill config from: {end_skill_file}")
+                else:
+                    log_info(f"End skill file not found: {end_skill_file}")
+            except Exception as e:
+                log_info(f"Failed to load end skill config: {e}")
+        
         # Use end_career=True to buy all available skills instead of just priority skills
-        purchase_plan = create_purchase_plan(deduplicated_skills, config, end_career=True)
+        purchase_plan = create_purchase_plan(deduplicated_skills, merged_config, end_career=True)
         
         if purchase_plan:
             affordable_skills, total_cost, remaining_points = filter_affordable_skills(purchase_plan, available_points)
@@ -230,12 +294,82 @@ def load_config():
 from utils.template_matching import wait_for_image
 
 
-def filter_support():
-    """Filter support cards based on configuration."""
-    log_info(f"Filtering support cards...")
+def filter_support() -> bool:
+    """Filter support cards based on configuration utilizing OCR to check status.
+    Returns False if support template is strictly required but fundamentally unfindable."""
+    log_info(f"Checking support card filter status...")
     
     config = load_config()
     auto_start_career = config.get('auto_start_career', {})
+    
+    # Check filter status via OCR
+    screenshot = take_screenshot()
+    filter_status_region = (399, 1593, 585, 1647)
+    cropped_filter = screenshot.crop(filter_status_region)
+    filter_text = extract_text(cropped_filter)
+    
+    # Clean text to ease matching
+    clean_text = filter_text.strip().upper()
+    log_info(f"Filter OCR text: '{clean_text}'")
+    
+    if "OFF" in clean_text:
+        log_info("Filters are OFF, applying filter settings...")
+        support_speciality = auto_start_career.get('support_speciality', 'SPEED')
+        support_rarity = auto_start_career.get('support_rarity', 'SSR')
+        
+        # Tap filter button
+        tap(696, 1621)
+        time.sleep(0.5)
+        
+        # Tap additional filter coordinate
+        tap(774, 206)
+        time.sleep(0.5)
+
+        # Reset filter
+        screen_for_reset = take_screenshot()
+        reset_filter_matches = match_template(screen_for_reset, "assets/buttons/reset_filter.png", confidence=0.8)
+        if reset_filter_matches:
+            x, y, w, h = reset_filter_matches[0]
+            center = (x + w//2, y + h//2)
+            tap(center[0], center[1])
+            time.sleep(0.5)
+        
+        # Set support speciality
+        support_speciality_coords = {
+            "SPD": (102, 627),
+            "STA": (444, 623),
+            "PWR": (786, 618),
+            "GUTS": (109, 741),
+            "WIT": (442, 732),
+            "PAL": (777, 731),
+        }
+        
+        if support_speciality in support_speciality_coords:
+            x, y = support_speciality_coords[support_speciality]
+            tap(x, y)
+            time.sleep(0.5)
+        
+        # Set support rarity
+        support_rarity_coords = {
+            "R": (102, 408),
+            "SR": (437, 414),
+            "SSR": (777, 410),
+        }
+        
+        if support_rarity in support_rarity_coords:
+            x, y = support_rarity_coords[support_rarity]
+            tap(x, y)
+            time.sleep(0.5)
+        
+        # OK button after filter selection
+        ok_matches = match_template(take_screenshot(), "assets/buttons/ok_btn.png", confidence=0.6)
+        if ok_matches:
+            x, y, w, h = ok_matches[0]
+            center = (x + w//2, y + h//2)
+            tap(center[0], center[1])
+            time.sleep(1.0) # Wait for filter to apply
+    else:
+        log_info("Filters are already ON (or not OFF), skipping filter setup...")
 
     # Use template selection when enabled
     use_templates = auto_start_career.get('use_support_templates', False)
@@ -245,21 +379,60 @@ def filter_support():
         template_path = os.path.join(SUPPORTS_DIR, template_name) if template_name else None
         if template_path and os.path.exists(template_path):
             log_info(f"Support template mode ON -> using '{template_name}' at '{template_path}'")
-            screenshot = take_screenshot()
-            matches = match_template(screenshot, template_path, confidence=0.7)
-            log_info(f"Template matches found: {len(matches) if matches else 0}")
-            if matches:
-                x, y, w, h = matches[0]
-                center = (x + w//2, y + h//2)
-                tap(center[0], center[1])
-                time.sleep(0.5)
-                return
-            else:
-                log_warning("Support template enabled but no match found on screen; falling back to following card.")
+            max_refreshes = 3
+            max_scrolls_per_refresh = 3
+            
+            for refresh_attempt in range(max_refreshes + 1): # 0 is initial load, 1-3 are actual refreshes
+                for scroll_attempt in range(max_scrolls_per_refresh + 1): # 0 is initial view, 1-3 are scrolls
+                    screenshot = take_screenshot()
+                    matches = match_template(screenshot, template_path, confidence=0.7)
+                    
+                    if matches:
+                        log_info(f"Template '{template_name}' found!")
+                        x, y, w, h = matches[0]
+                        center = (x + w//2, y + h//2)
+                        tap(center[0], center[1])
+                        time.sleep(0.5)
+                        return True
+                    else:
+                        if scroll_attempt < max_scrolls_per_refresh:
+                            log_warning(f"No match found on screen (Refresh {refresh_attempt}, Scroll {scroll_attempt}); attempting to scroll.")
+                            from utils.support_swipe import swipe_support_list_down
+                            swipe_support_list_down(wait_before=0.5, wait_after=1.5)
+                        else:
+                            log_warning(f"Max scrolls reached for this refresh cycle.")
+                            
+                # If we exhausted all scrolls and didn't find it, we try to refresh if we have attempts left
+                if refresh_attempt < max_refreshes:
+                    log_info(f"Attempting to refresh support cards list (Refresh {refresh_attempt + 1}/{max_refreshes})...")
+                    # Tap refresh button
+                    refresh_matches = match_template(take_screenshot(), "assets/buttons/supports_refresh.png", confidence=0.8)
+                    if refresh_matches:
+                        x, y, w, h = refresh_matches[0]
+                        center = (x + w//2, y + h//2)
+                        tap(center[0], center[1])
+                        time.sleep(1.0)
+                        
+                        # Tap OK button for refresh confirm
+                        ok_matches = match_template(take_screenshot(), "assets/buttons/ok_btn.png", confidence=0.6)
+                        if ok_matches:
+                            x, y, w, h = ok_matches[0]
+                            center = (x + w//2, y + h//2)
+                            tap(center[0], center[1])
+                            time.sleep(1.5) # Wait for list to reload
+                    else:
+                         log_warning("Could not find refresh button. Exiting refresh loop.")
+                         break # Break to outer error handling if refresh button simply isn't there
+                         
+            # If we exhausted all refreshes and all their scrolls
+            log_error("Cannot find template support card and stop the bot instead choose the first following supports cards")
+            return False
         else:
-            log_warning("Support template enabled but template file missing or not set; falling back to following card.")
+            log_warning(f"Support template enabled but template file missing at '{template_path}'; falling back to following card.")
+            # Note: Explicit fallback requested by user ONLY if the setting is true but the file on disk doesn't exist
+            # If it does exist but can't be found on screen, we return False per instructions.
 
-    # Fallback: select first following card
+    # Fallback: select first following card (only reached if use_templates is False or template file physically missing)
     time.sleep(1)
     screenshot = take_screenshot()
     following_matches = match_template(screenshot, "assets/icons/following.png", confidence=0.8)
@@ -270,6 +443,83 @@ def filter_support():
         center = (x + w//2, y + h//2)
         tap(center[0], center[1])
         time.sleep(0.5)
+        
+    return True
+
+
+def restore_tp() -> bool:
+    """Restore TP using TP bottle or Carats when out of TP.
+    
+    Returns:
+        bool: True if TP restored successfully, False if no bottles/carats available
+    """
+    log_info("=== Restoring TP ===")
+    
+    config = load_config()
+    auto_start_career = config.get('auto_start_career', {})
+    use_carats = auto_start_career.get('auto_charge_tp_carats', False)
+    
+    # Step 1: Tap restore button
+    if not click_image_button("assets/buttons/restore_btn.png", "restore button", max_attempts=5):
+        log_warning("Failed to tap restore button")
+        return False
+    
+    time.sleep(1)
+    
+    # Step 2: Wait for TP bottle to appear
+    tp_bottle_matches = wait_for_image("assets/icons/tp_bottle.png", timeout=5, confidence=0.8)
+    
+    if tp_bottle_matches:
+        # Step 3: Calculate Use button position (offset from bottle)
+        # TP Bottle at (131, 481) → Use button at (912, 481)
+        # X offset = 912 - 131 = 781
+        bottle_x, bottle_y = tp_bottle_matches[0], tp_bottle_matches[1]
+        use_btn_x = bottle_x + 781
+        use_btn_y = bottle_y
+        
+        log_info(f"TP bottle at ({bottle_x}, {bottle_y}), tapping Use at ({use_btn_x}, {use_btn_y})")
+        tap(use_btn_x, use_btn_y)
+        time.sleep(1)
+    else:
+        log_warning("Out of TP Bottle")
+        if use_carats:
+            log_info("Trying to restore using Carats instead")
+            tp_carats_matches = wait_for_image("assets/icons/tp_carats.png", timeout=5, confidence=0.8)
+            if not tp_carats_matches:
+                log_error("Carats icon not found")
+                return False
+                
+            carats_x, carats_y = tp_carats_matches[0], tp_carats_matches[1]
+            use_btn_x = carats_x + 781
+            use_btn_y = carats_y
+            
+            log_info(f"Carats icon at ({carats_x}, {carats_y}), tapping Use at ({use_btn_x}, {use_btn_y})")
+            tap(use_btn_x, use_btn_y)
+            time.sleep(1)
+            
+            # For Carats, tap the tp_plus button before confirming
+            if not click_image_button("assets/buttons/tp_plus.png", "tp plus button", max_attempts=5):
+                log_warning("Failed to tap tp plus button")
+                return False
+            time.sleep(0.5)
+        else:
+            log_error("Carats restore not enabled, stopping bot")
+            return False
+            
+    # Step 4: Tap OK button
+    if not click_image_button("assets/buttons/ok_restore.png", "OK button", max_attempts=10):
+        log_warning("Failed to tap OK button")
+        return False
+    
+    time.sleep(0.5)
+    
+    # Step 5: Tap Close button
+    if not click_image_button("assets/buttons/close.png", "close button", max_attempts=10):
+        log_warning("Failed to tap close button")
+        return False
+    
+    log_info("✓ TP restored successfully")
+    return True
 
 
 def skip_check():
@@ -366,7 +616,9 @@ def start_career() -> bool:
         
         # Step 5: Filter support
         log_info(f"Filtering...")
-        filter_support()
+        if filter_support() is False:
+            return False
+            
         time.sleep(1)
         
         # Step 6: Start Career 1
@@ -376,6 +628,30 @@ def start_career() -> bool:
             center = (x + w//2, y + h//2)
             tap(center[0], center[1])
             time.sleep(0.5)
+            
+            # Check for insufficient TP (restore button appears)
+            restore_matches = match_template(take_screenshot(), "assets/buttons/restore_btn.png", confidence=0.8)
+            if restore_matches:
+                auto_charge = auto_start_career.get('auto_charge_tp', False)
+                if auto_charge:
+                    log_info("Insufficient TP detected - attempting auto restore")
+                    if not restore_tp():
+                        log_error("TP restore failed - Out of TP Bottle")
+                        return False
+                    # After restore, tap Start Career 1 again
+                    time.sleep(1)
+                    start_career_1_matches = match_template(take_screenshot(), "assets/buttons/start_career_1.png", confidence=0.8)
+                    if start_career_1_matches:
+                        x, y, w, h = start_career_1_matches[0]
+                        center = (x + w//2, y + h//2)
+                        tap(center[0], center[1])
+                        time.sleep(0.5)
+                    else:
+                        log_error("Failed to find Start Career 1 button after TP restore")
+                        return False
+                else:
+                    log_error("Insufficient TP and auto_charge_tp is disabled - stopping bot")
+                    return False
         else:
             return False
         
@@ -423,7 +699,7 @@ def start_career() -> bool:
             return False
         
         # Step 13: Wait for Tazuna hint
-        tazuna_hint_matches = wait_for_image("assets/ui/tazuna_hint.png", timeout=60, confidence=0.8)
+        tazuna_hint_matches = wait_for_image("assets/ui/tazuna_hint.png", timeout=60, confidence=0.9)
         if tazuna_hint_matches:
             log_info(f"Career start completed!")
             return True
@@ -435,6 +711,41 @@ def start_career() -> bool:
         return False
 
 
+def notify_run_completion(screenshot, current_restart_count: int, max_restart_times: int, 
+                           total_fans_acquired: int) -> Tuple[int, int]:
+    """
+    Extract fans and send webhook notification.
+    Returns (run_fans, new_total_fans_acquired)
+    """
+    run_fans = extract_total_fans(screenshot)
+    new_total_fans = total_fans_acquired + run_fans
+    
+    log_info(f"Total fans acquired so far: {new_total_fans}")
+    
+    # Send Discord webhook notification
+    try:
+        from utils.discord_webhook import is_webhook_enabled, send_run_complete_webhook
+        if is_webhook_enabled():
+            run_number = current_restart_count + 1
+            # If max_restart_times is 0 or 1 generally implies single run if logic holds, 
+            # but usually it's set to N. If restart disabled, maybe show 1/1?
+            
+            average_per_run = new_total_fans // run_number if run_number > 0 else 0
+            send_run_complete_webhook(
+                run_number=run_number,
+                max_runs=max_restart_times,
+                fans_this_run=run_fans,
+                session_total=new_total_fans,
+                today_total=new_total_fans,
+                average_per_run=average_per_run,
+                screenshot=screenshot
+            )
+    except Exception as e:
+        log_warning(f"Failed to send Discord webhook: {e}")
+        
+    return run_fans, new_total_fans
+
+
 def complete_career(current_restart_count: int, max_restart_times: int, 
                    total_fans_acquired: int, total_fans_requirement: int) -> Tuple[bool, int, int]:
     """Execute the complete career workflow including skill purchase"""
@@ -442,12 +753,16 @@ def complete_career(current_restart_count: int, max_restart_times: int,
     
     # Extract fans and skill points first
     screenshot = take_screenshot()
-    run_fans = extract_total_fans(screenshot)
     skill_points = extract_skill_points(screenshot)
     
-    # Add fans to total
-    total_fans_acquired += run_fans
-    log_info(f"Total fans acquired so far: {total_fans_acquired}")
+    # Handle notification and fan merging
+    run_fans, total_fans_acquired = notify_run_completion(
+        screenshot, current_restart_count, max_restart_times, total_fans_acquired
+    )
+    
+    # Increment restart count first (this run just completed)
+    current_restart_count += 1
+    log_info(f"Restart count: {current_restart_count}/{max_restart_times}")
     
     # Check if we should continue
     should_continue, reason = should_continue_restarting(
@@ -456,10 +771,6 @@ def complete_career(current_restart_count: int, max_restart_times: int,
     if not should_continue:
         log_info(f"Career completion criteria met: {reason}")
         return False, current_restart_count, total_fans_acquired
-    
-    # Increment restart count
-    current_restart_count += 1
-    log_info(f"Restart count: {current_restart_count}/{max_restart_times}")
     
     # Execute skill purchase workflow (if skill points available)
     if skill_points > 0:
@@ -471,8 +782,13 @@ def complete_career(current_restart_count: int, max_restart_times: int,
 
 
 def execute_restart_cycle(current_restart_count: int, max_restart_times: int, 
-                         total_fans_acquired: int, total_fans_requirement: int) -> Tuple[bool, int, int]:
-    """Execute one complete restart cycle"""
+                         total_fans_acquired: int, total_fans_requirement: int) -> Tuple[bool, int, int, bool]:
+    """Execute one complete restart cycle.
+    
+    Returns:
+        Tuple of (success, new_restart_count, new_total_fans, career_started)
+        - career_started: True if a new career was started and we should exit the restart loop
+    """
     log_info(f"\n=== Restart Cycle {current_restart_count + 1}/{max_restart_times} ===")
     
     # Complete the current career
@@ -482,19 +798,31 @@ def execute_restart_cycle(current_restart_count: int, max_restart_times: int,
     
     if not success:
         log_info(f"Failed to complete career - stopping workflow")
-        return False, current_restart_count, total_fans_acquired
+        return False, current_restart_count, total_fans_acquired, False
     
     # Start new career
     if not start_career():
         log_info(f"Failed to start new career")
-        return False, new_restart_count, new_total_fans
+        return False, new_restart_count, new_total_fans, False
     
     log_info(f"✓ Restart cycle {new_restart_count} completed successfully")
-    return True, new_restart_count, new_total_fans
+    # Return True with career_started=True to signal we should exit the loop
+    # and let the main bot handle gameplay until next career completion
+    return True, new_restart_count, new_total_fans, True
 
 
 def run_restart_workflow() -> bool:
-    """Main restart workflow - continues until criteria are met"""
+    """Main restart workflow - executes ONE complete career and starts next.
+    
+    This function completes the current career and starts a new one.
+    After starting a new career, it returns True to let the main bot loop
+    handle gameplay. The workflow will be triggered again when the next
+    career completion is detected.
+    
+    Uses module-level _restart_state to persist counts across calls.
+    """
+    global _restart_state
+    
     log_info(f"=== Starting Career Restart Workflow ===")
     
     # Load configuration
@@ -511,42 +839,46 @@ def run_restart_workflow() -> bool:
         log_info(f"Restart is disabled in config")
         return False
     
-    # Runtime state - managed in function scope
-    current_restart_count = 0
-    total_fans_acquired = 0
+    # Use persistent state
+    current_restart_count = _restart_state['restart_count']
+    total_fans_acquired = _restart_state['total_fans_acquired']
     
-    # Continue restarting until criteria are met
-    while True:
-        should_continue, reason = should_continue_restarting(
-            current_restart_count, max_restart_times, total_fans_acquired, total_fans_requirement
-        )
-        if not should_continue:
-            log_info(f"Restart criteria met: {reason}")
-            break
-        
-        success, new_restart_count, new_total_fans = execute_restart_cycle(
-            current_restart_count, max_restart_times, total_fans_acquired, total_fans_requirement
-        )
-        
-        if not success:
-            # Check if we reached completion criteria
-            should_continue, reason = should_continue_restarting(
-                new_restart_count, max_restart_times, new_total_fans, total_fans_requirement
-            )
-            if not should_continue:
-                log_info(f"Career completion criteria met: {reason}")
-                break
-            else:
-                log_info(f"Restart cycle failed")
-                break
-        
-        # Update state for next iteration
-        current_restart_count = new_restart_count
-        total_fans_acquired = new_total_fans
+    log_info(f"Current session state: {current_restart_count} restarts, {total_fans_acquired} total fans")
+    
+    # Check if we should continue
+    should_continue, reason = should_continue_restarting(
+        current_restart_count, max_restart_times, total_fans_acquired, total_fans_requirement
+    )
+    if not should_continue:
+        log_info(f"Restart criteria met: {reason}")
+        reset_restart_state()  # Reset for next session
+        return False
+    
+    # Execute one restart cycle
+    success, new_restart_count, new_total_fans, career_started = execute_restart_cycle(
+        current_restart_count, max_restart_times, total_fans_acquired, total_fans_requirement
+    )
+    
+    if not success:
+        log_info(f"Restart cycle failed")
+        return False
+    
+    # Update persistent state
+    _restart_state['restart_count'] = new_restart_count
+    _restart_state['total_fans_acquired'] = new_total_fans
+    _restart_state['session_active'] = True
+    
+    if career_started:
+        # New career was started - return True to let main bot handle gameplay
+        # The restart workflow will be triggered again when career completion is detected
+        log_info(f"=== New career started - returning control to main bot ===")
+        log_info(f"Session progress: {new_restart_count}/{max_restart_times} restarts, {new_total_fans} total fans")
+        return True
     
     log_info(f"=== Career Restart Workflow Complete ===")
-    log_info(f"Total restarts completed: {current_restart_count}")
-    log_info(f"Total fans acquired: {total_fans_acquired}")
+    log_info(f"Total restarts completed: {new_restart_count}")
+    log_info(f"Total fans acquired: {new_total_fans}")
+    reset_restart_state()  # Reset for next session
     
     return True
 
@@ -557,14 +889,22 @@ def career_lobby_check(screenshot=None) -> bool:
     restart_config = load_restart_config()
     restart_enabled = restart_config.get('restart_enabled', False)
     
+    # Check if complete career screen is visible
+    if check_complete_career_screen(screenshot):
+        # Even if restart is disabled, we might want to send the webhook (User Request)
+        if not restart_enabled:
+            log_info("Restart is disabled but Career Completion detected - Sending Webhook")
+            # For single run, run_number=1, max_runs=1 (conceptually)
+            notify_run_completion(screenshot, 0, 1, 0)
+            log_info(f"Restart is disabled - stopping bot after webhook")
+            return False
+
+        log_info(f"Complete Career screen detected - starting restart workflow")
+        return run_restart_workflow()
+    
     if not restart_enabled:
         log_info(f"Restart is disabled - stopping bot")
         return False
-    
-    # Check if complete career screen is visible
-    if check_complete_career_screen(screenshot):
-        log_info(f"Complete Career screen detected - starting restart workflow")
-        return run_restart_workflow()
     
     return True  # Continue with normal career lobby
 

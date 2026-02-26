@@ -2,11 +2,11 @@
   "scoring_rules": {
     "rainbow_support": {
       "description": "Same type support card with bond level >= 4",
-      "points": 1.0
+      "points": 0.8
     },
     "not_rainbow_support_low": {
       "description": "Support with bond level < 4",
-      "points": 1.1
+      "points": 1.0
     },
     "not_rainbow_support_high": {
       "description": "Not same type support with bond level >= 4 (no need to get more bond)",
@@ -16,9 +16,13 @@
       "description": "Hint icon present",
       "points": 0.2
     },
+    "friend_support": {
+      "description": "Friend support card with bond < 3",
+      "points": 0.8
+    },
     "spririt_training": {
       "description": "Spirit training",
-      "points": 0.4
+      "points": 0.5
     },
     "spirit_burst": {
       "description": "Spirit burst",
@@ -30,6 +34,3 @@
     }
   }
 }
-
-
-
