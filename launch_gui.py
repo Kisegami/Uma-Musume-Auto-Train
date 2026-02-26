@@ -115,6 +115,26 @@ def main():
     print("Uma Musume Auto-Train Bot - PySide6 GUI")
     print("=" * 50)
     
+    # Check for updates before starting GUI
+    try:
+        from utils.config_loader import load_main_config
+        config = load_main_config() if os.path.exists('config.json') else {}
+        
+        update_config = config.get('update', {})
+        auto_update = update_config.get('auto_update', False)
+        install_dependencies = update_config.get('install_dependencies', True)
+        branch = update_config.get('branch', 'main')
+        remote = update_config.get('remote', 'origin')
+        
+        from utils.updater import check_and_update
+        if check_and_update(branch=branch, remote=remote, auto_update=auto_update, install_dependencies=install_dependencies):
+            log_info("Application was updated. Please restart to use the new version.")
+            input("Press Enter to exit...")
+            sys.exit(0)
+    except Exception as e:
+        log_warning(f"Could not check for updates: {e}")
+        log_info("Continuing without update check...")
+    
     # Check main configuration files
     try:
         print("Checking configuration files...")

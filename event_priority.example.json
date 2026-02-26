@@ -4,10 +4,12 @@
         "Fast Learner",
         "Hot Topic",
         "Practice Perfect",
-        "Energy +",
-        "hint +",
+        "Can Start Dating",
+        "Pace Chaser Straightaways",
         "Speed +",
         "Stamina +",
+        "Energy +",
+        "hint +",
         "Yayoi Akikawa bond +",
         "Power +",
         "Wisdom +",
@@ -17,11 +19,14 @@
         "stat +",
         "stats +",
         "Guts +",
-        "Japanese Oaks"],
+        "Japanese Oaks"
+    ],
     "Bad_choices": [
         "Practice Poor",
         "Slacker",
         "Slow Metabolism",
         "Mood -",
-        "Gatekept"
-    ]}
+        "Gatekept",
+        "Event Chain Ended"
+    ]
+}
