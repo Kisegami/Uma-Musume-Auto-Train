@@ -175,9 +175,10 @@ class MainTab(QScrollArea):
         self.unity_team_row.setVisible(is_unity)
         self._update_scenario_logo(mode)
         
-        # Update Unity fields visibility in training tab
+        # Update Unity fields visibility and reload training scores for new mode
         if hasattr(self.main_window, 'training_page'):
             self.main_window.training_page.update_unity_visibility()
+            self.main_window.training_page._load_training_score_config()
     
     def _on_unity_team_change(self, text):
         """Handle Unity Team change"""
