@@ -8307,5 +8307,124 @@
       "Bottom Option": "Skill points +30\r\nFuji Kiseki bond +5"
     },
     "CardSlug": "10049-fuji-kiseki"
+  },
+  {
+    "EventName": "(❯) A Simp's Aesthetics",
+    "EventOptions": {
+      "": "Skill points +30\r\nAgnes Digital bond +5"
+    },
+    "CardSlug": "30085-agnes-digital"
+  },
+  {
+    "EventName": "(❯❯) A Simp's Burdens",
+    "EventOptions": {
+      "Top Option": "Stamina +15\r\nHydrate hint +1\r\nAgnes Digital bond +5"
+    },
+    "CardSlug": "30085-agnes-digital"
+  },
+  {
+    "EventName": "(❯❯) A Simp's Burdens",
+    "EventOptions": {
+      "Bottom Option": "Wit +15\r\nFocus hint +1\r\nAgnes Digital bond +5"
+    },
+    "CardSlug": "30085-agnes-digital"
+  },
+  {
+    "EventName": "(❯❯❯) A Simp's Lifestyle",
+    "EventOptions": {
+      "Top Option": "Randomly either\r\nPower +15\r\nSkill points +20\r\nLead the Charge! hint +3\r\nor\r\nor\r\nPower +10\r\nSkill points +15\r\nLead the Charge! hint +1"
+    },
+    "CardSlug": "30085-agnes-digital"
+  },
+  {
+    "EventName": "(❯❯❯) A Simp's Lifestyle",
+    "EventOptions": {
+      "Bottom Option": "Randomly either\r\nSpeed +35\r\nUma Stan hint +5\r\nAgnes Digital bond +5\r\nor\r\nor\r\nSpeed +35\r\nUma Stan hint +1\r\nAgnes Digital bond +5"
+    },
+    "CardSlug": "30085-agnes-digital"
+  },
+  {
+    "EventName": "Umamusume Deficiency!",
+    "EventOptions": {
+      "Top Option": "Energy +5\r\nSpeed +5\r\nAgnes Digital bond +5"
+    },
+    "CardSlug": "30085-agnes-digital"
+  },
+  {
+    "EventName": "Umamusume Deficiency!",
+    "EventOptions": {
+      "Bottom Option": "Speed +5\r\nPower +5\r\nAgnes Digital bond +5"
+    },
+    "CardSlug": "30085-agnes-digital"
+  },
+  {
+    "EventName": "Heavy Romance",
+    "EventOptions": {
+      "Top Option": "Rainy Days ○ hint +1\r\nAgnes Digital bond +5"
+    },
+    "CardSlug": "30085-agnes-digital"
+  },
+  {
+    "EventName": "Heavy Romance",
+    "EventOptions": {
+      "Bottom Option": "Wet Conditions ○ hint +1\r\nAgnes Digital bond +5"
+    },
+    "CardSlug": "30085-agnes-digital"
+  },
+  {
+    "EventName": "(❯) A Grand Slam Energy Boost!",
+    "EventOptions": {
+      "Top Option": "Maximum Energy +4\r\nInes Fujin bond +5"
+    },
+    "CardSlug": "20030-ines-fujin"
+  },
+  {
+    "EventName": "(❯) A Grand Slam Energy Boost!",
+    "EventOptions": {
+      "Bottom Option": "Mood +2\r\nInes Fujin bond +5"
+    },
+    "CardSlug": "20030-ines-fujin"
+  },
+  {
+    "EventName": "(❯❯) You'll Always Be in My Heart...",
+    "EventOptions": {
+      "Top Option": "Speed +10\r\nMedium Straightaways ○ hint +1\r\nSympathy hint +1\r\nInes Fujin bond +5"
+    },
+    "CardSlug": "20030-ines-fujin"
+  },
+  {
+    "EventName": "(❯❯) You'll Always Be in My Heart...",
+    "EventOptions": {
+      "Bottom Option": "Wit +10\r\nStandard Distance ○ hint +1\r\nFinal Push hint +1\r\nInes Fujin bond +5"
+    },
+    "CardSlug": "20030-ines-fujin"
+  },
+  {
+    "EventName": "It's a Game of Tag!",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nSpeed +5\r\nInes Fujin bond +5"
+    },
+    "CardSlug": "20030-ines-fujin"
+  },
+  {
+    "EventName": "It's a Game of Tag!",
+    "EventOptions": {
+      "Bottom Option": "Fast-Paced hint +1\r\nInes Fujin bond +5"
+    },
+    "CardSlug": "20030-ines-fujin"
+  },
+  {
+    "EventName": "Ten Minutes Left!",
+    "EventOptions": {
+      "Top Option": "Guts +15\r\nInes Fujin bond +5"
+    },
+    "CardSlug": "20030-ines-fujin"
+  },
+  {
+    "EventName": "Ten Minutes Left!",
+    "EventOptions": {
+      "Bottom Option": "Wit +15\r\nInes Fujin bond +5"
+    },
+    "CardSlug": "20030-ines-fujin"
   }
 ]

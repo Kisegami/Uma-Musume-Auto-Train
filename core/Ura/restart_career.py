@@ -760,6 +760,10 @@ def complete_career(current_restart_count: int, max_restart_times: int,
         screenshot, current_restart_count, max_restart_times, total_fans_acquired
     )
     
+    # Increment restart count first (this run just completed)
+    current_restart_count += 1
+    log_info(f"Restart count: {current_restart_count}/{max_restart_times}")
+    
     # Check if we should continue
     should_continue, reason = should_continue_restarting(
         current_restart_count, max_restart_times, total_fans_acquired, total_fans_requirement
@@ -767,10 +771,6 @@ def complete_career(current_restart_count: int, max_restart_times: int,
     if not should_continue:
         log_info(f"Career completion criteria met: {reason}")
         return False, current_restart_count, total_fans_acquired
-    
-    # Increment restart count
-    current_restart_count += 1
-    log_info(f"Restart count: {current_restart_count}/{max_restart_times}")
     
     # Execute skill purchase workflow (if skill points available)
     if skill_points > 0:

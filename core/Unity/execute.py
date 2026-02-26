@@ -478,8 +478,11 @@ def career_lobby(timeout=None):
         goal_data = check_goal_name(screenshot)
         criteria_text = check_criteria(screenshot)
         
-        log_info("")
-        log_info(f"=== {year} | Mood: {mood} | Goal: {goal_data} | {criteria_text} ===")
+        log_info(f"=== GAME STATUS ===")
+        log_info(f"Year: {year}")
+        log_info(f"Mood: {mood}")
+        log_info(f"Goal Name: {goal_data}")
+        log_info(f"Status: {criteria_text}")
 
         # Check for maiden (2-star) race opportunity in career lobby
         # Only check if year is not Pre-Debut
@@ -554,7 +557,9 @@ def career_lobby(timeout=None):
         # Check dating availability
         dating_available = check_dating_available(screenshot)
         
-        log_info(f"Energy: {energy_percentage:.1f}%(min:{min_energy}%) | Stats: {stats_str} | Dating: {dating_available}")
+        log_info(f"Energy: {energy_percentage:.1f}% (Minimum: {min_energy}%)")
+        log_info(f"Current stats: {stats_str}")
+        log_info(f"Dating Available: {dating_available}")
         
         # Check if goals criteria are NOT met AND it is not Pre-Debut
         # Prioritize racing when criteria are not met to help achieve goals

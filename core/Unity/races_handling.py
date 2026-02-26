@@ -356,9 +356,9 @@ def race_day():
         return True
     return False
 
-def check_strategy_before_race(region=(660, 974, 378, 120)) -> bool:
+def check_strategy_before_race(region=(660, 974, 378, 120), max_retries=2) -> bool:
     """Check and ensure strategy matches config before race."""
-    log_debug(f"Checking strategy before race...")
+    log_debug(f"Checking strategy before race... (retries left: {max_retries})")
     
     try:
         screenshot = take_screenshot()
@@ -417,11 +417,16 @@ def check_strategy_before_race(region=(660, 974, 378, 120)) -> bool:
             return True
         
         # Strategy doesn't match, try to change it
+        if max_retries <= 0:
+            log_warning(f"Strategy Check - Max retries reached, giving up on strategy change")
+            return False
+        
         log_info(f"Strategy Check - Mismatch, changing to {expected_strategy}")
         
         if change_strategy_before_race(expected_strategy):
-            # Recheck after change
-            strategy_changed = check_strategy_before_race(region)
+            # Recheck after change with decremented retry count
+            time.sleep(1)  # Wait for UI to settle
+            strategy_changed = check_strategy_before_race(region, max_retries=max_retries - 1)
             if strategy_changed:
                 log_debug(f"Strategy successfully changed")
                 return True
