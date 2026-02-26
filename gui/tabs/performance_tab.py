@@ -6,7 +6,7 @@ Contains screenshot capture method settings and OCR method settings.
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox,
     QSpinBox, QDoubleSpinBox, QGroupBox, QGridLayout, QFrame, QScrollArea, QLineEdit,
-    QPushButton, QMessageBox, QProgressBar
+    QPushButton, QMessageBox, QProgressBar, QDialog, QTextEdit, QDialogButtonBox
 )
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QColor
@@ -39,7 +39,9 @@ class EasyOCRInstallThread(QThread):
             )
             self.finished_signal.emit(success, message)
         except Exception as e:
-            self.finished_signal.emit(False, f"Installation failed: {str(e)}")
+            import traceback
+            detail = traceback.format_exc()
+            self.finished_signal.emit(False, f"Installation failed: {str(e)}\n\nFull traceback:\n{detail}")
 
 
 class OCRBenchmarkThread(QThread):
@@ -373,7 +375,13 @@ class PerformanceTab(QScrollArea):
                 self.easyocr_actions_frame.setVisible(True)  # Show benchmark + remove buttons
             else:
                 # EasyOCR GPU not ready
-                self.ocr_status_label.setText(f"✗ {status['error']}")
+                error_msg = status['error']
+                error_detail = status.get('error_detail')
+                
+                if error_detail:
+                    self.ocr_status_label.setText(f"✗ {error_msg} (click 'View Details' below for more info)")
+                else:
+                    self.ocr_status_label.setText(f"✗ {error_msg}")
                 self.ocr_status_label.setStyleSheet(f"color: {COLORS['accent_orange']};")
                 self.easyocr_actions_frame.setVisible(False)  # Hide action buttons
                 
@@ -382,9 +390,31 @@ class PerformanceTab(QScrollArea):
                     self.gpu_info_label.setVisible(True)
                     self.install_btn.setVisible(True)
                 else:
-                    self.gpu_info_label.setText("No NVIDIA GPU detected. EasyOCR GPU requires an NVIDIA GPU with CUDA support.")
+                    info_text = "No NVIDIA GPU detected. EasyOCR GPU requires an NVIDIA GPU with CUDA support."
+                    if error_detail:
+                        info_text += "\nClick 'View Details' below for diagnostic info."
+                    self.gpu_info_label.setText(info_text)
                     self.gpu_info_label.setVisible(True)
                     self.install_btn.setVisible(False)
+                
+                # Show/hide detail button
+                if error_detail:
+                    if not hasattr(self, 'error_detail_btn'):
+                        self.error_detail_btn = QPushButton("🔍 View Error Details")
+                        self.error_detail_btn.setToolTip("Show detailed error information for troubleshooting")
+                        # Insert after gpu_info_label in the status layout
+                        self.ocr_status_frame.layout().insertWidget(2, self.error_detail_btn)
+                    self.error_detail_btn.setVisible(True)
+                    # Disconnect previous connections to avoid stacking
+                    try:
+                        self.error_detail_btn.clicked.disconnect()
+                    except RuntimeError:
+                        pass
+                    self.error_detail_btn.clicked.connect(
+                        lambda: self._show_error_detail_dialog("GPU Detection Error Details", error_detail)
+                    )
+                elif hasattr(self, 'error_detail_btn'):
+                    self.error_detail_btn.setVisible(False)
                     
         except Exception as e:
             self.ocr_status_label.setText(f"✗ Error checking status: {str(e)}")
@@ -426,11 +456,62 @@ class PerformanceTab(QScrollArea):
             )
             self._check_easyocr_status()  # Refresh status
         else:
-            QMessageBox.warning(
-                self, "Installation Failed",
-                f"✗ {message}\n\nPlease check the requirements and try again."
-            )
+            self._show_error_detail_dialog("Installation Failed", message)
             self._check_easyocr_status()  # Refresh status
+    
+    def _show_error_detail_dialog(self, title: str, detail_message: str):
+        """Show a dialog with scrollable error details for troubleshooting."""
+        dialog = QDialog(self)
+        dialog.setWindowTitle(title)
+        dialog.setMinimumSize(550, 400)
+        dialog.setMaximumSize(800, 600)
+        
+        layout = QVBoxLayout(dialog)
+        layout.setSpacing(12)
+        
+        # Header
+        header = QLabel(f"✗ {title}")
+        header.setStyleSheet(f"color: {COLORS['accent_red']}; font-size: 14px; font-weight: bold;")
+        layout.addWidget(header)
+        
+        # Instruction
+        hint = QLabel("The following error details may help diagnose the issue:")
+        hint.setStyleSheet(f"color: {COLORS['text_secondary']};")
+        hint.setWordWrap(True)
+        layout.addWidget(hint)
+        
+        # Scrollable error detail text
+        detail_text = QTextEdit()
+        detail_text.setReadOnly(True)
+        detail_text.setPlainText(detail_message)
+        detail_text.setStyleSheet(
+            f"background-color: {COLORS.get('bg_secondary', '#1e1e2e')}; "
+            f"color: {COLORS.get('text_primary', '#cdd6f4')}; "
+            f"font-family: 'Consolas', 'Courier New', monospace; "
+            f"font-size: 12px; "
+            f"border: 1px solid {COLORS.get('border', '#45475a')}; "
+            f"border-radius: 4px; "
+            f"padding: 8px;"
+        )
+        layout.addWidget(detail_text)
+        
+        # Copy button + Close button row
+        button_box = QDialogButtonBox()
+        copy_btn = QPushButton("📋 Copy to Clipboard")
+        copy_btn.clicked.connect(lambda: self._copy_to_clipboard(detail_message))
+        button_box.addButton(copy_btn, QDialogButtonBox.ActionRole)
+        button_box.addButton(QDialogButtonBox.Close)
+        button_box.rejected.connect(dialog.close)
+        layout.addWidget(button_box)
+        
+        dialog.exec()
+    
+    def _copy_to_clipboard(self, text: str):
+        """Copy text to clipboard."""
+        from PySide6.QtWidgets import QApplication
+        clipboard = QApplication.clipboard()
+        clipboard.setText(text)
+        # Brief tooltip-like feedback (the button text itself serves as confirmation)
     
     def _run_benchmark(self, include_easyocr: bool = False):
         """Start OCR benchmark in background thread"""

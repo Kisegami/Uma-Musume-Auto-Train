@@ -9,6 +9,7 @@ import os
 import subprocess
 import ctypes
 import platform
+import traceback
 from ctypes import c_int, c_void_p, byref, c_uint, c_ulonglong
 from typing import Tuple, Optional, Dict, Callable
 
@@ -18,22 +19,52 @@ NVML_DEVICE_NAME_BUFFER_SIZE = 64
 NVML_SYSTEM_DRIVER_VERSION_BUFFER_SIZE = 80
 
 
+# Store last error details for diagnostic purposes
+_last_nvml_error: Optional[str] = None
+
+
 def _load_nvml():
-    """Load NVIDIA Management Library using ctypes."""
+    """Load NVIDIA Management Library using ctypes.
+    
+    Returns:
+        The NVML library object, or None if loading failed.
+        Sets _last_nvml_error with detailed error info on failure.
+    """
+    global _last_nvml_error
+    _last_nvml_error = None
+    
     try:
         if platform.system() == "Windows":
             try:
                 nvml = ctypes.windll.LoadLibrary("nvml.dll")
-            except OSError:
+            except OSError as e1:
                 # Alternative location
-                nvml = ctypes.cdll.LoadLibrary(
-                    "C:\\Program Files\\NVIDIA Corporation\\NVSMI\\nvml.dll"
-                )
+                try:
+                    nvml = ctypes.cdll.LoadLibrary(
+                        "C:\\Program Files\\NVIDIA Corporation\\NVSMI\\nvml.dll"
+                    )
+                except OSError as e2:
+                    _last_nvml_error = (
+                        f"Failed to load NVIDIA Management Library (nvml.dll).\n\n"
+                        f"Primary attempt: {e1}\n"
+                        f"Fallback attempt (NVSMI path): {e2}\n\n"
+                        f"This usually means:\n"
+                        f"  • NVIDIA GPU drivers are not installed\n"
+                        f"  • NVIDIA drivers are corrupted or outdated\n"
+                        f"  • A required DLL dependency is missing\n\n"
+                        f"Try reinstalling NVIDIA GPU drivers from:\n"
+                        f"https://www.nvidia.com/Download/index.aspx"
+                    )
+                    return None
         else:
             # Linux/Mac
             nvml = ctypes.CDLL("libnvidia-ml.so.1")
         return nvml
-    except Exception:
+    except Exception as e:
+        _last_nvml_error = (
+            f"Failed to load NVIDIA Management Library: {type(e).__name__}: {e}\n\n"
+            f"Traceback:\n{traceback.format_exc()}"
+        )
         return None
 
 
@@ -44,6 +75,7 @@ def get_gpu_info() -> Tuple[Optional[str], Optional[float]]:
     Returns:
         Tuple of (gpu_name, memory_gb) or (None, None) if not available
     """
+    global _last_nvml_error
     nvml = _load_nvml()
     if not nvml:
         return None, None
@@ -51,12 +83,14 @@ def get_gpu_info() -> Tuple[Optional[str], Optional[float]]:
     try:
         result = nvml.nvmlInit_v2()
         if result != NVML_SUCCESS:
+            _last_nvml_error = f"NVML initialization failed with error code: {result}"
             return None, None
         
         # Get device count
         device_count = c_uint()
         result = nvml.nvmlDeviceGetCount_v2(byref(device_count))
         if result != NVML_SUCCESS or device_count.value == 0:
+            _last_nvml_error = f"No GPU devices found (NVML error code: {result}, device count: {device_count.value})"
             nvml.nvmlShutdown()
             return None, None
         
@@ -64,6 +98,7 @@ def get_gpu_info() -> Tuple[Optional[str], Optional[float]]:
         handle = c_void_p()
         result = nvml.nvmlDeviceGetHandleByIndex_v2(c_uint(0), byref(handle))
         if result != NVML_SUCCESS:
+            _last_nvml_error = f"Failed to get GPU handle (NVML error code: {result})"
             nvml.nvmlShutdown()
             return None, None
         
@@ -87,7 +122,8 @@ def get_gpu_info() -> Tuple[Optional[str], Optional[float]]:
         nvml.nvmlShutdown()
         return gpu_name, memory_gb
         
-    except Exception:
+    except Exception as e:
+        _last_nvml_error = f"GPU detection error: {type(e).__name__}: {e}\n\nTraceback:\n{traceback.format_exc()}"
         try:
             nvml.nvmlShutdown()
         except:
@@ -102,6 +138,7 @@ def get_cuda_version() -> Optional[str]:
     Returns:
         CUDA version string (e.g., "12.4") or None if not available
     """
+    global _last_nvml_error
     nvml = _load_nvml()
     if not nvml:
         return None
@@ -109,6 +146,7 @@ def get_cuda_version() -> Optional[str]:
     try:
         result = nvml.nvmlInit_v2()
         if result != NVML_SUCCESS:
+            _last_nvml_error = f"NVML init failed for CUDA version check (error code: {result})"
             return None
         
         cuda_version = c_int()
@@ -121,10 +159,12 @@ def get_cuda_version() -> Optional[str]:
             nvml.nvmlShutdown()
             return f"{major}.{minor}"
         
+        _last_nvml_error = f"Failed to get CUDA version (NVML error code: {result})"
         nvml.nvmlShutdown()
         return None
         
-    except Exception:
+    except Exception as e:
+        _last_nvml_error = f"CUDA version detection error: {type(e).__name__}: {e}\n\nTraceback:\n{traceback.format_exc()}"
         try:
             nvml.nvmlShutdown()
         except:
@@ -158,6 +198,11 @@ def check_easyocr_installed() -> bool:
         return False
 
 
+def get_last_nvml_error() -> Optional[str]:
+    """Get the last NVML error detail string, if any."""
+    return _last_nvml_error
+
+
 def check_easyocr_gpu_ready() -> Dict:
     """
     Check if EasyOCR GPU is ready to use.
@@ -171,7 +216,8 @@ def check_easyocr_gpu_ready() -> Dict:
             'cuda_version': str or None,
             'pytorch_cuda': str or None,
             'easyocr_installed': bool,
-            'error': str or None
+            'error': str or None,
+            'error_detail': str or None
         }
     """
     result = {
@@ -181,7 +227,8 @@ def check_easyocr_gpu_ready() -> Dict:
         'cuda_version': None,
         'pytorch_cuda': None,
         'easyocr_installed': False,
-        'error': None
+        'error': None,
+        'error_detail': None
     }
     
     # Check GPU
@@ -191,6 +238,7 @@ def check_easyocr_gpu_ready() -> Dict:
     
     if not gpu_name:
         result['error'] = "No NVIDIA GPU detected"
+        result['error_detail'] = get_last_nvml_error()
         return result
     
     # Check CUDA version
@@ -199,6 +247,7 @@ def check_easyocr_gpu_ready() -> Dict:
     
     if not cuda_version:
         result['error'] = "CUDA driver not detected"
+        result['error_detail'] = get_last_nvml_error()
         return result
     
     # Check PyTorch CUDA
@@ -275,7 +324,11 @@ def install_easyocr_gpu(
         gpu_name, gpu_memory = get_gpu_info()
         
         if not gpu_name:
-            return False, "No NVIDIA GPU detected. EasyOCR GPU requires an NVIDIA GPU."
+            detail = get_last_nvml_error()
+            msg = "No NVIDIA GPU detected. EasyOCR GPU requires an NVIDIA GPU."
+            if detail:
+                msg += f"\n\nDetailed error:\n{detail}"
+            return False, msg
         
         report(f"Found GPU: {gpu_name}", 10)
         
@@ -284,7 +337,11 @@ def install_easyocr_gpu(
         cuda_version = get_cuda_version()
         
         if not cuda_version:
-            return False, "CUDA driver not detected. Please install NVIDIA drivers with CUDA support."
+            detail = get_last_nvml_error()
+            msg = "CUDA driver not detected. Please install NVIDIA drivers with CUDA support."
+            if detail:
+                msg += f"\n\nDetailed error:\n{detail}"
+            return False, msg
         
         report(f"CUDA version: {cuda_version}", 20)
         
@@ -415,7 +472,8 @@ def install_easyocr_gpu(
             return False, f"Installation verification failed: {e}"
         
     except Exception as e:
-        return False, f"Installation failed: {str(e)}"
+        detail = traceback.format_exc()
+        return False, f"Installation failed: {str(e)}\n\nFull traceback:\n{detail}"
 
 
 def test_easyocr_gpu() -> Tuple[bool, str]:
