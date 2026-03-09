@@ -451,24 +451,44 @@ def install_easyocr_gpu(
         
         report("EasyOCR installed successfully", 90)
         
-        # Step 7: Verify installation
+        # Step 7: Verify installation in a subprocess
+        # PyTorch C extensions cannot be safely re-imported in the same process,
+        # so we verify in a fresh subprocess to avoid the '_has_torch_function' error.
         report("Verifying installation...", 95)
         
-        # Need to reload torch module after installation
-        import importlib
-        if 'torch' in sys.modules:
-            del sys.modules['torch']
+        verify_script = (
+            "import sys; "
+            "import torch; "
+            "cuda_ok = torch.cuda.is_available(); "
+            "import easyocr; "
+            "print('CUDA_OK' if cuda_ok else 'CUDA_FAIL')"
+        )
         
         try:
-            import torch
-            if not torch.cuda.is_available():
+            verify_result = subprocess.run(
+                [sys.executable, "-c", verify_script],
+                capture_output=True,
+                text=True,
+                timeout=120
+            )
+            
+            if verify_result.returncode != 0:
+                stderr = verify_result.stderr.strip()
+                return False, f"Installation verification failed:\n{stderr}"
+            
+            output = verify_result.stdout.strip()
+            if "CUDA_FAIL" in output:
                 return False, "PyTorch installed but CUDA not available. Check CUDA drivers."
             
-            import easyocr
+            if "CUDA_OK" not in output:
+                return False, f"Unexpected verification output: {output}"
+            
             report("Installation complete!", 100)
             return True, f"EasyOCR GPU installed successfully. Using {gpu_name} with CUDA {cuda_version}"
             
-        except ImportError as e:
+        except subprocess.TimeoutExpired:
+            return False, "Installation verification timed out (120s). Installation may still be OK — try restarting."
+        except Exception as e:
             return False, f"Installation verification failed: {e}"
         
     except Exception as e:
