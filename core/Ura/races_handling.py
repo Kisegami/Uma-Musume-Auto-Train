@@ -484,6 +484,9 @@ def change_strategy_before_race(expected_strategy: str) -> bool:
         tap(target_x, target_y)
         log_debug(f"Tapped strategy position for {expected_strategy}")
         
+        # Wait for the game to register the strategy selection
+        time.sleep(0.5)
+        
         # Step 4: Tap confirm.png from found location
         log_debug(f"Confirming strategy change...")
         tap(confirm_btn[0], confirm_btn[1])

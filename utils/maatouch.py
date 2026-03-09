@@ -109,6 +109,13 @@ class MaaTouchConnection:
         else:
             log_debug("No existing MaaTouch process found on device (this is normal)")
     
+    def _check_binary_exists(self) -> bool:
+        """Check if MaaTouch binary exists on the device"""
+        result = self._adb_command(['shell', f'ls {self.REMOTE_PATH}'])
+        output = result.stdout.decode(errors='replace').strip()
+        # 'ls' returns the path if found, or error message if not
+        return result.returncode == 0 and 'No such file' not in output
+    
     def uninstall(self) -> bool:
         """Remove existing MaaTouch binary from device"""
         log_info("Removing existing MaaTouch binary from device...")
@@ -160,6 +167,13 @@ class MaaTouchConnection:
         # Kill any stale MaaTouch process on the device
         self._kill_device_process()
         
+        # Pre-check: if binary doesn't exist on device, install it first
+        if auto_install and not self._check_binary_exists():
+            log_info("MaaTouch binary not found on device, auto-installing...")
+            if not self.install():
+                log_error("Failed to auto-install MaaTouch binary")
+                return False
+        
         # Build command - use a single string command for shell
         shell_cmd = f'CLASSPATH={self.REMOTE_PATH} app_process / com.shxyke.MaaTouch.App'
         
@@ -205,6 +219,12 @@ class MaaTouchConnection:
                 if process.poll() is not None:
                     stderr = process.stderr.read().decode()
                     log_error(f"MaaTouch process exited: {stderr}")
+                    if auto_install:
+                        self.disconnect()
+                        log_info("Attempting auto-install of MaaTouch binary (process exited)...")
+                        if self.install():
+                            log_info("Auto-install successful, retrying connection...")
+                            return self.connect(auto_install=False)
                     return False
                 
                 # Try to get output
@@ -231,9 +251,30 @@ class MaaTouchConnection:
                             return True
                     elif line == 'Aborted' or 'Aborted' in line:
                         log_error("MaaTouch aborted - binary may be incompatible")
+                        if auto_install:
+                            self.disconnect()
+                            log_info("Attempting reinstall of MaaTouch binary (aborted)...")
+                            if self.install():
+                                log_info("Reinstall successful, retrying connection...")
+                                return self.connect(auto_install=False)
+                        return False
+                    elif 'not found' in line.lower() or 'no such file' in line.lower():
+                        log_error(f"MaaTouch binary not found on device: {line}")
+                        if auto_install:
+                            self.disconnect()
+                            log_info("Attempting auto-install of MaaTouch binary (not found)...")
+                            if self.install():
+                                log_info("Auto-install successful, retrying connection...")
+                                return self.connect(auto_install=False)
                         return False
                     elif 'error' in line.lower():
                         log_error(f"MaaTouch error: {line}")
+                        if auto_install:
+                            self.disconnect()
+                            log_info("Attempting auto-install of MaaTouch binary (error)...")
+                            if self.install():
+                                log_info("Auto-install successful, retrying connection...")
+                                return self.connect(auto_install=False)
                         return False
                 except queue.Empty:
                     continue
