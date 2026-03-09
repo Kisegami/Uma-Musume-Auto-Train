@@ -576,61 +576,74 @@ def start_career() -> bool:
     
     try:
         # Step 1: Tap Career Home and wait 10s
+        log_info("[Step 1/13] Looking for Career Home button...")
         career_home_matches = match_template(take_screenshot(), "assets/buttons/Career_Home.png", confidence=0.8)
         if career_home_matches:
             x, y, w, h = career_home_matches[0]
             center = (x + w//2, y + h//2)
             tap(center[0], center[1])
+            log_info("[Step 1/13] ✓ Career Home tapped, waiting 10s for load...")
             time.sleep(10)
         else:
-            log_info(f"Career Home not found")
+            log_error("[Step 1/13] ✗ Career Home button not found")
             return False
         
         # Step 2: Tap Next button twice
+        log_info("[Step 2/13] Tapping Next button twice...")
         for i in range(2):
             next_matches = match_template(take_screenshot(), "assets/buttons/next_btn.png", confidence=0.8)
             if next_matches:
                 x, y, w, h = next_matches[0]
                 center = (x + w//2, y + h//2)
                 tap(center[0], center[1])
+                log_info(f"[Step 2/13] ✓ Next button tap {i+1}/2 successful")
                 time.sleep(1)
             else:
+                log_error(f"[Step 2/13] ✗ Next button not found on tap {i+1}/2")
                 return False
         
         # Step 3: Tap Next button
+        log_info("[Step 3/13] Tapping Next button...")
         next_matches = match_template(take_screenshot(), "assets/buttons/next_btn.png", confidence=0.8)
         if next_matches:
             x, y, w, h = next_matches[0]
             center = (x + w//2, y + h//2)
             tap(center[0], center[1])
+            log_info("[Step 3/13] ✓ Next button tapped")
             time.sleep(1)
         else:
+            log_error("[Step 3/13] ✗ Next button not found")
             return False
         
         # Step 4: Tap Friend Support Choose
-        log_info(f"Friend Support...")
+        log_info("[Step 4/13] Looking for Friend Support Choose button...")
         friend_support_matches = match_template(take_screenshot(), "assets/buttons/Friend_support_choose.png", confidence=0.8)
         if friend_support_matches:
             x, y, w, h = friend_support_matches[0]
             center = (x + w//2, y + h//2)
             tap(center[0], center[1])
+            log_info("[Step 4/13] ✓ Friend Support Choose tapped")
             time.sleep(1)
         else:
+            log_error("[Step 4/13] ✗ Friend Support Choose button not found")
             return False
         
         # Step 5: Filter support
-        log_info(f"Filtering...")
+        log_info("[Step 5/13] Filtering support cards...")
         if filter_support() is False:
+            log_error("[Step 5/13] ✗ filter_support() returned False")
             return False
-            
+        log_info("[Step 5/13] ✓ Support filter completed")
         time.sleep(1)
         
         # Step 6: Start Career 1
+        log_info("[Step 6/13] Looking for Start Career 1 button...")
         start_career_1_matches = match_template(take_screenshot(), "assets/buttons/start_career_1.png", confidence=0.8)
         if start_career_1_matches:
             x, y, w, h = start_career_1_matches[0]
             center = (x + w//2, y + h//2)
             tap(center[0], center[1])
+            log_info("[Step 6/13] ✓ Start Career 1 tapped")
             time.sleep(0.5)
             
             # Check for insufficient TP (restore button appears)
@@ -638,9 +651,9 @@ def start_career() -> bool:
             if restore_matches:
                 auto_charge = auto_start_career.get('auto_charge_tp', False)
                 if auto_charge:
-                    log_info("Insufficient TP detected - attempting auto restore")
+                    log_info("[Step 6/13] Insufficient TP detected - attempting auto restore")
                     if not restore_tp():
-                        log_error("TP restore failed - Out of TP Bottle")
+                        log_error("[Step 6/13] ✗ TP restore failed - Out of TP Bottle")
                         return False
                     # After restore, tap Start Career 1 again
                     time.sleep(1)
@@ -649,65 +662,83 @@ def start_career() -> bool:
                         x, y, w, h = start_career_1_matches[0]
                         center = (x + w//2, y + h//2)
                         tap(center[0], center[1])
+                        log_info("[Step 6/13] ✓ Start Career 1 re-tapped after TP restore")
                         time.sleep(0.5)
                     else:
-                        log_error("Failed to find Start Career 1 button after TP restore")
+                        log_error("[Step 6/13] ✗ Start Career 1 button not found after TP restore")
                         return False
                 else:
-                    log_error("Insufficient TP and auto_charge_tp is disabled - stopping bot")
+                    log_error("[Step 6/13] ✗ Insufficient TP and auto_charge_tp is disabled")
                     return False
         else:
+            log_error("[Step 6/13] ✗ Start Career 1 button not found")
             return False
         
         # Step 7: Start Career 2
+        log_info("[Step 7/13] Looking for Start Career 2 button...")
         start_career_2_matches = match_template(take_screenshot(), "assets/buttons/start_career_2.png", confidence=0.8)
         if start_career_2_matches:
             x, y, w, h = start_career_2_matches[0]
             center = (x + w//2, y + h//2)
             tap(center[0], center[1])
+            log_info("[Step 7/13] ✓ Start Career 2 tapped")
         else:
+            log_error("[Step 7/13] ✗ Start Career 2 button not found")
             return False
         
         # Step 8: Wait for skip button and double tap
-        log_info(f"Skip button...")
+        log_info("[Step 8/13] Waiting for skip button (30s timeout)...")
         skip_matches = wait_for_image("assets/buttons/skip_btn.png", timeout=30, confidence=0.8)
         if skip_matches:
             tap(skip_matches[0], skip_matches[1])
             time.sleep(0.1)
             tap(skip_matches[0], skip_matches[1])
+            log_info("[Step 8/13] ✓ Skip button double-tapped")
             time.sleep(0.5)
         else:
+            log_error("[Step 8/13] ✗ Skip button not found within 30s")
             return False
         
         # Step 9: Wait for confirm button
-        log_info(f"Confirm button...")
+        log_info("[Step 9/13] Waiting for confirm button (30s timeout)...")
         confirm_matches = wait_for_image("assets/buttons/confirm.png", timeout=30, confidence=0.8)
         if not confirm_matches:
+            log_error("[Step 9/13] ✗ Confirm button not found within 30s")
             return False
+        log_info("[Step 9/13] ✓ Confirm button found")
         
         # Step 10: Tap coordinates
+        log_info("[Step 10/13] Tapping coordinates (213, 939)...")
         tap(213, 939)
+        log_info("[Step 10/13] ✓ Coordinates tapped")
         time.sleep(0.5)
         
         # Step 11: Skip check
+        log_info("[Step 11/13] Running skip check...")
         skip_check()
+        log_info("[Step 11/13] ✓ Skip check completed")
         time.sleep(0.5)
         
         # Step 12: Tap confirm
+        log_info("[Step 12/13] Looking for final confirm button...")
         confirm_matches = match_template(take_screenshot(), "assets/buttons/confirm.png", confidence=0.8)
         if confirm_matches:
             x, y, w, h = confirm_matches[0]
             center = (x + w//2, y + h//2)
             tap(center[0], center[1])
+            log_info("[Step 12/13] ✓ Final confirm tapped")
         else:
+            log_error("[Step 12/13] ✗ Final confirm button not found")
             return False
         
         # Step 13: Wait for Tazuna hint
+        log_info("[Step 13/13] Waiting for Tazuna hint (60s timeout)...")
         tazuna_hint_matches = wait_for_image("assets/ui/tazuna_hint.png", timeout=60, confidence=0.9)
         if tazuna_hint_matches:
-            log_info(f"Career start completed!")
+            log_info("[Step 13/13] ✓ Tazuna hint detected - Career start completed!")
             return True
         else:
+            log_error("[Step 13/13] ✗ Tazuna hint not found within 60s")
             return False
             
     except Exception as e:
