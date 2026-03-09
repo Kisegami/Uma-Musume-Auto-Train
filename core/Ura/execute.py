@@ -2,6 +2,7 @@ import time
 import os
 import random
 import sys
+import numpy as np
 from PIL import ImageStat
 
 # Fix Windows console encoding for Unicode support
@@ -198,6 +199,12 @@ def career_lobby(timeout=None):
     _waiting_for_lobby_logged = False
     # ─────────────────────────────────────────────────────────────────────
 
+    # ── Freeze detection (identical-screenshot watchdog) ─────────────────
+    FREEZE_SAME_THRESHOLD = 10  # consecutive identical frames → frozen
+    _prev_screenshot = None
+    _freeze_same_count = 0
+    # ─────────────────────────────────────────────────────────────────────
+
     # Timeout support for bounded checks (e.g. from ui_check)
     _timeout_start = time.time() if timeout else None
 
@@ -212,6 +219,34 @@ def career_lobby(timeout=None):
         # Take screenshot first for all checks
         log_debug(f"Taking screenshot for UI element checks...")
         screenshot = take_screenshot()
+
+        # ── Freeze detection: compare with previous screenshot ────────
+        if _prev_screenshot is not None:
+            try:
+                diff = np.mean(np.abs(
+                    np.array(screenshot).astype(np.int16)
+                    - np.array(_prev_screenshot).astype(np.int16)
+                ))
+                if diff < 0.5:  # effectively identical
+                    _freeze_same_count += 1
+                    log_debug(f"[Watchdog] Identical frame #{_freeze_same_count}/{FREEZE_SAME_THRESHOLD}")
+                    if _freeze_same_count >= FREEZE_SAME_THRESHOLD:
+                        log_warning(f"[Watchdog] Screen frozen for {_freeze_same_count} consecutive frames — restarting game...")
+                        try:
+                            reopen_and_resume_career()
+                        except Exception as _fe:
+                            log_error(f"[Watchdog] Reopen after freeze failed: {_fe}")
+                        _freeze_same_count = 0
+                        _prev_screenshot = None
+                        _lobby_wait_start = None
+                        continue
+                else:
+                    _freeze_same_count = 0
+            except Exception as _cmp_err:
+                log_debug(f"[Watchdog] Screenshot comparison failed: {_cmp_err}")
+                _freeze_same_count = 0
+        _prev_screenshot = screenshot.copy()
+        # ──────────────────────────────────────────────────────────────
         
         # Check for career restart first (highest priority) - quick check only
         log_debug(f"Quick check for Complete Career screen...")
