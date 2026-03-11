@@ -591,11 +591,9 @@ def start_career() -> bool:
         # Step 2: Tap Next button twice
         log_info("[Step 2/13] Tapping Next button twice...")
         for i in range(2):
-            next_matches = match_template(take_screenshot(), "assets/buttons/next_btn.png", confidence=0.8)
-            if next_matches:
-                x, y, w, h = next_matches[0]
-                center = (x + w//2, y + h//2)
-                tap(center[0], center[1])
+            next_pos = wait_for_image("assets/buttons/next_btn.png", timeout=10, confidence=0.8)
+            if next_pos:
+                tap(next_pos[0], next_pos[1])
                 log_info(f"[Step 2/13] ✓ Next button tap {i+1}/2 successful")
                 time.sleep(1)
             else:
@@ -604,11 +602,9 @@ def start_career() -> bool:
         
         # Step 3: Tap Next button
         log_info("[Step 3/13] Tapping Next button...")
-        next_matches = match_template(take_screenshot(), "assets/buttons/next_btn.png", confidence=0.8)
-        if next_matches:
-            x, y, w, h = next_matches[0]
-            center = (x + w//2, y + h//2)
-            tap(center[0], center[1])
+        next_pos = wait_for_image("assets/buttons/next_btn.png", timeout=10, confidence=0.8)
+        if next_pos:
+            tap(next_pos[0], next_pos[1])
             log_info("[Step 3/13] ✓ Next button tapped")
             time.sleep(1)
         else:
