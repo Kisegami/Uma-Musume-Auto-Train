@@ -32,10 +32,12 @@ try:
     racing_config = config.get("racing", {})
     RETRY_RACE = racing_config.get("retry_race", True)
     BUY_CLOCK_CARATS = racing_config.get("buy_clock_carats", False)
+    STOP_ON_RACE_FAIL = racing_config.get("stop_on_race_fail", True)
 except Exception:
     config = {}
     RETRY_RACE = True
     BUY_CLOCK_CARATS = False
+    STOP_ON_RACE_FAIL = True
 
 # Region offsets from fan center (same as test code)
 GRADE_OFFSET = (-118, -115, 93, 69)  # x, y, width, height
@@ -585,8 +587,31 @@ def handle_race_retry_if_failed():
         log_info(f"Race failed detected (clock icon).")
 
         if not RETRY_RACE:
-            log_info(f"retry_race is disabled. Stopping automation.")
-            raise SystemExit(0)
+            if STOP_ON_RACE_FAIL:
+                log_info(f"retry_race is disabled and stop_on_race_fail is ON. Stopping automation.")
+                raise SystemExit(0)
+            else:
+                log_info(f"retry_race is disabled. Skipping failed race (tapping cancel + next)...")
+                # Try cancel buttons in order
+                for cancel_path in [
+                    "assets/buttons/cancel_btn.png",
+                    "assets/buttons/cancel_lobby.png",
+                    "assets/buttons/cancel_recreation.png",
+                ]:
+                    cancel = locate_on_screen(cancel_path, confidence=0.8)
+                    if cancel:
+                        tap(cancel[0], cancel[1])
+                        log_info(f"Tapped {cancel_path}")
+                        break
+                time.sleep(1)
+                # Tap next button twice to continue career
+                for i in range(2):
+                    next_btn = locate_on_screen("assets/buttons/next_btn.png", confidence=0.8)
+                    if next_btn:
+                        tap(next_btn[0], next_btn[1])
+                        log_info(f"Tapped next button ({i+1}/2)")
+                        time.sleep(0.5)
+                return True
 
         # Try to click Try Again button
         try_again = locate_on_screen("assets/buttons/try_again.png", confidence=0.8)

@@ -339,7 +339,7 @@ class MainWindow(QMainWindow):
             "emulator_type": "",
             "adb_config": {"device_address": "127.0.0.1:7555", "adb_path": "adb", "screenshot_timeout": 5, "input_delay": 0.5},
             "training": {"priority_stat": ["spd", "sta", "wit", "pwr", "guts"], "minimum_mood": "GREAT", "maximum_failure": 15, "min_energy": 30},
-            "racing": {"strategy": "FRONT", "retry_race": True},
+            "racing": {"strategy": "FRONT", "retry_race": True, "stop_on_race_fail": True},
             "skills": {"skill_point_cap": 400, "skill_purchase": "auto"},
             "debug_mode": False,
             "update": {"auto_update": True, "install_dependencies": True, "branch": "main"}

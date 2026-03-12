@@ -115,6 +115,12 @@ class RacingTab(QScrollArea):
         self.buy_clock_carats.setVisible(False)
         settings_layout.addWidget(self.buy_clock_carats)
         
+        # Stop bot on race fail (visible when retry_race is unchecked)
+        self.stop_on_race_fail = QCheckBox("Stop bot on race fail")
+        self.stop_on_race_fail.stateChanged.connect(self._save_racing)
+        self.stop_on_race_fail.setVisible(True)
+        settings_layout.addWidget(self.stop_on_race_fail)
+        
         layout.addWidget(settings_group)
         
         # ==================== Custom Race Section ====================
@@ -168,11 +174,14 @@ class RacingTab(QScrollArea):
         self._save_racing()
     
     def _on_retry_race_changed(self, state):
-        """Handle retry race checkbox and dependent buy_clock_carats checkbox"""
+        """Handle retry race checkbox and dependent checkboxes"""
         is_checked = state == Qt.CheckState.Checked.value
         self.buy_clock_carats.setVisible(is_checked)
+        self.stop_on_race_fail.setVisible(not is_checked)
         if not is_checked:
             self.buy_clock_carats.setChecked(False)
+        else:
+            self.stop_on_race_fail.setChecked(False)
         self._save_racing()
     
     def _load_custom_race_templates(self):
@@ -228,6 +237,12 @@ class RacingTab(QScrollArea):
         self.buy_clock_carats.setVisible(self.retry_race.isChecked())
         self.buy_clock_carats.blockSignals(False)
         
+        # Stop on race fail
+        self.stop_on_race_fail.blockSignals(True)
+        self.stop_on_race_fail.setChecked(racing.get("stop_on_race_fail", True))
+        self.stop_on_race_fail.setVisible(not self.retry_race.isChecked())
+        self.stop_on_race_fail.blockSignals(False)
+        
         # Custom race
         self.do_custom_race.blockSignals(True)
         self.do_custom_race.setChecked(racing.get("do_custom_race", True))
@@ -259,6 +274,7 @@ class RacingTab(QScrollArea):
         config["racing"]["strategy"] = self.strategy_combo.currentText()
         config["racing"]["retry_race"] = self.retry_race.isChecked()
         config["racing"]["buy_clock_carats"] = self.buy_clock_carats.isChecked()
+        config["racing"]["stop_on_race_fail"] = self.stop_on_race_fail.isChecked()
         config["racing"]["do_custom_race"] = self.do_custom_race.isChecked()
         config["racing"]["custom_race_file"] = f"template/races/{self.custom_file_combo.currentText()}"
         
