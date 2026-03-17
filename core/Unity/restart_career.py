@@ -577,11 +577,9 @@ def start_career() -> bool:
     try:
         # Step 1: Tap Career Home and wait 10s
         log_info("[Step 1/13] Looking for Career Home button...")
-        career_home_matches = match_template(take_screenshot(), "assets/buttons/Career_Home.png", confidence=0.8)
-        if career_home_matches:
-            x, y, w, h = career_home_matches[0]
-            center = (x + w//2, y + h//2)
-            tap(center[0], center[1])
+        career_home_pos = wait_for_image("assets/buttons/Career_Home.png", timeout=10, confidence=0.8)
+        if career_home_pos:
+            tap(career_home_pos[0], career_home_pos[1])
             log_info("[Step 1/13] ✓ Career Home tapped, waiting 10s for load...")
             time.sleep(10)
         else:
@@ -613,11 +611,9 @@ def start_career() -> bool:
         
         # Step 4: Tap Friend Support Choose
         log_info("[Step 4/13] Looking for Friend Support Choose button...")
-        friend_support_matches = match_template(take_screenshot(), "assets/buttons/Friend_support_choose.png", confidence=0.8)
-        if friend_support_matches:
-            x, y, w, h = friend_support_matches[0]
-            center = (x + w//2, y + h//2)
-            tap(center[0], center[1])
+        friend_support_pos = wait_for_image("assets/buttons/Friend_support_choose.png", timeout=10, confidence=0.8)
+        if friend_support_pos:
+            tap(friend_support_pos[0], friend_support_pos[1])
             log_info("[Step 4/13] ✓ Friend Support Choose tapped")
             time.sleep(1)
         else:
@@ -634,17 +630,15 @@ def start_career() -> bool:
         
         # Step 6: Start Career 1
         log_info("[Step 6/13] Looking for Start Career 1 button...")
-        start_career_1_matches = match_template(take_screenshot(), "assets/buttons/start_career_1.png", confidence=0.8)
-        if start_career_1_matches:
-            x, y, w, h = start_career_1_matches[0]
-            center = (x + w//2, y + h//2)
-            tap(center[0], center[1])
+        start_career_1_pos = wait_for_image("assets/buttons/start_career_1.png", timeout=10, confidence=0.8)
+        if start_career_1_pos:
+            tap(start_career_1_pos[0], start_career_1_pos[1])
             log_info("[Step 6/13] ✓ Start Career 1 tapped")
             time.sleep(0.5)
             
             # Check for insufficient TP (restore button appears)
-            restore_matches = match_template(take_screenshot(), "assets/buttons/restore_btn.png", confidence=0.8)
-            if restore_matches:
+            restore_pos = wait_for_image("assets/buttons/restore_btn.png", timeout=3, confidence=0.8)
+            if restore_pos:
                 auto_charge = auto_start_career.get('auto_charge_tp', False)
                 if auto_charge:
                     log_info("[Step 6/13] Insufficient TP detected - attempting auto restore")
@@ -652,12 +646,9 @@ def start_career() -> bool:
                         log_error("[Step 6/13] ✗ TP restore failed - Out of TP Bottle")
                         return False
                     # After restore, tap Start Career 1 again
-                    time.sleep(1)
-                    start_career_1_matches = match_template(take_screenshot(), "assets/buttons/start_career_1.png", confidence=0.8)
-                    if start_career_1_matches:
-                        x, y, w, h = start_career_1_matches[0]
-                        center = (x + w//2, y + h//2)
-                        tap(center[0], center[1])
+                    start_career_1_pos = wait_for_image("assets/buttons/start_career_1.png", timeout=10, confidence=0.8)
+                    if start_career_1_pos:
+                        tap(start_career_1_pos[0], start_career_1_pos[1])
                         log_info("[Step 6/13] ✓ Start Career 1 re-tapped after TP restore")
                         time.sleep(0.5)
                     else:
@@ -672,11 +663,9 @@ def start_career() -> bool:
         
         # Step 7: Start Career 2
         log_info("[Step 7/13] Looking for Start Career 2 button...")
-        start_career_2_matches = match_template(take_screenshot(), "assets/buttons/start_career_2.png", confidence=0.8)
-        if start_career_2_matches:
-            x, y, w, h = start_career_2_matches[0]
-            center = (x + w//2, y + h//2)
-            tap(center[0], center[1])
+        start_career_2_pos = wait_for_image("assets/buttons/start_career_2.png", timeout=15, confidence=0.8)
+        if start_career_2_pos:
+            tap(start_career_2_pos[0], start_career_2_pos[1])
             log_info("[Step 7/13] ✓ Start Career 2 tapped")
         else:
             log_error("[Step 7/13] ✗ Start Career 2 button not found")
@@ -717,11 +706,9 @@ def start_career() -> bool:
         
         # Step 12: Tap confirm
         log_info("[Step 12/13] Looking for final confirm button...")
-        confirm_matches = match_template(take_screenshot(), "assets/buttons/confirm.png", confidence=0.8)
-        if confirm_matches:
-            x, y, w, h = confirm_matches[0]
-            center = (x + w//2, y + h//2)
-            tap(center[0], center[1])
+        confirm_pos = wait_for_image("assets/buttons/confirm.png", timeout=10, confidence=0.8)
+        if confirm_pos:
+            tap(confirm_pos[0], confirm_pos[1])
             log_info("[Step 12/13] ✓ Final confirm tapped")
         else:
             log_error("[Step 12/13] ✗ Final confirm button not found")

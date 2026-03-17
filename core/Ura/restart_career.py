@@ -572,11 +572,9 @@ def start_career() -> bool:
     
     try:
         # Step 1: Tap Career Home and wait 10s
-        career_home_matches = match_template(take_screenshot(), "assets/buttons/Career_Home.png", confidence=0.8)
-        if career_home_matches:
-            x, y, w, h = career_home_matches[0]
-            center = (x + w//2, y + h//2)
-            tap(center[0], center[1])
+        career_home_pos = wait_for_image("assets/buttons/Career_Home.png", timeout=10, confidence=0.8)
+        if career_home_pos:
+            tap(career_home_pos[0], career_home_pos[1])
             time.sleep(10)
         else:
             log_info(f"Career Home not found")
@@ -601,11 +599,9 @@ def start_career() -> bool:
         
         # Step 4: Tap Friend Support Choose
         log_info(f"Friend Support...")
-        friend_support_matches = match_template(take_screenshot(), "assets/buttons/Friend_support_choose.png", confidence=0.8)
-        if friend_support_matches:
-            x, y, w, h = friend_support_matches[0]
-            center = (x + w//2, y + h//2)
-            tap(center[0], center[1])
+        friend_support_pos = wait_for_image("assets/buttons/Friend_support_choose.png", timeout=10, confidence=0.8)
+        if friend_support_pos:
+            tap(friend_support_pos[0], friend_support_pos[1])
             time.sleep(1)
         else:
             return False
@@ -618,16 +614,14 @@ def start_career() -> bool:
         time.sleep(1)
         
         # Step 6: Start Career 1
-        start_career_1_matches = match_template(take_screenshot(), "assets/buttons/start_career_1.png", confidence=0.8)
-        if start_career_1_matches:
-            x, y, w, h = start_career_1_matches[0]
-            center = (x + w//2, y + h//2)
-            tap(center[0], center[1])
+        start_career_1_pos = wait_for_image("assets/buttons/start_career_1.png", timeout=10, confidence=0.8)
+        if start_career_1_pos:
+            tap(start_career_1_pos[0], start_career_1_pos[1])
             time.sleep(0.5)
             
             # Check for insufficient TP (restore button appears)
-            restore_matches = match_template(take_screenshot(), "assets/buttons/restore_btn.png", confidence=0.8)
-            if restore_matches:
+            restore_pos = wait_for_image("assets/buttons/restore_btn.png", timeout=3, confidence=0.8)
+            if restore_pos:
                 auto_charge = auto_start_career.get('auto_charge_tp', False)
                 if auto_charge:
                     log_info("Insufficient TP detected - attempting auto restore")
@@ -635,12 +629,9 @@ def start_career() -> bool:
                         log_error("TP restore failed - Out of TP Bottle")
                         return False
                     # After restore, tap Start Career 1 again
-                    time.sleep(1)
-                    start_career_1_matches = match_template(take_screenshot(), "assets/buttons/start_career_1.png", confidence=0.8)
-                    if start_career_1_matches:
-                        x, y, w, h = start_career_1_matches[0]
-                        center = (x + w//2, y + h//2)
-                        tap(center[0], center[1])
+                    start_career_1_pos = wait_for_image("assets/buttons/start_career_1.png", timeout=10, confidence=0.8)
+                    if start_career_1_pos:
+                        tap(start_career_1_pos[0], start_career_1_pos[1])
                         time.sleep(0.5)
                     else:
                         log_error("Failed to find Start Career 1 button after TP restore")
@@ -652,11 +643,9 @@ def start_career() -> bool:
             return False
         
         # Step 7: Start Career 2
-        start_career_2_matches = match_template(take_screenshot(), "assets/buttons/start_career_2.png", confidence=0.8)
-        if start_career_2_matches:
-            x, y, w, h = start_career_2_matches[0]
-            center = (x + w//2, y + h//2)
-            tap(center[0], center[1])
+        start_career_2_pos = wait_for_image("assets/buttons/start_career_2.png", timeout=15, confidence=0.8)
+        if start_career_2_pos:
+            tap(start_career_2_pos[0], start_career_2_pos[1])
         else:
             return False
         
@@ -686,11 +675,9 @@ def start_career() -> bool:
         time.sleep(0.5)
         
         # Step 12: Tap confirm
-        confirm_matches = match_template(take_screenshot(), "assets/buttons/confirm.png", confidence=0.8)
-        if confirm_matches:
-            x, y, w, h = confirm_matches[0]
-            center = (x + w//2, y + h//2)
-            tap(center[0], center[1])
+        confirm_pos = wait_for_image("assets/buttons/confirm.png", timeout=10, confidence=0.8)
+        if confirm_pos:
+            tap(confirm_pos[0], confirm_pos[1])
         else:
             return False
         

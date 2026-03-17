@@ -8426,5 +8426,411 @@
       "Bottom Option": "Wit +15\r\nInes Fujin bond +5"
     },
     "CardSlug": "20030-ines-fujin"
+  },
+  {
+    "EventName": "(❯) Anything for My Classmates",
+    "EventOptions": {
+      "": "Mood +1\r\nEnergy -10\r\nSpeed +7\r\nStamina +7\r\nWit +7\r\nPace Chaser Savvy ○ hint +1\r\nNarita Top Road bond +5"
+    },
+    "CardSlug": "30086-narita-top-road"
+  },
+  {
+    "EventName": "(❯❯) Great Expectations",
+    "EventOptions": {
+      "Top Option": "Energy -10\r\nSpeed +15\r\nStamina +15\r\nPressure hint +1\r\nNarita Top Road bond +5"
+    },
+    "CardSlug": "30086-narita-top-road"
+  },
+  {
+    "EventName": "(❯❯) Great Expectations",
+    "EventOptions": {
+      "Bottom Option": "Energy +20\r\nSkill points +10\r\nNarita Top Road bond +5"
+    },
+    "CardSlug": "30086-narita-top-road"
+  },
+  {
+    "EventName": "(❯❯❯) Rivals Know Best",
+    "EventOptions": {
+      "": "Energy -10\r\nSpeed +15\r\nStamina +15\r\nSkill points +20\r\nFirm Course Menace hint +1\r\nNarita Top Road bond +5"
+    },
+    "CardSlug": "30086-narita-top-road"
+  },
+  {
+    "EventName": "A Thorough Inspection",
+    "EventOptions": {
+      "Top Option": "Energy +20\r\nNarita Top Road bond +5"
+    },
+    "CardSlug": "30086-narita-top-road"
+  },
+  {
+    "EventName": "A Thorough Inspection",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nSpeed +25\r\nNarita Top Road bond +5"
+    },
+    "CardSlug": "30086-narita-top-road"
+  },
+  {
+    "EventName": "A Diligent Effort",
+    "EventOptions": {
+      "Top Option": "Stamina +10\r\nNarita Top Road bond +5"
+    },
+    "CardSlug": "30086-narita-top-road"
+  },
+  {
+    "EventName": "A Diligent Effort",
+    "EventOptions": {
+      "Bottom Option": "Up-Tempo hint +1\r\nNarita Top Road bond +5"
+    },
+    "CardSlug": "30086-narita-top-road"
+  },
+  {
+    "EventName": "(❯) I'll Help Search!",
+    "EventOptions": {
+      "Top Option": "Mood +1\r\nStamina +10\r\nMejiro Bright bond +10"
+    },
+    "CardSlug": "30087-mejiro-bright"
+  },
+  {
+    "EventName": "(❯) I'll Help Search!",
+    "EventOptions": {
+      "Bottom Option": "Energy +10\r\nWit +10\r\nMejiro Bright bond +10"
+    },
+    "CardSlug": "30087-mejiro-bright"
+  },
+  {
+    "EventName": "(❯❯) I'll Go on Stage!",
+    "EventOptions": {
+      "": "Stamina +15\r\nEarly Start hint +1"
+    },
+    "CardSlug": "30087-mejiro-bright"
+  },
+  {
+    "EventName": "(❯❯❯) I'll Win!",
+    "EventOptions": {
+      "": "Stamina +15\r\nOverwhelming Pressure hint +1\r\nMejiro Bright bond +5"
+    },
+    "CardSlug": "30087-mejiro-bright"
+  },
+  {
+    "EventName": "Slow and Leisurely",
+    "EventOptions": {
+      "Top Option": "Stamina +15\r\nGuts +5\r\nMejiro Bright bond +5"
+    },
+    "CardSlug": "30087-mejiro-bright"
+  },
+  {
+    "EventName": "Slow and Leisurely",
+    "EventOptions": {
+      "Bottom Option": "Speed +15\r\nPower +5\r\nMejiro Bright bond +5"
+    },
+    "CardSlug": "30087-mejiro-bright"
+  },
+  {
+    "EventName": "Sure and Steady",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nDeep Breaths hint +1\r\nMejiro Bright bond +5"
+    },
+    "CardSlug": "30087-mejiro-bright"
+  },
+  {
+    "EventName": "Sure and Steady",
+    "EventOptions": {
+      "Bottom Option": "Wit +20\r\nMejiro Bright bond +5"
+    },
+    "CardSlug": "30087-mejiro-bright"
+  },
+  {
+    "EventName": "(❯) Unseen Assistance",
+    "EventOptions": {
+      "": "Wit +10\r\nSympathy hint +1\r\nSatono Diamond bond +5"
+    },
+    "CardSlug": "30088-satono-diamond"
+  },
+  {
+    "EventName": "(❯❯) Words Aren't Enough",
+    "EventOptions": {
+      "": "Speed +10\r\nWit +10\r\nSatono Diamond bond +5"
+    },
+    "CardSlug": "30088-satono-diamond"
+  },
+  {
+    "EventName": "(❯❯❯) The Dream We All Share",
+    "EventOptions": {
+      "": "Randomly either\r\nWit +10\r\nBe Still hint +3\r\nSatono Diamond bond +5\r\nor\r\nor\r\nWit +30\r\nLie in Wait hint +3\r\nSatono Diamond bond +5"
+    },
+    "CardSlug": "30088-satono-diamond"
+  },
+  {
+    "EventName": "I Love New Things!",
+    "EventOptions": {
+      "Top Option": "Guts +10\r\nSatono Diamond bond +5"
+    },
+    "CardSlug": "30088-satono-diamond"
+  },
+  {
+    "EventName": "I Love New Things!",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nStamina +20\r\nSatono Diamond bond +5"
+    },
+    "CardSlug": "30088-satono-diamond"
+  },
+  {
+    "EventName": "I Love Complicated Things!",
+    "EventOptions": {
+      "Top Option": "Stamina +5\r\nGuts +10\r\nSatono Diamond bond +5"
+    },
+    "CardSlug": "30088-satono-diamond"
+  },
+  {
+    "EventName": "I Love Complicated Things!",
+    "EventOptions": {
+      "Bottom Option": "Hesitant Front Runners hint +1\r\nSatono Diamond bond +5"
+    },
+    "CardSlug": "30088-satono-diamond"
+  },
+  {
+    "EventName": "(❯) All Roads Lead to Gains!",
+    "EventOptions": {
+      "": "Stamina +10\r\nMejiro Ryan bond +5"
+    },
+    "CardSlug": "20040-mejiro-ryan"
+  },
+  {
+    "EventName": "(❯❯) Success Starts with Reps!",
+    "EventOptions": {
+      "Top Option": "Energy +25\r\nMejiro Ryan bond +5"
+    },
+    "CardSlug": "20040-mejiro-ryan"
+  },
+  {
+    "EventName": "(❯❯) Success Starts with Reps!",
+    "EventOptions": {
+      "Bottom Option": "Stamina +10\r\nPower +5\r\nLate Surger Straightaways ○ hint +2\r\nMejiro Ryan bond +5"
+    },
+    "CardSlug": "20040-mejiro-ryan"
+  },
+  {
+    "EventName": "My Muscles and Me, Onward to Tomorrow!",
+    "EventOptions": {
+      "Top Option": "Energy -10\r\nPower +15\r\nMejiro Ryan bond +5"
+    },
+    "CardSlug": "20040-mejiro-ryan"
+  },
+  {
+    "EventName": "My Muscles and Me, Onward to Tomorrow!",
+    "EventOptions": {
+      "Bottom Option": "Maximum Energy +4\r\nPower +5\r\nMejiro Ryan bond +5"
+    },
+    "CardSlug": "20040-mejiro-ryan"
+  },
+  {
+    "EventName": "It's Not Like I Like Romance!",
+    "EventOptions": {
+      "Top Option": "Pace Strategy hint +1\r\nMejiro Ryan bond +5"
+    },
+    "CardSlug": "20040-mejiro-ryan"
+  },
+  {
+    "EventName": "It's Not Like I Like Romance!",
+    "EventOptions": {
+      "Bottom Option": "Energy +30\r\nMejiro Ryan bond +5"
+    },
+    "CardSlug": "20040-mejiro-ryan"
+  },
+  {
+    "EventName": "(❯) The Joy of Being Together",
+    "EventOptions": {
+      "Top Option": "Energy +20\r\nSpeed +10\r\nAdmire Vega bond +5"
+    },
+    "CardSlug": "20041-admire-vega"
+  },
+  {
+    "EventName": "(❯) The Joy of Being Together",
+    "EventOptions": {
+      "Bottom Option": "Wit +10\r\nGet Practice Perfect ○ status\r\nAdmire Vega bond +5"
+    },
+    "CardSlug": "20041-admire-vega"
+  },
+  {
+    "EventName": "(❯❯) Toward the Brightest Star",
+    "EventOptions": {
+      "": "Guts +10\r\nEnd Closer Savvy ○ hint +2\r\nAdmire Vega bond +5"
+    },
+    "CardSlug": "20041-admire-vega"
+  },
+  {
+    "EventName": "Awkward Triangulum",
+    "EventOptions": {
+      "Top Option": "Power +15\r\nAdmire Vega bond +5"
+    },
+    "CardSlug": "20041-admire-vega"
+  },
+  {
+    "EventName": "Awkward Triangulum",
+    "EventOptions": {
+      "Bottom Option": "Energy +10\r\nAdmire Vega bond +5"
+    },
+    "CardSlug": "20041-admire-vega"
+  },
+  {
+    "EventName": "Lonesome Cepheus",
+    "EventOptions": {
+      "Top Option": "Subdued Pace Chasers hint +1\r\nAdmire Vega bond +5"
+    },
+    "CardSlug": "20041-admire-vega"
+  },
+  {
+    "EventName": "Lonesome Cepheus",
+    "EventOptions": {
+      "Bottom Option": "Wit +10\r\nAdmire Vega bond +5"
+    },
+    "CardSlug": "20041-admire-vega"
+  },
+  {
+    "EventName": "(❯) A Bakushin Greeting!",
+    "EventOptions": {
+      "Top Option": "Energy -10\r\nSpeed +30\r\nSakura Bakushin O bond +5"
+    },
+    "CardSlug": "20042-sakura-bakushin-o"
+  },
+  {
+    "EventName": "(❯) A Bakushin Greeting!",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nSkill points +30\r\nSakura Bakushin O bond +5"
+    },
+    "CardSlug": "20042-sakura-bakushin-o"
+  },
+  {
+    "EventName": "(❯❯) The Value of Greetings",
+    "EventOptions": {
+      "": "Energy -10\r\nPower +10\r\nTail Held High hint +2\r\nSakura Bakushin O bond +5"
+    },
+    "CardSlug": "20042-sakura-bakushin-o"
+  },
+  {
+    "EventName": "Genius Efficiency!",
+    "EventOptions": {
+      "Top Option": "Speed +15\r\nSakura Bakushin O bond +5"
+    },
+    "CardSlug": "20042-sakura-bakushin-o"
+  },
+  {
+    "EventName": "Genius Efficiency!",
+    "EventOptions": {
+      "Bottom Option": "Speed +5\r\nPower +10\r\nSakura Bakushin O bond +5"
+    },
+    "CardSlug": "20042-sakura-bakushin-o"
+  },
+  {
+    "EventName": "Enough to Break into a Dash!",
+    "EventOptions": {
+      "Top Option": "Gap Closer hint +1\r\nSakura Bakushin O bond +5"
+    },
+    "CardSlug": "20042-sakura-bakushin-o"
+  },
+  {
+    "EventName": "Enough to Break into a Dash!",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nSpeed +10\r\nPower +5\r\nSakura Bakushin O bond +5"
+    },
+    "CardSlug": "20042-sakura-bakushin-o"
+  },
+  {
+    "EventName": "(❯) Unspoken Feelings",
+    "EventOptions": {
+      "": "Energy +15\r\nMood +1\r\nSpecial Week bond +5"
+    },
+    "CardSlug": "20043-special-week"
+  },
+  {
+    "EventName": "(❯❯) A Small Thank You",
+    "EventOptions": {
+      "": "Randomly either\r\nEnergy +10\r\nHead-On hint +3\r\nSpecial Week bond +5\r\nor\r\nor\r\nEnergy +10"
+    },
+    "CardSlug": "20043-special-week"
+  },
+  {
+    "EventName": "Watch Where You're Going!",
+    "EventOptions": {
+      "Top Option": "Extra Tank hint +1\r\nSpecial Week bond +5"
+    },
+    "CardSlug": "20043-special-week"
+  },
+  {
+    "EventName": "Watch Where You're Going!",
+    "EventOptions": {
+      "Bottom Option": "Guts +15\r\nSpecial Week bond +5"
+    },
+    "CardSlug": "20043-special-week"
+  },
+  {
+    "EventName": "So Many Options!",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nMood +1\r\nSpecial Week bond +5"
+    },
+    "CardSlug": "20043-special-week"
+  },
+  {
+    "EventName": "So Many Options!",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nStamina +15\r\nSkill points +15\r\nSpecial Week bond +5"
+    },
+    "CardSlug": "20043-special-week"
+  },
+  {
+    "EventName": "Slow and Leisurely",
+    "EventOptions": {
+      "Top Option": "Stamina +15\r\nGuts +5\r\nMejiro Bright bond +5"
+    },
+    "CardSlug": "10076-mejiro-bright"
+  },
+  {
+    "EventName": "Slow and Leisurely",
+    "EventOptions": {
+      "Bottom Option": "Speed +15\r\nPower +5\r\nMejiro Bright bond +5"
+    },
+    "CardSlug": "10076-mejiro-bright"
+  },
+  {
+    "EventName": "Sure and Steady",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nDeep Breaths hint +1\r\nMejiro Bright bond +5"
+    },
+    "CardSlug": "10076-mejiro-bright"
+  },
+  {
+    "EventName": "Sure and Steady",
+    "EventOptions": {
+      "Bottom Option": "Wit +20\r\nMejiro Bright bond +5"
+    },
+    "CardSlug": "10076-mejiro-bright"
+  },
+  {
+    "EventName": "A Thorough Inspection",
+    "EventOptions": {
+      "Top Option": "Energy +20\r\nNarita Top Road bond +5"
+    },
+    "CardSlug": "10077-narita-top-road"
+  },
+  {
+    "EventName": "A Thorough Inspection",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nSpeed +25\r\nNarita Top Road bond +5"
+    },
+    "CardSlug": "10077-narita-top-road"
+  },
+  {
+    "EventName": "A Diligent Effort",
+    "EventOptions": {
+      "Top Option": "Stamina +10\r\nNarita Top Road bond +5"
+    },
+    "CardSlug": "10077-narita-top-road"
+  },
+  {
+    "EventName": "A Diligent Effort",
+    "EventOptions": {
+      "Bottom Option": "Up-Tempo hint +1\r\nNarita Top Road bond +5"
+    },
+    "CardSlug": "10077-narita-top-road"
   }
 ]
