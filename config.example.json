@@ -117,5 +117,10 @@
     "webhook_url": "",
     "notify_on_run_complete": false
   },
-  "ocr_backend": "tesseract"
+  "ocr_backend": "tesseract",
+  "api": {
+    "enabled": false,
+    "base_url": "http://localhost:8123",
+    "timeout": 2
+  }
 }

@@ -779,6 +779,39 @@ def search_events_fuzzy(event_name):
     
     return {}
 
+
+# ── API-powered event name detection ─────────────────────────────────────────
+
+def get_event_name_api():
+    """
+    Get the current event name from the API instead of OCR.
+
+    Returns:
+        str | None: Event name string, or None if API unavailable.
+    """
+    try:
+        from utils.umat_api import get_events, is_api_enabled
+        if not is_api_enabled():
+            return None
+        data = get_events()
+    except ImportError:
+        return None
+
+    if data is None:
+        return None
+
+    events = data.get("events", [])
+    if not events:
+        log_debug("[API] No events from API")
+        return None
+
+    name = events[0].get("name", "")
+    if name:
+        log_debug(f"[API] Event name: {name}")
+        return name
+    return None
+
+
 def handle_event_choice():
     """
     Main function to handle event detection and choice selection.
@@ -804,10 +837,27 @@ def handle_event_choice():
             log_info(f"[INFO] Event choices not visible after delay, skipping analysis")
             return 1, False, []
 
-        # Capture the event name
-        event_image = capture_region(event_region)
-        event_name = extract_event_name_text(event_image)
-        event_name = event_name.strip()
+        # Get event name — API mode or OCR
+        try:
+            from utils.umat_api import is_api_enabled
+            _api_on = is_api_enabled()
+        except ImportError:
+            _api_on = False
+
+        if _api_on:
+            _t0 = time.time()
+            event_name = get_event_name_api()
+            _elapsed = time.time() - _t0
+            if event_name:
+                log_info(f"[API] Event name from API: {event_name} ({_elapsed:.2f}s)")
+            else:
+                log_error("❌ [API] Failed to get event name from API. Check that uma_viewer is running or disable API mode in config.")
+                raise RuntimeError("API mode is enabled but /events API is not responding. Check API connection or set api.enabled to false in config.json.")
+        else:
+            # OCR mode
+            event_image = capture_region(event_region)
+            event_name = extract_event_name_text(event_image)
+            event_name = event_name.strip()
         
         if not event_name:
             log_error(f"❌ EVENT DETECTION FAILED: No text detected in event region")

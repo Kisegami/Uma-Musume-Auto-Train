@@ -326,7 +326,21 @@ def check_skill_points_cap(screenshot=None):
     
     skills_config = config.get("skills", {})
     skill_point_cap = skills_config.get("skill_point_cap", 9999)
-    current_skill_points = check_skill_points(screenshot)
+
+    # Check if API mode is enabled
+    try:
+        from utils.umat_api import is_api_enabled
+        _api_on = is_api_enabled()
+    except ImportError:
+        _api_on = False
+
+    if _api_on:
+        current_skill_points = check_skill_points_api()
+        if current_skill_points is None:
+            log_error("❌ [API] Failed to get skill points from API. Check that uma_viewer is running or disable API mode in config.")
+            raise RuntimeError("API mode is enabled but /status API is not responding. Check API connection or set api.enabled to false in config.json.")
+    else:
+        current_skill_points = check_skill_points(screenshot)
     
     log_info(f"Current skill points: {current_skill_points}, Cap: {skill_point_cap}")
     
@@ -338,31 +352,50 @@ def check_skill_points_cap(screenshot=None):
         if skill_purchase_mode == "auto":
             log_info(f"Auto skill purchase enabled - starting automation")
             try:
-                # 1) Enter skill screen
-                entered = click_image_button("assets/buttons/skills_btn.png", "skills button", max_attempts=5)
-                if not entered:
-                    log_error(f"Could not find/open skills screen")
-                    return True
-                time.sleep(1.0)
-
-                # 2) Scan skills and prepare purchase plan
-                scan_result = scan_all_skills_with_scroll()
-                if 'error' in scan_result:
-                    log_error(f"Skill scanning failed: {scan_result['error']}")
-                    # Attempt to go back anyway
-                    click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
+                if _api_on:
+                    # API mode: get skill list from API
+                    from core.Unity.skill_recognizer import get_skills_api
+                    api_skills = get_skills_api()
+                    if api_skills is None:
+                        log_error("❌ [API] Failed to get skill list from API. Check that uma_viewer is running or disable API mode in config.")
+                        raise RuntimeError("API mode is enabled but /skills API is not responding. Check API connection or set api.enabled to false in config.json.")
+                    log_info(f"[API] Got {len(api_skills)} skills from API (skipping OCR scan)")
+                    all_skills = api_skills
+                    # We still need to enter skill screen for purchasing
+                    entered = click_image_button("assets/buttons/skills_btn.png", "skills button", max_attempts=5)
+                    if not entered:
+                        log_error(f"Could not find/open skills screen")
+                        return True
                     time.sleep(1.0)
-                    return True
-                all_skills = scan_result.get('all_skills', [])
-                if not all_skills:
-                    log_warning(f"No skills detected on skill screen")
-                    click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
+                    # Use API skill points as available points
+                    available_points = current_skill_points
+                    log_info(f"[API] Using API skill points: {available_points}")
+                else:
+                    # OCR mode: Enter skill screen and scan
+                    # 1) Enter skill screen
+                    entered = click_image_button("assets/buttons/skills_btn.png", "skills button", max_attempts=5)
+                    if not entered:
+                        log_error(f"Could not find/open skills screen")
+                        return True
                     time.sleep(1.0)
-                    return True
 
-                # Read current available skill points from the skill screen
-                available_points = extract_skill_points()
-                log_info(f"Detected available skill points: {available_points}")
+                    # 2) Scan skills and prepare purchase plan
+                    scan_result = scan_all_skills_with_scroll()
+                    if 'error' in scan_result:
+                        log_error(f"Skill scanning failed: {scan_result['error']}")
+                        click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
+                        time.sleep(1.0)
+                        return True
+                    all_skills = scan_result.get('all_skills', [])
+                    if not all_skills:
+                        log_warning(f"No skills detected on skill screen")
+                        click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
+                        time.sleep(1.0)
+                        return True
+
+                    # Read current available skill points from the skill screen
+                    available_points = extract_skill_points()
+                    log_info(f"Detected available skill points: {available_points}")
 
                 # Build purchase plan from config priorities
                 skill_file = skills_config.get("skill_file", "template/skills/skills.json")
@@ -678,3 +711,118 @@ def _resolve_skill_file_path(path):
         if os.path.exists(candidate_abs):
             return candidate_abs
     return os.path.join(project_root, candidates[-1])
+
+
+# ── API-powered state functions ──────────────────────────────────────────────
+# These call the uma_viewer API for fast, packet-backed data.
+# All return None when API is unavailable, allowing OCR fallback.
+
+# Module-level cache for the last status API response within a single turn
+_cached_status = None
+
+
+def _get_status_cached():
+    """Get status from API, using module-level cache to avoid duplicate calls per turn."""
+    global _cached_status
+    if _cached_status is not None:
+        return _cached_status
+    try:
+        from utils.umat_api import get_status
+        data = get_status()
+        if data is not None:
+            _cached_status = data
+        return data
+    except ImportError:
+        return None
+
+
+def invalidate_status_cache():
+    """Clear the cached status. Call at the start of each new turn iteration."""
+    global _cached_status
+    _cached_status = None
+
+
+def check_status_api():
+    """
+    Fetch full game status via API in one call.
+
+    Returns dict with UMAT-compatible keys:
+        year, mood, stats{spd,sta,pwr,guts,wit}, energy_pct, skill_points
+    Or None if API is unavailable.
+    """
+    data = _get_status_cached()
+    if data is None:
+        return None
+
+    try:
+        stats = data.get("stats", {})
+        energy = data.get("energy", {})
+        mood = data.get("mood", {})
+        energy_max = energy.get("max", 100)
+        energy_current = energy.get("current", 0)
+        energy_pct = (energy_current / energy_max * 100.0) if energy_max > 0 else 0.0
+
+        # Convert API year format to match OCR conventions
+        api_year = data.get("year", "Unknown Year")
+        if "Year 4" in api_year:
+            api_year = "Finale Underway"
+
+        result = {
+            "year": api_year,
+            "mood": mood.get("name", "UNKNOWN"),
+            "stats": {
+                "spd": stats.get("spd", 0),
+                "sta": stats.get("sta", 0),
+                "pwr": stats.get("pwr", 0),
+                "guts": stats.get("guts", 0),
+                "wit": stats.get("wit", 0),
+            },
+            "energy_pct": round(energy_pct, 1),
+            "skill_points": data.get("current_skill_points", 0),
+        }
+        log_debug(f"[API] Status: year={result['year']} mood={result['mood']} "
+                  f"energy={result['energy_pct']}% sp={result['skill_points']}")
+        return result
+    except Exception as e:
+        log_debug(f"[API] Failed to parse status response: {e}")
+        return None
+
+
+def check_current_stats_api():
+    """Return stats dict {spd,sta,pwr,guts,wit} from API, or None."""
+    status = check_status_api()
+    if status is None:
+        return None
+    return status.get("stats")
+
+
+def check_mood_api():
+    """Return mood string (GREAT/GOOD/NORMAL/BAD/AWFUL) from API, or None."""
+    status = check_status_api()
+    if status is None:
+        return None
+    return status.get("mood")
+
+
+def check_current_year_api():
+    """Return year string from API, or None."""
+    status = check_status_api()
+    if status is None:
+        return None
+    return status.get("year")
+
+
+def check_energy_api():
+    """Return energy percentage (0-100 float) from API, or None."""
+    status = check_status_api()
+    if status is None:
+        return None
+    return status.get("energy_pct")
+
+
+def check_skill_points_api():
+    """Return current skill points (int) from API, or None."""
+    status = check_status_api()
+    if status is None:
+        return None
+    return status.get("skill_points")

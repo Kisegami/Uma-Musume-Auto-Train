@@ -24,13 +24,20 @@ from utils.constants_unity import (
 )
 
 # Import ADB state and logic modules
-from core.Unity.state import check_mood, check_current_year, check_criteria, check_skill_points_cap, check_goal_name, check_current_stats, check_energy_bar, check_dating_available
+from core.Unity.state import (
+    check_mood, check_current_year, check_criteria, check_skill_points_cap,
+    check_goal_name, check_current_stats, check_energy_bar, check_dating_available,
+    # API-powered state functions
+    check_status_api, check_mood_api, check_current_year_api,
+    check_current_stats_api, check_energy_api, check_skill_points_api,
+    invalidate_status_cache,
+)
 
 # Import event handling functions
 from core.Unity.event_handling import count_event_choices, load_event_priorities, analyze_event_options, handle_event_choice, click_event_choice
 
 # Import training handling functions
-from core.Unity.training_handling import go_to_training, check_training, do_train, check_support_card, check_failure, check_hint, choose_best_training, calculate_training_score
+from core.Unity.training_handling import go_to_training, check_training, do_train, check_support_card, check_failure, check_hint, choose_best_training, calculate_training_score, check_training_api
 from core.Unity.unity_race_handling import unity_race_workflow
 
 # Import dating handling functions
@@ -53,6 +60,13 @@ from utils.log import log_debug, log_info, log_warning, log_error, log_success
 from utils.template_matching import deduplicated_matches, wait_for_image
 from utils.device import reopen_and_resume_career
 from utils.ui_check import career_ui_check
+
+# API mode support
+try:
+    from utils.umat_api import is_api_enabled
+    _API_MODE = is_api_enabled()
+except ImportError:
+    _API_MODE = False
 
 def is_infirmary_active_adb(button_location, screenshot=None):
     """
@@ -484,6 +498,9 @@ def career_lobby(timeout=None):
         log_debug(f"Taking fresh screenshot after lobby confirmation...")
         screenshot = take_screenshot()
 
+        # ── Invalidate API status cache for new turn ──────────────────────
+        invalidate_status_cache()
+
         # Check if there is debuff status
         log_debug(f"Checking for debuff status...")
         # Use match_template to get full bounding box for brightness check
@@ -504,16 +521,33 @@ def career_lobby(timeout=None):
         else:
             log_debug(f"No infirmary button detected")
 
-        # Get current state
+        # ── Get current state ─────────────────────────────────────────────
         log_debug(f"Getting current game state...")
-        mood = check_mood(screenshot)
-        mood_index = MOOD_LIST.index(mood)
+
+        if _API_MODE:
+            api_status = check_status_api()
+            if api_status is None:
+                log_error("❌ [API] Failed to get status from API. Check that uma_viewer is running or disable API mode in config.")
+                raise RuntimeError("API mode is enabled but /status API is not responding. Check API connection or set api.enabled to false in config.json.")
+            log_info(f"[API] Using API for game status")
+            mood = api_status["mood"]
+            year = api_status["year"]
+            current_stats = api_status["stats"]
+            energy_percentage = api_status["energy_pct"]
+            # API doesn't provide goal_name, criteria, dating — use OCR for those
+            goal_data = check_goal_name(screenshot)
+            criteria_text = check_criteria(screenshot)
+        else:
+            api_status = None
+            mood = check_mood(screenshot)
+            year = check_current_year(screenshot)
+            goal_data = check_goal_name(screenshot)
+            criteria_text = check_criteria(screenshot)
+
+        mood_index = MOOD_LIST.index(mood) if mood in MOOD_LIST else 0
         minimum_mood = MOOD_LIST.index(MINIMUM_MOOD)
-        year = check_current_year(screenshot)
-        goal_data = check_goal_name(screenshot)
-        criteria_text = check_criteria(screenshot)
         
-        log_info(f"=== GAME STATUS ===")
+        log_info(f"=== GAME STATUS{' (API)' if api_status else ''} ===")
         log_info(f"Year: {year}")
         log_info(f"Mood: {mood}")
         log_info(f"Goal Name: {goal_data}")
@@ -562,9 +596,11 @@ def career_lobby(timeout=None):
 
         log_debug(f"Mood index: {mood_index}, Minimum mood index: {minimum_mood}")
         
-        # Check energy bar before proceeding with training decisions
-        log_debug(f"Checking energy bar...")
-        energy_percentage = check_energy_bar(screenshot)
+        # Check energy bar (use API value if already fetched, otherwise OCR)
+        if not api_status:
+            log_debug(f"Checking energy bar...")
+            energy_percentage = check_energy_bar(screenshot)
+        # else: energy_percentage already set from api_status above
         training_config_section = config.get("training", {})
         min_energy = training_config_section.get("min_energy", 30)
         
@@ -579,17 +615,19 @@ def career_lobby(timeout=None):
             do_rest()
             continue
         
-        # Get and display current stats
-        current_stats = {}
-        try:
-            from core.Unity.state import check_current_stats
-            current_stats = check_current_stats(screenshot)
-            stats_str = f"SPD:{current_stats.get('spd', 0)} STA:{current_stats.get('sta', 0)} PWR:{current_stats.get('pwr', 0)} GUTS:{current_stats.get('guts', 0)} WIT:{current_stats.get('wit', 0)}"
-        except Exception as e:
-            log_debug(f"Could not get current stats: {e}")
-            stats_str = "N/A"
+        # Get and display current stats (use API if available)
+        if not api_status:
+            current_stats = {}
+            try:
+                from core.Unity.state import check_current_stats
+                current_stats = check_current_stats(screenshot)
+            except Exception as e:
+                log_debug(f"Could not get current stats: {e}")
+        # else: current_stats already set from api_status above
+
+        stats_str = f"SPD:{current_stats.get('spd', 0)} STA:{current_stats.get('sta', 0)} PWR:{current_stats.get('pwr', 0)} GUTS:{current_stats.get('guts', 0)} WIT:{current_stats.get('wit', 0)}" if current_stats else "N/A"
         
-        # Check dating availability
+        # Check dating availability (not in API, always template match)
         dating_available = check_dating_available(screenshot)
         
         log_info(f"Energy: {energy_percentage:.1f}% (Minimum: {min_energy}%)")
@@ -667,13 +705,12 @@ def career_lobby(timeout=None):
             log_debug(f"Not race day")
 
         # Check for custom race (bypasses all criteria) - only if enabled in config
-        log_debug(f"Checking if custom race is enabled...")
         racing_config_section = config.get("racing", {})
         do_custom_race_enabled = racing_config_section.get("do_custom_race", False)
         
         if do_custom_race_enabled:
             log_debug(f"Custom race is enabled, checking for custom race...")
-            custom_race_found = do_custom_race()
+            custom_race_found = do_custom_race(year_override=year)
             if custom_race_found:
             # Reset failure cache on success
                 log_info(f"Custom race executed successfully")
@@ -707,7 +744,7 @@ def career_lobby(timeout=None):
         else:
             log_debug(f"Mood is good ({mood_index} >= {minimum_mood})")
 
-        # Check training button
+        # Check training
         log_debug(f"Going to training...")
         
         # Check energy before proceeding with training
@@ -721,16 +758,28 @@ def career_lobby(timeout=None):
             else:
                 do_rest()
             continue
-            
-        if not go_to_training():
-            log_warning("Training button is not found.")
-            continue
 
-        # Last, do training
-        log_debug(f"Analyzing training options...")
-        time.sleep(0.5)
-        # Stay on training screen after checking (don't go back to lobby yet)
-        results_training = check_training(go_back=False, year=year, current_stats=current_stats)
+        # ── Training check ────────────────────────────────────────────────
+        _on_training_screen = False  # track whether we navigated to training screen
+
+        if _API_MODE:
+            # Get training data from API without navigating to training screen
+            _api_training = check_training_api(year=year, current_stats=current_stats)
+            if _api_training is None:
+                log_error("❌ [API] Failed to get training data from API. Check that uma_viewer is running or disable API mode in config.")
+                raise RuntimeError("API mode is enabled but /training API is not responding. Check API connection or set api.enabled to false in config.json.")
+            log_info(f"[API] Training data from API (no screen navigation needed)")
+            results_training = _api_training
+            _on_training_screen = False
+        else:
+            # OCR mode: navigate to training screen
+            if not go_to_training():
+                log_warning("Training button is not found.")
+                continue
+            log_debug(f"Analyzing training options...")
+            time.sleep(0.5)
+            results_training = check_training(go_back=False, year=year, current_stats=current_stats)
+            _on_training_screen = True
         
         log_debug(f"Deciding best training action using scoring algorithm...")
         
@@ -778,7 +827,13 @@ def career_lobby(timeout=None):
         if best_training:
             log_debug(f"Scoring algorithm selected: {best_training.upper()} training")
             log_info(f"Selected {best_training.upper()} training based on scoring algorithm")
-            # Already on training screen, so skip navigation
+            # If we used API (still in lobby), navigate to training screen first
+            if not _on_training_screen:
+                log_info(f"[API] Navigating to training screen to execute {best_training.upper()}...")
+                if not go_to_training():
+                    log_warning("Training button not found after API check. Skipping.")
+                    continue
+                time.sleep(0.3)
             do_train(best_training, already_on_training_screen=True)
         else:
             log_debug(f"No suitable training found based on scoring criteria")
@@ -800,10 +855,11 @@ def career_lobby(timeout=None):
                     wit_score = results_training.get('wit', {}).get('score', 0)
                     if wit_score < 1.0:
                         log_info(f"All training options unsafe and WIT score < 1.0. Choosing to rest.")
-                        # Need to go back to lobby first since we're still on training screen
-                        log_debug(f"Going back from training screen to lobby...")
-                        tap_on_image("assets/buttons/back_btn.png")
-                        time.sleep(0.3)
+                        # Go back to lobby if we're on training screen
+                        if _on_training_screen:
+                            log_debug(f"Going back from training screen to lobby...")
+                            tap_on_image("assets/buttons/back_btn.png")
+                            time.sleep(0.3)
                         if should_use_dating_for_rest(screenshot):
                             log_info(f"Using dating instead of rest")
                             if not do_dating():
@@ -825,15 +881,21 @@ def career_lobby(timeout=None):
                         fallback_training = choose_best_training(results_training, relaxed_config, current_stats)
                         if fallback_training:
                             log_info(f"Proceeding with training ({fallback_training.upper()}) despite poor options (relaxed selection)")
-                            # Already on training screen, so skip navigation
+                            # Navigate to training screen if not there
+                            if not _on_training_screen:
+                                if not go_to_training():
+                                    log_warning("Could not navigate to training screen for relaxed training.")
+                                    continue
+                                time.sleep(0.3)
                             do_train(fallback_training, already_on_training_screen=True)
                             continue
                         else:
                             log_info(f"No viable training even after relaxed selection. Choosing to rest.")
-                            # Need to go back to lobby first since we're still on training screen
-                            log_debug(f"Going back from training screen to lobby...")
-                            tap_on_image("assets/buttons/back_btn.png")
-                            time.sleep(0.3)
+                            # Go back to lobby if on training screen
+                            if _on_training_screen:
+                                log_debug(f"Going back from training screen to lobby...")
+                                tap_on_image("assets/buttons/back_btn.png")
+                                time.sleep(0.3)
                             if should_use_dating_for_rest(screenshot):
                                 log_info(f"Using dating instead of rest")
                                 if not do_dating():
@@ -859,16 +921,20 @@ def career_lobby(timeout=None):
                         fallback_training = choose_best_training(results_training, relaxed_config, current_stats)
                         if fallback_training:
                             log_info(f"Proceeding with training ({fallback_training.upper()}) due to no races")
-                            # Already on training screen, so skip navigation
+                            if not _on_training_screen:
+                                if not go_to_training():
+                                    log_warning("Could not navigate to training screen.")
+                                    continue
+                                time.sleep(0.3)
                             do_train(fallback_training, already_on_training_screen=True)
                             continue
                         else:
-                            # If even relaxed cannot find, decide rest only if WIT score < 1.0, else do_rest as last resort
+                            # If even relaxed cannot find, rest
                             wit_score = results_training.get('wit', {}).get('score', 0)
-                            # Need to go back to lobby first since we're still on training screen
-                            log_debug(f"Going back from training screen to lobby...")
-                            tap_on_image("assets/buttons/back_btn.png")
-                            time.sleep(0.3)
+                            if _on_training_screen:
+                                log_debug(f"Going back from training screen to lobby...")
+                                tap_on_image("assets/buttons/back_btn.png")
+                                time.sleep(0.3)
                             if wit_score < 1.0:
                                 log_info(f"No viable training after relaxation and no races. Choosing to rest.")
                                 if should_use_dating_for_rest(screenshot):
@@ -892,15 +958,16 @@ def career_lobby(timeout=None):
                         log_info(f"Prioritizing race due to insufficient training scores.")
                         log_info(f"Training Race Check: Checking database for available races...")
                         
-                        # Check database while still on training screen (no navigation)
+                        # Check database (no navigation needed)
                         from core.Unity.races_handling import check_race_in_database
                         race_available = check_race_in_database(year)
                         
                         if race_available:
-                            log_info(f"Good race found in database. Going back to lobby to do race.")
-                            # Go back to lobby and do the race
-                            tap_on_image("assets/buttons/back_btn.png", text="[INFO] Going back to lobby to search for race...")
-                            time.sleep(0.5)
+                            log_info(f"Good race found in database. Going to do race.")
+                            # Go back to lobby if on training screen
+                            if _on_training_screen:
+                                tap_on_image("assets/buttons/back_btn.png", text="[INFO] Going back to lobby to search for race...")
+                                time.sleep(0.5)
                             race_found = find_and_do_race()
                             if race_found:
                                 log_info(f"Training Race Result: Race executed successfully")
@@ -918,11 +985,11 @@ def career_lobby(timeout=None):
                                     else:
                                         do_rest()
                                     continue
+                                _on_training_screen = True  # we navigated back
                         else:
                             log_info(f"No good race found in database.")
                         
                         # No race available - check energy to decide next action
-                        # We're still on training screen
                         if energy_percentage >= 50:
                             log_info(f"Energy is {energy_percentage:.1f}% (>= 50%). Using relaxed scoring to train.")
                             relaxed_config = dict(training_config)
@@ -936,12 +1003,18 @@ def career_lobby(timeout=None):
                             relaxed_training = choose_best_training(results_training, relaxed_config, current_stats)
                             if relaxed_training:
                                 log_info(f"Proceeding with training ({relaxed_training.upper()}) using relaxed scoring")
+                                if not _on_training_screen:
+                                    if not go_to_training():
+                                        log_warning("Could not navigate to training screen.")
+                                        continue
+                                    time.sleep(0.3)
                                 do_train(relaxed_training, already_on_training_screen=True)
                                 continue
                             else:
                                 log_info(f"No training found even with relaxed scoring. Going back to rest.")
-                                tap_on_image("assets/buttons/back_btn.png")
-                                time.sleep(0.3)
+                                if _on_training_screen:
+                                    tap_on_image("assets/buttons/back_btn.png")
+                                    time.sleep(0.3)
                                 if should_use_dating_for_rest(screenshot):
                                     log_info(f"Using dating instead of rest")
                                     if not do_dating():
@@ -950,9 +1023,10 @@ def career_lobby(timeout=None):
                                 else:
                                     do_rest()
                         else:
-                            log_info(f"Energy is {energy_percentage:.1f}% (< 50%). Going back to lobby to rest.")
-                            tap_on_image("assets/buttons/back_btn.png")
-                            time.sleep(0.3)
+                            log_info(f"Energy is {energy_percentage:.1f}% (< 50%). Going to rest.")
+                            if _on_training_screen:
+                                tap_on_image("assets/buttons/back_btn.png")
+                                time.sleep(0.3)
                             if should_use_dating_for_rest(screenshot):
                                 log_info(f"Using dating instead of rest")
                                 if not do_dating():
@@ -964,10 +1038,11 @@ def career_lobby(timeout=None):
                 # Race prioritization disabled: if no training was chosen here, rest
                 # (min_score and failure thresholds are still enforced)
                 log_info(f"Race prioritization disabled and no valid training found. Choosing to rest.")
-                # Need to go back to lobby first since we're still on training screen
-                log_debug(f"Going back from training screen to lobby...")
-                tap_on_image("assets/buttons/back_btn.png")
-                time.sleep(0.3)
+                # Go back to lobby if on training screen
+                if _on_training_screen:
+                    log_debug(f"Going back from training screen to lobby...")
+                    tap_on_image("assets/buttons/back_btn.png")
+                    time.sleep(0.3)
                 if should_use_dating_for_rest(screenshot):
                     log_info(f"Using dating instead of rest")
                     if not do_dating():

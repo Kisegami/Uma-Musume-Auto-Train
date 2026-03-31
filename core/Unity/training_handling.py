@@ -1057,3 +1057,157 @@ def calculate_training_score(support_detail, hint_found, spirit_count, spirit_bu
         # If training_type is not in enabled_stats, spirit burst score is 0 (do nothing)
     
     return round(score, 2)
+
+
+# ── API-powered training check ───────────────────────────────────────────────
+
+def check_training_api(year=None, current_stats=None):
+    """
+    Fetch training data from the API and convert it to the same result format
+    as check_training() so it can be used as a drop-in replacement.
+
+    Args:
+        year: Current year string (for scoring adjustments)
+        current_stats: Current character stats dict for cap filtering
+
+    Returns:
+        dict | None: Training results keyed by stat name (spd,sta,pwr,guts,wit)
+                     or None if API is unavailable.
+    """
+    try:
+        from utils.umat_api import get_training, is_api_enabled
+        if not is_api_enabled():
+            return None
+        api_data = get_training()
+    except ImportError:
+        return None
+
+    if api_data is None:
+        return None
+
+    trainings_list = api_data.get("trainings", [])
+    if not trainings_list:
+        log_debug("[API] Training data empty")
+        return None
+
+    # Load stat caps from config for early filtering
+    training_config = config.get("training", {})
+    stat_caps = training_config.get("stat_caps", {})
+
+    results = {}
+    log_info("--- Training (API) ---")
+
+    for t in trainings_list:
+        key = t.get("name", "")
+        if key not in ("spd", "sta", "pwr", "guts", "wit"):
+            log_debug(f"[API] Skipping unknown training name: {key}")
+            continue
+
+        # Early stat cap check
+        if current_stats:
+            current_val = current_stats.get(key, 0)
+            cap_val = stat_caps.get(key, 1200)
+            if current_val >= cap_val:
+                log_info(f"  [{key.upper()}] SKIPPED - stat {current_val} >= cap {cap_val}")
+                results[key] = {
+                    "support": {},
+                    "support_detail": {},
+                    "hint": False,
+                    "spirit_training_extra": 0,
+                    "total_support": 0,
+                    "failure": 100,
+                    "confidence": 1.0,
+                    "score": 0,
+                    "skipped": True,
+                }
+                continue
+
+        failure = t.get("failure", 0)
+        hint_found = t.get("hint_found", False)
+
+        # Spirit data
+        spirit_data = t.get("spirit", {})
+        spirit_count = spirit_data.get("spirit_count", 0)
+        spirit_training_extra = spirit_data.get("spirit_training_extra_count", 0)
+        spirit_burst = spirit_data.get("spirit_burst_count", 0)
+
+        # Build support_counts and support_detail from API support_cards
+        support_counts = {}
+        detailed_support = {}
+
+        for card in t.get("support_cards", []):
+            card_type = card.get("type", "")
+            bond_level = card.get("bond_level", 0)
+
+            # Increment count
+            support_counts[card_type] = support_counts.get(card_type, 0) + 1
+
+            # Build detailed support entry (matching OCR format)
+            entry = {
+                "bbox": [0, 0, 0, 0],  # no bounding box from API
+                "center": [0, 0],
+                "bond_sample_point": [0, 0],
+                "bond_color": [0, 0, 0],
+                "bond_level": bond_level,
+            }
+            if card_type not in detailed_support:
+                detailed_support[card_type] = []
+            detailed_support[card_type].append(entry)
+
+        total_support = sum(support_counts.values())
+
+        # Adjust spirit_count to avoid double-counting extra
+        spirit_count_adjusted = max(0, spirit_count - spirit_training_extra)
+
+        # Calculate score using the same function as OCR path
+        score = calculate_training_score(
+            detailed_support, hint_found,
+            spirit_count_adjusted, spirit_burst, spirit_training_extra,
+            key, year=year
+        )
+
+        results[key] = {
+            "support": support_counts,
+            "support_detail": detailed_support,
+            "hint": bool(hint_found),
+            "spirit_training_extra": spirit_training_extra,
+            "total_support": total_support,
+            "failure": failure,
+            "confidence": 1.0,  # API data is always high-confidence
+            "score": score,
+        }
+
+        # Build compact log line (same format as OCR path)
+        if detailed_support:
+            parts = []
+            for ctype, entries in detailed_support.items():
+                for idx, entry in enumerate(entries, 1):
+                    lv = entry["bond_level"]
+                    is_rainbow = (ctype == key and lv >= 4)
+                    label = f"{ctype.upper()}{idx}:{lv}"
+                    if is_rainbow:
+                        label += "(R)"
+                    parts.append(label)
+            support_str = ",".join(parts)
+        else:
+            support_str = "-"
+
+        extras = []
+        if hint_found:
+            extras.append("hint")
+        if spirit_count_adjusted > 0:
+            extras.append(f"spirit:{spirit_count_adjusted}")
+        if spirit_burst > 0:
+            extras.append(f"burst:{spirit_burst}")
+        if spirit_training_extra > 0:
+            extras.append(f"sp_extra:{spirit_training_extra}")
+        extras_str = " " + " ".join(extras) if extras else ""
+
+        log_info(f"  {key.upper():>4}: Score={score:.1f} Fail={failure}%(API) | {support_str}{extras_str}")
+
+    if not results:
+        log_debug("[API] No training results parsed")
+        return None
+
+    return results
+

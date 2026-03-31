@@ -903,16 +903,23 @@ def find_and_do_race():
         log_debug(f"Error in find_and_do_race: {e}")
         return False
 
-def do_custom_race():
-    """Handle custom races from custom_races.json - bypasses all criteria checks"""
+def do_custom_race(year_override=None):
+    """Handle custom races from custom_races.json - bypasses all criteria checks
+    
+    Args:
+        year_override: If provided, skip OCR year detection and use this value.
+    """
     log_debug(f"Checking for custom race...")
     
     try:
         project_root = _get_project_root()
-        # 1. Get current year
-        year = check_current_year()
-        if not year:
-            return False
+        # 1. Get current year (use override if provided)
+        if year_override:
+            year = year_override
+        else:
+            year = check_current_year()
+            if not year:
+                return False
         
         # 2. Load custom races data
         try:
