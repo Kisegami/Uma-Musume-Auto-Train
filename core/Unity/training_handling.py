@@ -877,6 +877,11 @@ def choose_best_training(training_results, config, current_stats):
     gambling_score_per_increase = config.get("gambling_train_score_per_increase", 1.0)
     
     # Filter out training options with failure rates above maximum (with gambling train adjustments)
+    log_debug(
+        f" Failure filter start: base max failure = {max_failure}% | "
+        f"gambling_enabled={gambling_enabled} "
+        f"(+{gambling_failure_increase}% per {gambling_score_per_increase:.1f} score)"
+    )
     safe_options = {}
     for k, v in training_results.items():
         failure_rate = v.get('failure', 100)
@@ -884,19 +889,33 @@ def choose_best_training(training_results, config, current_stats):
         
         # Calculate effective max failure for this training option
         effective_max_failure = max_failure
+        score_multiplier = 0
         if gambling_enabled and gambling_score_per_increase > 0:
             # Increase max failure based on score (e.g., +5% for each 1.0 score)
             score_multiplier = int(score / gambling_score_per_increase)
             effective_max_failure = max_failure + (gambling_failure_increase * score_multiplier)
-            if score_multiplier > 0:
-                log_debug(f"  {k.upper()}: Gambling train applied, effective max failure = {effective_max_failure}% (score={score:.1f})")
+        
+        decision = "SAFE" if failure_rate <= effective_max_failure else "UNSAFE"
+        if gambling_enabled and gambling_score_per_increase > 0:
+            log_debug(
+                f"  {k.upper()}: failure={failure_rate}% | score={score:.1f} | "
+                f"base max={max_failure}% -> effective max={effective_max_failure}% "
+                f"(multiplier={score_multiplier}) => {decision}"
+            )
+        else:
+            log_debug(
+                f"  {k.upper()}: failure={failure_rate}% | score={score:.1f} | "
+                f"max failure={effective_max_failure}% => {decision}"
+            )
         
         if failure_rate <= effective_max_failure:
             safe_options[k] = v
     
     if not safe_options:
-        log_debug(f" No training options with failure rate <= {max_failure}%")
+        log_debug(f" No training options passed failure filter")
         return None
+    
+    log_debug(f" Training options after failure filter: {list(safe_options.keys())}")
     
     # Filter by stat caps BEFORE other filtering
     from core.Unity.logic import filter_by_stat_caps

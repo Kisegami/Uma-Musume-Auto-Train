@@ -47,10 +47,20 @@ class OthersTab(QScrollArea):
             lambda v: self._update_and_save("stop_on_event_detection_failure", v == Qt.CheckState.Checked.value)
         )
         debug_layout.addWidget(self.stop_on_failure)
+
+        self.dump_lobby_template_regions = QCheckBox("Dump Lobby Template Regions to JSON")
+        self.dump_lobby_template_regions.stateChanged.connect(
+            lambda v: self._update_and_save("dump_lobby_template_regions", v == Qt.CheckState.Checked.value)
+        )
+        debug_layout.addWidget(self.dump_lobby_template_regions)
         
         desc = QLabel("When enabled, bot stops if event name cannot be detected.\nWhen disabled, bot chooses top option as fallback.")
         desc.setStyleSheet(f"color: {COLORS['text_muted']}; font-size: 12px; margin-left: 25px;")
         debug_layout.addWidget(desc)
+
+        dump_desc = QLabel("Writes found lobby template match regions into a JSON file during the run.\nWorks independently of Debug Mode and helps collect all button regions that appeared.")
+        dump_desc.setStyleSheet(f"color: {COLORS['text_muted']}; font-size: 12px; margin-left: 25px;")
+        debug_layout.addWidget(dump_desc)
         
         layout.addWidget(debug_group)
         
@@ -152,6 +162,7 @@ class OthersTab(QScrollArea):
         
         self.debug_mode.setChecked(config.get("debug_mode", False))
         self.stop_on_failure.setChecked(config.get("stop_on_event_detection_failure", False))
+        self.dump_lobby_template_regions.setChecked(config.get("dump_lobby_template_regions", False))
         
         # Load API settings
         api_config = config.get("api", {})

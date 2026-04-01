@@ -7,42 +7,62 @@ from utils.log import log_debug, log_info, log_warning, log_error
 
 def _get_project_root():
     """Get the project root directory"""
-    # Try to find project root by looking for main.py or assets/ folder
-    # Start from this file's location (utils/recognizer.py)
     current = os.path.dirname(os.path.abspath(__file__))
-    # Go up one level from utils/ to get project root
     project_root = os.path.dirname(current)
     
-    # Verify it's the project root by checking for main.py or assets/
     if os.path.exists(os.path.join(project_root, 'main.py')) or os.path.exists(os.path.join(project_root, 'assets')):
         return project_root
     
-    # Fallback: try current working directory
     cwd = os.getcwd()
     if os.path.exists(os.path.join(cwd, 'main.py')) or os.path.exists(os.path.join(cwd, 'assets')):
         return cwd
     
-    # Last resort: return the calculated root anyway
     return project_root
 
 def _resolve_asset_path(template_path):
     """Resolve asset path relative to project root"""
-    # If path is already absolute, use it as-is
     if os.path.isabs(template_path):
         return template_path
     
-    # If path exists as-is (relative to current working directory), use it
     if os.path.exists(template_path):
         return os.path.abspath(template_path)
     
-    # Otherwise, resolve relative to project root
     project_root = _get_project_root()
     resolved_path = os.path.join(project_root, template_path)
-    
-    # Normalize the path (handle .. and .)
     resolved_path = os.path.normpath(resolved_path)
-    
     return resolved_path
+
+# ── Template image cache & conversion helpers ─────────────────────────
+_template_cache = {}
+
+def _load_template(template_path):
+    """Load and cache a template image from disk.
+
+    Templates are loaded once and stored in memory for reuse,
+    eliminating repeated cv2.imread disk I/O.
+
+    Returns:
+        cv2 BGR image or None if the template could not be loaded.
+    """
+    resolved = _resolve_asset_path(template_path)
+    if resolved in _template_cache:
+        return _template_cache[resolved]
+
+    if not os.path.exists(resolved):
+        log_error(f"Template not found: {template_path} (resolved to: {resolved})")
+        _template_cache[resolved] = None
+        return None
+
+    img = cv2.imread(resolved, cv2.IMREAD_COLOR)
+    if img is None:
+        log_error(f"Failed to load template: {resolved}")
+    _template_cache[resolved] = img
+    return img
+
+def _screenshot_to_cv(screenshot):
+    """Convert a PIL screenshot to OpenCV BGR numpy array (single conversion)."""
+    return cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+# ──────────────────────────────────────────────────────────────────────
 
 def match_template(screenshot, template_path, confidence=0.8, region=None):
     """
@@ -55,47 +75,27 @@ def match_template(screenshot, template_path, confidence=0.8, region=None):
         region: Region to search in (x, y, width, height)
     
     Returns:
-        List of (x, y, width, height) matches or None if not found
+        List of (x, y, width, height) matches or empty list if not found
     """
     try:
-        # Resolve template path relative to project root
-        resolved_path = _resolve_asset_path(template_path)
-        
-        # Load template
-        if not os.path.exists(resolved_path):
-            log_error(f"Template not found: {template_path} (resolved to: {resolved_path})")
-            return []
-        
-        template_path = resolved_path  # Use resolved path for cv2.imread
-        
-        template = cv2.imread(template_path, cv2.IMREAD_COLOR)
+        template = _load_template(template_path)
         if template is None:
-            log_error(f"Failed to load template: {template_path}")
             return []
         
-        # Convert screenshot to OpenCV format
-        screenshot_cv = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+        screenshot_cv = _screenshot_to_cv(screenshot)
         
-        # Crop to region if specified
         if region:
             x, y, w, h = region
             screenshot_cv = screenshot_cv[y:y+h, x:x+w]
         
-        # Get template dimensions
         h, w = template.shape[:2]
-        
-        # Perform template matching
         result = cv2.matchTemplate(screenshot_cv, template, cv2.TM_CCOEFF_NORMED)
-        
-        # Find locations where the matching exceeds the threshold
         locations = np.where(result >= confidence)
         matches = []
         
-        for pt in zip(*locations[::-1]):  # Switch columns and rows
+        for pt in zip(*locations[::-1]):
             if region:
-                # Adjust coordinates back to full screen
                 pt = (pt[0] + region[0], pt[1] + region[1])
-            
             matches.append((pt[0], pt[1], w, h))
         
         return matches if matches else []
@@ -114,22 +114,14 @@ def max_match_confidence(screenshot, template_path, region=None):
         region: Optional region to search (x, y, w, h)
 
     Returns:
-        float: max normalized correlation score in [0,1], or None on error
+        float: max normalized correlation score in [0,1], or 0.0 on error
     """
     try:
-        # Resolve template path relative to project root
-        resolved_path = _resolve_asset_path(template_path)
-        
-        if not os.path.exists(resolved_path):
-            log_error(f"Template not found: {template_path} (resolved to: {resolved_path})")
-            return 0.0
-
-        template = cv2.imread(resolved_path, cv2.IMREAD_COLOR)
+        template = _load_template(template_path)
         if template is None:
-            log_error(f"Failed to load template: {template_path}")
             return 0.0
 
-        screenshot_cv = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+        screenshot_cv = _screenshot_to_cv(screenshot)
 
         if region:
             x, y, w, h = region
@@ -141,6 +133,55 @@ def max_match_confidence(screenshot, template_path, region=None):
     except Exception as e:
         log_error(f"Error computing max template confidence: {e}")
         return 0.0
+
+def match_templates_batch(screenshot, template_specs):
+    """Match multiple templates against a single screenshot efficiently.
+
+    Converts the screenshot to OpenCV format ONCE and uses cached templates,
+    eliminating redundant PIL-to-numpy-to-BGR conversions and disk I/O.
+
+    Args:
+        screenshot: PIL Image
+        template_specs: list of tuples (template_path, confidence, region)
+            - template_path: str - path to template image
+            - confidence: float - minimum confidence threshold
+            - region: tuple (x, y, w, h) or None - optional search region
+
+    Returns:
+        dict: {template_path: [(x, y, w, h), ...]} - matches per template.
+              Empty list [] means no match for that template.
+    """
+    screenshot_cv = _screenshot_to_cv(screenshot)
+    results = {}
+
+    for template_path, confidence, region in template_specs:
+        template = _load_template(template_path)
+        if template is None:
+            results[template_path] = []
+            continue
+
+        search_img = screenshot_cv
+        if region:
+            rx, ry, rw, rh = region
+            search_img = screenshot_cv[ry:ry+rh, rx:rx+rw]
+
+        try:
+            th, tw = template.shape[:2]
+            result = cv2.matchTemplate(search_img, template, cv2.TM_CCOEFF_NORMED)
+            locations = np.where(result >= confidence)
+            matches = []
+            for pt in zip(*locations[::-1]):
+                px, py = pt[0], pt[1]
+                if region:
+                    px += region[0]
+                    py += region[1]
+                matches.append((px, py, tw, th))
+            results[template_path] = matches
+        except Exception as e:
+            log_error(f"Error in batch template matching for {template_path}: {e}")
+            results[template_path] = []
+
+    return results
 
 def locate_on_screen(template_path, confidence=0.8, region=None):
     """
@@ -158,7 +199,6 @@ def locate_on_screen(template_path, confidence=0.8, region=None):
     matches = match_template(screenshot, template_path, confidence, region)
     
     if matches:
-        # Return center of first match
         x, y, w, h = matches[0]
         return (x + w//2, y + h//2)
     
@@ -194,5 +234,3 @@ def is_image_on_screen(template_path, confidence=0.8, region=None):
         True if found, False otherwise
     """
     return locate_on_screen(template_path, confidence, region) is not None
-
- 

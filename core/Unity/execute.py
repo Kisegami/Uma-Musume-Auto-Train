@@ -16,7 +16,7 @@ if os.name == 'nt':  # Windows
     except:
         pass
 
-from utils.recognizer import locate_on_screen, locate_all_on_screen, is_image_on_screen, match_template, max_match_confidence
+from utils.recognizer import locate_on_screen, locate_all_on_screen, is_image_on_screen, match_template, max_match_confidence, match_templates_batch
 from utils.input import tap, triple_click, long_press, tap_on_image
 from utils.screenshot import take_screenshot, enhanced_screenshot, capture_region
 from utils.constants_unity import (
@@ -53,10 +53,17 @@ from core.Unity.races_handling import (
 from utils.config_loader import load_main_config
 config = load_main_config()
 DEBUG_MODE = config.get("debug_mode", False)
+DUMP_LOBBY_TEMPLATE_REGIONS = config.get("dump_lobby_template_regions", False)
 racing_config = config.get("racing", {})
 RETRY_RACE = racing_config.get("retry_race", True)
 
+
+def should_skip_goal_check():
+    """Return whether criteria/goal-name OCR checks should be skipped."""
+    return config.get("training", {}).get("skip_goal_check", False)
+
 from utils.log import log_debug, log_info, log_warning, log_error, log_success
+from utils.template_match_dump import record_template_matches
 from utils.template_matching import deduplicated_matches, wait_for_image
 from utils.device import reopen_and_resume_career
 from utils.ui_check import career_ui_check
@@ -259,6 +266,7 @@ def career_lobby(timeout=None):
 
     # Timeout support for bounded checks (e.g. from ui_check)
     _timeout_start = time.time() if timeout else None
+    _template_dump_path = None
 
     # Program start
     while True:
@@ -300,11 +308,35 @@ def career_lobby(timeout=None):
         _prev_screenshot = screenshot.copy()
         # ──────────────────────────────────────────────────────────────
         
-        # Check for career restart first (highest priority) - quick check only
+        # ── Batch pre-lobby UI checks ─────────────────────────────────
+        # Match ALL interrupt/navigation templates in ONE pass:
+        # single screenshot→CV conversion, cached template loading
+        log_debug(f"Performing batch UI element check...")
+        lobby_template_specs = [
+            ("assets/buttons/complete_career.png", 0.8, None),
+            ("assets/buttons/claw.png", 0.8, None),
+            ("assets/buttons/ok_btn.png", 0.8, None),
+            ("assets/icons/event_choice_1.png", 0.7, (6, 450, 126, 1776)),
+            ("assets/unity/unity_cup.png", 0.8, None),
+            ("assets/buttons/inspiration_btn.png", 0.5, None),
+            ("assets/buttons/cancel_lobby.png", 0.8, None),
+            ("assets/buttons/close.png", 0.8, None),
+            ("assets/buttons/next_btn.png", 0.8, None),
+            ("assets/ui/tazuna_hint.png", 0.9, None),
+            ("assets/buttons/back_btn.png", 0.8, None),
+        ]
+        batch_results = match_templates_batch(screenshot, lobby_template_specs)
+        if DUMP_LOBBY_TEMPLATE_REGIONS:
+            dump_path = record_template_matches("unity", "career_lobby_precheck", lobby_template_specs, batch_results)
+            if dump_path and dump_path != _template_dump_path:
+                _template_dump_path = dump_path
+                log_info(f"Lobby template regions JSON: {dump_path}")
+        # ──────────────────────────────────────────────────────────────
+
+        # 1. Check for career restart (highest priority)
         log_debug(f"Quick check for Complete Career screen...")
         try:
-            # Quick check for Complete Career button without importing full module
-            complete_career_matches = match_template(screenshot, "assets/buttons/complete_career.png", confidence=0.8)
+            complete_career_matches = batch_results["assets/buttons/complete_career.png"]
             if complete_career_matches:
                 log_info(f"Complete Career screen detected - starting restart workflow")
                 from core.Unity.restart_career import career_lobby_check
@@ -314,21 +346,18 @@ def career_lobby(timeout=None):
                     return False
         except Exception as e:
             log_error(f"Career restart check failed: {e}")
-        
-        # Batch UI check - use existing screenshot for multiple elements
-        log_debug(f"Performing batch UI element check...")
-        
-        # Check claw machine first (highest priority)
+
+        # 2. Check claw machine
         log_debug(f"Checking for claw machine...")
-        claw_matches = match_template(screenshot, "assets/buttons/claw.png", confidence=0.8)
+        claw_matches = batch_results["assets/buttons/claw.png"]
         if claw_matches:
             _lobby_wait_start = None
             claw_machine()
             continue
-        
-        # Check OK button
+
+        # 3. Check OK button
         log_debug(f"Checking for OK button...")
-        ok_matches = match_template(screenshot, "assets/buttons/ok_btn.png", confidence=0.8)
+        ok_matches = batch_results["assets/buttons/ok_btn.png"]
         if ok_matches:
             x, y, w, h = ok_matches[0]
             center = (x + w//2, y + h//2)
@@ -336,13 +365,12 @@ def career_lobby(timeout=None):
             tap(center[0], center[1])
             _lobby_wait_start = None
             continue
-        
-        # Check for events
+
+        # 4. Check for events
         log_debug(f"Checking for events...")
         try:
-            event_choice_region = (6, 450, 126, 1776)
-            event_matches = match_template(screenshot, "assets/icons/event_choice_1.png", confidence=0.7, region=event_choice_region)
-            
+            event_matches = batch_results["assets/icons/event_choice_1.png"]
+
             if event_matches:
                 log_info(f"Event detected, analyzing choices...")
                 choice_number, success, choice_locations = handle_event_choice()
@@ -355,20 +383,17 @@ def career_lobby(timeout=None):
                         continue
                     else:
                         log_warning(f"Failed to click event choice, falling back to top choice")
-                        # Fallback using existing match
                         x, y, w, h = event_matches[0]
                         center = (x + w//2, y + h//2)
                         tap(center[0], center[1])
                         _lobby_wait_start = None
                         continue
                 else:
-                    # If no choice locations were returned, skip clicking and continue loop
                     if not choice_locations:
                         log_debug(f"Skipping event click due to no visible choices after stabilization")
                         _lobby_wait_start = None
                         continue
                     log_warning(f"Event analysis failed, falling back to top choice")
-                    # Fallback using existing match
                     x, y, w, h = event_matches[0]
                     center = (x + w//2, y + h//2)
                     tap(center[0], center[1])
@@ -377,17 +402,16 @@ def career_lobby(timeout=None):
             else:
                 log_debug(f"No events found")
         except RuntimeError as e:
-            # Re-raise RuntimeError (critical failures that should stop the bot)
             if "Event detection failed" in str(e):
                 raise
             log_error(f"Event handling error: {e}")
         except Exception as e:
             log_error(f"Event handling error: {e}")
 
-        # Check for Unity Cup (Unity race workflow)
+        # 5. Check for Unity Cup (no extra screenshot needed now)
         log_debug(f"Checking for Unity Cup...")
-        unity_cup = locate_on_screen("assets/unity/unity_cup.png", confidence=0.8)
-        if unity_cup:
+        unity_cup_matches = batch_results["assets/unity/unity_cup.png"]
+        if unity_cup_matches:
             log_info(f"Unity Cup detected, starting Unity race workflow...")
             try:
                 if unity_race_workflow():
@@ -397,9 +421,9 @@ def career_lobby(timeout=None):
             except Exception as e:
                 log_warning(f"Unity race workflow failed: {e}")
 
-        # Check inspiration button
+        # 6. Check inspiration button
         log_debug(f"Checking for inspiration...")
-        inspiration_matches = match_template(screenshot, "assets/buttons/inspiration_btn.png", confidence=0.5)
+        inspiration_matches = batch_results["assets/buttons/inspiration_btn.png"]
         if inspiration_matches:
             x, y, w, h = inspiration_matches[0]
             center = (x + w//2, y + h//2)
@@ -408,9 +432,9 @@ def career_lobby(timeout=None):
             _lobby_wait_start = None
             continue
 
-        # Check cancel button
+        # 7. Check cancel button
         log_debug(f"Checking for cancel button...")
-        cancel_matches = match_template(screenshot, "assets/buttons/cancel_lobby.png", confidence=0.8)
+        cancel_matches = batch_results["assets/buttons/cancel_lobby.png"]
         if cancel_matches:
             x, y, w, h = cancel_matches[0]
             center = (x + w//2, y + h//2)
@@ -419,9 +443,9 @@ def career_lobby(timeout=None):
             _lobby_wait_start = None
             continue
 
-        # Check clóe button
+        # 8. Check close button
         log_debug(f"Checking for close button...")
-        close_matches = match_template(screenshot, "assets/buttons/close.png", confidence=0.8)
+        close_matches = batch_results["assets/buttons/close.png"]
         if close_matches:
             x, y, w, h = close_matches[0]
             center = (x + w//2, y + h//2)
@@ -430,9 +454,9 @@ def career_lobby(timeout=None):
             _lobby_wait_start = None
             continue
 
-        # Check next button
+        # 9. Check next button
         log_debug(f"Checking for next button...")
-        next_matches = match_template(screenshot, "assets/buttons/next_btn.png", confidence=0.8)
+        next_matches = batch_results["assets/buttons/next_btn.png"]
         if next_matches:
             x, y, w, h = next_matches[0]
             center = (x + w//2, y + h//2)
@@ -441,13 +465,13 @@ def career_lobby(timeout=None):
             _lobby_wait_start = None
             continue
 
-        # Check if current menu is in career lobby
+        # 10. Check if in career lobby (no extra screenshot needed now)
         log_debug(f"Checking if in career lobby...")
-        tazuna_hint = locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.9)
+        tazuna_hint = batch_results["assets/ui/tazuna_hint.png"]
 
-        if tazuna_hint is None:
+        if not tazuna_hint:
             # Check for back button to navigate back to lobby
-            back_btn_matches = match_template(screenshot, "assets/buttons/back_btn.png", confidence=0.8)
+            back_btn_matches = batch_results["assets/buttons/back_btn.png"]
             if back_btn_matches:
                 x, y, w, h = back_btn_matches[0]
                 center = (x + w//2, y + h//2)
@@ -524,6 +548,8 @@ def career_lobby(timeout=None):
         # ── Get current state ─────────────────────────────────────────────
         log_debug(f"Getting current game state...")
 
+        skip_goal_check = should_skip_goal_check()
+
         if _API_MODE:
             api_status = check_status_api()
             if api_status is None:
@@ -535,14 +561,22 @@ def career_lobby(timeout=None):
             current_stats = api_status["stats"]
             energy_percentage = api_status["energy_pct"]
             # API doesn't provide goal_name, criteria, dating — use OCR for those
-            goal_data = check_goal_name(screenshot)
-            criteria_text = check_criteria(screenshot)
+            if skip_goal_check:
+                goal_data = "Skipped"
+                criteria_text = "Skipped"
+            else:
+                goal_data = check_goal_name(screenshot)
+                criteria_text = check_criteria(screenshot)
         else:
             api_status = None
             mood = check_mood(screenshot)
             year = check_current_year(screenshot)
-            goal_data = check_goal_name(screenshot)
-            criteria_text = check_criteria(screenshot)
+            if skip_goal_check:
+                goal_data = "Skipped"
+                criteria_text = "Skipped"
+            else:
+                goal_data = check_goal_name(screenshot)
+                criteria_text = check_criteria(screenshot)
 
         mood_index = MOOD_LIST.index(mood) if mood in MOOD_LIST else 0
         minimum_mood = MOOD_LIST.index(MINIMUM_MOOD)
@@ -637,7 +671,15 @@ def career_lobby(timeout=None):
         # Check if goals criteria are NOT met AND it is not Pre-Debut
         # Prioritize racing when criteria are not met to help achieve goals
         log_debug(f"Checking goal criteria...")
-        goal_analysis = check_goal_criteria({"text": criteria_text}, year)
+        if skip_goal_check:
+            goal_analysis = {
+                "criteria_met": True,
+                "is_pre_debut": is_pre_debut_year(year),
+                "should_prioritize_racing": False,
+            }
+            log_info("Goal criteria check skipped by config")
+        else:
+            goal_analysis = check_goal_criteria({"text": criteria_text}, year)
         
         if goal_analysis["should_prioritize_racing"]:
             log_info(f"Decision: Criteria not met - Prioritizing races to meet goals")
@@ -815,7 +857,10 @@ def career_lobby(timeout=None):
         training_config = {
             "maximum_failure": training_config_section.get("maximum_failure", 15),
             "min_score": min_score_config,
-            "priority_stat": training_config_section.get("priority_stat", ["spd", "sta", "wit", "pwr", "guts"])
+            "priority_stat": training_config_section.get("priority_stat", ["spd", "sta", "wit", "pwr", "guts"]),
+            "gambling_train_enabled": training_config_section.get("gambling_train_enabled", False),
+            "gambling_train_failure_increase": training_config_section.get("gambling_train_failure_increase", 5),
+            "gambling_train_score_per_increase": training_config_section.get("gambling_train_score_per_increase", 1.0)
         }
 
         do_race_when_bad_training_flag = training_config_section.get("do_race_when_bad_training", True)
@@ -1051,8 +1096,7 @@ def career_lobby(timeout=None):
                 else:
                     do_rest()
         
-        log_debug(f"Waiting before next iteration...")
-        time.sleep(1)
+        log_debug(f"Starting next iteration immediately...")
 
 def check_goal_criteria(criteria_data, year):
     """

@@ -52,6 +52,7 @@
       "wit": 600
     },
     "rest_in_june": true,
+    "skip_goal_check": false,
     "gambling_train_enabled": false,
     "gambling_train_failure_increase": 5,
     "gambling_train_score_per_increase": 2.0
@@ -101,6 +102,7 @@
   },
   "mode": "ura",
   "debug_mode": false,
+  "dump_lobby_template_regions": false,
   "stop_on_event_detection_failure": false,
   "events": {
     "uma_event_file": "",

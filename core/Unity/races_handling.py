@@ -814,8 +814,14 @@ def find_and_do_race():
         
         # 3. Choose best race based on database and config criteria
         # Check if goal contains G1 and override allowed grades if so
-        from core.Unity.state import check_goal_name
-        goal_name = check_goal_name()
+        training_config = config.get("training", {})
+        skip_goal_check = training_config.get("skip_goal_check", False)
+        if skip_goal_check:
+            goal_name = ""
+            log_info("Goal name check skipped by config")
+        else:
+            from core.Unity.state import check_goal_name
+            goal_name = check_goal_name()
         
         # Override allowed grades if goal contains G1
         racing_config_section = config.get("racing", {})
