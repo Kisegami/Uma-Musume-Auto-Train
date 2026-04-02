@@ -122,21 +122,30 @@ def execute_skill_purchase_workflow(available_points: int):
     
     # Import here to avoid circular imports
     from core.Unity.skill_auto_purchase import click_image_button
-    from core.Unity.skill_recognizer import scan_all_skills_with_scroll
+    from core.Unity.skill_recognizer import scan_all_skills_with_scroll, get_skills_api
     from core.Unity.skill_purchase_optimizer import load_skill_config, create_purchase_plan, filter_affordable_skills
     from core.Unity.skill_auto_purchase import execute_skill_purchases
     from core.Unity.skill_recognizer import deduplicate_skills
+    try:
+        from utils.umat_api import is_api_enabled
+        api_mode = is_api_enabled()
+    except ImportError:
+        api_mode = False
     
-    # Tap end skill button
-    if not click_image_button("assets/buttons/end_skill.png", "end skill button", max_attempts=5):
-        log_info(f"Failed to tap end skill button")
-        return
-    
-    time.sleep(2)
-    
-    # Scan for available skills
-    scan_result = scan_all_skills_with_scroll(confidence=0.9, brightness_threshold=150, max_scrolls=20)
-    all_available_skills = scan_result.get('all_skills', [])
+    if api_mode:
+        all_available_skills = get_skills_api()
+        if all_available_skills is None:
+            log_error("âŒ [API] Failed to get end-career skill list from API. Check that uma_viewer is running or disable API mode in config.")
+            raise RuntimeError("API mode is enabled but /skills API is not responding. Check API connection or set api.enabled to false in config.json.")
+        log_info(f"[API] Got {len(all_available_skills)} end-career skills from API (skipping OCR scan)")
+    else:
+        if not click_image_button("assets/buttons/end_skill.png", "end skill button", max_attempts=5):
+            log_info(f"Failed to tap end skill button")
+            return
+        time.sleep(2)
+        # Scan for available skills
+        scan_result = scan_all_skills_with_scroll(confidence=0.9, brightness_threshold=150, max_scrolls=20)
+        all_available_skills = scan_result.get('all_skills', [])
     
     if all_available_skills:
         # Deduplicate and optimize skill purchase
@@ -189,7 +198,11 @@ def execute_skill_purchase_workflow(available_points: int):
         if purchase_plan:
             affordable_skills, total_cost, remaining_points = filter_affordable_skills(purchase_plan, available_points)
             if affordable_skills:
-                execute_skill_purchases(affordable_skills, end_career=True)
+                if not click_image_button("assets/buttons/end_skill.png", "end skill button", max_attempts=5):
+                    log_info(f"Failed to tap end skill button")
+                    return
+                time.sleep(2)
+                execute_skill_purchases(affordable_skills, end_career=True, reset_to_top=not api_mode)
     
     # Return to complete career screen
     return_to_complete_career_screen()

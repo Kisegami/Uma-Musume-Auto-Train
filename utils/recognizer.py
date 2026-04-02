@@ -6,7 +6,8 @@ from utils.screenshot import take_screenshot
 from utils.log import log_debug, log_info, log_warning, log_error
 from utils.template_match_dump import record_single_template_match, record_template_matches_for_mode
 from utils.config_loader import load_main_config
-from utils.constants_unity import get_template_region
+from utils.constants_unity import get_template_region as get_unity_template_region
+from utils.constants_ura import get_template_region as get_ura_template_region
 
 def _get_project_root():
     """Get the project root directory"""
@@ -71,8 +72,11 @@ def _resolve_search_region(template_path, region):
     if region is not None:
         return region
     try:
-        if load_main_config().get("mode") == "unity":
-            return get_template_region(template_path)
+        mode = load_main_config().get("mode")
+        if mode == "unity":
+            return get_unity_template_region(template_path)
+        if mode == "ura":
+            return get_ura_template_region(template_path)
     except Exception:
         pass
     return None

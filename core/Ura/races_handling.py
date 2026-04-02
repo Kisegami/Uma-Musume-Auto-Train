@@ -790,13 +790,17 @@ def check_and_select_maiden_race():
     log_debug(f"No maiden races found")
     return False
 
-def find_and_do_race():
-    """Find and execute race using intelligent race selection - replaces old do_race()"""
+def find_and_do_race(year_override=None):
+    """Find and execute race using intelligent race selection.
+
+    Args:
+        year_override: If provided, skip OCR year detection and use this value.
+    """
     log_info(f"Race Selection - Starting intelligent race selection...")
     
     try:
         # 1. Setup common environment
-        year = check_current_year()
+        year = year_override or check_current_year()
         if not year:
             log_warning(f"Race Selection - Could not detect current year")
             return False
@@ -915,14 +919,18 @@ def find_and_do_race():
         log_debug(f"Error in find_and_do_race: {e}")
         return False
 
-def do_custom_race():
-    """Handle custom races from custom_races.json - bypasses all criteria checks"""
+def do_custom_race(year_override=None):
+    """Handle custom races from custom_races.json - bypasses all criteria checks.
+
+    Args:
+        year_override: If provided, skip OCR year detection and use this value.
+    """
     log_debug(f"Checking for custom race...")
     
     try:
         project_root = _get_project_root()
         # 1. Get current year
-        year = check_current_year()
+        year = year_override or check_current_year()
         if not year:
             return False
         

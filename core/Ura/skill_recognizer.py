@@ -778,3 +778,39 @@ def calculate_string_similarity(str1, str2):
     similarity = 1.0 - (distance / max_length)
     return similarity
 
+
+def get_skills_api():
+    """
+    Get available skills from the API instead of OCR scan.
+
+    Returns list of skill dicts matching scan_all_skills_with_scroll() output,
+    or None if API is unavailable.
+    """
+    try:
+        from utils.umat_api import get_skills, is_api_enabled
+        if not is_api_enabled():
+            return None
+        api_data = get_skills()
+    except ImportError:
+        return None
+
+    if api_data is None:
+        return None
+
+    skills_list = api_data.get("skills", [])
+    if not skills_list:
+        log_debug("[API] No skills from API")
+        return None
+
+    result = []
+    for skill in skills_list:
+        result.append({
+            "name": skill.get("name", "Unknown"),
+            "price": str(skill.get("price", 0)),
+            "location": (0, 0, 0, 0),
+            "regions": {"name_region": None, "price_region": None},
+        })
+
+    log_debug(f"[API] Got {len(result)} skills from API")
+    return result
+

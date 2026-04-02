@@ -24,13 +24,19 @@ from utils.constants_ura import (
 )
 
 # Import ADB state and logic modules
-from core.Ura.state import check_turn, check_mood, check_current_year, check_criteria, check_skill_points_cap, check_goal_name, check_current_stats, check_energy_bar
+from core.Ura.state import (
+    check_mood, check_current_year, check_criteria, check_skill_points_cap,
+    check_goal_name, check_current_stats, check_energy_bar,
+    check_status_api, check_mood_api, check_current_year_api,
+    check_current_stats_api, check_energy_api, check_skill_points_api,
+    invalidate_status_cache,
+)
 
 # Import event handling functions
 from core.Ura.event_handling import count_event_choices, load_event_priorities, analyze_event_options, handle_event_choice, click_event_choice
 
 # Import training handling functions
-from core.Ura.training_handling import go_to_training, check_training, do_train, check_support_card, check_failure, check_hint, choose_best_training, calculate_training_score
+from core.Ura.training_handling import go_to_training, check_training, do_train, check_support_card, check_failure, check_hint, choose_best_training, calculate_training_score, check_training_api
 
 # Import race handling functions
 from core.Ura.races_handling import (
@@ -56,6 +62,12 @@ from utils.log import log_debug, log_info, log_warning, log_error, log_success
 from utils.template_matching import deduplicated_matches, wait_for_image
 from utils.device import reopen_and_resume_career
 from utils.ui_check import career_ui_check
+
+try:
+    from utils.umat_api import is_api_enabled
+    _API_MODE = is_api_enabled()
+except ImportError:
+    _API_MODE = False
 
 def is_infirmary_active_adb(button_location, screenshot=None):
     """
@@ -272,8 +284,10 @@ def career_lobby(timeout=None):
             ("assets/icons/event_choice_1.png", 0.7, (6, 450, 126, 1776)),
             ("assets/buttons/inspiration_btn.png", 0.5, None),
             ("assets/buttons/cancel_lobby.png", 0.8, None),
+            ("assets/buttons/close.png", 0.8, None),
             ("assets/buttons/next_btn.png", 0.8, None),
             ("assets/ui/tazuna_hint.png", 0.9, None),
+            ("assets/buttons/back_btn.png", 0.8, None),
         ]
         batch_results = match_templates_batch(screenshot, lobby_template_specs)
         # ──────────────────────────────────────────────────────────────
@@ -375,7 +389,18 @@ def career_lobby(timeout=None):
             _lobby_wait_start = None
             continue
 
-        # 7. Check next button
+        # 7. Check close button
+        log_debug(f"Checking for close button...")
+        close_matches = batch_results["assets/buttons/close.png"]
+        if close_matches:
+            x, y, w, h = close_matches[0]
+            center = (x + w//2, y + h//2)
+            log_debug(f"Clicking close.png at position {center}")
+            tap(center[0], center[1])
+            _lobby_wait_start = None
+            continue
+
+        # 8. Check next button
         log_debug(f"Checking for next button...")
         next_matches = batch_results["assets/buttons/next_btn.png"]
         if next_matches:
@@ -386,11 +411,21 @@ def career_lobby(timeout=None):
             _lobby_wait_start = None
             continue
 
-        # 8. Check if in career lobby (no extra screenshot needed now)
+        # 9. Check if in career lobby (no extra screenshot needed now)
         log_debug(f"Checking if in career lobby...")
         tazuna_hint = batch_results["assets/ui/tazuna_hint.png"]
 
         if not tazuna_hint:
+            back_btn_matches = batch_results["assets/buttons/back_btn.png"]
+            if back_btn_matches:
+                x, y, w, h = back_btn_matches[0]
+                center = (x + w//2, y + h//2)
+                log_info(f"Back button found, tapping to return to lobby...")
+                tap(center[0], center[1])
+                _lobby_wait_start = None
+                time.sleep(0.5)
+                continue
+
             # ── Watchdog: start / check lobby-wait timer ──────────────────
             if _lobby_wait_start is None:
                 _lobby_wait_start = time.time()
@@ -438,6 +473,8 @@ def career_lobby(timeout=None):
         log_debug(f"Taking fresh screenshot after lobby confirmation...")
         screenshot = take_screenshot()
 
+        invalidate_status_cache()
+
         # Check if there is debuff status
         log_debug(f"Checking for debuff status...")
         # Use match_template to get full bounding box for brightness check
@@ -460,20 +497,42 @@ def career_lobby(timeout=None):
 
         # Get current state
         log_debug(f"Getting current game state...")
-        mood = check_mood(screenshot)
-        mood_index = MOOD_LIST.index(mood)
-        minimum_mood = MOOD_LIST.index(MINIMUM_MOOD)
-        turn = check_turn(screenshot)
-        year = check_current_year(screenshot)
         skip_goal_check = should_skip_goal_check()
-        if skip_goal_check:
-            goal_data = "Skipped"
-            criteria_text = "Skipped"
+        if _API_MODE:
+            api_status = check_status_api()
+            if api_status is None:
+                log_error("API mode is enabled but failed to get status from /status")
+                raise RuntimeError("API mode is enabled but /status API is not responding. Check API connection or set api.enabled to false in config.json.")
+            mood = api_status["mood"]
+            year = api_status["year"]
+            current_stats = api_status["stats"]
+            energy_percentage = api_status["energy_pct"]
+            if skip_goal_check:
+                goal_data = "Skipped"
+                criteria_text = "Skipped"
+            else:
+                goal_data = check_goal_name(screenshot)
+                criteria_text = check_criteria(screenshot)
         else:
-            goal_data = check_goal_name(screenshot)
-            criteria_text = check_criteria(screenshot)
+            api_status = None
+            mood = check_mood(screenshot)
+            year = check_current_year(screenshot)
+            if skip_goal_check:
+                goal_data = "Skipped"
+                criteria_text = "Skipped"
+            else:
+                goal_data = check_goal_name(screenshot)
+                criteria_text = check_criteria(screenshot)
+
+        mood_index = MOOD_LIST.index(mood) if mood in MOOD_LIST else 0
+        minimum_mood = MOOD_LIST.index(MINIMUM_MOOD)
+
+        race_day_matches = match_template(screenshot, "assets/buttons/race_day_btn.png", confidence=0.8)
+        is_race_day = bool(race_day_matches)
+        ura_finale_race_matches = match_template(screenshot, "assets/buttons/race_ura.png", confidence=0.8)
+        is_ura_finale_race = bool(ura_finale_race_matches) and year == "Finale Underway"
         
-        log_info(f"=== GAME STATUS ===")
+        log_info(f"=== GAME STATUS{' (API)' if api_status else ''} ===")
         log_info(f"Year: {year}")
         log_info(f"Mood: {mood}")
         log_info(f"Goal Name: {goal_data}")
@@ -523,46 +582,46 @@ def career_lobby(timeout=None):
         log_debug(f"Mood index: {mood_index}, Minimum mood index: {minimum_mood}")
         
         # Check energy bar before proceeding with training decisions
-        log_debug(f"Checking energy bar...")
-        energy_percentage = check_energy_bar(screenshot)
+        if not api_status:
+            log_debug(f"Checking energy bar...")
+            energy_percentage = check_energy_bar(screenshot)
         min_energy = training_config_section.get("min_energy", config.get("min_energy", 30))
         log_info(f"Energy: {energy_percentage:.1f}% (Minimum: {min_energy}%)")
-        # Check for rest in June to save energy for summer (skip on Race Day)
+        # Check for rest in June to save energy for summer (skip on race day)
         rest_in_june_enabled = training_config_section.get("rest_in_june", False)
-        if rest_in_june_enabled and "Jun" in year and "Junior" not in year and energy_percentage <= 60 and turn != "Race Day":
+        if rest_in_june_enabled and "Jun" in year and "Junior" not in year and energy_percentage <= 60 and not is_race_day and not is_ura_finale_race:
             log_info(f"Rest in June enabled - Energy <= 60%. Going to rest to save energy for summer.")
             do_rest()
             continue
         
         # Get current stats
-        current_stats = {}
-        try:
-            current_stats = check_current_stats(screenshot)
-            stats_str = f"SPD: {current_stats.get('spd', 0)}, STA: {current_stats.get('sta', 0)}, PWR: {current_stats.get('pwr', 0)}, GUTS: {current_stats.get('guts', 0)}, WIT: {current_stats.get('wit', 0)}"
-        except Exception as e:
-            log_debug(f"Could not get current stats: {e}")
-            stats_str = "N/A"
+        if not api_status:
+            current_stats = {}
+            try:
+                current_stats = check_current_stats(screenshot)
+            except Exception as e:
+                log_debug(f"Could not get current stats: {e}")
+        stats_str = f"SPD: {current_stats.get('spd', 0)}, STA: {current_stats.get('sta', 0)}, PWR: {current_stats.get('pwr', 0)}, GUTS: {current_stats.get('guts', 0)}, WIT: {current_stats.get('wit', 0)}" if current_stats else "N/A"
         
         log_info(f"Current stats: {stats_str}")
         log_info(f"")
         
-        # Check if goals criteria are NOT met AND it is not Pre-Debut AND turn is less than 10
-        # Prioritize racing when criteria are not met to help achieve goals
+        # Check if goals criteria are NOT met AND it is not Pre-Debut.
+        # Prioritize racing when criteria are not met to help achieve goals.
         log_debug(f"Checking goal criteria...")
         if skip_goal_check:
             goal_analysis = {
                 "criteria_met": True,
                 "is_pre_debut": is_pre_debut_year(year),
-                "turn_less_than_10": True,
                 "should_prioritize_racing": False,
             }
             log_info("Goal criteria check skipped by config")
         else:
-            goal_analysis = check_goal_criteria({"text": criteria_text}, year, turn)
+            goal_analysis = check_goal_criteria({"text": criteria_text}, year)
         
         if goal_analysis["should_prioritize_racing"]:
             log_info(f"Decision: Criteria not met - Prioritizing races to meet goals")
-            race_found = find_and_do_race()
+            race_found = find_and_do_race(year)
             if race_found:
                 log_info(f"Race Result: Found Race")
                 continue
@@ -573,13 +632,13 @@ def career_lobby(timeout=None):
                 time.sleep(0.5)
         else:
             log_info(f"Decision: Criteria met or conditions not suitable for racing")
-            log_debug(f"Racing not prioritized - Criteria met: {goal_analysis['criteria_met']}, Pre-debut: {goal_analysis['is_pre_debut']}, Turn < 10: {goal_analysis['turn_less_than_10']}")
+            log_debug(f"Racing not prioritized - Criteria met: {goal_analysis['criteria_met']}, Pre-debut: {goal_analysis['is_pre_debut']}")
         
         log_info(f"")
 
         # URA SCENARIO
         log_debug(f"Checking for URA scenario...")
-        if year == "Finale Underway" and turn == "Race Day":
+        if is_ura_finale_race:
             log_info(f"URA Finale")
             
             # Check skill points cap before URA race day (if enabled)
@@ -612,7 +671,7 @@ def career_lobby(timeout=None):
 
         # If calendar is race day, do race
         log_debug(f"Checking for race day...")
-        if turn == "Race Day" and year != "Finale Underway":
+        if is_race_day and year != "Finale Underway":
             log_info(f"Race Day.")
             race_day()
             continue
@@ -624,13 +683,13 @@ def career_lobby(timeout=None):
         do_custom_race_enabled = racing_config_section.get("do_custom_race", config.get("do_custom_race", False))
         
         if do_custom_race_enabled:
-            # Build day key using current year and turn to avoid repeat checks in the same day
-            day_key = f"{year}|{turn}"
+            # Build a stable key for the current day without relying on turn OCR.
+            day_key = f"{year}|{goal_data}|{criteria_text}"
             if last_failed_custom_race_day == day_key:
                 log_debug(f"Skipping custom race check (already attempted and failed this day)")
             else:
                 log_debug(f"Custom race is enabled, checking for custom race...")
-                custom_race_found = do_custom_race()
+                custom_race_found = do_custom_race(year)
                 if custom_race_found:
                     # Reset failure cache on success
                     last_failed_custom_race_day = None
@@ -667,14 +726,23 @@ def career_lobby(timeout=None):
             do_rest()
             continue
             
-        if not go_to_training():
-            log_warning("Training button is not found.")
-            continue
+        _on_training_screen = False
+        if _API_MODE:
+            results_training = check_training_api(current_stats=current_stats)
+            if results_training is None:
+                log_error("API mode is enabled but failed to get training data from /training")
+                raise RuntimeError("API mode is enabled but /training API is not responding. Check API connection or set api.enabled to false in config.json.")
+            log_info(f"[API] Training data from API (no screen navigation needed)")
+        else:
+            if not go_to_training():
+                log_warning("Training button is not found.")
+                continue
 
-        # Last, do training
-        log_debug(f"Analyzing training options...")
-        time.sleep(0.5)
-        results_training = check_training(go_back=False, current_stats=current_stats)
+            # Last, do training
+            log_debug(f"Analyzing training options...")
+            time.sleep(0.5)
+            results_training = check_training(go_back=False, current_stats=current_stats)
+            _on_training_screen = True
         
         log_debug(f"Deciding best training action using scoring algorithm...")
         
@@ -724,6 +792,10 @@ def career_lobby(timeout=None):
         if best_training:
             log_debug(f"Scoring algorithm selected: {best_training.upper()} training")
             log_info(f"Selected {best_training.upper()} training based on scoring algorithm")
+            if not _on_training_screen:
+                if not go_to_training():
+                    log_warning("Training button not found after API check.")
+                    continue
             do_train(best_training, already_on_training_screen=True)
         else:
             log_debug(f"No suitable training found based on scoring criteria")
@@ -745,6 +817,9 @@ def career_lobby(timeout=None):
                     wit_score = results_training.get('wit', {}).get('score', 0)
                     if wit_score < 1.0:
                         log_info(f"All training options unsafe and WIT score < 1.0. Choosing to rest.")
+                        if _on_training_screen:
+                            tap_on_image("assets/buttons/back_btn.png")
+                            time.sleep(0.3)
                         do_rest()
                         continue
                     else:
@@ -760,10 +835,17 @@ def career_lobby(timeout=None):
                         fallback_training = choose_best_training(results_training, relaxed_config, current_stats)
                         if fallback_training:
                             log_info(f"Proceeding with training ({fallback_training.upper()}) despite poor options (relaxed selection)")
+                            if not _on_training_screen:
+                                if not go_to_training():
+                                    log_warning("Could not navigate to training screen for relaxed training.")
+                                    continue
                             do_train(fallback_training)
                             continue
                         else:
                             log_info(f"No viable training even after relaxed selection. Choosing to rest.")
+                            if _on_training_screen:
+                                tap_on_image("assets/buttons/back_btn.png")
+                                time.sleep(0.3)
                             do_rest()
                             continue
                 else:
@@ -783,11 +865,18 @@ def career_lobby(timeout=None):
                         fallback_training = choose_best_training(results_training, relaxed_config, current_stats)
                         if fallback_training:
                             log_info(f"Proceeding with training ({fallback_training.upper()}) due to no races")
+                            if not _on_training_screen:
+                                if not go_to_training():
+                                    log_warning("Could not navigate to training screen.")
+                                    continue
                             do_train(fallback_training)
                             continue
                         else:
                             # If even relaxed cannot find, decide rest only if WIT score < 1.0, else do_rest as last resort
                             wit_score = results_training.get('wit', {}).get('score', 0)
+                            if _on_training_screen:
+                                tap_on_image("assets/buttons/back_btn.png")
+                                time.sleep(0.3)
                             if wit_score < 1.0:
                                 log_info(f"No viable training after relaxation and no races. Choosing to rest.")
                                 do_rest()
@@ -806,9 +895,10 @@ def career_lobby(timeout=None):
                         if race_available:
                             log_info(f"Good race found in database. Going back to lobby to do race.")
                             # Go back to lobby and do the race
-                            tap_on_image("assets/buttons/back_btn.png", text="[INFO] Going back to lobby to search for race...")
-                            time.sleep(0.5)
-                            race_found = find_and_do_race()
+                            if _on_training_screen:
+                                tap_on_image("assets/buttons/back_btn.png", text="[INFO] Going back to lobby to search for race...")
+                                time.sleep(0.5)
+                            race_found = find_and_do_race(year)
                             if race_found:
                                 log_info(f"Training Race Result: Race executed successfully")
                                 continue
@@ -819,6 +909,7 @@ def career_lobby(timeout=None):
                                     log_warning("Could not return to training screen. Choosing to rest.")
                                     do_rest()
                                     continue
+                                _on_training_screen = True
                         else:
                             log_info(f"No good race found in database.")
                         
@@ -837,35 +928,42 @@ def career_lobby(timeout=None):
                             relaxed_training = choose_best_training(results_training, relaxed_config, current_stats)
                             if relaxed_training:
                                 log_info(f"Proceeding with training ({relaxed_training.upper()}) using relaxed scoring")
+                                if not _on_training_screen:
+                                    if not go_to_training():
+                                        log_warning("Could not navigate to training screen.")
+                                        continue
                                 do_train(relaxed_training, already_on_training_screen=True)
                                 continue
                             else:
                                 log_info(f"No training found even with relaxed scoring. Going back to rest.")
-                                tap_on_image("assets/buttons/back_btn.png")
-                                time.sleep(0.3)
+                                if _on_training_screen:
+                                    tap_on_image("assets/buttons/back_btn.png")
+                                    time.sleep(0.3)
                                 do_rest()
                         else:
                             log_info(f"Energy is {energy_percentage:.1f}% (< 50%). Going back to lobby to rest.")
-                            tap_on_image("assets/buttons/back_btn.png")
-                            time.sleep(0.3)
+                            if _on_training_screen:
+                                tap_on_image("assets/buttons/back_btn.png")
+                                time.sleep(0.3)
                             do_rest()
             else:
                 # Race prioritization disabled: if no training was chosen here, rest
                 # (min_score and failure thresholds are still enforced)
                 log_info(f"Race prioritization disabled and no valid training found. Choosing to rest.")
+                if _on_training_screen:
+                    tap_on_image("assets/buttons/back_btn.png")
+                    time.sleep(0.3)
                 do_rest()
         
         log_debug(f"Starting next iteration immediately...")
 
-def check_goal_criteria(criteria_data, year, turn):
+def check_goal_criteria(criteria_data, year):
     """
     Check if goal criteria are met and determine if racing should be prioritized.
     
     Args:
         criteria_data (dict): The criteria data from OCR with text
         year (str): Current year text
-        turn (str/int): Current turn number or text
-    
     Returns:
         dict: Dictionary containing criteria analysis and decision
     """
@@ -880,20 +978,14 @@ def check_goal_criteria(criteria_data, year, turn):
     # Check if it's pre-debut year
     is_pre_debut = is_pre_debut_year(year)
     
-    # Check if turn is a number before comparing
-    turn_is_number = isinstance(turn, int) or (isinstance(turn, str) and turn.isdigit())
-    turn_less_than_10 = turn < 10 if turn_is_number else False
-    
-    # Determine if racing should be prioritized (when criteria not met, not pre-debut, turn < 10)
+    # Determine if racing should be prioritized (when criteria not met, not pre-debut)
     should_prioritize_racing = not criteria_met and not is_pre_debut 
-    # and turn_less_than_10 (Temporarily disabled)
     
-    log_debug(f"Year: '{year}', Criteria met: {criteria_met}, Pre-debut: {is_pre_debut}, Turn < 10: {turn_less_than_10}")
+    log_debug(f"Year: '{year}', Criteria met: {criteria_met}, Pre-debut: {is_pre_debut}")
     
     return {
         "criteria_met": criteria_met,
         "is_pre_debut": is_pre_debut,
-        "turn_less_than_10": turn_less_than_10,
         "should_prioritize_racing": should_prioritize_racing
     } 
 

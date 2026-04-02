@@ -7,7 +7,7 @@ from utils.screenshot import capture_region, enhanced_screenshot, enhanced_scree
 from core.Unity.ocr import extract_text, extract_number
 from utils.recognizer import match_template, max_match_confidence
 from core.Unity.skill_auto_purchase import execute_skill_purchases, click_image_button, extract_skill_points
-from core.Unity.skill_recognizer import scan_all_skills_with_scroll
+from core.Unity.skill_recognizer import scan_all_skills_with_scroll, get_skills_api
 from core.Unity.skill_purchase_optimizer import load_skill_config, create_purchase_plan, filter_affordable_skills
 
 from utils.constants_unity import (
@@ -355,19 +355,12 @@ def check_skill_points_cap(screenshot=None):
             try:
                 if _api_on:
                     # API mode: get skill list from API
-                    from core.Unity.skill_recognizer import get_skills_api
                     api_skills = get_skills_api()
                     if api_skills is None:
                         log_error("❌ [API] Failed to get skill list from API. Check that uma_viewer is running or disable API mode in config.")
                         raise RuntimeError("API mode is enabled but /skills API is not responding. Check API connection or set api.enabled to false in config.json.")
                     log_info(f"[API] Got {len(api_skills)} skills from API (skipping OCR scan)")
                     all_skills = api_skills
-                    # We still need to enter skill screen for purchasing
-                    entered = click_image_button("assets/buttons/skills_btn.png", "skills button", max_attempts=5)
-                    if not entered:
-                        log_error(f"Could not find/open skills screen")
-                        return True
-                    time.sleep(1.0)
                     # Use API skill points as available points
                     available_points = current_skill_points
                     log_info(f"[API] Using API skill points: {available_points}")
@@ -406,8 +399,6 @@ def check_skill_points_cap(screenshot=None):
                 purchase_plan = create_purchase_plan(all_skills, cfg, end_career=False)
                 if not purchase_plan:
                     log_info(f"No skills from priority list are currently available")
-                    click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
-                    time.sleep(1.0)
                     return True
 
                 # Filter by budget if we have points
@@ -419,12 +410,17 @@ def check_skill_points_cap(screenshot=None):
 
                 if not final_plan:
                     log_info(f"Nothing affordable to purchase at the moment")
-                    click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
-                    time.sleep(1.0)
                     return True
 
+                if _api_on:
+                    entered = click_image_button("assets/buttons/skills_btn.png", "skills button", max_attempts=5)
+                    if not entered:
+                        log_error(f"Could not find/open skills screen")
+                        return True
+                    time.sleep(1.0)
+
                 # Execute automated purchases
-                exec_result = execute_skill_purchases(final_plan)
+                exec_result = execute_skill_purchases(final_plan, reset_to_top=not _api_on)
                 if not exec_result.get('success'):
                     log_warning(f"Automated purchase completed with issues: {exec_result.get('error', 'unknown error')}")
 

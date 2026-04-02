@@ -66,7 +66,10 @@ def _filtered_template_matches(screenshot, template_path, region_cv, confidence=
 def go_to_training():
     """Go to training screen"""
     log_debug(f"Going to training screen...")
-    return tap_on_image("assets/buttons/training_btn.png", min_search=10)
+    success = tap_on_image("assets/buttons/training_btn.png", min_search=10)
+    if success:
+        time.sleep(0.5)
+    return success
 
 def check_training(go_back=True, current_stats=None):
     """Check training results using fixed coordinates, collecting support counts,
@@ -256,6 +259,7 @@ def do_train(train, already_on_training_screen=False):
     log_debug(f"Found {train.upper()} training at coordinates {train_coords}")
     triple_click(train_coords[0], train_coords[1], interval=0.1)
     log_debug(f"Triple clicked {train.upper()} training button")
+    time.sleep(1.0)
 
 # Training-related functions moved from state.py
 def check_support_card(screenshot, threshold=0.9):
@@ -722,3 +726,111 @@ def calculate_training_score(support_detail, hint_found, training_type):
         score += scoring_rules.get("hint", {}).get("points", 0.3)
     
     return round(score, 2)
+
+
+def check_training_api(current_stats=None):
+    """
+    Fetch training data from the API and convert it to the same result format
+    as check_training() so it can be used as a drop-in replacement.
+
+    Returns:
+        dict | None: Training results keyed by stat name, or None if API is unavailable.
+    """
+    try:
+        from utils.umat_api import get_training, is_api_enabled
+        if not is_api_enabled():
+            return None
+        api_data = get_training()
+    except ImportError:
+        return None
+
+    if api_data is None:
+        return None
+
+    trainings_list = api_data.get("trainings", [])
+    if not trainings_list:
+        log_debug("[API] Training data empty")
+        return None
+
+    training_config = config.get("training", {})
+    stat_caps = training_config.get("stat_caps", config.get("stat_caps", {}))
+
+    results = {}
+    log_info("--- Training (API) ---")
+
+    for t in trainings_list:
+        key = t.get("name", "")
+        if key not in ("spd", "sta", "pwr", "guts", "wit"):
+            log_debug(f"[API] Skipping unknown training name: {key}")
+            continue
+
+        if current_stats:
+            current_val = current_stats.get(key, 0)
+            cap_val = stat_caps.get(key, 1200)
+            if current_val >= cap_val:
+                log_info(f"[{key.upper()}] SKIPPED - stat {current_val} >= cap {cap_val}")
+                results[key] = {
+                    "support": {},
+                    "support_detail": {},
+                    "hint": False,
+                    "total_support": 0,
+                    "failure": 100,
+                    "confidence": 1.0,
+                    "score": 0,
+                    "skipped": True,
+                }
+                continue
+
+        failure = t.get("failure", 0)
+        hint_found = t.get("hint_found", False)
+
+        support_counts = {}
+        detailed_support = {}
+        for card in t.get("support_cards", []):
+            card_type = card.get("type", "")
+            bond_level = card.get("bond_level", 0)
+            support_counts[card_type] = support_counts.get(card_type, 0) + 1
+            entry = {
+                "bbox": [0, 0, 0, 0],
+                "center": [0, 0],
+                "bond_sample_point": [0, 0],
+                "bond_color": [0, 0, 0],
+                "bond_level": bond_level,
+            }
+            detailed_support.setdefault(card_type, []).append(entry)
+
+        total_support = sum(support_counts.values())
+        score = calculate_training_score(detailed_support, hint_found, key)
+
+        results[key] = {
+            "support": support_counts,
+            "support_detail": detailed_support,
+            "hint": bool(hint_found),
+            "total_support": total_support,
+            "failure": failure,
+            "confidence": 1.0,
+            "score": score,
+        }
+
+        if detailed_support:
+            parts = []
+            for ctype, entries in detailed_support.items():
+                for idx, entry in enumerate(entries, 1):
+                    lv = entry["bond_level"]
+                    is_rainbow = (ctype == key and lv >= 4)
+                    label = f"{ctype.upper()}{idx}:{lv}"
+                    if is_rainbow:
+                        label += "(R)"
+                    parts.append(label)
+            support_str = ",".join(parts)
+        else:
+            support_str = "-"
+
+        extras = " hint" if hint_found else ""
+        log_info(f"  {key.upper():>4}: Score={score:.1f} Fail={failure}%(API) | {support_str}{extras}")
+
+    if not results:
+        log_debug("[API] No training results parsed")
+        return None
+
+    return results

@@ -302,6 +302,7 @@ def do_train(train, already_on_training_screen=False):
     log_debug(f"Found {train.upper()} training at coordinates {train_coords}")
     triple_click(train_coords[0], train_coords[1], interval=0.1)
     log_debug(f"Triple clicked {train.upper()} training button")
+    time.sleep(1.0)
 
 # Training-related functions moved from state.py
 def check_support_card(screenshot, threshold=0.9):
