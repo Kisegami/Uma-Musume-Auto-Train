@@ -45,7 +45,6 @@ training_config_section = config.get("training", {})
 racing_config_section = config.get("racing", {})
 skills_config_section = config.get("skills", {})
 DEBUG_MODE = config.get("debug_mode", False)
-DUMP_LOBBY_TEMPLATE_REGIONS = config.get("dump_lobby_template_regions", False)
 RETRY_RACE = racing_config_section.get("retry_race", config.get("retry_race", True))
 
 
@@ -54,7 +53,6 @@ def should_skip_goal_check():
     return config.get("training", {}).get("skip_goal_check", False)
 
 from utils.log import log_debug, log_info, log_warning, log_error, log_success
-from utils.template_match_dump import record_template_matches
 from utils.template_matching import deduplicated_matches, wait_for_image
 from utils.device import reopen_and_resume_career
 from utils.ui_check import career_ui_check
@@ -210,11 +208,12 @@ def career_lobby(timeout=None):
     FREEZE_SAME_THRESHOLD = 10  # consecutive identical frames → frozen
     _prev_screenshot = None
     _freeze_same_count = 0
+    FREEZE_MIN_DURATION = 12.0  # identical frames must persist this long before restart
+    _freeze_same_since = None
     # ─────────────────────────────────────────────────────────────────────
 
     # Timeout support for bounded checks (e.g. from ui_check)
     _timeout_start = time.time() if timeout else None
-    _template_dump_path = None
 
     # Program start
     while True:
@@ -237,22 +236,28 @@ def career_lobby(timeout=None):
                 ))
                 if diff < 0.5:  # effectively identical
                     _freeze_same_count += 1
+                    if _freeze_same_since is None:
+                        _freeze_same_since = time.time()
                     log_debug(f"[Watchdog] Identical frame #{_freeze_same_count}/{FREEZE_SAME_THRESHOLD}")
-                    if _freeze_same_count >= FREEZE_SAME_THRESHOLD:
+                    frozen_for = time.time() - _freeze_same_since
+                    if _freeze_same_count >= FREEZE_SAME_THRESHOLD and frozen_for >= FREEZE_MIN_DURATION:
                         log_warning(f"[Watchdog] Screen frozen for {_freeze_same_count} consecutive frames — restarting game...")
                         try:
                             reopen_and_resume_career()
                         except Exception as _fe:
                             log_error(f"[Watchdog] Reopen after freeze failed: {_fe}")
                         _freeze_same_count = 0
+                        _freeze_same_since = None
                         _prev_screenshot = None
                         _lobby_wait_start = None
                         continue
                 else:
                     _freeze_same_count = 0
+                    _freeze_same_since = None
             except Exception as _cmp_err:
                 log_debug(f"[Watchdog] Screenshot comparison failed: {_cmp_err}")
                 _freeze_same_count = 0
+                _freeze_same_since = None
         _prev_screenshot = screenshot.copy()
         # ──────────────────────────────────────────────────────────────
         
@@ -271,11 +276,6 @@ def career_lobby(timeout=None):
             ("assets/ui/tazuna_hint.png", 0.9, None),
         ]
         batch_results = match_templates_batch(screenshot, lobby_template_specs)
-        if DUMP_LOBBY_TEMPLATE_REGIONS:
-            dump_path = record_template_matches("ura", "career_lobby_precheck", lobby_template_specs, batch_results)
-            if dump_path and dump_path != _template_dump_path:
-                _template_dump_path = dump_path
-                log_info(f"Lobby template regions JSON: {dump_path}")
         # ──────────────────────────────────────────────────────────────
 
         # 1. Check for career restart (highest priority)
@@ -394,6 +394,8 @@ def career_lobby(timeout=None):
             # ── Watchdog: start / check lobby-wait timer ──────────────────
             if _lobby_wait_start is None:
                 _lobby_wait_start = time.time()
+                _freeze_same_count = 0
+                _freeze_same_since = None
                 log_debug(f"[Watchdog] Lobby wait timer started.")
             elif time.time() - _lobby_wait_start > LOBBY_STUCK_TIMEOUT:
                 log_warning(f"[Watchdog] Stuck waiting for lobby >{LOBBY_STUCK_TIMEOUT}s — attempting career_ui_check before restart...")
@@ -417,6 +419,8 @@ def career_lobby(timeout=None):
                     except Exception as _wde:
                         log_error(f"[Watchdog] Reopen failed: {_wde}")
                 _lobby_wait_start = None
+                _freeze_same_count = 0
+                _freeze_same_since = None
             # ─────────────────────────────────────────────────────────────
             if not _waiting_for_lobby_logged:
                 log_info(f"Waiting for Career lobby")
@@ -426,6 +430,8 @@ def career_lobby(timeout=None):
         # Lobby confirmed — reset watchdog timer
         _lobby_wait_start = None
         _waiting_for_lobby_logged = False
+        _freeze_same_count = 0
+        _freeze_same_since = None
         log_debug(f"Confirmed in career lobby")
         time.sleep(0.5)
         # Take a fresh screenshot after confirming lobby to ensure stable UI state

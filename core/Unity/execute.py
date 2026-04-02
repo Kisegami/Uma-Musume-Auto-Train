@@ -20,7 +20,7 @@ from utils.recognizer import locate_on_screen, locate_all_on_screen, is_image_on
 from utils.input import tap, triple_click, long_press, tap_on_image
 from utils.screenshot import take_screenshot, enhanced_screenshot, capture_region
 from utils.constants_unity import (
-    MOOD_LIST, EVENT_REGION, RACE_CARD_REGION, SUPPORT_CARD_ICON_REGION
+    MOOD_LIST, EVENT_REGION, RACE_CARD_REGION, SUPPORT_CARD_ICON_REGION, get_template_region
 )
 
 # Import ADB state and logic modules
@@ -53,7 +53,6 @@ from core.Unity.races_handling import (
 from utils.config_loader import load_main_config
 config = load_main_config()
 DEBUG_MODE = config.get("debug_mode", False)
-DUMP_LOBBY_TEMPLATE_REGIONS = config.get("dump_lobby_template_regions", False)
 racing_config = config.get("racing", {})
 RETRY_RACE = racing_config.get("retry_race", True)
 
@@ -63,7 +62,6 @@ def should_skip_goal_check():
     return config.get("training", {}).get("skip_goal_check", False)
 
 from utils.log import log_debug, log_info, log_warning, log_error, log_success
-from utils.template_match_dump import record_template_matches
 from utils.template_matching import deduplicated_matches, wait_for_image
 from utils.device import reopen_and_resume_career
 from utils.ui_check import career_ui_check
@@ -117,7 +115,7 @@ def claw_machine():
     time.sleep(1)
     
     # Find the claw button location
-    claw_location = locate_on_screen("assets/buttons/claw.png", confidence=0.8)
+    claw_location = locate_on_screen("assets/buttons/claw.png", confidence=0.8, region=get_template_region("assets/buttons/claw.png"))
     if not claw_location:
         log_warning(f"Claw button not found for interaction")
         return False
@@ -143,26 +141,26 @@ def do_rest():
     # Rest button is in the lobby, not on training screen
     # If we're on training screen, go back to lobby first
     from utils.recognizer import locate_on_screen
-    back_btn = locate_on_screen("assets/buttons/back_btn.png", confidence=0.8)
+    back_btn = locate_on_screen("assets/buttons/back_btn.png", confidence=0.8, region=get_template_region("assets/buttons/back_btn.png"))
     if back_btn:
         log_debug(f"Going back to lobby to find rest button...")
         log_info(f"Going back to lobby to find rest button...")
         from utils.input import tap
         tap(back_btn[0], back_btn[1])
         time.sleep(1.0)  # Wait for lobby to load
-    tazuna_hint = locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.9)
+    tazuna_hint = locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.9, region=get_template_region("assets/ui/tazuna_hint.png"))
     if not tazuna_hint:
         log_debug(f"tazuna_hint.png not found, taking screenshot again to ensure we are in the lobby...")
         time.sleep(0.7)
         # Take a new screenshot and try again
         from utils.screenshot import take_screenshot
         take_screenshot()
-        tazuna_hint = locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.9)
+        tazuna_hint = locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.9, region=get_template_region("assets/ui/tazuna_hint.png"))
         if not tazuna_hint:
             log_warning(f"Still not in lobby after retrying screenshot. Rest button search may fail.")
     # Now look for rest buttons in the lobby
-    rest_btn = locate_on_screen("assets/buttons/rest_btn.png", confidence=0.5)
-    rest_summer_btn = locate_on_screen("assets/buttons/rest_summer_btn.png", confidence=0.5)
+    rest_btn = locate_on_screen("assets/buttons/rest_btn.png", confidence=0.5, region=get_template_region("assets/buttons/rest_btn.png"))
+    rest_summer_btn = locate_on_screen("assets/buttons/rest_summer_btn.png", confidence=0.5, region=get_template_region("assets/buttons/rest_summer_btn.png"))
     
     log_debug(f"Rest button found: {rest_btn}")
     log_debug(f"Summer rest button found: {rest_summer_btn}")
@@ -190,8 +188,8 @@ def do_rest():
 def do_recreation():
     """Perform recreation action"""
     log_debug(f"Performing recreation action...")
-    recreation_btn = locate_on_screen("assets/buttons/recreation_btn.png", confidence=0.8)
-    recreation_summer_btn = locate_on_screen("assets/buttons/rest_summer_btn.png", confidence=0.8)
+    recreation_btn = locate_on_screen("assets/buttons/recreation_btn.png", confidence=0.8, region=get_template_region("assets/buttons/recreation_btn.png"))
+    recreation_summer_btn = locate_on_screen("assets/buttons/rest_summer_btn.png", confidence=0.8, region=get_template_region("assets/buttons/rest_summer_btn.png"))
     
     if recreation_btn:
         log_debug(f"Found recreation button at {recreation_btn}")
@@ -262,11 +260,12 @@ def career_lobby(timeout=None):
     FREEZE_SAME_THRESHOLD = 10  # consecutive identical frames → frozen
     _prev_screenshot = None
     _freeze_same_count = 0
+    FREEZE_MIN_DURATION = 12.0  # identical frames must persist this long before restart
+    _freeze_same_since = None
     # ─────────────────────────────────────────────────────────────────────
 
     # Timeout support for bounded checks (e.g. from ui_check)
     _timeout_start = time.time() if timeout else None
-    _template_dump_path = None
 
     # Program start
     while True:
@@ -289,22 +288,28 @@ def career_lobby(timeout=None):
                 ))
                 if diff < 0.5:  # effectively identical
                     _freeze_same_count += 1
+                    if _freeze_same_since is None:
+                        _freeze_same_since = time.time()
                     log_debug(f"[Watchdog] Identical frame #{_freeze_same_count}/{FREEZE_SAME_THRESHOLD}")
-                    if _freeze_same_count >= FREEZE_SAME_THRESHOLD:
+                    frozen_for = time.time() - _freeze_same_since
+                    if _freeze_same_count >= FREEZE_SAME_THRESHOLD and frozen_for >= FREEZE_MIN_DURATION:
                         log_warning(f"[Watchdog] Screen frozen for {_freeze_same_count} consecutive frames — restarting game...")
                         try:
                             reopen_and_resume_career()
                         except Exception as _fe:
                             log_error(f"[Watchdog] Reopen after freeze failed: {_fe}")
                         _freeze_same_count = 0
+                        _freeze_same_since = None
                         _prev_screenshot = None
                         _lobby_wait_start = None
                         continue
                 else:
                     _freeze_same_count = 0
+                    _freeze_same_since = None
             except Exception as _cmp_err:
                 log_debug(f"[Watchdog] Screenshot comparison failed: {_cmp_err}")
                 _freeze_same_count = 0
+                _freeze_same_since = None
         _prev_screenshot = screenshot.copy()
         # ──────────────────────────────────────────────────────────────
         
@@ -313,24 +318,19 @@ def career_lobby(timeout=None):
         # single screenshot→CV conversion, cached template loading
         log_debug(f"Performing batch UI element check...")
         lobby_template_specs = [
-            ("assets/buttons/complete_career.png", 0.8, None),
-            ("assets/buttons/claw.png", 0.8, None),
-            ("assets/buttons/ok_btn.png", 0.8, None),
+            ("assets/buttons/complete_career.png", 0.8, (574, 1560, 382, 147)),
+            ("assets/buttons/claw.png", 0.8, (219, 1259, 642, 582)),
+            ("assets/buttons/ok_btn.png", 0.8, (296, 1567, 487, 188)),
             ("assets/icons/event_choice_1.png", 0.7, (6, 450, 126, 1776)),
-            ("assets/unity/unity_cup.png", 0.8, None),
-            ("assets/buttons/inspiration_btn.png", 0.5, None),
-            ("assets/buttons/cancel_lobby.png", 0.8, None),
-            ("assets/buttons/close.png", 0.8, None),
-            ("assets/buttons/next_btn.png", 0.8, None),
-            ("assets/ui/tazuna_hint.png", 0.9, None),
-            ("assets/buttons/back_btn.png", 0.8, None),
+            ("assets/unity/unity_cup.png", 0.8, (422, 121, 230, 154)),
+            ("assets/buttons/inspiration_btn.png", 0.5, (375, 1471, 297, 255)),
+            ("assets/buttons/cancel_lobby.png", 0.8, (295, 1285, 481, 185)),
+            ("assets/buttons/close.png", 0.8, (59, 1153, 472, 186)),
+            ("assets/buttons/next_btn.png", 0.8, (296, 1567, 487, 188)),
+            ("assets/ui/tazuna_hint.png", 0.9, (903, 248, 155, 150)),
+            ("assets/buttons/back_btn.png", 0.8, (9, 1743, 237, 196)),
         ]
         batch_results = match_templates_batch(screenshot, lobby_template_specs)
-        if DUMP_LOBBY_TEMPLATE_REGIONS:
-            dump_path = record_template_matches("unity", "career_lobby_precheck", lobby_template_specs, batch_results)
-            if dump_path and dump_path != _template_dump_path:
-                _template_dump_path = dump_path
-                log_info(f"Lobby template regions JSON: {dump_path}")
         # ──────────────────────────────────────────────────────────────
 
         # 1. Check for career restart (highest priority)
@@ -484,6 +484,8 @@ def career_lobby(timeout=None):
             # ── Watchdog: start / check lobby-wait timer ──────────────────
             if _lobby_wait_start is None:
                 _lobby_wait_start = time.time()
+                _freeze_same_count = 0
+                _freeze_same_since = None
                 log_debug(f"[Watchdog] Lobby wait timer started.")
             elif time.time() - _lobby_wait_start > LOBBY_STUCK_TIMEOUT:
                 log_warning(f"[Watchdog] Stuck waiting for lobby >{LOBBY_STUCK_TIMEOUT}s — attempting career_ui_check before restart...")
@@ -507,6 +509,8 @@ def career_lobby(timeout=None):
                     except Exception as _wde:
                         log_error(f"[Watchdog] Reopen failed: {_wde}")
                 _lobby_wait_start = None
+                _freeze_same_count = 0
+                _freeze_same_since = None
             # ─────────────────────────────────────────────────────────────
             if not _waiting_for_lobby_logged:
                 log_info(f"Waiting for Career lobby")
@@ -516,6 +520,8 @@ def career_lobby(timeout=None):
         # Lobby confirmed — reset watchdog timer
         _lobby_wait_start = None
         _waiting_for_lobby_logged = False
+        _freeze_same_count = 0
+        _freeze_same_since = None
         log_debug(f"Confirmed in career lobby")
         time.sleep(0.2)
         # Take a fresh screenshot after confirming lobby to ensure stable UI state
@@ -528,7 +534,7 @@ def career_lobby(timeout=None):
         # Check if there is debuff status
         log_debug(f"Checking for debuff status...")
         # Use match_template to get full bounding box for brightness check
-        infirmary_matches = match_template(screenshot, "assets/buttons/infirmary_btn2.png", confidence=0.9)
+        infirmary_matches = match_template(screenshot, "assets/buttons/infirmary_btn2.png", confidence=0.9, region=get_template_region("assets/buttons/infirmary_btn2.png"))
         
         if infirmary_matches:
             debuffed_box = infirmary_matches[0]  # Get first match (x, y, w, h)
@@ -603,9 +609,20 @@ def career_lobby(timeout=None):
                     time.sleep(0.5)
                     # Handle OK button if it appears
                     tap_on_image("assets/buttons/ok_btn.png", confidence=0.5, min_search=2)
-                    time.sleep(0.5)
-                    
-                    # Take fresh screenshot to check for 2-star race
+
+                    # Wait for race list to load by looking for the fan icon first.
+                    fan_loaded = wait_for_image(
+                        "assets/races/fan.png",
+                        timeout=2,
+                        confidence=0.8,
+                        region=get_template_region("assets/races/fan.png"),
+                    )
+                    if not fan_loaded:
+                        log_debug(f"Race list fan icon not detected before 2-star check")
+                    else:
+                        log_debug(f"Race list fan icon detected, checking for 2-star race")
+
+                    # Take fresh screenshot to check for 2-star race after the list is present
                     race_screenshot = take_screenshot()
                     two_star_matches = match_template(race_screenshot, "assets/races/2_star_race.png", confidence=0.8)
                     
@@ -639,7 +656,7 @@ def career_lobby(timeout=None):
         min_energy = training_config_section.get("min_energy", 30)
         
         # Early check for race day to avoid rest_in_june on race day
-        goal_matches_early = match_template(screenshot, "assets/unity/goal.png", confidence=0.8)
+        goal_matches_early = match_template(screenshot, "assets/unity/goal.png", confidence=0.8, region=get_template_region("assets/unity/goal.png"))
         is_race_day_early = bool(goal_matches_early)
         
         # Check for rest in June to save energy for summer (skip on Race Day)
@@ -700,7 +717,7 @@ def career_lobby(timeout=None):
 
         # Check for race day using goal.png image
         log_debug(f"Checking for race day (goal.png)...")
-        goal_matches = match_template(screenshot, "assets/unity/goal.png", confidence=0.8)
+        goal_matches = match_template(screenshot, "assets/unity/goal.png", confidence=0.8, region=get_template_region("assets/unity/goal.png"))
         is_race_day = bool(goal_matches)
         
         # URA SCENARIO
@@ -878,7 +895,6 @@ def career_lobby(timeout=None):
                 if not go_to_training():
                     log_warning("Training button not found after API check. Skipping.")
                     continue
-                time.sleep(0.3)
             do_train(best_training, already_on_training_screen=True)
         else:
             log_debug(f"No suitable training found based on scoring criteria")

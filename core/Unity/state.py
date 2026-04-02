@@ -13,7 +13,8 @@ from core.Unity.skill_purchase_optimizer import load_skill_config, create_purcha
 from utils.constants_unity import (
     SUPPORT_CARD_ICON_REGION, TURN_REGION, FAILURE_REGION, YEAR_REGION, 
     CRITERIA_REGION, SPD_REGION, STA_REGION, PWR_REGION, GUTS_REGION, WIT_REGION,
-    SKILL_PTS_REGION, FAILURE_REGION_SPD, FAILURE_REGION_STA, FAILURE_REGION_PWR, FAILURE_REGION_GUTS, FAILURE_REGION_WIT
+    SKILL_PTS_REGION, FAILURE_REGION_SPD, FAILURE_REGION_STA, FAILURE_REGION_PWR, FAILURE_REGION_GUTS, FAILURE_REGION_WIT,
+    get_template_region
 )
 
 from utils.log import log_debug, log_info, log_warning, log_error
@@ -62,7 +63,7 @@ def check_dating_available(screenshot=None, confidence: float = 0.8) -> bool:
 
         template_path = os.path.join("assets", "icons", "dating.png")
 
-        matches = match_template(screenshot, template_path, confidence)
+        matches = match_template(screenshot, template_path, confidence, region=get_template_region(template_path))
         found = bool(matches and len(matches) > 0)
 
         log_debug(f"Dating icon found: {found}")
@@ -825,4 +826,4 @@ def check_skill_points_api():
     status = check_status_api()
     if status is None:
         return None
-    return status.get("skill_points")
+    return status.get("skill_points")

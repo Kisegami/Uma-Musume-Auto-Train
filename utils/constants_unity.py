@@ -40,6 +40,52 @@ RACE_CARD_REGION=(0, 0, 610, 220)  # Dynamic region calculated as (x, y, 350, 11
 # Default screen region (phone resolution)
 DEFAULT_SCREEN_REGION=(0, 0, 1080, 1920)
 
+UNITY_TEMPLATE_REGIONS = {
+    "assets/buttons/back_btn.png": (9, 1743, 237, 196),
+    "assets/buttons/cancel_lobby.png": (295, 1285, 481, 185),
+    "assets/buttons/close.png": (59, 1153, 472, 186),
+    "assets/buttons/complete_career.png": (573, 1559, 384, 149),
+    "assets/buttons/infirmary_btn2.png": (97, 1592, 441, 213),
+    "assets/buttons/inspiration_btn.png": (374, 1470, 298, 256),
+    "assets/buttons/next2_btn.png": (351, 1755, 592, 147),
+    "assets/buttons/next_btn.png": (290, 1567, 493, 315),
+    "assets/buttons/ok_btn.png": (546, 1163, 468, 165),
+    "assets/buttons/race_btn.png": (289, 1282, 743, 437),
+    "assets/buttons/race_day_btn.png": (599, 1506, 195, 137),
+    "assets/buttons/race_ura.png": (595, 1497, 221, 188),
+    "assets/buttons/races_btn.png": (704, 1671, 246, 137),
+    "assets/buttons/recreation_btn.png": (395, 1663, 292, 142),
+    "assets/buttons/rest_btn.png": (19, 1372, 313, 236),
+    "assets/buttons/rest_summer_btn.png": (22, 1375, 308, 211),
+    "assets/buttons/skills_btn.png": (190, 1602, 248, 138),
+    "assets/buttons/skip_btn.png": (890, 1715, 180, 172),
+    "assets/buttons/training_btn.png": (348, 1461, 378, 139),
+    "assets/buttons/try_again.png": (507, 1259, 537, 222),
+    "assets/buttons/view_results.png": (199, 1672, 353, 200),
+    "assets/icons/clock.png": (225, 1035, 210, 211),
+    "assets/icons/dating.png": (570, 1548, 146, 152),
+    "assets/icons/end.png": (640, 950, 438, 140),
+    "assets/icons/event_choice_1.png": (0, 867, 158, 555),
+    "assets/icons/front.png": (832, 957, 245, 130),
+    "assets/icons/late.png": (624, 955, 358, 136),
+    "assets/icons/pace.png": (647, 957, 415, 133),
+    "assets/races/fan.png": (380, 1117, 154, 380),
+    "assets/ui/pal_date.png": (213, 624, 398, 177),
+    "assets/ui/tazuna_hint.png": (903, 248, 155, 150),
+    "assets/unity/begin_showdown.png": (548, 1270, 459, 212),
+    "assets/unity/goal.png": (0, 50, 285, 185),
+    "assets/unity/next_unity.png": (335, 1654, 634, 241),
+    "assets/unity/see_all_race_btn.png": (578, 1649, 390, 275),
+    "assets/unity/select_opponent.png": (314, 1520, 466, 236),
+    "assets/unity/unity_cup.png": (422, 121, 230, 154),
+    "assets/unity/unity_race.png": (422, 1499, 230, 150),
+    "assets/unity/zenith_race_btn.png": (365, 1327, 342, 273),
+}
+
+
+def get_template_region(template_path):
+    return UNITY_TEMPLATE_REGIONS.get(template_path.replace("\\", "/"))
+
 MOOD_LIST = ["AWFUL", "BAD", "NORMAL", "GOOD", "GREAT", "UNKNOWN"]
 
 # Note: All button clicking is done through template matching using button images

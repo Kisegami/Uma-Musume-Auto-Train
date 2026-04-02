@@ -4,6 +4,9 @@ from PIL import Image
 import os
 from utils.screenshot import take_screenshot
 from utils.log import log_debug, log_info, log_warning, log_error
+from utils.template_match_dump import record_single_template_match, record_template_matches_for_mode
+from utils.config_loader import load_main_config
+from utils.constants_unity import get_template_region
 
 def _get_project_root():
     """Get the project root directory"""
@@ -62,6 +65,17 @@ def _load_template(template_path):
 def _screenshot_to_cv(screenshot):
     """Convert a PIL screenshot to OpenCV BGR numpy array (single conversion)."""
     return cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+
+
+def _resolve_search_region(template_path, region):
+    if region is not None:
+        return region
+    try:
+        if load_main_config().get("mode") == "unity":
+            return get_template_region(template_path)
+    except Exception:
+        pass
+    return None
 # ──────────────────────────────────────────────────────────────────────
 
 def match_template(screenshot, template_path, confidence=0.8, region=None):
@@ -83,6 +97,7 @@ def match_template(screenshot, template_path, confidence=0.8, region=None):
             return []
         
         screenshot_cv = _screenshot_to_cv(screenshot)
+        region = _resolve_search_region(template_path, region)
         
         if region:
             x, y, w, h = region
@@ -97,8 +112,11 @@ def match_template(screenshot, template_path, confidence=0.8, region=None):
             if region:
                 pt = (pt[0] + region[0], pt[1] + region[1])
             matches.append((pt[0], pt[1], w, h))
-        
-        return matches if matches else []
+
+        if matches:
+            record_single_template_match(template_path, matches, confidence, region)
+            return matches
+        return []
         
     except Exception as e:
         log_error(f"Error in template matching: {e}")
@@ -122,6 +140,7 @@ def max_match_confidence(screenshot, template_path, region=None):
             return 0.0
 
         screenshot_cv = _screenshot_to_cv(screenshot)
+        region = _resolve_search_region(template_path, region)
 
         if region:
             x, y, w, h = region
@@ -155,6 +174,7 @@ def match_templates_batch(screenshot, template_specs):
     results = {}
 
     for template_path, confidence, region in template_specs:
+        region = _resolve_search_region(template_path, region)
         template = _load_template(template_path)
         if template is None:
             results[template_path] = []
@@ -181,6 +201,7 @@ def match_templates_batch(screenshot, template_specs):
             log_error(f"Error in batch template matching for {template_path}: {e}")
             results[template_path] = []
 
+    record_template_matches_for_mode(template_specs, results)
     return results
 
 def locate_on_screen(template_path, confidence=0.8, region=None):

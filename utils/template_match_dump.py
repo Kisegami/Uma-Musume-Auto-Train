@@ -1,8 +1,9 @@
 import json
 import os
 import threading
-from datetime import datetime
 from typing import Dict, Iterable, List, Optional, Tuple
+
+from utils.config_loader import load_main_config
 
 
 _LOCK = threading.Lock()
@@ -10,10 +11,6 @@ _LOCK = threading.Lock()
 
 def _project_root() -> str:
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
-def _timestamp() -> str:
-    return datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
 
 
 def _safe_mode(mode: str) -> str:
@@ -26,58 +23,36 @@ def _dump_dir() -> str:
     return path
 
 
-def _session_path() -> str:
-    return os.path.join(_dump_dir(), "template_match_regions.json")
+def _session_path(mode: str) -> str:
+    return os.path.join(_dump_dir(), f"template_match_regions_{_safe_mode(mode)}.json")
 
 
-def _load_or_init(path: str, mode: str) -> Dict:
+def _load_or_init(path: str) -> Dict[str, List[List[int]]]:
     if os.path.exists(path):
         try:
             with open(path, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 if isinstance(data, dict):
-                    return data
+                    normalized = {}
+                    for key, value in data.items():
+                        if isinstance(key, str) and isinstance(value, list):
+                            normalized[key] = value
+                    return normalized
         except Exception:
             pass
-
-    return {
-        "mode": _safe_mode(mode),
-        "created_at": _timestamp(),
-        "updated_at": _timestamp(),
-        "file_path": path,
-        "templates": {},
-    }
+    return {}
 
 
-def _bbox_key(match: Tuple[int, int, int, int]) -> str:
-    x, y, w, h = match
-    return f"{int(x)},{int(y)},{int(w)},{int(h)}"
+def _write_one_asset_per_line(path: str, data: Dict[str, List[List[int]]]) -> None:
+    items = []
+    for key, value in data.items():
+        key_json = json.dumps(key, ensure_ascii=False)
+        value_json = json.dumps(value, ensure_ascii=False, separators=(",", ":"))
+        items.append(f"  {key_json}:{value_json}")
 
-
-def _normalize_region(region: Optional[Tuple[int, int, int, int]]):
-    if region is None:
-        return None
-    return [int(region[0]), int(region[1]), int(region[2]), int(region[3])]
-
-
-def _append_unique_region(entry: Dict, match: Tuple[int, int, int, int], seen_at: str) -> None:
-    x, y, w, h = [int(v) for v in match]
-    key = _bbox_key((x, y, w, h))
-
-    for item in entry["unique_regions"]:
-        if item["bbox_key"] == key:
-            item["hits"] += 1
-            item["last_seen"] = seen_at
-            return
-
-    entry["unique_regions"].append({
-        "bbox_key": key,
-        "bbox": [x, y, w, h],
-        "center": [x + w // 2, y + h // 2],
-        "hits": 1,
-        "first_seen": seen_at,
-        "last_seen": seen_at,
-    })
+    content = "{\n" + ",\n".join(items) + "\n}"
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(content)
 
 
 def record_template_matches(
@@ -87,11 +62,16 @@ def record_template_matches(
     batch_results: Dict[str, List[Tuple[int, int, int, int]]],
 ) -> Optional[str]:
     """
-    Persist found template-match regions for later inspection.
+    Persist unique template-match bounding boxes.
 
-    Writes incrementally so data survives unexpected bot termination.
-    Returns the JSON path when data is recorded, otherwise None.
+    Output format:
+    {
+      "assets/buttons/ok_btn.png": [[x, y, w, h], ...],
+      ...
+    }
     """
+    del context
+
     found_any = False
     for template_path, _, _ in template_specs:
         if batch_results.get(template_path):
@@ -100,44 +80,56 @@ def record_template_matches(
     if not found_any:
         return None
 
-    path = _session_path()
-    seen_at = _timestamp()
+    path = _session_path(mode)
 
     with _LOCK:
-        data = _load_or_init(path, mode)
-        templates = data.setdefault("templates", {})
+        data = _load_or_init(path)
 
-        for template_path, confidence, region in template_specs:
+        for template_path, _, _ in template_specs:
             matches = batch_results.get(template_path, [])
             if not matches:
                 continue
 
-            entry = templates.setdefault(template_path, {
-                "template_path": template_path,
-                "contexts": [],
-                "confidence_thresholds": [],
-                "search_regions": [],
-                "total_hits": 0,
-                "unique_regions": [],
-            })
+            entry = data.setdefault(template_path, [])
+            existing = {tuple(int(v) for v in bbox) for bbox in entry if isinstance(bbox, list) and len(bbox) == 4}
 
-            if context not in entry["contexts"]:
-                entry["contexts"].append(context)
-
-            if confidence not in entry["confidence_thresholds"]:
-                entry["confidence_thresholds"].append(confidence)
-
-            normalized_region = _normalize_region(region)
-            if normalized_region not in entry["search_regions"]:
-                entry["search_regions"].append(normalized_region)
-
-            entry["total_hits"] += len(matches)
             for match in matches:
-                _append_unique_region(entry, match, seen_at)
+                bbox = [int(match[0]), int(match[1]), int(match[2]), int(match[3])]
+                key = tuple(bbox)
+                if key not in existing:
+                    entry.append(bbox)
+                    existing.add(key)
 
-        data["updated_at"] = seen_at
-
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
+        _write_one_asset_per_line(path, data)
 
     return path
+
+
+def is_template_dump_enabled() -> bool:
+    config = load_main_config()
+    return bool(config.get("dump_lobby_template_regions", False))
+
+
+def current_dump_mode() -> str:
+    config = load_main_config()
+    return config.get("mode", "unknown")
+
+
+def record_template_matches_for_mode(
+    template_specs: Iterable[Tuple[str, float, Optional[Tuple[int, int, int, int]]]],
+    batch_results: Dict[str, List[Tuple[int, int, int, int]]],
+) -> Optional[str]:
+    if not is_template_dump_enabled():
+        return None
+    return record_template_matches(current_dump_mode(), "global_template_match", template_specs, batch_results)
+
+
+def record_single_template_match(
+    template_path: str,
+    matches: List[Tuple[int, int, int, int]],
+    confidence: float = 0.8,
+    region: Optional[Tuple[int, int, int, int]] = None,
+) -> Optional[str]:
+    if not is_template_dump_enabled() or not matches:
+        return None
+    return record_template_matches_for_mode([(template_path, confidence, region)], {template_path: matches})

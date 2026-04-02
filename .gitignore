@@ -21,6 +21,7 @@ config.json
 event_priority.json
 training_score.json
 training_score_unity.json
+debug
 # # Debug images and temporary files
 # debug_*.png
 # debug_*.jpg
