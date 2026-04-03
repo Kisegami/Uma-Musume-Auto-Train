@@ -143,6 +143,11 @@ class PerformanceTab(QScrollArea):
         self.gpu_info_label = QLabel()
         self.gpu_info_label.setStyleSheet(f"color: {COLORS['text_muted']}; font-size: 12px;")
         status_layout.addWidget(self.gpu_info_label)
+
+        self.check_easyocr_btn = QPushButton("Check EasyOCR Status")
+        self.check_easyocr_btn.clicked.connect(self._check_easyocr_status)
+        self.check_easyocr_btn.setVisible(False)
+        status_layout.addWidget(self.check_easyocr_btn)
         
         # Install button (hidden by default)
         self.install_btn = QPushButton("Install EasyOCR GPU")
@@ -326,10 +331,14 @@ class PerformanceTab(QScrollArea):
             # Save config
             self.main_window.update_config_value("ocr_backend", "easyocr_gpu")
             
-            # Show status frame and check EasyOCR status
+            # Show status frame; status checks are manual to keep startup responsive.
             self.ocr_status_frame.setVisible(True)
             self.tesseract_benchmark_btn.setVisible(False)  # Hide tesseract benchmark
-            self._check_easyocr_status()
+            self.ocr_status_label.setText("EasyOCR GPU selected. Click 'Check EasyOCR Status' if needed.")
+            self.ocr_status_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
+            self.gpu_info_label.setText("Automatic GPU probing is disabled during startup.")
+            self.gpu_info_label.setVisible(True)
+            self.check_easyocr_btn.setVisible(True)
         else:
             # Tesseract selected
             self.main_window.update_config_value("ocr_backend", "tesseract")
@@ -371,6 +380,7 @@ class PerformanceTab(QScrollArea):
                 self.ocr_status_label.setStyleSheet(f"color: {COLORS['accent_green']}; font-weight: bold;")
                 self.gpu_info_label.setText(f"GPU: {status['gpu_name']} • CUDA {status['cuda_version']}")
                 self.gpu_info_label.setVisible(True)
+                self.check_easyocr_btn.setVisible(True)
                 self.install_btn.setVisible(False)
                 self.easyocr_actions_frame.setVisible(True)  # Show benchmark + remove buttons
             else:
@@ -384,6 +394,7 @@ class PerformanceTab(QScrollArea):
                     self.ocr_status_label.setText(f"✗ {error_msg}")
                 self.ocr_status_label.setStyleSheet(f"color: {COLORS['accent_orange']};")
                 self.easyocr_actions_frame.setVisible(False)  # Hide action buttons
+                self.check_easyocr_btn.setVisible(True)
                 
                 if status['gpu_name']:
                     self.gpu_info_label.setText(f"GPU detected: {status['gpu_name']}")
@@ -420,6 +431,7 @@ class PerformanceTab(QScrollArea):
             self.ocr_status_label.setText(f"✗ Error checking status: {str(e)}")
             self.ocr_status_label.setStyleSheet(f"color: {COLORS['accent_red']};")
             self.gpu_info_label.setVisible(False)
+            self.check_easyocr_btn.setVisible(True)
             self.install_btn.setVisible(False)
             self.easyocr_actions_frame.setVisible(False)
     
@@ -833,7 +845,13 @@ class PerformanceTab(QScrollArea):
             self.ocr_method_combo.setCurrentIndex(1)
             self.ocr_status_frame.setVisible(True)
             self.tesseract_benchmark_btn.setVisible(False)
-            self._check_easyocr_status()
+            self.ocr_status_label.setText("EasyOCR GPU selected. Click 'Check EasyOCR Status' if needed.")
+            self.ocr_status_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
+            self.gpu_info_label.setText("Automatic GPU probing is disabled during startup.")
+            self.gpu_info_label.setVisible(True)
+            self.check_easyocr_btn.setVisible(True)
+            self.install_btn.setVisible(False)
+            self.easyocr_actions_frame.setVisible(False)
         else:
             self.ocr_method_combo.setCurrentIndex(0)
             self.ocr_status_frame.setVisible(False)
@@ -846,7 +864,8 @@ class PerformanceTab(QScrollArea):
         if input_method == "maatouch":
             self.input_method_combo.setCurrentIndex(1)
             self.maatouch_status_frame.setVisible(True)
-            self._check_maatouch_status()
+            self.maatouch_status_label.setText("MaaTouch selected.")
+            self.maatouch_status_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
         else:
             self.input_method_combo.setCurrentIndex(0)
             self.maatouch_status_frame.setVisible(False)
@@ -868,7 +887,7 @@ class PerformanceTab(QScrollArea):
         
         # Update visibility after loading
         self._update_emulator_settings_visibility()
-    
+
     def _update_adb(self, key, value):
         self.main_window.update_nested_config_value("adb_config", key, value)
     

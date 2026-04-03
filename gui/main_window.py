@@ -68,6 +68,7 @@ class MainWindow(QMainWindow):
         self.bot_running = False
         self.config_file = "config.json"
         self.config = {}
+        self._ui_loading = True
         
         # Load configuration
         self.load_config()
@@ -77,6 +78,7 @@ class MainWindow(QMainWindow):
         
         # Create UI
         self._create_ui()
+        self._ui_loading = False
         
         # Initial log
         self.add_log("Uma Musume Auto-Train initialized")
@@ -212,7 +214,8 @@ class MainWindow(QMainWindow):
         # Left: Stacked pages - 9 pages matching original
         self.page_stack = QStackedWidget()
         
-        # Create all 9 pages
+        # Create all pages during startup so tab initialization failures surface
+        # immediately instead of only when a user opens a tab.
         self.main_page = MainTab(self)
         self.performance_page = PerformanceTab(self)
         self.training_page = TrainingTab(self)
@@ -355,9 +358,13 @@ class MainWindow(QMainWindow):
         self.save_config()
     
     def update_config_value(self, key, value):
+        if self._ui_loading:
+            return
         self.config[key] = value
     
     def update_nested_config_value(self, parent_key, child_key, value):
+        if self._ui_loading:
+            return
         if parent_key not in self.config:
             self.config[parent_key] = {}
         self.config[parent_key][child_key] = value
