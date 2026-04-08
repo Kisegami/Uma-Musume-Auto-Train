@@ -252,10 +252,10 @@ def finish_career_completion() -> bool:
 
         if first_button is not None:
             cx, cy = first_button
-            log_info(f"{first_button_name} detected at ({cx}, {cy}) - spamming taps for 10s")
+            log_info(f"{first_button_name} detected at ({cx}, {cy}) - spamming taps for 15s")
 
-            # Spam tap on detected button position for 10 seconds
-            spam_end = time.time() + 10
+            # Spam tap on detected button position for 15 seconds
+            spam_end = time.time() + 15
             while time.time() < spam_end:
                 tap(cx, cy)
                 time.sleep(0.08)
