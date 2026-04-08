@@ -52,11 +52,34 @@ racing_config_section = config.get("racing", {})
 skills_config_section = config.get("skills", {})
 DEBUG_MODE = config.get("debug_mode", False)
 RETRY_RACE = racing_config_section.get("retry_race", config.get("retry_race", True))
+_skip_infirmary_check_once = False
 
 
 def should_skip_goal_check():
     """Return whether criteria/goal-name OCR checks should be skipped."""
     return config.get("training", {}).get("skip_goal_check", False)
+
+
+def arm_skip_infirmary_check_for_new_turn():
+    """Arm a one-shot skip for the infirmary check after starting a new career."""
+    global _skip_infirmary_check_once
+    training_config = load_main_config().get("training", {})
+    if not training_config.get("skip_infirmary_check_on_new_turn", False):
+        return
+
+    _skip_infirmary_check_once = True
+    log_info("Armed one-shot infirmary skip for the first turn of the new career")
+
+
+def should_skip_infirmary_check_for_current_turn():
+    """Return True once when the first-turn infirmary check should be skipped."""
+    global _skip_infirmary_check_once
+    if not _skip_infirmary_check_once:
+        return False
+
+    _skip_infirmary_check_once = False
+    log_info("Skipping infirmary check for the first turn of the new career")
+    return True
 
 from utils.log import log_debug, log_info, log_warning, log_error, log_success
 from utils.template_matching import deduplicated_matches, wait_for_image
@@ -477,23 +500,26 @@ def career_lobby(timeout=None):
 
         # Check if there is debuff status
         log_debug(f"Checking for debuff status...")
-        # Use match_template to get full bounding box for brightness check
-        infirmary_matches = match_template(screenshot, "assets/buttons/infirmary_btn2.png", confidence=0.9)
-        
-        if infirmary_matches:
-            debuffed_box = infirmary_matches[0]  # Get first match (x, y, w, h)
-            x, y, w, h = debuffed_box
-            center_x, center_y = x + w//2, y + h//2
-            
-            # Check if the button is actually active (bright) or just disabled (dark)
-            if is_infirmary_active_adb(debuffed_box, screenshot):
-                tap(center_x, center_y)
-                log_info(f"Character has debuff, go to infirmary instead.")
-                continue
-            else:
-                log_debug(f"Infirmary button found but is disabled (dark)")
+        if should_skip_infirmary_check_for_current_turn():
+            log_debug("Skipping infirmary detection on this lobby turn")
         else:
-            log_debug(f"No infirmary button detected")
+            # Use match_template to get full bounding box for brightness check
+            infirmary_matches = match_template(screenshot, "assets/buttons/infirmary_btn2.png", confidence=0.9)
+
+            if infirmary_matches:
+                debuffed_box = infirmary_matches[0]  # Get first match (x, y, w, h)
+                x, y, w, h = debuffed_box
+                center_x, center_y = x + w//2, y + h//2
+
+                # Check if the button is actually active (bright) or just disabled (dark)
+                if is_infirmary_active_adb(debuffed_box, screenshot):
+                    tap(center_x, center_y)
+                    log_info(f"Character has debuff, go to infirmary instead.")
+                    continue
+                else:
+                    log_debug(f"Infirmary button found but is disabled (dark)")
+            else:
+                log_debug(f"No infirmary button detected")
 
         # Get current state
         log_debug(f"Getting current game state...")

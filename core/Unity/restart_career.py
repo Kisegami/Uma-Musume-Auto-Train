@@ -16,6 +16,8 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 sys.path.append(PROJECT_ROOT)
 SUPPORTS_DIR = os.path.join(PROJECT_ROOT, "template", "supports")
 os.makedirs(SUPPORTS_DIR, exist_ok=True)
+RESTART_CONFIRM_REGION = (282, 1286, 498, 180)
+RESTART_BACK_BUTTON_CENTER = (123, 1764)
 
 from utils.recognizer import match_template
 from utils.screenshot import take_screenshot
@@ -23,6 +25,7 @@ from utils.input import tap
 from core.Unity.skill_auto_purchase import click_image_button
 from core.Unity.ocr import extract_text, extract_number
 from utils.config_loader import load_main_config
+from utils.constants_unity import get_template_region as get_default_template_region
 
 # Module-level state for persistent restart tracking across function calls
 _restart_state = {
@@ -30,6 +33,55 @@ _restart_state = {
     'total_fans_acquired': 0,
     'session_active': False
 }
+
+
+RESTART_TEMPLATE_REGION_OVERRIDES = {
+    "assets/buttons/confirm.png": RESTART_CONFIRM_REGION,
+}
+
+
+def get_restart_template_region(template_path: str):
+    normalized_path = template_path.replace("\\", "/")
+    return RESTART_TEMPLATE_REGION_OVERRIDES.get(normalized_path) or get_default_template_region(normalized_path)
+
+
+def restart_match_template(screenshot, template_path: str, confidence: float = 0.8, region=None):
+    return match_template(
+        screenshot,
+        template_path,
+        confidence=confidence,
+        region=region if region is not None else get_restart_template_region(template_path),
+    )
+
+
+def restart_wait_for_image(template_path: str, timeout: int = 10, confidence: float = 0.8, region=None, check_interval: float = 0.5):
+    return wait_for_image(
+        template_path,
+        timeout=timeout,
+        confidence=confidence,
+        region=region if region is not None else get_restart_template_region(template_path),
+        check_interval=check_interval,
+    )
+
+
+def restart_click_image_button(image_path, description="button", max_attempts=10, wait_between_attempts=0.5, confidence=0.8, region=None):
+    for attempt in range(max_attempts):
+        button_pos = restart_wait_for_image(
+            image_path,
+            timeout=1,
+            confidence=confidence,
+            region=region,
+            check_interval=0.2,
+        )
+        if button_pos:
+            tap(button_pos[0], button_pos[1])
+            log_info(f"{description} clicked successfully (attempt {attempt + 1}")
+            return True
+        if attempt < max_attempts - 1:
+            time.sleep(wait_between_attempts)
+
+    log_warning(f"Failed to click {description} after {max_attempts} attempts")
+    return False
 
 
 def reset_restart_state():
@@ -62,7 +114,7 @@ def check_complete_career_screen(screenshot=None) -> bool:
     """Check if Complete Career screen is visible"""
     if screenshot is None:
         screenshot = take_screenshot()
-    matches = match_template(screenshot, "assets/buttons/complete_career.png", confidence=0.8)
+    matches = restart_match_template(screenshot, "assets/buttons/complete_career.png", confidence=0.8)
     if matches:
         log_info(f"✓ Complete Career screen detected")
         return True
@@ -139,7 +191,7 @@ def execute_skill_purchase_workflow(available_points: int):
             raise RuntimeError("API mode is enabled but /skills API is not responding. Check API connection or set api.enabled to false in config.json.")
         log_info(f"[API] Got {len(all_available_skills)} end-career skills from API (skipping OCR scan)")
     else:
-        if not click_image_button("assets/buttons/end_skill.png", "end skill button", max_attempts=5):
+        if not restart_click_image_button("assets/buttons/end_skill.png", "end skill button", max_attempts=5):
             log_info(f"Failed to tap end skill button")
             return
         time.sleep(2)
@@ -198,7 +250,7 @@ def execute_skill_purchase_workflow(available_points: int):
         if purchase_plan:
             affordable_skills, total_cost, remaining_points = filter_affordable_skills(purchase_plan, available_points)
             if affordable_skills:
-                if not click_image_button("assets/buttons/end_skill.png", "end skill button", max_attempts=5):
+                if not restart_click_image_button("assets/buttons/end_skill.png", "end skill button", max_attempts=5):
                     log_info(f"Failed to tap end skill button")
                     return
                 time.sleep(2)
@@ -210,7 +262,15 @@ def execute_skill_purchase_workflow(available_points: int):
 
 def return_to_complete_career_screen():
     """Return to the complete career screen after skill purchase"""
-    back_success = click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
+    back_success = restart_click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
+    if not back_success:
+        log_warning("Template back button click failed, trying fallback coordinates")
+        tap(RESTART_BACK_BUTTON_CENTER[0], RESTART_BACK_BUTTON_CENTER[1])
+        time.sleep(1.5)
+        if check_complete_career_screen():
+            log_info("Returned to complete career screen using fallback back-button coordinates")
+            return True
+
     if back_success:
         time.sleep(1.5)
         return check_complete_career_screen()
@@ -222,78 +282,92 @@ def finish_career_completion() -> bool:
     log_info(f"=== Completing Career ===")
     
     # Click complete career button
-    if not click_image_button("assets/buttons/complete_career.png", "complete career button", max_attempts=5):
+    if not restart_click_image_button("assets/buttons/complete_career.png", "complete career button", max_attempts=5):
         log_info(f"Failed to click complete career button")
         return False
     
     time.sleep(0.5)
     
     # Click finish button
-    if not click_image_button("assets/buttons/finish.png", "finish button", max_attempts=5):
+    if not restart_click_image_button("assets/buttons/finish.png", "finish button", max_attempts=5):
         log_info(f"Failed to click finish button")
         return False
     
     time.sleep(0.5)
     
-    # Navigate through completion screens with spam-tap strategy
+    # Navigate through completion screens with explicit sequence:
+    # next -> next -> close -> spam until Career Home appears
     start_time = time.time()
     max_duration_seconds = 120  # Safety timeout to avoid infinite loop
+    next_clicks = 0
+    close_clicked = False
+    last_button_target = None
 
     while time.time() - start_time < max_duration_seconds:
-        # Always check if we're already on Career Home
         screenshot = take_screenshot()
-        career_home_matches = match_template(screenshot, "assets/buttons/Career_Home.png", confidence=0.8)
-        if career_home_matches:
-            log_info(f"✓ Career Home screen detected - Career completion successful")
+        ready_screen = _detect_start_career_screen(screenshot)
+        if ready_screen:
+            log_info(f"{ready_screen} detected - Career completion successful")
             return True
 
-        # Look for the first actionable button (Next -> Close -> To Home)
-        first_button = None
-        first_button_name = None
-        for template_path, name in [
-            ("assets/buttons/next_btn.png", "next button"),
-            ("assets/buttons/close.png", "close button"),
-            ("assets/buttons/to_home.png", "to_home button"),
-        ]:
-            matches = match_template(screenshot, template_path, confidence=0.8)
-            if matches:
-                x, y, w, h = matches[0]
-                cx, cy = x + w // 2, y + h // 2
-                first_button = (cx, cy)
-                first_button_name = name
-                break
-
-        if first_button is not None:
-            cx, cy = first_button
-            log_info(f"{first_button_name} detected at ({cx}, {cy}) - spamming taps for 10s")
-
-            # Spam tap on detected button position for 10 seconds
-            spam_end = time.time() + 10
-            while time.time() < spam_end:
-                tap(cx, cy)
-                time.sleep(0.08)
-
-            # After spam, check Career Home briefly
-            for _ in range(5):
-                screenshot = take_screenshot()
-                career_home_matches = match_template(screenshot, "assets/buttons/Career_Home.png", confidence=0.8)
-                if career_home_matches:
-                    log_info(f"✓ Career Home screen detected - Career completion successful")
-                    return True
+        if next_clicks < 2:
+            next_button = _find_button_center_full_screen(screenshot, "assets/buttons/next_btn.png")
+            if next_button is not None:
+                next_clicks += 1
+                last_button_target = next_button
+                log_info(f"next button detected at {next_button} - tapping ({next_clicks}/2)")
+                tap(next_button[0], next_button[1])
                 time.sleep(1.0)
+                continue
 
-            # Not at home yet; tap 2 more times then continue loop
-            tap(cx, cy)
-            time.sleep(0.1)
-            tap(cx, cy)
-            time.sleep(0.3)
-            continue
+        if not close_clicked:
+            close_button = _find_button_center_full_screen(screenshot, "assets/buttons/close.png")
+            if close_button is not None:
+                close_clicked = True
+                last_button_target = close_button
+                log_info(f"close button detected at {close_button} - tapping")
+                tap(close_button[0], close_button[1])
+                time.sleep(1.0)
+                continue
 
-        # If nothing actionable found, short wait and retry
-        time.sleep(0.7)
+        log_info("Spamming taps until start career screen appears")
+        while time.time() - start_time < max_duration_seconds:
+            spam_target = last_button_target if last_button_target is not None else (540, 960)
+            tap(spam_target[0], spam_target[1])
+            time.sleep(0.08)
+
+            screenshot = take_screenshot()
+            ready_screen = _detect_start_career_screen(screenshot)
+            if ready_screen:
+                log_info(f"{ready_screen} detected - Career completion successful")
+                return True
+
+        continue
 
     log_info(f"Failed to complete career navigation")
     return False
+
+
+def _find_button_center_full_screen(screenshot, template_path: str, confidence: float = 0.8) -> Optional[Tuple[int, int]]:
+    """Find a button center using full-screen template matching only."""
+    matches = match_template(screenshot, template_path, confidence=confidence, region=())
+    if not matches:
+        return None
+
+    x, y, w, h = matches[0]
+    return (x + w // 2, y + h // 2)
+
+
+def _detect_start_career_screen(screenshot=None) -> Optional[str]:
+    """Return the current screen name when the game is back at Career Home."""
+    if screenshot is None:
+        screenshot = take_screenshot()
+
+    if restart_match_template(screenshot, "assets/buttons/Career_Home.png", confidence=0.8):
+        return "Career Home"
+
+    return None
+
 
 
 def load_config():
@@ -341,7 +415,7 @@ def filter_support() -> bool:
 
         # Reset filter
         screen_for_reset = take_screenshot()
-        reset_filter_matches = match_template(screen_for_reset, "assets/buttons/reset_filter.png", confidence=0.8)
+        reset_filter_matches = restart_match_template(screen_for_reset, "assets/buttons/reset_filter.png", confidence=0.8)
         if reset_filter_matches:
             x, y, w, h = reset_filter_matches[0]
             center = (x + w//2, y + h//2)
@@ -376,7 +450,7 @@ def filter_support() -> bool:
             time.sleep(0.5)
         
         # OK button after filter selection
-        ok_matches = match_template(take_screenshot(), "assets/buttons/ok_btn.png", confidence=0.6)
+        ok_matches = restart_match_template(take_screenshot(), "assets/buttons/ok_btn.png", confidence=0.6)
         if ok_matches:
             x, y, w, h = ok_matches[0]
             center = (x + w//2, y + h//2)
@@ -402,7 +476,7 @@ def filter_support() -> bool:
             for refresh_attempt in range(max_refreshes + 1): # 0 is initial load, 1-3 are actual refreshes
                 for scroll_attempt in range(max_scrolls_per_refresh + 1): # 0 is initial view, 1-3 are scrolls
                     screenshot = take_screenshot()
-                    matches = match_template(screenshot, template_path, confidence=0.7)
+                    matches = restart_match_template(screenshot, template_path, confidence=0.7)
                     
                     if matches:
                         log_info(f"Template '{template_name}' found!")
@@ -423,7 +497,7 @@ def filter_support() -> bool:
                 if refresh_attempt < max_refreshes:
                     log_info(f"Attempting to refresh support cards list (Refresh {refresh_attempt + 1}/{max_refreshes})...")
                     # Tap refresh button
-                    refresh_matches = match_template(take_screenshot(), "assets/buttons/supports_refresh.png", confidence=0.8)
+                    refresh_matches = restart_match_template(take_screenshot(), "assets/buttons/supports_refresh.png", confidence=0.8)
                     if refresh_matches:
                         x, y, w, h = refresh_matches[0]
                         center = (x + w//2, y + h//2)
@@ -431,7 +505,7 @@ def filter_support() -> bool:
                         time.sleep(1.0)
                         
                         # Tap OK button for refresh confirm
-                        ok_matches = match_template(take_screenshot(), "assets/buttons/ok_btn.png", confidence=0.6)
+                        ok_matches = restart_match_template(take_screenshot(), "assets/buttons/ok_btn.png", confidence=0.6)
                         if ok_matches:
                             x, y, w, h = ok_matches[0]
                             center = (x + w//2, y + h//2)
@@ -477,14 +551,14 @@ def restore_tp() -> bool:
     use_carats = auto_start_career.get('auto_charge_tp_carats', False)
     
     # Step 1: Tap restore button
-    if not click_image_button("assets/buttons/restore_btn.png", "restore button", max_attempts=5):
+    if not restart_click_image_button("assets/buttons/restore_btn.png", "restore button", max_attempts=5):
         log_warning("Failed to tap restore button")
         return False
     
     time.sleep(1)
     
     # Step 2: Wait for TP bottle to appear
-    tp_bottle_matches = wait_for_image("assets/icons/tp_bottle.png", timeout=1, confidence=0.8)
+    tp_bottle_matches = restart_wait_for_image("assets/icons/tp_bottle.png", timeout=1, confidence=0.8)
     
     if tp_bottle_matches:
         # Step 3: Calculate Use button position (offset from bottle)
@@ -501,7 +575,7 @@ def restore_tp() -> bool:
         log_warning("Out of TP Bottle")
         if use_carats:
             log_info("Trying to restore using Carats instead")
-            tp_carats_matches = wait_for_image("assets/icons/tp_carats.png", timeout=5, confidence=0.8)
+            tp_carats_matches = restart_wait_for_image("assets/icons/tp_carats.png", timeout=5, confidence=0.8)
             if not tp_carats_matches:
                 log_error("Carats icon not found")
                 return False
@@ -515,7 +589,7 @@ def restore_tp() -> bool:
             time.sleep(1)
             
             # For Carats, tap the tp_plus button before confirming
-            if not click_image_button("assets/buttons/tp_plus.png", "tp plus button", max_attempts=5):
+            if not restart_click_image_button("assets/buttons/tp_plus.png", "tp plus button", max_attempts=5):
                 log_warning("Failed to tap tp plus button")
                 return False
             time.sleep(0.5)
@@ -524,14 +598,14 @@ def restore_tp() -> bool:
             return False
             
     # Step 4: Tap OK button
-    if not click_image_button("assets/buttons/ok_restore.png", "OK button", max_attempts=10):
+    if not restart_click_image_button("assets/buttons/ok_restore.png", "OK button", max_attempts=10):
         log_warning("Failed to tap OK button")
         return False
     
     time.sleep(0.5)
     
     # Step 5: Tap Close button
-    if not click_image_button("assets/buttons/close.png", "close button", max_attempts=10):
+    if not restart_click_image_button("assets/buttons/close.png", "close button", max_attempts=10):
         log_warning("Failed to tap close button")
         return False
     
@@ -564,7 +638,7 @@ def skip_check():
     
     if best_match and best_confidence > 0.7:
         if "skip_off" in best_match:
-            matches = match_template(screenshot, best_match, confidence=0.7)
+            matches = restart_match_template(screenshot, best_match, confidence=0.7)
             if matches:
                 x, y, w, h = matches[0]
                 center = (x + w//2, y + h//2)
@@ -572,7 +646,7 @@ def skip_check():
                 time.sleep(0.1)
                 tap(center[0], center[1])
         elif "skip_x1" in best_match:
-            matches = match_template(screenshot, best_match, confidence=0.7)
+            matches = restart_match_template(screenshot, best_match, confidence=0.7)
             if matches:
                 x, y, w, h = matches[0]
                 center = (x + w//2, y + h//2)
@@ -590,7 +664,7 @@ def start_career() -> bool:
     try:
         # Step 1: Tap Career Home and wait 10s
         log_info("[Step 1/13] Looking for Career Home button...")
-        career_home_pos = wait_for_image("assets/buttons/Career_Home.png", timeout=10, confidence=0.8)
+        career_home_pos = restart_wait_for_image("assets/buttons/Career_Home.png", timeout=10, confidence=0.8)
         if career_home_pos:
             tap(career_home_pos[0], career_home_pos[1])
             log_info("[Step 1/13] ✓ Career Home tapped, waiting 10s for load...")
@@ -602,7 +676,7 @@ def start_career() -> bool:
         # Step 2: Tap Next button twice
         log_info("[Step 2/13] Tapping Next button twice...")
         for i in range(2):
-            next_pos = wait_for_image("assets/buttons/next_btn.png", timeout=10, confidence=0.8)
+            next_pos = restart_wait_for_image("assets/buttons/next_btn.png", timeout=10, confidence=0.8)
             if next_pos:
                 tap(next_pos[0], next_pos[1])
                 log_info(f"[Step 2/13] ✓ Next button tap {i+1}/2 successful")
@@ -613,7 +687,7 @@ def start_career() -> bool:
         
         # Step 3: Tap Next button
         log_info("[Step 3/13] Tapping Next button...")
-        next_pos = wait_for_image("assets/buttons/next_btn.png", timeout=10, confidence=0.8)
+        next_pos = restart_wait_for_image("assets/buttons/next_btn.png", timeout=10, confidence=0.8)
         if next_pos:
             tap(next_pos[0], next_pos[1])
             log_info("[Step 3/13] ✓ Next button tapped")
@@ -624,7 +698,7 @@ def start_career() -> bool:
         
         # Step 4: Tap Friend Support Choose
         log_info("[Step 4/13] Looking for Friend Support Choose button...")
-        friend_support_pos = wait_for_image("assets/buttons/Friend_support_choose.png", timeout=10, confidence=0.8)
+        friend_support_pos = restart_wait_for_image("assets/buttons/Friend_support_choose.png", timeout=10, confidence=0.8)
         if friend_support_pos:
             tap(friend_support_pos[0], friend_support_pos[1])
             log_info("[Step 4/13] ✓ Friend Support Choose tapped")
@@ -643,14 +717,14 @@ def start_career() -> bool:
         
         # Step 6: Start Career 1
         log_info("[Step 6/13] Looking for Start Career 1 button...")
-        start_career_1_pos = wait_for_image("assets/buttons/start_career_1.png", timeout=10, confidence=0.8)
+        start_career_1_pos = restart_wait_for_image("assets/buttons/start_career_1.png", timeout=10, confidence=0.8)
         if start_career_1_pos:
             tap(start_career_1_pos[0], start_career_1_pos[1])
             log_info("[Step 6/13] ✓ Start Career 1 tapped")
             time.sleep(0.5)
             
             # Check for insufficient TP (restore button appears)
-            restore_pos = wait_for_image("assets/buttons/restore_btn.png", timeout=3, confidence=0.8)
+            restore_pos = restart_wait_for_image("assets/buttons/restore_btn.png", timeout=3, confidence=0.8)
             if restore_pos:
                 auto_charge = auto_start_career.get('auto_charge_tp', False)
                 if auto_charge:
@@ -659,7 +733,7 @@ def start_career() -> bool:
                         log_error("[Step 6/13] ✗ TP restore failed - Out of TP Bottle")
                         return False
                     # After restore, tap Start Career 1 again
-                    start_career_1_pos = wait_for_image("assets/buttons/start_career_1.png", timeout=10, confidence=0.8)
+                    start_career_1_pos = restart_wait_for_image("assets/buttons/start_career_1.png", timeout=10, confidence=0.8)
                     if start_career_1_pos:
                         tap(start_career_1_pos[0], start_career_1_pos[1])
                         log_info("[Step 6/13] ✓ Start Career 1 re-tapped after TP restore")
@@ -676,7 +750,7 @@ def start_career() -> bool:
         
         # Step 7: Start Career 2
         log_info("[Step 7/13] Looking for Start Career 2 button...")
-        start_career_2_pos = wait_for_image("assets/buttons/start_career_2.png", timeout=15, confidence=0.8)
+        start_career_2_pos = restart_wait_for_image("assets/buttons/start_career_2.png", timeout=15, confidence=0.8)
         if start_career_2_pos:
             tap(start_career_2_pos[0], start_career_2_pos[1])
             log_info("[Step 7/13] ✓ Start Career 2 tapped")
@@ -686,7 +760,7 @@ def start_career() -> bool:
         
         # Step 8: Wait for skip button and double tap
         log_info("[Step 8/13] Waiting for skip button (30s timeout)...")
-        skip_matches = wait_for_image("assets/buttons/skip_btn.png", timeout=30, confidence=0.8)
+        skip_matches = restart_wait_for_image("assets/buttons/skip_btn.png", timeout=30, confidence=0.8)
         if skip_matches:
             tap(skip_matches[0], skip_matches[1])
             time.sleep(0.1)
@@ -699,7 +773,11 @@ def start_career() -> bool:
         
         # Step 9: Wait for confirm button
         log_info("[Step 9/13] Waiting for confirm button (30s timeout)...")
-        confirm_matches = wait_for_image("assets/buttons/confirm.png", timeout=30, confidence=0.8)
+        confirm_matches = restart_wait_for_image(
+            "assets/buttons/confirm.png",
+            timeout=30,
+            confidence=0.8,
+        )
         if not confirm_matches:
             log_error("[Step 9/13] ✗ Confirm button not found within 30s")
             return False
@@ -719,7 +797,11 @@ def start_career() -> bool:
         
         # Step 12: Tap confirm
         log_info("[Step 12/13] Looking for final confirm button...")
-        confirm_pos = wait_for_image("assets/buttons/confirm.png", timeout=10, confidence=0.8)
+        confirm_pos = restart_wait_for_image(
+            "assets/buttons/confirm.png",
+            timeout=10,
+            confidence=0.8,
+        )
         if confirm_pos:
             tap(confirm_pos[0], confirm_pos[1])
             log_info("[Step 12/13] ✓ Final confirm tapped")
@@ -729,8 +811,11 @@ def start_career() -> bool:
         
         # Step 13: Wait for Tazuna hint
         log_info("[Step 13/13] Waiting for Tazuna hint (60s timeout)...")
-        tazuna_hint_matches = wait_for_image("assets/ui/tazuna_hint.png", timeout=60, confidence=0.9)
+        tazuna_hint_matches = restart_wait_for_image("assets/ui/tazuna_hint.png", timeout=60, confidence=0.9)
         if tazuna_hint_matches:
+            from core.Unity.execute import arm_skip_infirmary_check_for_new_turn
+
+            arm_skip_infirmary_check_for_new_turn()
             log_info("[Step 13/13] ✓ Tazuna hint detected - Career start completed!")
             return True
         else:

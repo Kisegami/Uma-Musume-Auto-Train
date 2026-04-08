@@ -239,10 +239,11 @@ def career_ui_check():
         time.sleep(1)
         return career_ui_check()
         
-    # 3. Check tazuna_hint, event_choice_1, or unity_cup (Career Lobby)
+    # 3. Check tazuna_hint, event_choice_1, unity_cup, or complete_career (Career Lobby / end of run)
     if locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.95) or \
        locate_on_screen("assets/icons/event_choice_1.png", confidence=0.8) or \
-       locate_on_screen("assets/unity/unity_cup.png", confidence=0.8):
+       locate_on_screen("assets/unity/unity_cup.png", confidence=0.8) or \
+       locate_on_screen("assets/buttons/complete_career.png", confidence=0.8):
         log_info("Found Lobby, continue automation...")
         career_lobby_func = get_career_lobby()
         result = career_lobby_func()

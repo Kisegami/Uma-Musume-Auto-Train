@@ -69,6 +69,25 @@ class OCRBenchmarkThread(QThread):
             ))
 
 
+class EasyOCRWarmupThread(QThread):
+    """Background thread for EasyOCR GPU warmup."""
+    finished_signal = Signal(dict)
+
+    def run(self):
+        try:
+            from utils.ocr_utils import warmup_easyocr_reader
+            self.finished_signal.emit(warmup_easyocr_reader())
+        except Exception as e:
+            self.finished_signal.emit({
+                "state": "failed",
+                "ready": False,
+                "gpu_name": None,
+                "cuda_version": None,
+                "error": f"Failed to initialize EasyOCR GPU: {e}",
+                "init_duration_ms": None,
+            })
+
+
 class EasyOCRRemoveThread(QThread):
     """Background thread for EasyOCR GPU removal"""
     progress_signal = Signal(str, int)  # message, percent
@@ -96,6 +115,7 @@ class PerformanceTab(QScrollArea):
         self.install_thread = None
         self.benchmark_thread = None
         self.remove_thread = None
+        self.easyocr_warmup_thread = None
         
         self._create_ui()
         self.load_config()
@@ -331,19 +351,87 @@ class PerformanceTab(QScrollArea):
             # Save config
             self.main_window.update_config_value("ocr_backend", "easyocr_gpu")
             
-            # Show status frame; status checks are manual to keep startup responsive.
             self.ocr_status_frame.setVisible(True)
             self.tesseract_benchmark_btn.setVisible(False)  # Hide tesseract benchmark
-            self.ocr_status_label.setText("EasyOCR GPU selected. Click 'Check EasyOCR Status' if needed.")
-            self.ocr_status_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
-            self.gpu_info_label.setText("Automatic GPU probing is disabled during startup.")
-            self.gpu_info_label.setVisible(True)
-            self.check_easyocr_btn.setVisible(True)
+            self._start_easyocr_warmup()
         else:
             # Tesseract selected
             self.main_window.update_config_value("ocr_backend", "tesseract")
             self.ocr_status_frame.setVisible(False)
             self.tesseract_benchmark_btn.setVisible(True)  # Show tesseract benchmark
+
+    def _show_easyocr_warmup_state(self):
+        """Show non-blocking EasyOCR warmup status."""
+        self.ocr_status_label.setText("EasyOCR GPU selected. Warming up in background...")
+        self.ocr_status_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
+        self.gpu_info_label.setText("Startup stays responsive while the GPU reader loads.")
+        self.gpu_info_label.setVisible(True)
+        self.check_easyocr_btn.setVisible(True)
+        self.install_btn.setVisible(False)
+        self.easyocr_actions_frame.setVisible(False)
+        if hasattr(self, 'error_detail_btn'):
+            self.error_detail_btn.setVisible(False)
+
+    def _apply_easyocr_runtime_status(self, status: dict) -> bool:
+        """Apply cached EasyOCR runtime status to the UI if available."""
+        state = status.get("state")
+        if state == "ready":
+            init_ms = status.get("init_duration_ms")
+            suffix = f" ({init_ms / 1000:.1f}s warmup)" if init_ms else ""
+            self.ocr_status_label.setText(f"EasyOCR GPU is ready{suffix}")
+            self.ocr_status_label.setStyleSheet(f"color: {COLORS['accent_green']}; font-weight: bold;")
+            gpu_name = status.get("gpu_name") or "Unknown GPU"
+            cuda_version = status.get("cuda_version") or "unknown"
+            self.gpu_info_label.setText(f"GPU: {gpu_name} • CUDA {cuda_version}")
+            self.gpu_info_label.setVisible(True)
+            self.check_easyocr_btn.setVisible(True)
+            self.install_btn.setVisible(False)
+            self.easyocr_actions_frame.setVisible(True)
+            if hasattr(self, 'error_detail_btn'):
+                self.error_detail_btn.setVisible(False)
+            return True
+
+        if state == "initializing":
+            self._show_easyocr_warmup_state()
+            return True
+
+        return False
+
+    def _start_easyocr_warmup(self):
+        """Warm up EasyOCR in the background when the GPU backend is selected."""
+        self._show_easyocr_warmup_state()
+
+        try:
+            from utils.ocr_utils import get_easyocr_runtime_status
+            status = get_easyocr_runtime_status()
+            if self._apply_easyocr_runtime_status(status):
+                return
+        except Exception:
+            pass
+
+        if self.easyocr_warmup_thread and self.easyocr_warmup_thread.isRunning():
+            return
+
+        self.easyocr_warmup_thread = EasyOCRWarmupThread()
+        self.easyocr_warmup_thread.finished_signal.connect(self._on_easyocr_warmup_finished)
+        self.easyocr_warmup_thread.start()
+
+    def _on_easyocr_warmup_finished(self, status: dict):
+        """Refresh EasyOCR UI once background warmup finishes."""
+        if "EasyOCR" not in self.ocr_method_combo.currentText():
+            return
+
+        if self._apply_easyocr_runtime_status(status):
+            return
+
+        error = status.get("error")
+        if error:
+            self.ocr_status_label.setText("EasyOCR GPU warmup failed. Click 'Check EasyOCR Status' for details.")
+            self.ocr_status_label.setStyleSheet(f"color: {COLORS['accent_orange']};")
+            self.gpu_info_label.setText(error)
+            self.gpu_info_label.setVisible(True)
+            self.easyocr_actions_frame.setVisible(False)
+            self.check_easyocr_btn.setVisible(True)
     
     def _show_easyocr_warning(self) -> int:
         """Show EasyOCR GPU warning dialog"""
@@ -371,7 +459,11 @@ class PerformanceTab(QScrollArea):
     def _check_easyocr_status(self):
         """Check and display EasyOCR GPU status"""
         try:
+            from utils.ocr_utils import get_easyocr_runtime_status
             from utils.easyocr_installer import check_easyocr_gpu_ready
+            runtime_status = get_easyocr_runtime_status()
+            if self._apply_easyocr_runtime_status(runtime_status):
+                return
             status = check_easyocr_gpu_ready()
             
             if status['ready']:
@@ -845,13 +937,7 @@ class PerformanceTab(QScrollArea):
             self.ocr_method_combo.setCurrentIndex(1)
             self.ocr_status_frame.setVisible(True)
             self.tesseract_benchmark_btn.setVisible(False)
-            self.ocr_status_label.setText("EasyOCR GPU selected. Click 'Check EasyOCR Status' if needed.")
-            self.ocr_status_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
-            self.gpu_info_label.setText("Automatic GPU probing is disabled during startup.")
-            self.gpu_info_label.setVisible(True)
-            self.check_easyocr_btn.setVisible(True)
-            self.install_btn.setVisible(False)
-            self.easyocr_actions_frame.setVisible(False)
+            self._start_easyocr_warmup()
         else:
             self.ocr_method_combo.setCurrentIndex(0)
             self.ocr_status_frame.setVisible(False)

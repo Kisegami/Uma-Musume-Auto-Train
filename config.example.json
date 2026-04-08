@@ -53,6 +53,7 @@
     },
     "rest_in_june": true,
     "skip_goal_check": false,
+    "skip_infirmary_check_on_new_turn": false,
     "gambling_train_enabled": false,
     "gambling_train_failure_increase": 5,
     "gambling_train_score_per_increase": 2.0

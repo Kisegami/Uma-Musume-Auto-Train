@@ -399,6 +399,47 @@ def count_event_choices():
         log_info(f"❌ Error counting event choices: {str(e)}")
         return 0, []
 
+def wait_for_stable_event_choices(timeout: float = 2.0, check_interval: float = 0.2, stable_reads: int = 2):
+    """
+    Wait for event choice markers to stabilize before using them.
+
+    Event title OCR can finish before the choice dialog animation is done,
+    which briefly returns 0 or an incomplete choice list.
+    """
+    start_time = time.time()
+    last_count = None
+    last_locations = []
+    consecutive_same = 0
+    best_count = 0
+    best_locations = []
+
+    while time.time() - start_time < timeout:
+        count, locations = count_event_choices()
+
+        if count > best_count:
+            best_count = count
+            best_locations = locations
+
+        if count == last_count and locations == last_locations:
+            consecutive_same += 1
+        else:
+            last_count = count
+            last_locations = locations
+            consecutive_same = 1
+
+        if count > 0 and consecutive_same >= stable_reads:
+            log_debug(f" Event choices stabilized at {count}")
+            return count, locations
+
+        time.sleep(check_interval)
+
+    if best_count > 0:
+        log_debug(f" Event choices did not fully stabilize, using best observed count: {best_count}")
+        return best_count, best_locations
+
+    return last_count or 0, last_locations
+
+
 def load_event_priorities():
     """Load event priority configuration from event_priority.json"""
     try:
@@ -715,7 +756,7 @@ def handle_event_choice():
         time.sleep(0.5)
 
         # Re-validate that this is a choices event before OCR (avoid scanning non-choice dialogs)
-        recheck_count, recheck_locations = count_event_choices()
+        recheck_count, recheck_locations = wait_for_stable_event_choices()
         log_debug(f" Recheck choices after delay: {recheck_count}")
         if recheck_count == 0:
             log_info(f"[INFO] Event choices not visible after delay, skipping analysis")
@@ -769,7 +810,7 @@ def handle_event_choice():
         custom_choice = search_custom_events(event_name)
         if custom_choice:
             log_info(f"🎯 Custom template match: {event_name} → {custom_choice}")
-            choices_found, choice_locations = count_event_choices()
+            choices_found, choice_locations = wait_for_stable_event_choices()
             
             # Map custom_choice to choice number
             choice_number = 1
@@ -804,7 +845,7 @@ def handle_event_choice():
             found_events = search_events_fuzzy(event_name)
         
         # Count event choices on screen
-        choices_found, choice_locations = count_event_choices()
+        choices_found, choice_locations = wait_for_stable_event_choices()
         
         # Load event priorities
         priorities = load_event_priorities()
@@ -905,7 +946,7 @@ def handle_event_choice():
         
         # If choices are visible, return their locations to allow fallback top-choice click
         try:
-            _, fallback_locations = count_event_choices()
+            _, fallback_locations = wait_for_stable_event_choices()
         except Exception:
             fallback_locations = []
         
@@ -927,38 +968,16 @@ def click_event_choice(choice_number, choice_locations=None):
         from utils.input import tap
         
         # Use pre-found locations if provided, otherwise search again
-        if choice_locations is None:
+        if choice_locations is None or len(choice_locations) < choice_number:
             log_debug(f" No pre-found locations, searching for event choices...")
-            event_choice_region = (6, 450, 126, 1776)
-            choice_locations = locate_all_on_screen("assets/icons/event_choice_1.png", confidence=0.45, region=event_choice_region)
-            
             if not choice_locations:
-                log_info(f"No event choice icons found")
-                return False
-            
-            # Filter out duplicates
-            unique_locations = []
-            for location in choice_locations:
-                x, y, w, h = location
-                center = (x + w//2, y + h//2)
-                is_duplicate = False
-                
-                for existing in unique_locations:
-                    ex, ey, ew, eh = existing
-                    existing_center = (ex + ew//2, ey + eh//2)
-                    distance = ((center[0] - existing_center[0]) ** 2 + (center[1] - existing_center[1]) ** 2) ** 0.5
-                    if distance < 30:  # Within 30 pixels
-                        is_duplicate = True
-                        break
-                
-                if not is_duplicate:
-                    unique_locations.append(location)
-            
-            # Sort locations by Y coordinate (top to bottom)
-            unique_locations.sort(key=lambda loc: loc[1])
+                _, choice_locations = wait_for_stable_event_choices()
+                if not choice_locations:
+                    log_info(f"No event choice icons found")
+                    return False
         else:
             log_debug(f" Using pre-found choice locations")
-            unique_locations = choice_locations
+        unique_locations = sorted(choice_locations, key=lambda loc: loc[1])
         
         # Click the specified choice
         if 1 <= choice_number <= len(unique_locations):

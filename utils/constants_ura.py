@@ -40,8 +40,11 @@ RACE_CARD_REGION=(0, 0, 610, 220)  # Dynamic region calculated as (x, y, 350, 11
 # Default screen region (phone resolution)
 DEFAULT_SCREEN_REGION=(0, 0, 1080, 1920)
 
+# Merged OK button region covering both the old box and the newly provided box
+OK_BUTTON_REGION = (309, 1150, 606, 703)
+
 URA_TEMPLATE_REGIONS = {
-    "assets/buttons/back_btn.png": (9, 1743, 237, 196),
+    "assets/buttons/back_btn.png": (20, 1660, 240, 220),
     "assets/buttons/cancel_lobby.png": (58, 1285, 481, 185),
     "assets/buttons/claw.png": (219, 1259, 642, 582),
     "assets/buttons/close.png": (59, 1153, 472, 186),
@@ -51,7 +54,7 @@ URA_TEMPLATE_REGIONS = {
     "assets/buttons/inspiration_btn.png": (375, 1471, 297, 255),
     "assets/buttons/next2_btn.png": (351, 1755, 592, 147),
     "assets/buttons/next_btn.png": (290, 1567, 493, 312),
-    "assets/buttons/ok_btn.png": (632, 1150, 283, 189),
+    "assets/buttons/ok_btn.png": OK_BUTTON_REGION,
     "assets/buttons/race_btn.png": (289, 1282, 743, 437),
     "assets/buttons/race_day_btn.png": (599, 1506, 195, 137),
     "assets/buttons/race_ura.png": (595, 1497, 221, 188),
