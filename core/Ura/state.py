@@ -340,7 +340,7 @@ def check_skill_points_cap(screenshot=None):
             # Show the message box
             result = messagebox.showinfo(
                 title="Skill Points Cap Reached",
-                message=f"Skill points ({current_skill_points}) exceed the cap ({skill_point_cap}).\n\nYou can:\nâ€¢ Use your skill points manually, then click OK\nâ€¢ Click OK without spending (automation continues)\n\nNote: This check only happens on race days."
+                message=f"Skill points ({current_skill_points}) exceed the cap ({skill_point_cap}).\n\nYou can:\n• Use your skill points manually, then click OK\n• Click OK without spending (automation continues)\n\nNote: This check only happens on race days."
             )
             
             # Destroy the root window

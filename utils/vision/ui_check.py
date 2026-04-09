@@ -201,7 +201,7 @@ def enable_skip():
     if skip_x2:
         log_info("Skip enabled successfully (skip_x2 confirmed).")
     else:
-        log_warning("skip_x2 not found â€” skip may not be fully enabled.")
+        log_warning("skip_x2 not found — skip may not be fully enabled.")
 
 def career_ui_check():
     """
@@ -248,7 +248,7 @@ def career_ui_check():
         career_lobby_func = get_career_lobby()
         result = career_lobby_func()
         if result is False:
-            raise RuntimeError("Bot stopped by career_lobby â€” do not restart.")
+            raise RuntimeError("Bot stopped by career_lobby — do not restart.")
         return True
         
     # 4. Check connection error
@@ -284,7 +284,7 @@ def ui_check(startup=False):
     """
     log_info("Starting UI check...")
     
-    # 1. Try career UI check â€” detects lobby, race, events, back button, etc.
+    # 1. Try career UI check — detects lobby, race, events, back button, etc.
     #    When it finds the lobby, it enters career_lobby() WITHOUT timeout
     log_info("Checking for career UI elements...")
     if career_ui_check():
@@ -307,7 +307,7 @@ def ui_check(startup=False):
         
     # 5. Nothing recognized
     if startup:
-        # First launch â€” stop the bot so user can check what's on screen
+        # First launch — stop the bot so user can check what's on screen
         log_error("No recognized UI elements found at startup! Saving debug screenshot...")
         try:
             screenshot = take_screenshot()
@@ -315,9 +315,9 @@ def ui_check(startup=False):
             log_error("Unknown UI screenshot saved to debug_unknown_ui.png")
         except Exception as e:
             log_error(f"Failed to save debug screenshot: {e}")
-        raise RuntimeError("Unknown UI state at startup â€” stopping bot. Check debug_unknown_ui.png")
+        raise RuntimeError("Unknown UI state at startup — stopping bot. Check debug_unknown_ui.png")
     else:
-        # Called from watchdog/reopen â€” restart the game
+        # Called from watchdog/reopen — restart the game
         log_warning("No recognized UI elements found after checks. Restarting the game...")
         reopen_and_resume_career()
         return True

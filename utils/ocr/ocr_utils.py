@@ -296,12 +296,12 @@ _setup_tesseract()
 # Verify tessdata directory
 if not os.path.exists(tessdata_dir):
     if DEBUG_MODE:
-        log_info(f"âš ï¸  Warning: tessdata directory not found: {tessdata_dir}")
+        log_info(f"⚠️  Warning: tessdata directory not found: {tessdata_dir}")
         log_info(f"   Falling back to system Tesseract models")
 else:
     available_models = [f for f in os.listdir(tessdata_dir) if f.endswith('.traineddata')]
     if available_models and DEBUG_MODE:
-        log_info(f"âœ… Using custom Tesseract models from: {tessdata_dir}")
+        log_info(f"✅ Using custom Tesseract models from: {tessdata_dir}")
         log_info(f"   Available models: {', '.join(available_models)}")
 
 

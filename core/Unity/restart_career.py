@@ -119,10 +119,10 @@ def check_complete_career_screen(screenshot=None) -> bool:
         screenshot = take_screenshot()
     matches = restart_match_template(screenshot, "assets/buttons/complete_career.png", confidence=0.8)
     if matches:
-        log_info(f"âœ“ Complete Career screen detected")
+        log_info(f"✓ Complete Career screen detected")
         return True
     else:
-        log_info(f"âœ— Complete Career screen not detected")
+        log_info(f"✗ Complete Career screen not detected")
         return False
 
 
@@ -172,7 +172,7 @@ def should_continue_restarting(current_restart_count: int, max_restart_times: in
 
 
 def execute_skill_purchase_workflow(available_points: int):
-    """Execute the skill purchase workflow with merged priorities (main â†’ end â†’ budget)"""
+    """Execute the skill purchase workflow with merged priorities (main → end → budget)"""
     log_info(f"=== Auto Skill Purchase Workflow ===")
     
     # Import here to avoid circular imports
@@ -520,7 +520,7 @@ def restore_tp() -> bool:
     
     if tp_bottle_matches:
         # Step 3: Calculate Use button position (offset from bottle)
-        # TP Bottle at (131, 481) â†’ Use button at (912, 481)
+        # TP Bottle at (131, 481) → Use button at (912, 481)
         # X offset = 912 - 131 = 781
         bottle_x, bottle_y = tp_bottle_matches[0], tp_bottle_matches[1]
         use_btn_x = bottle_x + 781
@@ -567,7 +567,7 @@ def restore_tp() -> bool:
         log_warning("Failed to tap close button")
         return False
     
-    log_info("âœ“ TP restored successfully")
+    log_info("✓ TP restored successfully")
     return True
 
 
@@ -625,10 +625,10 @@ def start_career() -> bool:
         career_home_pos = restart_wait_for_image("assets/buttons/Career_Home.png", timeout=10, confidence=0.8)
         if career_home_pos:
             tap(career_home_pos[0], career_home_pos[1])
-            log_info("[Step 1/13] âœ“ Career Home tapped, waiting 10s for load...")
+            log_info("[Step 1/13] ✓ Career Home tapped, waiting 10s for load...")
             time.sleep(10)
         else:
-            log_error("[Step 1/13] âœ— Career Home button not found")
+            log_error("[Step 1/13] ✗ Career Home button not found")
             return False
         
         # Step 2: Tap Next button twice
@@ -637,10 +637,10 @@ def start_career() -> bool:
             next_pos = restart_wait_for_image("assets/buttons/next_btn.png", timeout=10, confidence=0.8)
             if next_pos:
                 tap(next_pos[0], next_pos[1])
-                log_info(f"[Step 2/13] âœ“ Next button tap {i+1}/2 successful")
+                log_info(f"[Step 2/13] ✓ Next button tap {i+1}/2 successful")
                 time.sleep(1)
             else:
-                log_error(f"[Step 2/13] âœ— Next button not found on tap {i+1}/2")
+                log_error(f"[Step 2/13] ✗ Next button not found on tap {i+1}/2")
                 return False
         
         # Step 3: Tap Next button
@@ -648,10 +648,10 @@ def start_career() -> bool:
         next_pos = restart_wait_for_image("assets/buttons/next_btn.png", timeout=10, confidence=0.8)
         if next_pos:
             tap(next_pos[0], next_pos[1])
-            log_info("[Step 3/13] âœ“ Next button tapped")
+            log_info("[Step 3/13] ✓ Next button tapped")
             time.sleep(1)
         else:
-            log_error("[Step 3/13] âœ— Next button not found")
+            log_error("[Step 3/13] ✗ Next button not found")
             return False
         
         # Step 4: Tap Friend Support Choose
@@ -659,18 +659,18 @@ def start_career() -> bool:
         friend_support_pos = restart_wait_for_image("assets/buttons/Friend_support_choose.png", timeout=10, confidence=0.8)
         if friend_support_pos:
             tap(friend_support_pos[0], friend_support_pos[1])
-            log_info("[Step 4/13] âœ“ Friend Support Choose tapped")
+            log_info("[Step 4/13] ✓ Friend Support Choose tapped")
             time.sleep(1)
         else:
-            log_error("[Step 4/13] âœ— Friend Support Choose button not found")
+            log_error("[Step 4/13] ✗ Friend Support Choose button not found")
             return False
         
         # Step 5: Filter support
         log_info("[Step 5/13] Filtering support cards...")
         if filter_support() is False:
-            log_error("[Step 5/13] âœ— filter_support() returned False")
+            log_error("[Step 5/13] ✗ filter_support() returned False")
             return False
-        log_info("[Step 5/13] âœ“ Support filter completed")
+        log_info("[Step 5/13] ✓ Support filter completed")
         time.sleep(1)
         
         # Step 6: Start Career 1
@@ -678,7 +678,7 @@ def start_career() -> bool:
         start_career_1_pos = restart_wait_for_image("assets/buttons/start_career_1.png", timeout=10, confidence=0.8)
         if start_career_1_pos:
             tap(start_career_1_pos[0], start_career_1_pos[1])
-            log_info("[Step 6/13] âœ“ Start Career 1 tapped")
+            log_info("[Step 6/13] ✓ Start Career 1 tapped")
             time.sleep(0.5)
             
             # Check for insufficient TP (restore button appears)
@@ -688,22 +688,22 @@ def start_career() -> bool:
                 if auto_charge:
                     log_info("[Step 6/13] Insufficient TP detected - attempting auto restore")
                     if not restore_tp():
-                        log_error("[Step 6/13] âœ— TP restore failed - Out of TP Bottle")
+                        log_error("[Step 6/13] ✗ TP restore failed - Out of TP Bottle")
                         return False
                     # After restore, tap Start Career 1 again
                     start_career_1_pos = restart_wait_for_image("assets/buttons/start_career_1.png", timeout=10, confidence=0.8)
                     if start_career_1_pos:
                         tap(start_career_1_pos[0], start_career_1_pos[1])
-                        log_info("[Step 6/13] âœ“ Start Career 1 re-tapped after TP restore")
+                        log_info("[Step 6/13] ✓ Start Career 1 re-tapped after TP restore")
                         time.sleep(0.5)
                     else:
-                        log_error("[Step 6/13] âœ— Start Career 1 button not found after TP restore")
+                        log_error("[Step 6/13] ✗ Start Career 1 button not found after TP restore")
                         return False
                 else:
-                    log_error("[Step 6/13] âœ— Insufficient TP and auto_charge_tp is disabled")
+                    log_error("[Step 6/13] ✗ Insufficient TP and auto_charge_tp is disabled")
                     return False
         else:
-            log_error("[Step 6/13] âœ— Start Career 1 button not found")
+            log_error("[Step 6/13] ✗ Start Career 1 button not found")
             return False
         
         # Step 7: Start Career 2
@@ -711,9 +711,9 @@ def start_career() -> bool:
         start_career_2_pos = restart_wait_for_image("assets/buttons/start_career_2.png", timeout=15, confidence=0.8)
         if start_career_2_pos:
             tap(start_career_2_pos[0], start_career_2_pos[1])
-            log_info("[Step 7/13] âœ“ Start Career 2 tapped")
+            log_info("[Step 7/13] ✓ Start Career 2 tapped")
         else:
-            log_error("[Step 7/13] âœ— Start Career 2 button not found")
+            log_error("[Step 7/13] ✗ Start Career 2 button not found")
             return False
         
         # Step 8: Wait for skip button and double tap
@@ -723,10 +723,10 @@ def start_career() -> bool:
             tap(skip_matches[0], skip_matches[1])
             time.sleep(0.1)
             tap(skip_matches[0], skip_matches[1])
-            log_info("[Step 8/13] âœ“ Skip button double-tapped")
+            log_info("[Step 8/13] ✓ Skip button double-tapped")
             time.sleep(0.5)
         else:
-            log_error("[Step 8/13] âœ— Skip button not found within 30s")
+            log_error("[Step 8/13] ✗ Skip button not found within 30s")
             return False
         
         # Step 9: Wait for confirm button
@@ -737,20 +737,20 @@ def start_career() -> bool:
             confidence=0.8,
         )
         if not confirm_matches:
-            log_error("[Step 9/13] âœ— Confirm button not found within 30s")
+            log_error("[Step 9/13] ✗ Confirm button not found within 30s")
             return False
-        log_info("[Step 9/13] âœ“ Confirm button found")
+        log_info("[Step 9/13] ✓ Confirm button found")
         
         # Step 10: Tap coordinates
         log_info("[Step 10/13] Tapping coordinates (213, 939)...")
         tap(213, 939)
-        log_info("[Step 10/13] âœ“ Coordinates tapped")
+        log_info("[Step 10/13] ✓ Coordinates tapped")
         time.sleep(0.5)
         
         # Step 11: Skip check
         log_info("[Step 11/13] Running skip check...")
         skip_check()
-        log_info("[Step 11/13] âœ“ Skip check completed")
+        log_info("[Step 11/13] ✓ Skip check completed")
         time.sleep(0.5)
         
         # Step 12: Tap confirm
@@ -762,9 +762,9 @@ def start_career() -> bool:
         )
         if confirm_pos:
             tap(confirm_pos[0], confirm_pos[1])
-            log_info("[Step 12/13] âœ“ Final confirm tapped")
+            log_info("[Step 12/13] ✓ Final confirm tapped")
         else:
-            log_error("[Step 12/13] âœ— Final confirm button not found")
+            log_error("[Step 12/13] ✗ Final confirm button not found")
             return False
         
         # Step 13: Wait for Tazuna hint
@@ -774,10 +774,10 @@ def start_career() -> bool:
             from core.Unity.execute import arm_skip_infirmary_check_for_new_turn
 
             arm_skip_infirmary_check_for_new_turn()
-            log_info("[Step 13/13] âœ“ Tazuna hint detected - Career start completed!")
+            log_info("[Step 13/13] ✓ Tazuna hint detected - Career start completed!")
             return True
         else:
-            log_error("[Step 13/13] âœ— Tazuna hint not found within 60s")
+            log_error("[Step 13/13] ✗ Tazuna hint not found within 60s")
             return False
             
     except Exception as e:
@@ -879,7 +879,7 @@ def execute_restart_cycle(current_restart_count: int, max_restart_times: int,
         log_info(f"Failed to start new career")
         return False, new_restart_count, new_total_fans, False
     
-    log_info(f"âœ“ Restart cycle {new_restart_count} completed successfully")
+    log_info(f"✓ Restart cycle {new_restart_count} completed successfully")
     # Return True with career_started=True to signal we should exit the loop
     # and let the main bot handle gameplay until next career completion
     return True, new_restart_count, new_total_fans, True

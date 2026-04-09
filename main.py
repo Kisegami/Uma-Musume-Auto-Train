@@ -154,7 +154,7 @@ def main():
     log_info("=" * 40)
     
     try:
-        ui_check(startup=True)  # First call â€” stop bot if UI is unrecognized
+        ui_check(startup=True)  # First call — stop bot if UI is unrecognized
         while True:
             ui_check()
     except KeyboardInterrupt:

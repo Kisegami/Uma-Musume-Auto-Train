@@ -113,7 +113,7 @@ def send_run_complete_webhook(
             }
         ],
         "footer": {
-            "text": f"UMAT - Uma Musume Auto Train â€¢ Today at {timestamp}"
+            "text": f"UMAT - Uma Musume Auto Train • Today at {timestamp}"
         },
         "timestamp": now.isoformat()
     }
@@ -153,7 +153,7 @@ def send_run_complete_webhook(
             )
         
         if response.status_code in [200, 204]:
-            log_info(f"âœ“ Discord webhook sent successfully for run {run_number}/{max_runs}")
+            log_info(f"✓ Discord webhook sent successfully for run {run_number}/{max_runs}")
             return True
         else:
             log_warning(f"Discord webhook failed with status {response.status_code}: {response.text}")
@@ -194,12 +194,12 @@ def send_test_webhook(webhook_url: str, screenshot: Optional[Image.Image] = None
         "fields": [
             {
                 "name": "Status",
-                "value": "âœ… Webhook is working!",
+                "value": "✅ Webhook is working!",
                 "inline": False
             }
         ],
         "footer": {
-            "text": f"UMAT - Uma Musume Auto Train â€¢ {timestamp}"
+            "text": f"UMAT - Uma Musume Auto Train • {timestamp}"
         },
         "timestamp": now.isoformat()
     }

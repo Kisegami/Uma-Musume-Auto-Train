@@ -159,7 +159,7 @@ def reopen_and_resume_career() -> bool:
     Full re-entry sequence after a game restart:
 
     1. Launch the game (calls restart_game() internally).
-    2. Wait for title_menu.png  â†’ spam-tap centre to advance.
+    2. Wait for title_menu.png  → spam-tap centre to advance.
     3. Dismiss any close.png / skip_btn.png popups as they appear.
     4. Wait for home_theater.png with a 3 s stability double-check
        (ensures no popup is covering the home screen).
@@ -177,16 +177,16 @@ def reopen_and_resume_career() -> bool:
     log_info("[Watchdog] Restarting game and resuming career...")
     restart_game()
 
-    # â”€â”€ Step 1: wait up to 90 s for title_menu to appear â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Step 1: wait up to 90 s for title_menu to appear ──────────────────
     log_info("[Watchdog] Waiting for title screen...")
     title = wait_for_image("assets/buttons/title_menu.png", timeout=90, confidence=0.8)
     if not title:
-        log_warning("[Watchdog] Title screen not found after 90 s â€” giving up.")
+        log_warning("[Watchdog] Title screen not found after 90 s — giving up.")
         return False
 
     log_info("[Watchdog] Title screen found. Tapping centre to advance...")
 
-    # â”€â”€ Step 2 + 3: spam-tap centre while dismissing popups until home screen â”€â”€
+    # ── Step 2 + 3: spam-tap centre while dismissing popups until home screen ──
     SPAM_TIMEOUT = 120          # seconds to find home_theater
     SPAM_INTERVAL = 0.4         # seconds between taps
     spam_start = time.time()
@@ -229,10 +229,10 @@ def reopen_and_resume_career() -> bool:
         tap(540, 960)
         time.sleep(SPAM_INTERVAL)
     else:
-        log_warning("[Watchdog] Home screen not found â€” giving up.")
+        log_warning("[Watchdog] Home screen not found — giving up.")
         return False
 
-    # â”€â”€ Step 4: delegate to ui_check for navigation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Step 4: delegate to ui_check for navigation ───────────────────────
     log_info("[Watchdog] Delegating to ui_check()...")
     from utils.vision.ui_check import ui_check
     return ui_check()

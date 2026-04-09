@@ -448,12 +448,12 @@ def execute_skill_purchases(purchase_plan, max_scrolls=30, end_career=False, res
         if purchased_skills:
             log_info(f"\n[INFO] Purchased skills:")
             for skill in purchased_skills:
-                log_info(f"   â€¢ {skill['name']} - {skill['price']} points")
+                log_info(f"   • {skill['name']} - {skill['price']} points")
         
         if failed_skills:
             log_info(f"\n[WARNING] Failed to purchase:")
             for skill in failed_skills:
-                log_info(f"   â€¢ {skill['name']} - {skill['price']} points")
+                log_info(f"   • {skill['name']} - {skill['price']} points")
         
         return {
             'success': len(purchased_skills) > 0,

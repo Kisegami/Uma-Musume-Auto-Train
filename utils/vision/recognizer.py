@@ -36,7 +36,7 @@ def _resolve_asset_path(template_path):
     resolved_path = os.path.normpath(resolved_path)
     return resolved_path
 
-# â”€â”€ Template image cache & conversion helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Template image cache & conversion helpers ─────────────────────────
 _template_cache = {}
 
 def _load_template(template_path):
@@ -80,7 +80,7 @@ def _resolve_search_region(template_path, region):
     except Exception:
         pass
     return None
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ──────────────────────────────────────────────────────────────────────
 
 def match_template(screenshot, template_path, confidence=0.8, region=None):
     """

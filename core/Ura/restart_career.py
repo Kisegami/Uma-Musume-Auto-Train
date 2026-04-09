@@ -118,10 +118,10 @@ def check_complete_career_screen(screenshot=None) -> bool:
         screenshot = take_screenshot()
     matches = restart_match_template(screenshot, "assets/buttons/complete_career.png", confidence=0.8)
     if matches:
-        log_info(f"âœ“ Complete Career screen detected")
+        log_info(f"✓ Complete Career screen detected")
         return True
     else:
-        log_info(f"âœ— Complete Career screen not detected")
+        log_info(f"✗ Complete Career screen not detected")
         return False
 
 
@@ -171,7 +171,7 @@ def should_continue_restarting(current_restart_count: int, max_restart_times: in
 
 
 def execute_skill_purchase_workflow(available_points: int):
-    """Execute the skill purchase workflow with merged priorities (main â†’ end â†’ budget)"""
+    """Execute the skill purchase workflow with merged priorities (main → end → budget)"""
     log_info(f"=== Auto Skill Purchase Workflow ===")
     
     # Import here to avoid circular imports
@@ -515,7 +515,7 @@ def restore_tp() -> bool:
     
     if tp_bottle_matches:
         # Step 3: Calculate Use button position (offset from bottle)
-        # TP Bottle at (131, 481) â†’ Use button at (912, 481)
+        # TP Bottle at (131, 481) → Use button at (912, 481)
         # X offset = 912 - 131 = 781
         bottle_x, bottle_y = tp_bottle_matches[0], tp_bottle_matches[1]
         use_btn_x = bottle_x + 781
@@ -562,7 +562,7 @@ def restore_tp() -> bool:
         log_warning("Failed to tap close button")
         return False
     
-    log_info("âœ“ TP restored successfully")
+    log_info("✓ TP restored successfully")
     return True
 
 
@@ -899,7 +899,7 @@ def execute_restart_cycle(current_restart_count: int, max_restart_times: int,
         log_info(f"Failed to start new career")
         return False, new_restart_count, new_total_fans, False
     
-    log_info(f"âœ“ Restart cycle {new_restart_count} completed successfully")
+    log_info(f"✓ Restart cycle {new_restart_count} completed successfully")
     # Return True with career_started=True to signal we should exit the loop
     # and let the main bot handle gameplay until next career completion
     return True, new_restart_count, new_total_fans, True

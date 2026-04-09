@@ -503,10 +503,10 @@ def generate_debug_image(screenshot, locations, confidence, brightness_info=None
                 if brightness_data:
                     if brightness_data['available']:
                         box_color = "green"
-                        label = f"{i+1} (âœ“{brightness_data['brightness']:.0f})"
+                        label = f"{i+1} (✓{brightness_data['brightness']:.0f})"
                     else:
                         box_color = "red"
-                        label = f"{i+1} (âœ—{brightness_data['brightness']:.0f})"
+                        label = f"{i+1} (✗{brightness_data['brightness']:.0f})"
             
             # Draw rectangle with colored border
             draw.rectangle([x, y, x + width, y + height], outline=box_color, width=3)
@@ -541,7 +541,7 @@ def generate_debug_image(screenshot, locations, confidence, brightness_info=None
             summary_lines.extend([
                 f"Total Detected: {total_detected}",
                 f"Dark/Unavailable: {dark_buttons}",
-                f"Legend: âœ“=Available, âœ—=Dark"
+                f"Legend: ✓=Available, ✗=Dark"
             ])
         
         summary_text = "\n".join(summary_lines)
@@ -779,7 +779,7 @@ def calculate_string_similarity(str1, str2):
     return similarity
 
 
-# â”€â”€ API-powered skill list â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── API-powered skill list ───────────────────────────────────────────────────
 
 def get_skills_api():
     """

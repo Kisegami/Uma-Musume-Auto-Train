@@ -150,9 +150,9 @@ def _load_custom_event_templates():
 def _normalize_event_name(name: str) -> str:
     """Remove special markers and symbols from event names for matching
     
-    Removes: (â¯), (â¯â¯), (â¯â¯â¯), â™ª, and extra whitespace
+    Removes: (❯), (❯❯), (❯❯❯), ♪, and extra whitespace
     """
-    result = name.replace("(â¯)", "").replace("(â¯â¯)", "").replace("(â¯â¯â¯)", "").replace("â™ª", "")
+    result = name.replace("(❯)", "").replace("(❯❯)", "").replace("(❯❯❯)", "").replace("♪", "")
     return result.strip()
 
 
@@ -187,14 +187,14 @@ def search_custom_events(event_name):
         for custom_event, selected_option in _event_cache["custom_uma_events"].items():
             normalized_custom = _normalize_event_name(custom_event).lower()
             if normalized_custom.startswith(normalized_search) and len(normalized_search) >= 5:
-                log_debug(f"Prefix match: '{event_name}' â†’ '{custom_event}'")
+                log_debug(f"Prefix match: '{event_name}' → '{custom_event}'")
                 return selected_option
         
         # Try substring/contains match (e.g., "Get Well Soon!" matches "Failed training (Get Well Soon!)")
         for custom_event, selected_option in _event_cache["custom_uma_events"].items():
             normalized_custom = _normalize_event_name(custom_event).lower()
             if len(normalized_search) >= 5 and normalized_search in normalized_custom:
-                log_debug(f"Substring match: '{event_name}' â†’ '{custom_event}'")
+                log_debug(f"Substring match: '{event_name}' → '{custom_event}'")
                 return selected_option
     
     # Check Support Card events
@@ -213,14 +213,14 @@ def search_custom_events(event_name):
         for custom_event, selected_option in _event_cache["custom_support_events"].items():
             normalized_custom = _normalize_event_name(custom_event).lower()
             if normalized_custom.startswith(normalized_search) and len(normalized_search) >= 5:
-                log_debug(f"Prefix match: '{event_name}' â†’ '{custom_event}'")
+                log_debug(f"Prefix match: '{event_name}' → '{custom_event}'")
                 return selected_option
         
         # Try substring/contains match
         for custom_event, selected_option in _event_cache["custom_support_events"].items():
             normalized_custom = _normalize_event_name(custom_event).lower()
             if len(normalized_search) >= 5 and normalized_search in normalized_custom:
-                log_debug(f"Substring match: '{event_name}' â†’ '{custom_event}'")
+                log_debug(f"Substring match: '{event_name}' → '{custom_event}'")
                 return selected_option
     
     return None
@@ -298,7 +298,7 @@ def find_best_event_match(ocr_text: str) -> str:
         
         def normalize(s: str) -> str:
             """Remove special markers from event names"""
-            return s.replace("(â¯)", "").replace("(â¯â¯)", "").replace("(â¯â¯â¯)", "").strip()
+            return s.replace("(❯)", "").replace("(❯❯)", "").replace("(❯❯❯)", "").strip()
         
         clean_ocr = normalize(ocr_text.strip())
         if not clean_ocr:
@@ -508,7 +508,7 @@ def count_event_choices():
         log_debug(f" Final unique bright locations: {len(bright_locations)} (threshold: {bright_threshold})")
         return len(bright_locations), bright_locations
     except Exception as e:
-        log_info(f"âŒ Error counting event choices: {str(e)}")
+        log_info(f"❌ Error counting event choices: {str(e)}")
         return 0, []
 
 def wait_for_stable_event_choices(timeout: float = 2.0, check_interval: float = 0.2, stable_reads: int = 2):
@@ -821,7 +821,7 @@ def search_events_fuzzy(event_name):
     return {}
 
 
-# â”€â”€ API-powered event name detection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── API-powered event name detection ─────────────────────────────────────────
 
 def get_event_name_api():
     """
@@ -878,7 +878,7 @@ def handle_event_choice():
             log_info(f"[INFO] Event choices not visible after delay, skipping analysis")
             return 1, False, []
 
-        # Get event name â€” API mode or OCR
+        # Get event name — API mode or OCR
         try:
             from utils.integrations.umat_api import is_api_enabled
             _api_on = is_api_enabled()
@@ -901,26 +901,26 @@ def handle_event_choice():
             event_name = event_name.strip()
         
         if not event_name:
-            log_error(f"âŒ EVENT DETECTION FAILED: No text detected in event region")
+            log_error(f"❌ EVENT DETECTION FAILED: No text detected in event region")
             
             # Save debug image for analysis (only when debug mode is enabled)
             if DEBUG_MODE:
                 debug_filename = f"debug_event_detection_failure_{int(time.time())}.png"
                 event_image.save(debug_filename)
-                log_error(f"âŒ Debug image saved to: {debug_filename}")
-            log_error(f"âŒ Event region coordinates: {event_region}")
-            log_error(f"âŒ Image size: {event_image.size}")
-            log_error(f"âŒ Check the OCR logs above for what text was detected (if any)")
+                log_error(f"❌ Debug image saved to: {debug_filename}")
+            log_error(f"❌ Event region coordinates: {event_region}")
+            log_error(f"❌ Image size: {event_image.size}")
+            log_error(f"❌ Check the OCR logs above for what text was detected (if any)")
             
             # Check if bot should stop on detection failure (configurable)
             stop_on_event_failure = config.get("stop_on_event_detection_failure", False)
             
             if stop_on_event_failure:
-                log_error(f"âŒ BOT STOPPED - Please check the event screen and OCR configuration")
-                log_error(f"âŒ (To disable auto-stop, set 'stop_on_event_detection_failure' to false in config.json)")
+                log_error(f"❌ BOT STOPPED - Please check the event screen and OCR configuration")
+                log_error(f"❌ (To disable auto-stop, set 'stop_on_event_detection_failure' to false in config.json)")
                 raise RuntimeError("Event detection failed: No text detected in event region. Bot stopped.")
             else:
-                log_warning(f"âš ï¸  Continuing with fallback (top choice) - Enable 'stop_on_event_detection_failure' in config to stop on failure")
+                log_warning(f"⚠️  Continuing with fallback (top choice) - Enable 'stop_on_event_detection_failure' in config to stop on failure")
                 # Fallback to top choice
                 return 1, False, recheck_locations
         
@@ -1128,7 +1128,7 @@ def handle_event_choice():
         error_msg = str(e)
         if "Event detection failed" in error_msg:
             # Re-raise the error to stop the bot completely
-            log_error(f"âŒ Critical event detection failure - stopping bot execution")
+            log_error(f"❌ Critical event detection failure - stopping bot execution")
             raise  # Re-raise the original exception to stop execution
         
         # Handle other errors gracefully with fallback

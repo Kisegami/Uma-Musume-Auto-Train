@@ -337,7 +337,7 @@ def check_skill_points_cap(screenshot=None):
     if _api_on:
         current_skill_points = check_skill_points_api()
         if current_skill_points is None:
-            log_error("âŒ [API] Failed to get skill points from API. Check that uma_viewer is running or disable API mode in config.")
+            log_error("❌ [API] Failed to get skill points from API. Check that uma_viewer is running or disable API mode in config.")
             raise RuntimeError("API mode is enabled but /status API is not responding. Check API connection or set api.enabled to false in config.json.")
     else:
         current_skill_points = check_skill_points(screenshot)
@@ -356,7 +356,7 @@ def check_skill_points_cap(screenshot=None):
                     # API mode: get skill list from API
                     api_skills = get_skills_api()
                     if api_skills is None:
-                        log_error("âŒ [API] Failed to get skill list from API. Check that uma_viewer is running or disable API mode in config.")
+                        log_error("❌ [API] Failed to get skill list from API. Check that uma_viewer is running or disable API mode in config.")
                         raise RuntimeError("API mode is enabled but /skills API is not responding. Check API connection or set api.enabled to false in config.json.")
                     log_info(f"[API] Got {len(api_skills)} skills from API (skipping OCR scan)")
                     all_skills = api_skills
@@ -442,7 +442,7 @@ def check_skill_points_cap(screenshot=None):
             # Show the message box
             result = messagebox.showinfo(
                 title="Skill Points Cap Reached",
-                message=f"Skill points ({current_skill_points}) exceed the cap ({skill_point_cap}).\n\nYou can:\nâ€¢ Use your skill points manually, then click OK\nâ€¢ Click OK without spending (automation continues)\n\nNote: This check only happens on race days."
+                message=f"Skill points ({current_skill_points}) exceed the cap ({skill_point_cap}).\n\nYou can:\n• Use your skill points manually, then click OK\n• Click OK without spending (automation continues)\n\nNote: This check only happens on race days."
             )
             
             # Destroy the root window
@@ -709,7 +709,7 @@ def _resolve_skill_file_path(path):
     return os.path.join(project_root, candidates[-1])
 
 
-# â”€â”€ API-powered state functions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── API-powered state functions ──────────────────────────────────────────────
 # These call the uma_viewer API for fast, packet-backed data.
 # All return None when API is unavailable, allowing OCR fallback.
 

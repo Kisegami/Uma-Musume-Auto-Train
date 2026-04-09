@@ -141,7 +141,7 @@ def check_training(go_back=True, year=None, current_stats=None):
         region_cv = (left, top, right - left, bottom - top)
 
         # Support counts - pass screenshot to avoid taking new one
-        support_counts = check_support_card(screenshot)  # âœ… Pass screenshot
+        support_counts = check_support_card(screenshot)  # ✅ Pass screenshot
         total_support = sum(support_counts.values())
 
         # Bond levels per type
@@ -172,7 +172,7 @@ def check_training(go_back=True, year=None, current_stats=None):
                 detailed_support[t_key] = entries
 
         # Hint - pass screenshot to avoid taking new one
-        hint_found = check_hint(screenshot)  # âœ… Pass screenshot
+        hint_found = check_hint(screenshot)  # ✅ Pass screenshot
 
         # Spirit/Unity training - pass screenshot to avoid taking new one
         spirit_count = check_spirit_training(screenshot, train_type=key)
@@ -198,7 +198,7 @@ def check_training(go_back=True, year=None, current_stats=None):
 
         log_debug(f"Checking failure rate for {key.upper()} training...")
         # Pass screenshot to avoid taking new ones
-        failure_chance, confidence = check_failure(screenshot, key)  # âœ… Pass screenshot
+        failure_chance, confidence = check_failure(screenshot, key)  # ✅ Pass screenshot
         
         results[key] = {
             "support": support_counts,
@@ -318,7 +318,7 @@ def check_support_card(screenshot, threshold=0.9):
     count_result = {}
 
     # Use provided screenshot instead of taking new one
-    # screenshot = take_screenshot()  # âŒ REMOVED
+    # screenshot = take_screenshot()  # ❌ REMOVED
     
     # Save full screenshot for debugging only in debug mode
     if DEBUG_MODE:
@@ -388,7 +388,7 @@ def check_hint(screenshot, template_path: str = "assets/icons/hint.png", confide
     """
     try:
         # Use provided screenshot instead of taking new one
-        # screenshot = take_screenshot()  # âŒ REMOVED
+        # screenshot = take_screenshot()  # ❌ REMOVED
 
         # Convert PIL (left, top, right, bottom) to OpenCV (x, y, width, height)
         left, top, right, bottom = SUPPORT_CARD_ICON_REGION
@@ -1079,7 +1079,7 @@ def calculate_training_score(support_detail, hint_found, spirit_count, spirit_bu
     return round(score, 2)
 
 
-# â”€â”€ API-powered training check â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── API-powered training check ───────────────────────────────────────────────
 
 def check_training_api(year=None, current_stats=None):
     """
