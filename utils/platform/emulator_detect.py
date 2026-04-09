@@ -18,9 +18,9 @@ except ModuleNotFoundError:
     psutil = None
 
 try:
-    from utils.device import _get_adb_path
+    from utils.platform.device import _get_adb_path
 except ImportError:
-    # Fallback if utils.device is not available
+    # Fallback if utils.platform.device is not available
     def _get_adb_path():
         return "adb"
 

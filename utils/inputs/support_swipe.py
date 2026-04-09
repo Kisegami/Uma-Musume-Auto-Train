@@ -1,5 +1,5 @@
 import time
-from utils.input import perform_swipe
+from utils.inputs.input import perform_swipe
 
 # Support card list swipe coordinates
 SUPPORT_LIST_X = 540

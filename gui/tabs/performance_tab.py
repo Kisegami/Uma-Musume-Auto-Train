@@ -12,6 +12,7 @@ from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QColor
 
 from ..styles import COLORS
+from ..icon_helper import get_icon
 
 
 class NoScrollSpinBox(QSpinBox):
@@ -33,7 +34,7 @@ class EasyOCRInstallThread(QThread):
     
     def run(self):
         try:
-            from utils.easyocr_installer import install_easyocr_gpu
+            from utils.ocr.easyocr_installer import install_easyocr_gpu
             success, message = install_easyocr_gpu(
                 progress_callback=lambda msg, pct: self.progress_signal.emit(msg, pct)
             )
@@ -55,18 +56,37 @@ class OCRBenchmarkThread(QThread):
     
     def run(self):
         try:
-            from utils.ocr_benchmark import run_ocr_benchmark
+            from utils.ocr.ocr_benchmark import run_ocr_benchmark
             result = run_ocr_benchmark(
                 include_easyocr=self.include_easyocr,
                 progress_callback=lambda msg, pct: self.progress_signal.emit(msg, pct)
             )
             self.finished_signal.emit(result)
         except Exception as e:
-            from utils.ocr_benchmark import BenchmarkResult
+            from utils.ocr.ocr_benchmark import BenchmarkResult
             self.finished_signal.emit(BenchmarkResult(
                 regions=[], total_tesseract_ms=0, total_easyocr_ms=None,
                 screenshot=None, iterations=0, error=str(e)
             ))
+
+
+class EasyOCRWarmupThread(QThread):
+    """Background thread for EasyOCR GPU warmup."""
+    finished_signal = Signal(dict)
+
+    def run(self):
+        try:
+            from utils.ocr.ocr_utils import warmup_easyocr_reader
+            self.finished_signal.emit(warmup_easyocr_reader())
+        except Exception as e:
+            self.finished_signal.emit({
+                "state": "failed",
+                "ready": False,
+                "gpu_name": None,
+                "cuda_version": None,
+                "error": f"Failed to initialize EasyOCR GPU: {e}",
+                "init_duration_ms": None,
+            })
 
 
 class EasyOCRRemoveThread(QThread):
@@ -76,7 +96,7 @@ class EasyOCRRemoveThread(QThread):
     
     def run(self):
         try:
-            from utils.easyocr_installer import remove_easyocr_gpu
+            from utils.ocr.easyocr_installer import remove_easyocr_gpu
             success, message = remove_easyocr_gpu(
                 progress_callback=lambda msg, pct: self.progress_signal.emit(msg, pct)
             )
@@ -96,6 +116,7 @@ class PerformanceTab(QScrollArea):
         self.install_thread = None
         self.benchmark_thread = None
         self.remove_thread = None
+        self.easyocr_warmup_thread = None
         
         self._create_ui()
         self.load_config()
@@ -123,7 +144,8 @@ class PerformanceTab(QScrollArea):
         ocr_layout.addLayout(method_row)
         
         # Tesseract benchmark button (visible when Tesseract selected)
-        self.tesseract_benchmark_btn = QPushButton("🔬 Run Benchmark")
+        self.tesseract_benchmark_btn = QPushButton("Run Benchmark")
+        self.tesseract_benchmark_btn.setIcon(get_icon("benchmark"))
         self.tesseract_benchmark_btn.setToolTip("Run OCR speed test on current emulator screen (requires Lobby screen)")
         self.tesseract_benchmark_btn.clicked.connect(lambda: self._run_benchmark(include_easyocr=False))
         self.tesseract_benchmark_btn.setVisible(True)  # Visible by default (Tesseract is default)
@@ -143,9 +165,16 @@ class PerformanceTab(QScrollArea):
         self.gpu_info_label = QLabel()
         self.gpu_info_label.setStyleSheet(f"color: {COLORS['text_muted']}; font-size: 12px;")
         status_layout.addWidget(self.gpu_info_label)
+
+        self.check_easyocr_btn = QPushButton("Check EasyOCR Status")
+        self.check_easyocr_btn.setIcon(get_icon("info"))
+        self.check_easyocr_btn.clicked.connect(self._check_easyocr_status)
+        self.check_easyocr_btn.setVisible(False)
+        status_layout.addWidget(self.check_easyocr_btn)
         
         # Install button (hidden by default)
         self.install_btn = QPushButton("Install EasyOCR GPU")
+        self.install_btn.setIcon(get_icon("install"))
         self.install_btn.setObjectName("accent")
         self.install_btn.clicked.connect(self._install_easyocr_gpu)
         self.install_btn.setVisible(False)
@@ -156,12 +185,14 @@ class PerformanceTab(QScrollArea):
         actions_layout = QHBoxLayout(self.easyocr_actions_frame)
         actions_layout.setContentsMargins(0, 8, 0, 0)
         
-        self.easyocr_benchmark_btn = QPushButton("🔬 Run Benchmark")
+        self.easyocr_benchmark_btn = QPushButton("Run Benchmark")
+        self.easyocr_benchmark_btn.setIcon(get_icon("benchmark"))
         self.easyocr_benchmark_btn.setToolTip("Compare Tesseract vs EasyOCR GPU speed (requires Lobby screen)")
         self.easyocr_benchmark_btn.clicked.connect(lambda: self._run_benchmark(include_easyocr=True))
         actions_layout.addWidget(self.easyocr_benchmark_btn)
         
-        self.easyocr_remove_btn = QPushButton("🗑️ Remove EasyOCR GPU")
+        self.easyocr_remove_btn = QPushButton("Remove EasyOCR GPU")
+        self.easyocr_remove_btn.setIcon(get_icon("delete"))
         self.easyocr_remove_btn.setToolTip("Remove EasyOCR GPU packages to free disk space (~7-10 GB)")
         self.easyocr_remove_btn.clicked.connect(self._remove_easyocr_gpu)
         actions_layout.addWidget(self.easyocr_remove_btn)
@@ -214,12 +245,14 @@ class PerformanceTab(QScrollArea):
         # Action buttons row
         maatouch_actions_row = QHBoxLayout()
         
-        self.maatouch_install_btn = QPushButton("🔄 Reinstall MaaTouch")
+        self.maatouch_install_btn = QPushButton("Reinstall MaaTouch")
+        self.maatouch_install_btn.setIcon(get_icon("refresh"))
         self.maatouch_install_btn.setToolTip("Push MaaTouch binary to the device")
         self.maatouch_install_btn.clicked.connect(self._install_maatouch)
         maatouch_actions_row.addWidget(self.maatouch_install_btn)
         
-        self.maatouch_benchmark_btn = QPushButton("🔬 Run Benchmark")
+        self.maatouch_benchmark_btn = QPushButton("Run Benchmark")
+        self.maatouch_benchmark_btn.setIcon(get_icon("benchmark"))
         self.maatouch_benchmark_btn.setToolTip("Compare ADB vs MaaTouch input speed")
         self.maatouch_benchmark_btn.clicked.connect(self._run_input_benchmark)
         maatouch_actions_row.addWidget(self.maatouch_benchmark_btn)
@@ -326,15 +359,87 @@ class PerformanceTab(QScrollArea):
             # Save config
             self.main_window.update_config_value("ocr_backend", "easyocr_gpu")
             
-            # Show status frame and check EasyOCR status
             self.ocr_status_frame.setVisible(True)
             self.tesseract_benchmark_btn.setVisible(False)  # Hide tesseract benchmark
-            self._check_easyocr_status()
+            self._start_easyocr_warmup()
         else:
             # Tesseract selected
             self.main_window.update_config_value("ocr_backend", "tesseract")
             self.ocr_status_frame.setVisible(False)
             self.tesseract_benchmark_btn.setVisible(True)  # Show tesseract benchmark
+
+    def _show_easyocr_warmup_state(self):
+        """Show non-blocking EasyOCR warmup status."""
+        self.ocr_status_label.setText("EasyOCR GPU selected. Warming up in background...")
+        self.ocr_status_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
+        self.gpu_info_label.setText("Startup stays responsive while the GPU reader loads.")
+        self.gpu_info_label.setVisible(True)
+        self.check_easyocr_btn.setVisible(True)
+        self.install_btn.setVisible(False)
+        self.easyocr_actions_frame.setVisible(False)
+        if hasattr(self, 'error_detail_btn'):
+            self.error_detail_btn.setVisible(False)
+
+    def _apply_easyocr_runtime_status(self, status: dict) -> bool:
+        """Apply cached EasyOCR runtime status to the UI if available."""
+        state = status.get("state")
+        if state == "ready":
+            init_ms = status.get("init_duration_ms")
+            suffix = f" ({init_ms / 1000:.1f}s warmup)" if init_ms else ""
+            self.ocr_status_label.setText(f"EasyOCR GPU is ready{suffix}")
+            self.ocr_status_label.setStyleSheet(f"color: {COLORS['accent_green']}; font-weight: bold;")
+            gpu_name = status.get("gpu_name") or "Unknown GPU"
+            cuda_version = status.get("cuda_version") or "unknown"
+            self.gpu_info_label.setText(f"GPU: {gpu_name} | CUDA {cuda_version}")
+            self.gpu_info_label.setVisible(True)
+            self.check_easyocr_btn.setVisible(True)
+            self.install_btn.setVisible(False)
+            self.easyocr_actions_frame.setVisible(True)
+            if hasattr(self, 'error_detail_btn'):
+                self.error_detail_btn.setVisible(False)
+            return True
+
+        if state == "initializing":
+            self._show_easyocr_warmup_state()
+            return True
+
+        return False
+
+    def _start_easyocr_warmup(self):
+        """Warm up EasyOCR in the background when the GPU backend is selected."""
+        self._show_easyocr_warmup_state()
+
+        try:
+            from utils.ocr.ocr_utils import get_easyocr_runtime_status
+            status = get_easyocr_runtime_status()
+            if self._apply_easyocr_runtime_status(status):
+                return
+        except Exception:
+            pass
+
+        if self.easyocr_warmup_thread and self.easyocr_warmup_thread.isRunning():
+            return
+
+        self.easyocr_warmup_thread = EasyOCRWarmupThread()
+        self.easyocr_warmup_thread.finished_signal.connect(self._on_easyocr_warmup_finished)
+        self.easyocr_warmup_thread.start()
+
+    def _on_easyocr_warmup_finished(self, status: dict):
+        """Refresh EasyOCR UI once background warmup finishes."""
+        if "EasyOCR" not in self.ocr_method_combo.currentText():
+            return
+
+        if self._apply_easyocr_runtime_status(status):
+            return
+
+        error = status.get("error")
+        if error:
+            self.ocr_status_label.setText("EasyOCR GPU warmup failed. Click 'Check EasyOCR Status' for details.")
+            self.ocr_status_label.setStyleSheet(f"color: {COLORS['accent_orange']};")
+            self.gpu_info_label.setText(error)
+            self.gpu_info_label.setVisible(True)
+            self.easyocr_actions_frame.setVisible(False)
+            self.check_easyocr_btn.setVisible(True)
     
     def _show_easyocr_warning(self) -> int:
         """Show EasyOCR GPU warning dialog"""
@@ -343,16 +448,16 @@ class PerformanceTab(QScrollArea):
         msg.setIcon(QMessageBox.Information)
         msg.setTextFormat(Qt.RichText)
         msg.setText(
-            "<p style='font-size: 14px;'><b>⚡ EasyOCR GPU Acceleration</b></p>"
+            "<p style='font-size: 14px;'><b>EasyOCR GPU Acceleration</b></p>"
             "<p>EasyOCR provides significantly faster OCR performance using your GPU.</p>"
             "<p><b>Requirements:</b><br>"
-            "• NVIDIA GPU"
-            "• RTX 30xx or higher for best performance"
+            "- NVIDIA GPU"
+            "- RTX 30xx or higher for best performance"
             "<p><b>Note:</b><br>"
-            "• First-time setup will download approximately <b>7 GB</b> of data<br>"
-            "• This includes PyTorch CUDA and EasyOCR models<br>"
-            "• Please note that this will increase UMAT size <b>up to 10GB</b>, which might become a problem for some users<br>"
-            "• Installation may take several minutes</p>"
+            "- First-time setup will download approximately <b>7 GB</b> of data<br>"
+            "- This includes PyTorch CUDA and EasyOCR models<br>"
+            "- Please note that this will increase UMAT size <b>up to 10GB</b>, which might become a problem for some users<br>"
+            "- Installation may take several minutes</p>"
             "<p>Do you want to continue?</p>"
         )
         msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
@@ -362,15 +467,20 @@ class PerformanceTab(QScrollArea):
     def _check_easyocr_status(self):
         """Check and display EasyOCR GPU status"""
         try:
-            from utils.easyocr_installer import check_easyocr_gpu_ready
+            from utils.ocr.ocr_utils import get_easyocr_runtime_status
+            from utils.ocr.easyocr_installer import check_easyocr_gpu_ready
+            runtime_status = get_easyocr_runtime_status()
+            if self._apply_easyocr_runtime_status(runtime_status):
+                return
             status = check_easyocr_gpu_ready()
             
             if status['ready']:
                 # EasyOCR GPU is ready
-                self.ocr_status_label.setText("✓ EasyOCR GPU is ready")
+                self.ocr_status_label.setText("Ready: EasyOCR GPU is ready")
                 self.ocr_status_label.setStyleSheet(f"color: {COLORS['accent_green']}; font-weight: bold;")
-                self.gpu_info_label.setText(f"GPU: {status['gpu_name']} • CUDA {status['cuda_version']}")
+                self.gpu_info_label.setText(f"GPU: {status['gpu_name']} | CUDA {status['cuda_version']}")
                 self.gpu_info_label.setVisible(True)
+                self.check_easyocr_btn.setVisible(True)
                 self.install_btn.setVisible(False)
                 self.easyocr_actions_frame.setVisible(True)  # Show benchmark + remove buttons
             else:
@@ -379,11 +489,12 @@ class PerformanceTab(QScrollArea):
                 error_detail = status.get('error_detail')
                 
                 if error_detail:
-                    self.ocr_status_label.setText(f"✗ {error_msg} (click 'View Details' below for more info)")
+                    self.ocr_status_label.setText(f"Error: {error_msg} (click 'View Details' below for more info)")
                 else:
-                    self.ocr_status_label.setText(f"✗ {error_msg}")
+                    self.ocr_status_label.setText(f"Error: {error_msg}")
                 self.ocr_status_label.setStyleSheet(f"color: {COLORS['accent_orange']};")
                 self.easyocr_actions_frame.setVisible(False)  # Hide action buttons
+                self.check_easyocr_btn.setVisible(True)
                 
                 if status['gpu_name']:
                     self.gpu_info_label.setText(f"GPU detected: {status['gpu_name']}")
@@ -400,7 +511,8 @@ class PerformanceTab(QScrollArea):
                 # Show/hide detail button
                 if error_detail:
                     if not hasattr(self, 'error_detail_btn'):
-                        self.error_detail_btn = QPushButton("🔍 View Error Details")
+                        self.error_detail_btn = QPushButton("View Error Details")
+                        self.error_detail_btn.setIcon(get_icon("search"))
                         self.error_detail_btn.setToolTip("Show detailed error information for troubleshooting")
                         # Insert after gpu_info_label in the status layout
                         self.ocr_status_frame.layout().insertWidget(2, self.error_detail_btn)
@@ -417,9 +529,10 @@ class PerformanceTab(QScrollArea):
                     self.error_detail_btn.setVisible(False)
                     
         except Exception as e:
-            self.ocr_status_label.setText(f"✗ Error checking status: {str(e)}")
+            self.ocr_status_label.setText(f"Error checking status: {str(e)}")
             self.ocr_status_label.setStyleSheet(f"color: {COLORS['accent_red']};")
             self.gpu_info_label.setVisible(False)
+            self.check_easyocr_btn.setVisible(True)
             self.install_btn.setVisible(False)
             self.easyocr_actions_frame.setVisible(False)
     
@@ -452,7 +565,7 @@ class PerformanceTab(QScrollArea):
         if success:
             QMessageBox.information(
                 self, "Installation Complete",
-                f"✓ {message}\n\nEasyOCR GPU is now ready to use."
+                f"Success: {message}\n\nEasyOCR GPU is now ready to use."
             )
             self._check_easyocr_status()  # Refresh status
         else:
@@ -470,7 +583,7 @@ class PerformanceTab(QScrollArea):
         layout.setSpacing(12)
         
         # Header
-        header = QLabel(f"✗ {title}")
+        header = QLabel(f"Error: {title}")
         header.setStyleSheet(f"color: {COLORS['accent_red']}; font-size: 14px; font-weight: bold;")
         layout.addWidget(header)
         
@@ -497,7 +610,8 @@ class PerformanceTab(QScrollArea):
         
         # Copy button + Close button row
         button_box = QDialogButtonBox()
-        copy_btn = QPushButton("📋 Copy to Clipboard")
+        copy_btn = QPushButton("Copy to Clipboard")
+        copy_btn.setIcon(get_icon("clipboard"))
         copy_btn.clicked.connect(lambda: self._copy_to_clipboard(detail_message))
         button_box.addButton(copy_btn, QDialogButtonBox.ActionRole)
         button_box.addButton(QDialogButtonBox.Close)
@@ -518,9 +632,9 @@ class PerformanceTab(QScrollArea):
         # Show warning first
         result = QMessageBox.information(
             self, "OCR Benchmark",
-            "⚠️ Please ensure:\n\n"
-            "• The emulator is running\n"
-            "• The game is on the Lobby screen\n\n"
+            "Please ensure:\n\n"
+            "- The emulator is running\n"
+            "- The game is on the Lobby screen\n\n"
             "The benchmark will capture the current screen and test OCR performance.\n\n"
             "Continue?",
             QMessageBox.Yes | QMessageBox.No,
@@ -558,7 +672,7 @@ class PerformanceTab(QScrollArea):
         if result.error:
             QMessageBox.warning(
                 self, "Benchmark Failed",
-                f"✗ {result.error}\n\nMake sure the emulator is connected and try again."
+                f"Error: {result.error}\n\nMake sure the emulator is connected and try again."
             )
             return
         
@@ -587,9 +701,9 @@ class PerformanceTab(QScrollArea):
             )
             lines.append("")
             if overall and overall > 1:
-                lines.append(f"✓ EasyOCR GPU is {overall:.1f}x faster than Tesseract")
+                lines.append(f"Result: EasyOCR GPU is {overall:.1f}x faster than Tesseract")
             else:
-                lines.append(f"✗ Tesseract is faster in this test")
+                lines.append("Result: Tesseract is faster in this test")
         else:
             # Tesseract-only mode
             lines.append(f"{'Region':<20} {'Time':>15}")
@@ -609,15 +723,15 @@ class PerformanceTab(QScrollArea):
     def _remove_easyocr_gpu(self):
         """Start EasyOCR GPU removal in background thread"""
         try:
-            from utils.easyocr_installer import get_easyocr_disk_usage
+            from utils.ocr.easyocr_installer import get_easyocr_disk_usage
             disk_usage = get_easyocr_disk_usage()
         except:
             disk_usage = 7.5
         
         result = QMessageBox.warning(
             self, "Remove EasyOCR GPU",
-            f"⚠️ This will remove the following packages:\n\n"
-            f"• torch\n• torchvision\n• torchaudio\n• easyocr\n\n"
+            f"This will remove the following packages:\n\n"
+            f"- torch\n- torchvision\n- torchaudio\n- easyocr\n\n"
             f"Estimated disk space to be freed: ~{disk_usage:.1f} GB\n\n"
             f"You can reinstall EasyOCR GPU later if needed.\n\n"
             f"Continue?",
@@ -659,7 +773,7 @@ class PerformanceTab(QScrollArea):
         if success:
             QMessageBox.information(
                 self, "Removal Complete",
-                f"✓ {message}\n\nDisk space has been freed. "
+                f"Success: {message}\n\nDisk space has been freed. "
                 f"OCR backend has been switched to Tesseract."
             )
             # Switch to Tesseract in UI
@@ -671,7 +785,7 @@ class PerformanceTab(QScrollArea):
         else:
             QMessageBox.warning(
                 self, "Removal Failed",
-                f"✗ {message}\n\nSome packages may not have been removed."
+                f"Error: {message}\n\nSome packages may not have been removed."
             )
         
         self._check_easyocr_status()  # Refresh status
@@ -686,9 +800,9 @@ class PerformanceTab(QScrollArea):
             self.main_window.update_config_value("input_method", "adb")
             self.maatouch_status_frame.setVisible(False)
         
-        # Reload input method in utils.input module
+        # Reload input method in utils.inputs.input module
         try:
-            from utils.input import reload_input_method
+            from utils.inputs.input import reload_input_method
             reload_input_method()
         except:
             pass
@@ -696,23 +810,23 @@ class PerformanceTab(QScrollArea):
     def _check_maatouch_status(self):
         """Check and display MaaTouch status"""
         try:
-            from utils.maatouch import _find_maatouch_binary
+            from utils.inputs.maatouch import _find_maatouch_binary
             
             binary_path = _find_maatouch_binary()
             if binary_path:
-                self.maatouch_status_label.setText("✓ MaaTouch binary found locally (will auto-install to device)")
+                self.maatouch_status_label.setText("Ready: MaaTouch binary found locally (will auto-install to device)")
                 self.maatouch_status_label.setStyleSheet(f"color: {COLORS['accent_green']}; font-weight: bold;")
             else:
-                self.maatouch_status_label.setText("✗ MaaTouch binary not found locally")
+                self.maatouch_status_label.setText("Missing: MaaTouch binary not found locally")
                 self.maatouch_status_label.setStyleSheet(f"color: {COLORS['accent_orange']};")
         except Exception as e:
-            self.maatouch_status_label.setText(f"✗ Error: {str(e)}")
+            self.maatouch_status_label.setText(f"Error: {str(e)}")
             self.maatouch_status_label.setStyleSheet(f"color: {COLORS['accent_red']};")
     
     def _install_maatouch(self):
         """Install/reinstall MaaTouch binary on the device"""
         try:
-            from utils.maatouch import MaaTouchConnection
+            from utils.inputs.maatouch import MaaTouchConnection
             
             self.maatouch_install_btn.setEnabled(False)
             self.maatouch_install_btn.setText("Installing...")
@@ -721,32 +835,32 @@ class PerformanceTab(QScrollArea):
             success = conn.install()
             
             self.maatouch_install_btn.setEnabled(True)
-            self.maatouch_install_btn.setText("🔄 Reinstall MaaTouch")
+            self.maatouch_install_btn.setText("Reinstall MaaTouch")
             
             if success:
                 QMessageBox.information(
                     self, "MaaTouch Install",
-                    "✓ MaaTouch binary installed successfully on the device."
+                    "Success: MaaTouch binary installed successfully on the device."
                 )
             else:
                 QMessageBox.warning(
                     self, "MaaTouch Install",
-                    "✗ Failed to install MaaTouch binary.\n\n"
+                    "Error: Failed to install MaaTouch binary.\n\n"
                     "Make sure the emulator is running and ADB is connected."
                 )
         except Exception as e:
             self.maatouch_install_btn.setEnabled(True)
-            self.maatouch_install_btn.setText("🔄 Reinstall MaaTouch")
+            self.maatouch_install_btn.setText("Reinstall MaaTouch")
             QMessageBox.warning(
                 self, "MaaTouch Install",
-                f"✗ Error: {str(e)}"
+                f"Error: {str(e)}"
             )
     
     def _run_input_benchmark(self):
         """Run input method benchmark"""
         result = QMessageBox.information(
             self, "Input Benchmark",
-            "⚠️ Make sure the emulator is running before continuing.\n\n"
+            "Make sure the emulator is running before continuing.\n\n"
             "This will run a quick benchmark comparing ADB vs MaaTouch tap speed.\n\n"
             "Continue?",
             QMessageBox.Yes | QMessageBox.No,
@@ -759,8 +873,8 @@ class PerformanceTab(QScrollArea):
         try:
             import time
             import statistics
-            from utils.input import _adb_tap
-            from utils.maatouch import MaaTouchConnection
+            from utils.inputs.input import _adb_tap
+            from utils.inputs.maatouch import MaaTouchConnection
             
             num_taps = 20
             test_x, test_y = 540, 960
@@ -833,7 +947,7 @@ class PerformanceTab(QScrollArea):
             self.ocr_method_combo.setCurrentIndex(1)
             self.ocr_status_frame.setVisible(True)
             self.tesseract_benchmark_btn.setVisible(False)
-            self._check_easyocr_status()
+            self._start_easyocr_warmup()
         else:
             self.ocr_method_combo.setCurrentIndex(0)
             self.ocr_status_frame.setVisible(False)
@@ -846,7 +960,8 @@ class PerformanceTab(QScrollArea):
         if input_method == "maatouch":
             self.input_method_combo.setCurrentIndex(1)
             self.maatouch_status_frame.setVisible(True)
-            self._check_maatouch_status()
+            self.maatouch_status_label.setText("MaaTouch selected.")
+            self.maatouch_status_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
         else:
             self.input_method_combo.setCurrentIndex(0)
             self.maatouch_status_frame.setVisible(False)
@@ -868,7 +983,7 @@ class PerformanceTab(QScrollArea):
         
         # Update visibility after loading
         self._update_emulator_settings_visibility()
-    
+
     def _update_adb(self, key, value):
         self.main_window.update_nested_config_value("adb_config", key, value)
     

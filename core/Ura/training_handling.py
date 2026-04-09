@@ -5,13 +5,13 @@ import numpy as np
 import re
 import os
 
-from utils.recognizer import locate_on_screen, locate_all_on_screen, is_image_on_screen, match_template, max_match_confidence
-from utils.input import tap, triple_click, swipe, tap_on_image
-from utils.screenshot import take_screenshot, enhanced_screenshot
-from utils.constants_ura import *
-from utils.log import log_debug, log_info, log_warning, log_error
-from utils.template_matching import wait_for_image, deduplicated_matches
-from utils.config_loader import load_main_config
+from utils.vision.recognizer import locate_on_screen, locate_all_on_screen, is_image_on_screen, match_template, max_match_confidence
+from utils.inputs.input import tap, triple_click, swipe, tap_on_image
+from utils.capture.screenshot import take_screenshot, enhanced_screenshot
+from utils.constants.ura import *
+from utils.core.log import log_debug, log_info, log_warning, log_error
+from utils.vision.template_matching import wait_for_image, deduplicated_matches
+from utils.core.config_loader import load_main_config
 
 # Load config for DEBUG_MODE
 config = load_main_config()
@@ -66,7 +66,10 @@ def _filtered_template_matches(screenshot, template_path, region_cv, confidence=
 def go_to_training():
     """Go to training screen"""
     log_debug(f"Going to training screen...")
-    return tap_on_image("assets/buttons/training_btn.png", min_search=10)
+    success = tap_on_image("assets/buttons/training_btn.png", min_search=10)
+    if success:
+        time.sleep(0.5)
+    return success
 
 def check_training(go_back=True, current_stats=None):
     """Check training results using fixed coordinates, collecting support counts,
@@ -132,7 +135,7 @@ def check_training(go_back=True, current_stats=None):
         region_cv = (left, top, right - left, bottom - top)
 
         # Support counts - pass screenshot to avoid taking new one
-        support_counts = check_support_card(screenshot)  # ✅ Pass screenshot
+        support_counts = check_support_card(screenshot)  # âœ… Pass screenshot
         total_support = sum(support_counts.values())
 
         # Bond levels per type
@@ -163,7 +166,7 @@ def check_training(go_back=True, current_stats=None):
                 detailed_support[t_key] = entries
 
         # Hint - pass screenshot to avoid taking new one
-        hint_found = check_hint(screenshot)  # ✅ Pass screenshot
+        hint_found = check_hint(screenshot)  # âœ… Pass screenshot
 
         # Calculate score for this training type
         score = calculate_training_score(detailed_support, hint_found, key)
@@ -172,7 +175,7 @@ def check_training(go_back=True, current_stats=None):
 
         log_debug(f"Checking failure rate for {key.upper()} training...")
         # Pass screenshot to avoid taking new ones
-        failure_chance, confidence = check_failure(screenshot, key)  # ✅ Pass screenshot
+        failure_chance, confidence = check_failure(screenshot, key)  # âœ… Pass screenshot
         
         results[key] = {
             "support": support_counts,
@@ -256,6 +259,7 @@ def do_train(train, already_on_training_screen=False):
     log_debug(f"Found {train.upper()} training at coordinates {train_coords}")
     triple_click(train_coords[0], train_coords[1], interval=0.1)
     log_debug(f"Triple clicked {train.upper()} training button")
+    time.sleep(1.0)
 
 # Training-related functions moved from state.py
 def check_support_card(screenshot, threshold=0.9):
@@ -271,7 +275,7 @@ def check_support_card(screenshot, threshold=0.9):
     count_result = {}
 
     # Use provided screenshot instead of taking new one
-    # screenshot = take_screenshot()  # ❌ REMOVED
+    # screenshot = take_screenshot()  # âŒ REMOVED
     
     # Save full screenshot for debugging only in debug mode
     if DEBUG_MODE:
@@ -341,7 +345,7 @@ def check_hint(screenshot, template_path: str = "assets/icons/hint.png", confide
     """
     try:
         # Use provided screenshot instead of taking new one
-        # screenshot = take_screenshot()  # ❌ REMOVED
+        # screenshot = take_screenshot()  # âŒ REMOVED
 
         # Convert PIL (left, top, right, bottom) to OpenCV (x, y, width, height)
         left, top, right, bottom = SUPPORT_CARD_ICON_REGION
@@ -374,8 +378,8 @@ def check_failure(screenshot, train_type):
         (rate, confidence)
     """
     log_debug(f" ===== STARTING FAILURE DETECTION for {train_type.upper()} =====")
-    from utils.constants_ura import FAILURE_REGION_SPD, FAILURE_REGION_STA, FAILURE_REGION_PWR, FAILURE_REGION_GUTS, FAILURE_REGION_WIT
-    from utils.screenshot import enhanced_screenshot, take_screenshot
+    from utils.constants.ura import FAILURE_REGION_SPD, FAILURE_REGION_STA, FAILURE_REGION_PWR, FAILURE_REGION_GUTS, FAILURE_REGION_WIT
+    from utils.capture.screenshot import enhanced_screenshot, take_screenshot
     import numpy as np
     import re
     from PIL import ImageEnhance
@@ -579,6 +583,11 @@ def choose_best_training(training_results, config, current_stats):
     gambling_score_per_increase = config.get("gambling_train_score_per_increase", 1.0)
     
     # Filter out training options with failure rates above maximum (with gambling train adjustments)
+    log_debug(
+        f" Failure filter start: base max failure = {max_failure}% | "
+        f"gambling_enabled={gambling_enabled} "
+        f"(+{gambling_failure_increase}% per {gambling_score_per_increase:.1f} score)"
+    )
     safe_options = {}
     for k, v in training_results.items():
         failure_rate = v.get('failure', 100)
@@ -586,19 +595,33 @@ def choose_best_training(training_results, config, current_stats):
         
         # Calculate effective max failure for this training option
         effective_max_failure = max_failure
+        score_multiplier = 0
         if gambling_enabled and gambling_score_per_increase > 0:
             # Increase max failure based on score (e.g., +5% for each 1.0 score)
             score_multiplier = int(score / gambling_score_per_increase)
             effective_max_failure = max_failure + (gambling_failure_increase * score_multiplier)
-            if score_multiplier > 0:
-                log_debug(f"  {k.upper()}: Gambling train applied, effective max failure = {effective_max_failure}% (score={score:.1f})")
+        
+        decision = "SAFE" if failure_rate <= effective_max_failure else "UNSAFE"
+        if gambling_enabled and gambling_score_per_increase > 0:
+            log_debug(
+                f"  {k.upper()}: failure={failure_rate}% | score={score:.1f} | "
+                f"base max={max_failure}% -> effective max={effective_max_failure}% "
+                f"(multiplier={score_multiplier}) => {decision}"
+            )
+        else:
+            log_debug(
+                f"  {k.upper()}: failure={failure_rate}% | score={score:.1f} | "
+                f"max failure={effective_max_failure}% => {decision}"
+            )
         
         if failure_rate <= effective_max_failure:
             safe_options[k] = v
     
     if not safe_options:
-        log_debug(f" No training options with failure rate <= {max_failure}%")
+        log_debug(f" No training options passed failure filter")
         return None
+    
+    log_debug(f" Training options after failure filter: {list(safe_options.keys())}")
     
     # Filter by stat caps BEFORE other filtering
     from core.Ura.logic import filter_by_stat_caps
@@ -703,3 +726,111 @@ def calculate_training_score(support_detail, hint_found, training_type):
         score += scoring_rules.get("hint", {}).get("points", 0.3)
     
     return round(score, 2)
+
+
+def check_training_api(current_stats=None):
+    """
+    Fetch training data from the API and convert it to the same result format
+    as check_training() so it can be used as a drop-in replacement.
+
+    Returns:
+        dict | None: Training results keyed by stat name, or None if API is unavailable.
+    """
+    try:
+        from utils.integrations.umat_api import get_training, is_api_enabled
+        if not is_api_enabled():
+            return None
+        api_data = get_training()
+    except ImportError:
+        return None
+
+    if api_data is None:
+        return None
+
+    trainings_list = api_data.get("trainings", [])
+    if not trainings_list:
+        log_debug("[API] Training data empty")
+        return None
+
+    training_config = config.get("training", {})
+    stat_caps = training_config.get("stat_caps", config.get("stat_caps", {}))
+
+    results = {}
+    log_info("--- Training (API) ---")
+
+    for t in trainings_list:
+        key = t.get("name", "")
+        if key not in ("spd", "sta", "pwr", "guts", "wit"):
+            log_debug(f"[API] Skipping unknown training name: {key}")
+            continue
+
+        if current_stats:
+            current_val = current_stats.get(key, 0)
+            cap_val = stat_caps.get(key, 1200)
+            if current_val >= cap_val:
+                log_info(f"[{key.upper()}] SKIPPED - stat {current_val} >= cap {cap_val}")
+                results[key] = {
+                    "support": {},
+                    "support_detail": {},
+                    "hint": False,
+                    "total_support": 0,
+                    "failure": 100,
+                    "confidence": 1.0,
+                    "score": 0,
+                    "skipped": True,
+                }
+                continue
+
+        failure = t.get("failure", 0)
+        hint_found = t.get("hint_found", False)
+
+        support_counts = {}
+        detailed_support = {}
+        for card in t.get("support_cards", []):
+            card_type = card.get("type", "")
+            bond_level = card.get("bond_level", 0)
+            support_counts[card_type] = support_counts.get(card_type, 0) + 1
+            entry = {
+                "bbox": [0, 0, 0, 0],
+                "center": [0, 0],
+                "bond_sample_point": [0, 0],
+                "bond_color": [0, 0, 0],
+                "bond_level": bond_level,
+            }
+            detailed_support.setdefault(card_type, []).append(entry)
+
+        total_support = sum(support_counts.values())
+        score = calculate_training_score(detailed_support, hint_found, key)
+
+        results[key] = {
+            "support": support_counts,
+            "support_detail": detailed_support,
+            "hint": bool(hint_found),
+            "total_support": total_support,
+            "failure": failure,
+            "confidence": 1.0,
+            "score": score,
+        }
+
+        if detailed_support:
+            parts = []
+            for ctype, entries in detailed_support.items():
+                for idx, entry in enumerate(entries, 1):
+                    lv = entry["bond_level"]
+                    is_rainbow = (ctype == key and lv >= 4)
+                    label = f"{ctype.upper()}{idx}:{lv}"
+                    if is_rainbow:
+                        label += "(R)"
+                    parts.append(label)
+            support_str = ",".join(parts)
+        else:
+            support_str = "-"
+
+        extras = " hint" if hint_found else ""
+        log_info(f"  {key.upper():>4}: Score={score:.1f} Fail={failure}%(API) | {support_str}{extras}")
+
+    if not results:
+        log_debug("[API] No training results parsed")
+        return None
+
+    return results

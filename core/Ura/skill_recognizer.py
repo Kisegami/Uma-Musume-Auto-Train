@@ -5,13 +5,13 @@ import os
 import time
 import re
 import json
-from utils.screenshot import take_screenshot
-from utils.input import perform_swipe
-from utils.skill_swipe import swipe_skill_list_down_slow
+from utils.capture.screenshot import take_screenshot
+from utils.inputs.input import perform_swipe
+from utils.inputs.skill_swipe import swipe_skill_list_down_slow
 
-from utils.log import log_debug, log_info, log_warning, log_error
+from utils.core.log import log_debug, log_info, log_warning, log_error
 
-# OCR is now handled by utils.ocr_utils
+# OCR is now handled by utils.ocr.ocr_utils
 # Check if OCR functions are available
 try:
     from core.Ura.ocr import extract_text
@@ -503,10 +503,10 @@ def generate_debug_image(screenshot, locations, confidence, brightness_info=None
                 if brightness_data:
                     if brightness_data['available']:
                         box_color = "green"
-                        label = f"{i+1} (✓{brightness_data['brightness']:.0f})"
+                        label = f"{i+1} (âœ“{brightness_data['brightness']:.0f})"
                     else:
                         box_color = "red"
-                        label = f"{i+1} (✗{brightness_data['brightness']:.0f})"
+                        label = f"{i+1} (âœ—{brightness_data['brightness']:.0f})"
             
             # Draw rectangle with colored border
             draw.rectangle([x, y, x + width, y + height], outline=box_color, width=3)
@@ -541,7 +541,7 @@ def generate_debug_image(screenshot, locations, confidence, brightness_info=None
             summary_lines.extend([
                 f"Total Detected: {total_detected}",
                 f"Dark/Unavailable: {dark_buttons}",
-                f"Legend: ✓=Available, ✗=Dark"
+                f"Legend: âœ“=Available, âœ—=Dark"
             ])
         
         summary_text = "\n".join(summary_lines)
@@ -777,4 +777,40 @@ def calculate_string_similarity(str1, str2):
     
     similarity = 1.0 - (distance / max_length)
     return similarity
+
+
+def get_skills_api():
+    """
+    Get available skills from the API instead of OCR scan.
+
+    Returns list of skill dicts matching scan_all_skills_with_scroll() output,
+    or None if API is unavailable.
+    """
+    try:
+        from utils.integrations.umat_api import get_skills, is_api_enabled
+        if not is_api_enabled():
+            return None
+        api_data = get_skills()
+    except ImportError:
+        return None
+
+    if api_data is None:
+        return None
+
+    skills_list = api_data.get("skills", [])
+    if not skills_list:
+        log_debug("[API] No skills from API")
+        return None
+
+    result = []
+    for skill in skills_list:
+        result.append({
+            "name": skill.get("name", "Unknown"),
+            "price": str(skill.get("price", 0)),
+            "location": (0, 0, 0, 0),
+            "regions": {"name_region": None, "price_region": None},
+        })
+
+    log_debug(f"[API] Got {len(result)} skills from API")
+    return result
 

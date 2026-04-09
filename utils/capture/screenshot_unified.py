@@ -10,9 +10,9 @@ from typing import Optional, Union
 from PIL import Image, ImageEnhance
 import numpy as np
 import cv2
-from utils.device import run_adb
-from utils.log import log_debug, log_info, log_warning, log_error
-from utils.config_loader import load_main_config
+from utils.platform.device import run_adb
+from utils.core.log import log_debug, log_info, log_warning, log_error
+from utils.core.config_loader import load_main_config
 
 
 class NemuIpcIncompatible(Exception):

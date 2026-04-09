@@ -3,26 +3,26 @@ import time
 import os
 
 from PIL import Image, ImageEnhance
-from utils.screenshot import capture_region, enhanced_screenshot, enhanced_screenshot_for_failure, enhanced_screenshot_for_year, take_screenshot
+from utils.capture.screenshot import capture_region, enhanced_screenshot, enhanced_screenshot_for_failure, enhanced_screenshot_for_year, take_screenshot
 from core.Ura.ocr import extract_text, extract_number
-from utils.recognizer import match_template, max_match_confidence
+from utils.vision.recognizer import match_template, max_match_confidence
 from core.Ura.skill_auto_purchase import execute_skill_purchases, click_image_button, extract_skill_points
-from core.Ura.skill_recognizer import scan_all_skills_with_scroll
+from core.Ura.skill_recognizer import scan_all_skills_with_scroll, get_skills_api
 from core.Ura.skill_purchase_optimizer import load_skill_config, create_purchase_plan, filter_affordable_skills
 
-from utils.constants_ura import (
-    SUPPORT_CARD_ICON_REGION, TURN_REGION, FAILURE_REGION, YEAR_REGION, 
+from utils.constants.ura import (
+    SUPPORT_CARD_ICON_REGION, FAILURE_REGION, YEAR_REGION,
     CRITERIA_REGION, SPD_REGION, STA_REGION, PWR_REGION, GUTS_REGION, WIT_REGION,
     SKILL_PTS_REGION, FAILURE_REGION_SPD, FAILURE_REGION_STA, FAILURE_REGION_PWR, FAILURE_REGION_GUTS, FAILURE_REGION_WIT
 )
 
-from utils.log import log_debug, log_info, log_warning, log_error
-from utils.config_loader import load_main_config
+from utils.core.log import log_debug, log_info, log_warning, log_error
+from utils.core.config_loader import load_main_config
 
 # Load config and check debug mode
 config = load_main_config()
 DEBUG_MODE = config.get("debug_mode", False)
-from utils.template_matching import deduplicated_matches
+from utils.vision.template_matching import deduplicated_matches
 
 # Get Stat
 def stat_state(screenshot=None):
@@ -94,68 +94,6 @@ def check_mood(screenshot=None):
     except Exception as e:
         log_debug(f"Template mood detection failed: {e}")
         return "UNKNOWN"
-
-def check_turn(screenshot=None):
-    """Fast turn detection with minimal OCR"""
-    log_debug(f"Starting turn detection...")
-    
-    try:
-        turn_img = enhanced_screenshot(TURN_REGION, screenshot)
-        log_debug(f"Turn region screenshot taken: {TURN_REGION}")
-        
-        # Save the turn region image for debugging
-        turn_img.save("debug_turn_region.png")
-        log_debug(f"Saved turn region image to debug_turn_region.png")
-        
-        # Apply additional enhancement for better digit recognition
-        from PIL import ImageEnhance
-        
-        # Increase contrast more aggressively for turn detection
-        contrast_enhancer = ImageEnhance.Contrast(turn_img)
-        turn_img = contrast_enhancer.enhance(2.0)  # More aggressive contrast
-        
-        # Increase sharpness to make digits clearer
-        sharpness_enhancer = ImageEnhance.Sharpness(turn_img)
-        turn_img = sharpness_enhancer.enhance(2.0)
-        
-        # Save the enhanced version
-        turn_img.save("debug_turn_enhanced.png")
-        log_debug(f"Saved enhanced turn image to debug_turn_enhanced.png")
-        
-        # Use the best method found in testing: basic processing + PSM 7
-        import re
-        
-        # Apply basic grayscale processing (like test_turn_basic_grayscale)
-        turn_img = turn_img.convert("L")
-        turn_img = turn_img.resize((turn_img.width * 2, turn_img.height * 2), Image.BICUBIC)
-        
-        # Use PSM 7 (single line) which had 94% confidence in testing
-        turn_text = extract_text(turn_img, config='--oem 3 --psm 7')
-        log_debug(f"Turn OCR raw result: '{turn_text}'")
-        
-        # Check for "Race Day" first (before character replacements that would corrupt it)
-        if "Race Day" in turn_text or "RaceDay" in turn_text or "Race Da" in turn_text:
-            log_debug(f"Race Day detected: {turn_text}")
-            return "Race Day"
-        
-        # Character replacements for common OCR errors (only for digit extraction)
-        original_text = turn_text
-        turn_text = turn_text.replace('y', '9').replace(']', '1').replace('l', '1').replace('I', '1').replace('o', '8').replace('O', '0').replace('/', '7').replace('®', '9')
-        log_debug(f"Turn OCR after character replacement: '{turn_text}' (was '{original_text})')")
-        
-        # Extract all consecutive digits (not just first digit)
-        digit_match = re.search(r'(\d+)', turn_text)
-        if digit_match:
-            turn_num = int(digit_match.group(1))
-            log_debug(f"Turn OCR result: {turn_num} (from '{turn_text})')")
-            return turn_num
-        
-        log_debug(f"No digits found in turn text: '{turn_text}', defaulting to 1")
-        return 1  # Default to turn 1
-        
-    except Exception as e:
-        log_debug(f"Turn detection failed with error: {e}")
-        return 1
 
 def check_current_year(screenshot=None):
     """Fast year detection using regular screenshot"""
@@ -287,7 +225,19 @@ def check_skill_points_cap(screenshot=None):
     
     skills_config = config.get("skills", {})
     skill_point_cap = skills_config.get("skill_point_cap", config.get("skill_point_cap", 9999))
-    current_skill_points = check_skill_points(screenshot)
+    try:
+        from utils.integrations.umat_api import is_api_enabled
+        _api_on = is_api_enabled()
+    except ImportError:
+        _api_on = False
+
+    if _api_on:
+        current_skill_points = check_skill_points_api()
+        if current_skill_points is None:
+            log_error("API mode is enabled but failed to get skill points from /status")
+            raise RuntimeError("API mode is enabled but /status API is not responding. Check API connection or set api.enabled to false in config.json.")
+    else:
+        current_skill_points = check_skill_points(screenshot)
     
     log_info(f"Current skill points: {current_skill_points}, Cap: {skill_point_cap}")
     
@@ -299,31 +249,38 @@ def check_skill_points_cap(screenshot=None):
         if skill_purchase_mode == "auto":
             log_info(f"Auto skill purchase enabled - starting automation")
             try:
-                # 1) Enter skill screen
-                entered = click_image_button("assets/buttons/skills_btn.png", "skills button", max_attempts=5)
-                if not entered:
-                    log_error(f"Could not find/open skills screen")
-                    return True
-                time.sleep(1.0)
-
-                # 2) Scan skills and prepare purchase plan
-                scan_result = scan_all_skills_with_scroll()
-                if 'error' in scan_result:
-                    log_error(f"Skill scanning failed: {scan_result['error']}")
-                    # Attempt to go back anyway
-                    click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
+                if _api_on:
+                    api_skills = get_skills_api()
+                    if api_skills is None:
+                        log_error("API mode is enabled but failed to get skills from /skills")
+                        raise RuntimeError("API mode is enabled but /skills API is not responding. Check API connection or set api.enabled to false in config.json.")
+                    all_skills = api_skills
+                    available_points = current_skill_points
+                    log_info(f"[API] Got {len(all_skills)} skills from API (skipping OCR scan)")
+                else:
+                    # 1) Enter skill screen
+                    entered = click_image_button("assets/buttons/skills_btn.png", "skills button", max_attempts=5)
+                    if not entered:
+                        log_error(f"Could not find/open skills screen")
+                        return True
                     time.sleep(1.0)
-                    return True
-                all_skills = scan_result.get('all_skills', [])
-                if not all_skills:
-                    log_warning(f"No skills detected on skill screen")
-                    click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
-                    time.sleep(1.0)
-                    return True
 
-                # Read current available skill points from the skill screen
-                available_points = extract_skill_points()
-                log_info(f"Detected available skill points: {available_points}")
+                    # 2) Scan skills and prepare purchase plan
+                    scan_result = scan_all_skills_with_scroll()
+                    if 'error' in scan_result:
+                        log_error(f"Skill scanning failed: {scan_result['error']}")
+                        click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
+                        time.sleep(1.0)
+                        return True
+                    all_skills = scan_result.get('all_skills', [])
+                    if not all_skills:
+                        log_warning(f"No skills detected on skill screen")
+                        click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
+                        time.sleep(1.0)
+                        return True
+
+                    available_points = extract_skill_points()
+                    log_info(f"Detected available skill points: {available_points}")
 
                 # Build purchase plan from config priorities
                 skill_file = skills_config.get("skill_file", config.get("skill_file", "template/skills/skills.json"))
@@ -333,8 +290,9 @@ def check_skill_points_cap(screenshot=None):
                 purchase_plan = create_purchase_plan(all_skills, cfg, end_career=False)
                 if not purchase_plan:
                     log_info(f"No skills from priority list are currently available")
-                    click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
-                    time.sleep(1.0)
+                    if not _api_on:
+                        click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
+                        time.sleep(1.0)
                     return True
 
                 # Filter by budget if we have points
@@ -346,12 +304,20 @@ def check_skill_points_cap(screenshot=None):
 
                 if not final_plan:
                     log_info(f"Nothing affordable to purchase at the moment")
-                    click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
-                    time.sleep(1.0)
+                    if not _api_on:
+                        click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
+                        time.sleep(1.0)
                     return True
 
+                if _api_on:
+                    entered = click_image_button("assets/buttons/skills_btn.png", "skills button", max_attempts=5)
+                    if not entered:
+                        log_error(f"Could not find/open skills screen")
+                        return True
+                    time.sleep(1.0)
+
                 # Execute automated purchases
-                exec_result = execute_skill_purchases(final_plan)
+                exec_result = execute_skill_purchases(final_plan, reset_to_top=not _api_on)
                 if not exec_result.get('success'):
                     log_warning(f"Automated purchase completed with issues: {exec_result.get('error', 'unknown error')}")
 
@@ -374,7 +340,7 @@ def check_skill_points_cap(screenshot=None):
             # Show the message box
             result = messagebox.showinfo(
                 title="Skill Points Cap Reached",
-                message=f"Skill points ({current_skill_points}) exceed the cap ({skill_point_cap}).\n\nYou can:\n• Use your skill points manually, then click OK\n• Click OK without spending (automation continues)\n\nNote: This check only happens on race days."
+                message=f"Skill points ({current_skill_points}) exceed the cap ({skill_point_cap}).\n\nYou can:\nâ€¢ Use your skill points manually, then click OK\nâ€¢ Click OK without spending (automation continues)\n\nNote: This check only happens on race days."
             )
             
             # Destroy the root window
@@ -400,8 +366,8 @@ def check_current_stats(screenshot=None):
     Returns:
         dict: Dictionary of current stats with keys: spd, sta, pwr, guts, wit
     """
-    from utils.constants_ura import SPD_REGION, STA_REGION, PWR_REGION, GUTS_REGION, WIT_REGION
-    from utils.screenshot import take_screenshot
+    from utils.constants.ura import SPD_REGION, STA_REGION, PWR_REGION, GUTS_REGION, WIT_REGION
+    from utils.capture.screenshot import take_screenshot
     from PIL import Image, ImageEnhance
     
     # Use provided screenshot or take new one if not provided
@@ -465,7 +431,7 @@ def check_energy_bar(screenshot=None, debug_visualization=False):
     try:
         import cv2
         import numpy as np
-        from utils.screenshot import take_screenshot
+        from utils.capture.screenshot import take_screenshot
 
         if screenshot is None:
             screenshot = take_screenshot()
@@ -645,3 +611,107 @@ def _resolve_skill_file_path(path):
         if os.path.exists(candidate_abs):
             return candidate_abs
     return os.path.join(project_root, candidates[-1])
+
+
+# API-powered state functions
+# These return None when API is unavailable so OCR callers can fall back safely.
+
+_cached_status = None
+
+
+def _get_status_cached():
+    global _cached_status
+    if _cached_status is not None:
+        return _cached_status
+    try:
+        from utils.integrations.umat_api import get_status
+        data = get_status()
+        if data is not None:
+            _cached_status = data
+        return data
+    except ImportError:
+        return None
+
+
+def invalidate_status_cache():
+    global _cached_status
+    _cached_status = None
+
+
+def check_status_api():
+    """
+    Fetch full game status via API in one call.
+
+    Returns dict with Ura-compatible keys:
+        year, mood, stats{spd,sta,pwr,guts,wit}, energy_pct, skill_points
+    Or None if API is unavailable.
+    """
+    data = _get_status_cached()
+    if data is None:
+        return None
+
+    try:
+        stats = data.get("stats", {})
+        energy = data.get("energy", {})
+        mood = data.get("mood", {})
+        energy_max = energy.get("max", 100)
+        energy_current = energy.get("current", 0)
+        energy_pct = (energy_current / energy_max * 100.0) if energy_max > 0 else 0.0
+
+        api_year = data.get("year", "Unknown Year")
+        if "Year 4" in api_year:
+            api_year = "Finale Underway"
+
+        result = {
+            "year": api_year,
+            "mood": mood.get("name", "UNKNOWN"),
+            "stats": {
+                "spd": stats.get("spd", 0),
+                "sta": stats.get("sta", 0),
+                "pwr": stats.get("pwr", 0),
+                "guts": stats.get("guts", 0),
+                "wit": stats.get("wit", 0),
+            },
+            "energy_pct": round(energy_pct, 1),
+            "skill_points": data.get("current_skill_points", 0),
+        }
+        log_debug(f"[API] Status: year={result['year']} mood={result['mood']} energy={result['energy_pct']}% sp={result['skill_points']}")
+        return result
+    except Exception as e:
+        log_debug(f"[API] Failed to parse status response: {e}")
+        return None
+
+
+def check_current_stats_api():
+    status = check_status_api()
+    if status is None:
+        return None
+    return status.get("stats")
+
+
+def check_mood_api():
+    status = check_status_api()
+    if status is None:
+        return None
+    return status.get("mood")
+
+
+def check_current_year_api():
+    status = check_status_api()
+    if status is None:
+        return None
+    return status.get("year")
+
+
+def check_energy_api():
+    status = check_status_api()
+    if status is None:
+        return None
+    return status.get("energy_pct")
+
+
+def check_skill_points_api():
+    status = check_status_api()
+    if status is None:
+        return None
+    return status.get("skill_points")

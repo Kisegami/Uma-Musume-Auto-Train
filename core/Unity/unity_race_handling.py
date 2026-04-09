@@ -1,11 +1,12 @@
 import time
 from typing import List, Tuple, Optional
 
-from utils.recognizer import match_template, locate_on_screen
-from utils.template_matching import deduplicated_matches
-from utils.screenshot import take_screenshot
-from utils.input import tap, wait_and_tap
-from utils.log import log_info, log_debug, log_warning
+from utils.vision.recognizer import match_template, locate_on_screen, max_match_confidence
+from utils.vision.template_matching import deduplicated_matches
+from utils.capture.screenshot import take_screenshot
+from utils.inputs.input import tap, wait_and_tap
+from utils.core.log import log_info, log_debug, log_warning
+from utils.constants.unity import get_template_region
 
 # Regions (x1, y1, x2, y2)
 TEAM_RANK_REGION = (0, 48, 270, 201)
@@ -84,14 +85,69 @@ def _double_tap(x: int, y: int):
 def _wait_and_double_tap(template_path: str, timeout: float, check_interval: float = 0.2, confidence: float = 0.8) -> bool:
     """Wait for template and double tap with 100ms interval."""
     start = time.time()
+    region = get_template_region(template_path)
+    best_score = 0.0
     while time.time() - start < timeout:
-        res = locate_on_screen(template_path, confidence=confidence)
+        screenshot = take_screenshot()
+        score = max_match_confidence(screenshot, template_path, region=region)
+        if score > best_score:
+            best_score = score
+
+        matches = match_template(screenshot, template_path, confidence=confidence, region=region)
+        res = None
+        if matches:
+            x, y, w, h = matches[0]
+            res = (x + w // 2, y + h // 2)
+
         if res:
             cx, cy = res
             _double_tap(cx, cy)
             return True
         time.sleep(check_interval)
-    log_warning(f"_wait_and_double_tap: {template_path} not found within timeout.")
+    log_warning(
+        f"_wait_and_double_tap: {template_path} not found within timeout. "
+        f"best_confidence={best_score:.3f}, threshold={confidence:.3f}, region={region}"
+    )
+    return False
+
+
+def _wait_for_stable_template(
+    template_path: str,
+    timeout: float,
+    check_interval: float = 0.2,
+    confidence: float = 0.8,
+    stable_hits: int = 2,
+) -> bool:
+    """Wait until a template is detected in consecutive frames.
+
+    This is used for buttons that appear during transition animations and may
+    briefly match before they are safe to tap.
+    """
+    start = time.time()
+    region = get_template_region(template_path)
+    consecutive_hits = 0
+    best_score = 0.0
+
+    while time.time() - start < timeout:
+        screenshot = take_screenshot()
+        score = max_match_confidence(screenshot, template_path, region=region)
+        if score > best_score:
+            best_score = score
+
+        if score >= confidence:
+            consecutive_hits += 1
+            if consecutive_hits >= stable_hits:
+                return True
+        else:
+            consecutive_hits = 0
+
+        time.sleep(check_interval)
+
+    log_warning(
+        f"_wait_for_stable_template: {template_path} not stable within timeout. "
+        f"best_confidence={best_score:.3f}, threshold={confidence:.3f}, "
+        f"stable_hits={stable_hits}, region={region}"
+    )
     return False
 
 
@@ -118,9 +174,9 @@ def unity_race_workflow():
     
     while time.time() - start_time < timeout:
         screenshot = take_screenshot()
-        select_matches = match_template(screenshot, "assets/unity/select_opponent.png", confidence=0.8)
+        select_matches = match_template(screenshot, "assets/unity/select_opponent.png", confidence=0.8, region=get_template_region("assets/unity/select_opponent.png"))
         select_opponent = select_matches[0] if select_matches else None
-        zenith_matches = match_template(screenshot, "assets/unity/zenith_race_btn.png", confidence=0.8)
+        zenith_matches = match_template(screenshot, "assets/unity/zenith_race_btn.png", confidence=0.8, region=get_template_region("assets/unity/zenith_race_btn.png"))
         zenith_btn = zenith_matches[0] if zenith_matches else None
         
         if select_opponent or zenith_btn:
@@ -173,23 +229,46 @@ def unity_race_workflow():
     screenshot = take_screenshot()
 
     log_info("[UnityRace] Trying to begin showdown...")
-    time.sleep(0.2)  # 200ms delay before tapping begin showdown
-    _wait_and_double_tap("assets/unity/begin_showdown.png", timeout=20)
+    time.sleep(0.6)  # Allow the post-selection transition animation to settle.
+    if not _wait_for_stable_template(
+        "assets/unity/begin_showdown.png",
+        timeout=20,
+        check_interval=0.25,
+        confidence=0.8,
+        stable_hits=2,
+    ):
+        log_warning("[UnityRace] begin_showdown.png did not stabilize; aborting workflow before results sequence.")
+        return False
+    if not _wait_and_double_tap("assets/unity/begin_showdown.png", timeout=20):
+        log_warning("[UnityRace] begin_showdown.png not found; aborting workflow before results sequence.")
+        return False
 
     log_info("[UnityRace] Waiting for 'See All Race Results'...")
-    _wait_and_double_tap("assets/unity/see_all_race_btn.png", timeout=20)
+    if not _wait_and_double_tap("assets/unity/see_all_race_btn.png", timeout=12, confidence=0.8):
+        log_warning("[UnityRace] Primary match for see_all_race_btn failed; retrying with lower confidence.")
+        if not _wait_and_double_tap("assets/unity/see_all_race_btn.png", timeout=10, confidence=0.72):
+            log_warning("[UnityRace] see_all_race_btn.png not found; aborting workflow.")
+            return False
 
     log_info("[UnityRace] Skipping race...")
-    _wait_and_double_tap("assets/buttons/skip_btn.png", timeout=20)
+    if not _wait_and_double_tap("assets/buttons/skip_btn.png", timeout=20):
+        log_warning("[UnityRace] skip_btn.png not found; aborting workflow.")
+        return False
 
     log_info("[UnityRace] Next...")
-    _wait_and_double_tap("assets/buttons/next_btn.png", timeout=20)
+    if not _wait_and_double_tap("assets/buttons/next_btn.png", timeout=20):
+        log_warning("[UnityRace] next_btn.png not found after skip; aborting workflow.")
+        return False
 
     log_info("[UnityRace] Next Unity...")
-    _wait_and_double_tap("assets/unity/next_unity.png", timeout=20)
+    if not _wait_and_double_tap("assets/unity/next_unity.png", timeout=20):
+        log_warning("[UnityRace] next_unity.png not found; aborting workflow.")
+        return False
 
     log_info("[UnityRace] Final Next...")
-    _wait_and_double_tap("assets/buttons/next_btn.png", timeout=20)
+    if not _wait_and_double_tap("assets/buttons/next_btn.png", timeout=20):
+        log_warning("[UnityRace] final next_btn.png not found; aborting workflow.")
+        return False
 
     log_info("[UnityRace] Workflow completed.")
     return True

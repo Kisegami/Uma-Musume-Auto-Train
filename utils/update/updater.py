@@ -1,8 +1,8 @@
 import subprocess
 import sys
 from typing import Optional
-from utils.git_manager import GitManager
-from utils.log import log_info, log_warning, log_error, log_success
+from utils.update.git_manager import GitManager
+from utils.core.log import log_info, log_warning, log_error, log_success
 
 
 class Updater:

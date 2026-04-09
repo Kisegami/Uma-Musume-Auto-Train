@@ -12,16 +12,26 @@ import sys
 import json
 import time
 import re
+import threading
 from PIL import Image
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Dict, Any
 
-from utils.log import log_debug, log_info, log_warning
-from utils.config_loader import load_main_config
+from utils.core.log import log_debug, log_info, log_warning
+from utils.core.config_loader import load_main_config
 
 # ==================== EasyOCR GPU Backend ====================
 # Lazy-loaded EasyOCR reader singleton (GPU only)
 _easyocr_reader = None
 _easyocr_init_attempted = False
+_easyocr_init_lock = threading.Lock()
+_easyocr_status = {
+    "state": "idle",
+    "ready": False,
+    "gpu_name": None,
+    "cuda_version": None,
+    "error": None,
+    "init_duration_ms": None,
+}
 
 
 def _get_ocr_backend() -> str:
@@ -45,43 +55,96 @@ def _get_easyocr_reader():
     
     if _easyocr_init_attempted:
         return None  # Already tried and failed
-    
-    _easyocr_init_attempted = True
-    
-    try:
-        import easyocr
-        import torch
-        
-        # Only use GPU - no CPU fallback per requirements
-        if not torch.cuda.is_available():
-            log_warning("EasyOCR GPU requested but CUDA not available. Falling back to Tesseract.")
+
+    with _easyocr_init_lock:
+        if _easyocr_reader is not None:
+            return _easyocr_reader
+
+        if _easyocr_init_attempted:
             return None
-        
-        log_info("Initializing EasyOCR GPU reader with english_g2 model...")
-        
-        # Use custom model from utils/models directory
-        import os
-        utils_dir = os.path.dirname(os.path.abspath(__file__))
-        model_dir = os.path.join(utils_dir, 'models')
-        
-        _easyocr_reader = easyocr.Reader(
-            ['en'],
-            gpu=True,
-            model_storage_directory=model_dir,
-            recog_network='english_g2'
-        )
-        
-        gpu_name = torch.cuda.get_device_name(0) if torch.cuda.device_count() > 0 else "Unknown"
-        log_info(f"EasyOCR GPU initialized successfully with english_g2 model using {gpu_name}")
-        
-        return _easyocr_reader
-        
-    except ImportError as e:
-        log_warning(f"EasyOCR not installed: {e}. Falling back to Tesseract.")
-        return None
-    except Exception as e:
-        log_warning(f"Failed to initialize EasyOCR GPU: {e}. Falling back to Tesseract.")
-        return None
+
+        _easyocr_init_attempted = True
+        _easyocr_status.update({
+            "state": "initializing",
+            "ready": False,
+            "gpu_name": None,
+            "cuda_version": None,
+            "error": None,
+            "init_duration_ms": None,
+        })
+        start_time = time.perf_counter()
+
+        try:
+            import easyocr
+            import torch
+            
+            # Only use GPU - no CPU fallback per requirements
+            if not torch.cuda.is_available():
+                message = "EasyOCR GPU requested but CUDA not available. Falling back to Tesseract."
+                _easyocr_status.update({
+                    "state": "failed",
+                    "error": message,
+                    "cuda_version": torch.version.cuda,
+                })
+                log_warning(message)
+                return None
+            
+            log_info("Initializing EasyOCR GPU reader with english_g2 model...")
+            
+            # Use custom model from utils/models directory
+            utils_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            model_dir = os.path.join(utils_dir, 'models')
+            
+            _easyocr_reader = easyocr.Reader(
+                ['en'],
+                gpu=True,
+                model_storage_directory=model_dir,
+                recog_network='english_g2'
+            )
+            
+            gpu_name = torch.cuda.get_device_name(0) if torch.cuda.device_count() > 0 else "Unknown"
+            init_duration_ms = (time.perf_counter() - start_time) * 1000
+            _easyocr_status.update({
+                "state": "ready",
+                "ready": True,
+                "gpu_name": gpu_name,
+                "cuda_version": torch.version.cuda,
+                "error": None,
+                "init_duration_ms": init_duration_ms,
+            })
+            log_info(f"EasyOCR GPU initialized successfully with english_g2 model using {gpu_name}")
+            
+            return _easyocr_reader
+            
+        except ImportError as e:
+            message = f"EasyOCR not installed: {e}. Falling back to Tesseract."
+            _easyocr_status.update({
+                "state": "failed",
+                "error": message,
+                "init_duration_ms": (time.perf_counter() - start_time) * 1000,
+            })
+            log_warning(message)
+            return None
+        except Exception as e:
+            message = f"Failed to initialize EasyOCR GPU: {e}. Falling back to Tesseract."
+            _easyocr_status.update({
+                "state": "failed",
+                "error": message,
+                "init_duration_ms": (time.perf_counter() - start_time) * 1000,
+            })
+            log_warning(message)
+            return None
+
+
+def get_easyocr_runtime_status() -> Dict[str, Any]:
+    """Return the current EasyOCR runtime initialization status."""
+    return dict(_easyocr_status)
+
+
+def warmup_easyocr_reader() -> Dict[str, Any]:
+    """Initialize the EasyOCR GPU reader in advance and return runtime status."""
+    _get_easyocr_reader()
+    return get_easyocr_runtime_status()
 
 
 def _extract_text_easyocr_gpu(pil_img: Image.Image) -> str:
@@ -200,8 +263,8 @@ if os.name == 'nt':
         pass
 
 # Configure Tesseract to use custom trained data
-# Get project root (utils/ocr_utils.py -> utils -> root)
-_project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Get project root (utils/ocr/ocr_utils.py -> utils -> root)
+_project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 tessdata_dir = os.path.join(_project_root, 'tessdata')
 os.environ['TESSDATA_PREFIX'] = tessdata_dir
 
@@ -233,12 +296,12 @@ _setup_tesseract()
 # Verify tessdata directory
 if not os.path.exists(tessdata_dir):
     if DEBUG_MODE:
-        log_info(f"⚠️  Warning: tessdata directory not found: {tessdata_dir}")
+        log_info(f"âš ï¸  Warning: tessdata directory not found: {tessdata_dir}")
         log_info(f"   Falling back to system Tesseract models")
 else:
     available_models = [f for f in os.listdir(tessdata_dir) if f.endswith('.traineddata')]
     if available_models and DEBUG_MODE:
-        log_info(f"✅ Using custom Tesseract models from: {tessdata_dir}")
+        log_info(f"âœ… Using custom Tesseract models from: {tessdata_dir}")
         log_info(f"   Available models: {', '.join(available_models)}")
 
 
@@ -246,26 +309,26 @@ def verify_tesseract_config():
     """Verify which Tesseract configuration is being used"""
     try:
         tesseract_cmd = getattr(pytesseract.pytesseract, 'tesseract_cmd', 'system PATH')
-        log_info(f"🔍 Tesseract executable: {tesseract_cmd}")
+        log_info(f"ðŸ” Tesseract executable: {tesseract_cmd}")
         
         tessdata_prefix = os.environ.get('TESSDATA_PREFIX', 'Not set')
-        log_info(f"🔍 TESSDATA_PREFIX: {tessdata_prefix}")
+        log_info(f"ðŸ” TESSDATA_PREFIX: {tessdata_prefix}")
         
         if os.path.exists(tessdata_dir):
             custom_models = [f for f in os.listdir(tessdata_dir) if f.endswith('.traineddata')]
-            log_info(f"🔍 Custom tessdata models: {custom_models}")
+            log_info(f"ðŸ” Custom tessdata models: {custom_models}")
             
             try:
                 version = pytesseract.get_tesseract_version()
                 languages = pytesseract.get_languages()
-                log_info(f"🔍 Tesseract version: {version}")
-                log_info(f"🔍 Available languages: {languages}")
+                log_info(f"ðŸ” Tesseract version: {version}")
+                log_info(f"ðŸ” Available languages: {languages}")
             except Exception as e:
-                log_info(f"🔍 Could not get Tesseract info: {e}")
+                log_info(f"ðŸ” Could not get Tesseract info: {e}")
         else:
-            log_info(f"🔍 Custom tessdata directory not found: {tessdata_dir}")
+            log_info(f"ðŸ” Custom tessdata directory not found: {tessdata_dir}")
     except Exception as e:
-        log_info(f"🔍 Error verifying Tesseract config: {e}")
+        log_info(f"ðŸ” Error verifying Tesseract config: {e}")
 
 
 # Verify configuration on import if debug mode is enabled

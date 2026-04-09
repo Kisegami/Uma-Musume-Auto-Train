@@ -2,11 +2,11 @@ import time
 import os
 import json
 from core.Ura.skill_recognizer import take_screenshot, recognize_skill_up_locations
-from utils.input import tap, tap_on_image
-from utils.skill_swipe import swipe_skill_list_down_slow
+from utils.inputs.input import tap, tap_on_image
+from utils.inputs.skill_swipe import swipe_skill_list_down_slow
 from core.Ura.skill_purchase_optimizer import fuzzy_match_skill_name
-from utils.log import log_debug, log_info, log_warning, log_error
-from utils.config_loader import load_main_config
+from utils.core.log import log_debug, log_info, log_warning, log_error
+from utils.core.config_loader import load_main_config
 
 # Load config and check debug mode
 _config = load_main_config()
@@ -57,7 +57,7 @@ def extract_skill_points(screenshot=None):
 
     try:
         if screenshot is None:
-            from utils.screenshot import take_screenshot
+            from utils.capture.screenshot import take_screenshot
             screenshot = take_screenshot()
         
         # Skill points region: 825, 605, 936, 656 (width: 111, height: 51)
@@ -279,7 +279,7 @@ def fast_swipe_to_top(end_career=False):
     
     log_debug(f"Successfully navigated to top of skill list")
 
-def execute_skill_purchases(purchase_plan, max_scrolls=30, end_career=False):
+def execute_skill_purchases(purchase_plan, max_scrolls=30, end_career=False, reset_to_top=True):
     """
     Execute the automated skill purchase plan.
     
@@ -287,6 +287,9 @@ def execute_skill_purchases(purchase_plan, max_scrolls=30, end_career=False):
         purchase_plan: List of skills to purchase (from create_purchase_plan)
         max_scrolls: Maximum number of scrolls to prevent infinite loops
         end_career: If True, use end_skill.png button instead of skills_btn.png
+        reset_to_top: If True, reopen the skill list from the top before scanning.
+            Set to False when the caller has already opened the skill list and wants
+            to avoid an unnecessary back/reopen cycle (for example in API mode).
     
     Returns:
         dict: {
@@ -320,8 +323,12 @@ def execute_skill_purchases(purchase_plan, max_scrolls=30, end_career=False):
     scrolls_performed = 0
     
     try:
-        # Step 1: Fast swipe to top
-        fast_swipe_to_top(end_career=end_career)
+        # Step 1: Optionally reopen the skill list to guarantee we start from the top.
+        if reset_to_top:
+            fast_swipe_to_top(end_career=end_career)
+        else:
+            log_info(f"Using current skill list screen without reopening")
+            time.sleep(0.5)
         
         # Step 2: Scroll down slowly to find and purchase skills
         log_info(f"Searching for skills to purchase")
@@ -441,12 +448,12 @@ def execute_skill_purchases(purchase_plan, max_scrolls=30, end_career=False):
         if purchased_skills:
             log_info(f"\n[INFO] Purchased skills:")
             for skill in purchased_skills:
-                log_info(f"   • {skill['name']} - {skill['price']} points")
+                log_info(f"   â€¢ {skill['name']} - {skill['price']} points")
         
         if failed_skills:
             log_info(f"\n[WARNING] Failed to purchase:")
             for skill in failed_skills:
-                log_info(f"   • {skill['name']} - {skill['price']} points")
+                log_info(f"   â€¢ {skill['name']} - {skill['price']} points")
         
         return {
             'success': len(purchased_skills) > 0,

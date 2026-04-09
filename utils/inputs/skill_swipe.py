@@ -7,8 +7,8 @@ configured in one place instead of being duplicated across files.
 Coordinates and duration tuned via tests/test_swipe_realtime.py
 """
 import time
-from utils.input import perform_swipe
-from utils.config_loader import load_config_section
+from utils.inputs.input import perform_swipe
+from utils.core.config_loader import load_config_section
 
 # Skill list swipe coordinates (stable values)
 SKILL_LIST_CENTER_X = 504

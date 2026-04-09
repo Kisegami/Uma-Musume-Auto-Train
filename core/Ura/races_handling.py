@@ -4,12 +4,12 @@ import random
 import numpy as np
 from PIL import ImageStat
 
-from utils.recognizer import locate_on_screen, match_template, locate_all_on_screen, max_match_confidence
-from utils.input import tap, triple_click, long_press, tap_on_image, swipe
-from utils.screenshot import take_screenshot
-from utils.template_matching import wait_for_image, deduplicated_matches
-from utils.log import log_debug, log_info, log_warning, log_error, log_success
-from utils.config_loader import load_main_config
+from utils.vision.recognizer import locate_on_screen, match_template, locate_all_on_screen, max_match_confidence
+from utils.inputs.input import tap, triple_click, long_press, tap_on_image, swipe
+from utils.capture.screenshot import take_screenshot
+from utils.vision.template_matching import wait_for_image, deduplicated_matches
+from utils.core.log import log_debug, log_info, log_warning, log_error, log_success
+from utils.core.config_loader import load_main_config
 from core.Ura.state import check_skill_points_cap, check_current_year
 from core.Ura.ocr import extract_text
 import os
@@ -790,13 +790,17 @@ def check_and_select_maiden_race():
     log_debug(f"No maiden races found")
     return False
 
-def find_and_do_race():
-    """Find and execute race using intelligent race selection - replaces old do_race()"""
+def find_and_do_race(year_override=None):
+    """Find and execute race using intelligent race selection.
+
+    Args:
+        year_override: If provided, skip OCR year detection and use this value.
+    """
     log_info(f"Race Selection - Starting intelligent race selection...")
     
     try:
         # 1. Setup common environment
-        year = check_current_year()
+        year = year_override or check_current_year()
         if not year:
             log_warning(f"Race Selection - Could not detect current year")
             return False
@@ -822,8 +826,14 @@ def find_and_do_race():
         
         # 3. Choose best race based on database and config criteria
         # Check if goal contains G1 and override allowed grades if so
-        from core.Ura.state import check_goal_name
-        goal_name = check_goal_name()
+        training_config = config.get("training", {})
+        skip_goal_check = training_config.get("skip_goal_check", False)
+        if skip_goal_check:
+            goal_name = ""
+            log_info("Goal name check skipped by config")
+        else:
+            from core.Ura.state import check_goal_name
+            goal_name = check_goal_name()
         
         # Override allowed grades if goal contains G1
         racing_config_section = config.get("racing", {})
@@ -909,14 +919,18 @@ def find_and_do_race():
         log_debug(f"Error in find_and_do_race: {e}")
         return False
 
-def do_custom_race():
-    """Handle custom races from custom_races.json - bypasses all criteria checks"""
+def do_custom_race(year_override=None):
+    """Handle custom races from custom_races.json - bypasses all criteria checks.
+
+    Args:
+        year_override: If provided, skip OCR year detection and use this value.
+    """
     log_debug(f"Checking for custom race...")
     
     try:
         project_root = _get_project_root()
         # 1. Get current year
-        year = check_current_year()
+        year = year_override or check_current_year()
         if not year:
             return False
         

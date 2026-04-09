@@ -28,8 +28,8 @@ else:
 if script_dir and script_dir not in sys.path:
     sys.path.insert(0, script_dir)
 
-from utils.log import log_info, log_warning, log_error, log_debug, log_success
-from utils.emulator_detect import list_emulator_types
+from utils.core.log import log_info, log_warning, log_error, log_debug, log_success
+from utils.platform.emulator_detect import list_emulator_types
 
 
 def check_config_file(config_file: str, example_file: str) -> dict:
@@ -64,23 +64,23 @@ def check_config_file(config_file: str, example_file: str) -> dict:
                     with open(config_path, 'w', encoding='utf-8') as f:
                         json.dump(merged_config, f, indent=2, ensure_ascii=False)
                     result["updated"] = True
-                    print(f"✓ Updated {config_file} with missing keys from {example_file}")
+                    print(f"[OK] Updated {config_file} with missing keys from {example_file}")
             except Exception as e:
                 result["error"] = str(e)
-                print(f"⚠ Error merging {config_file}: {e}")
+                print(f"[WARN] Error merging {config_file}: {e}")
     else:
         # Config doesn't exist, create from example
         if example_path.exists():
             try:
                 shutil.copy2(example_path, config_path)
                 result["created"] = True
-                print(f"✓ Created {config_file} from {example_file}")
+                print(f"[OK] Created {config_file} from {example_file}")
             except Exception as e:
                 result["error"] = str(e)
-                print(f"⚠ Failed to create {config_file}: {e}")
+                print(f"[WARN] Failed to create {config_file}: {e}")
         else:
             result["error"] = f"Example file {example_file} not found"
-            print(f"⚠ {result['error']}")
+            print(f"[WARN] {result['error']}")
     
     return result
 
@@ -115,9 +115,10 @@ def main():
     print("Uma Musume Auto-Train Bot - PySide6 GUI")
     print("=" * 50)
     
-    # Check for updates before starting GUI
+    # Check for updates before starting GUI, but only when auto-update is enabled.
+    # Manual update checks remain available from the Update tab.
     try:
-        from utils.config_loader import load_main_config
+        from utils.core.config_loader import load_main_config
         config = load_main_config() if os.path.exists('config.json') else {}
         
         update_config = config.get('update', {})
@@ -126,11 +127,14 @@ def main():
         branch = update_config.get('branch', 'main')
         remote = update_config.get('remote', 'origin')
         
-        from utils.updater import check_and_update
-        if check_and_update(branch=branch, remote=remote, auto_update=auto_update, install_dependencies=install_dependencies):
-            log_info("Application was updated. Please restart to use the new version.")
-            input("Press Enter to exit...")
-            sys.exit(0)
+        if auto_update:
+            from utils.update.updater import check_and_update
+            if check_and_update(branch=branch, remote=remote, auto_update=True, install_dependencies=install_dependencies):
+                log_info("Application was updated. Please restart to use the new version.")
+                input("Press Enter to exit...")
+                sys.exit(0)
+        else:
+            log_info("Auto-update disabled; skipping update check during startup.")
     except Exception as e:
         log_warning(f"Could not check for updates: {e}")
         log_info("Continuing without update check...")
@@ -140,13 +144,13 @@ def main():
         print("Checking configuration files...")
         config_results = check_all_configs()
         if config_results["created"]:
-            print(f"✓ Created {config_results['created']} new configuration file(s)")
+            print(f"[OK] Created {config_results['created']} new configuration file(s)")
         if config_results["updated"]:
-            print(f"✓ Updated {config_results['updated']} configuration file(s) with missing keys")
+            print(f"[OK] Updated {config_results['updated']} configuration file(s) with missing keys")
         if config_results["errors"]:
-            print(f"⚠ {config_results['errors']} error(s) during config check")
+            print(f"[WARN] {config_results['errors']} error(s) during config check")
         if config_results["ok"] == 4:
-            print("✓ All configuration files OK")
+            print("[OK] All configuration files OK")
     except Exception as e:
         log_warning(f"Could not check configuration files: {e}")
         print("GUI will continue without automatic config file creation.")

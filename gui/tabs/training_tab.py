@@ -155,11 +155,21 @@ class TrainingTab(QScrollArea):
         self.rest_in_june = QCheckBox("Rest in June to save Energy for Summer")
         self.rest_in_june.stateChanged.connect(self._save_training)
         settings_layout.addWidget(self.rest_in_june, 5, 0, 1, 2)
-        
+
+        # Skip OCR-based criteria/goal-name checks
+        self.skip_goal_check = QCheckBox("Skip criteria and goal-name check")
+        self.skip_goal_check.stateChanged.connect(self._save_training)
+        settings_layout.addWidget(self.skip_goal_check, 6, 0, 1, 2)
+
+        # Skip infirmary redirect on the first turn of a fresh career
+        self.skip_infirmary_check_on_new_turn = QCheckBox("Skip infirmary check on new turn")
+        self.skip_infirmary_check_on_new_turn.stateChanged.connect(self._save_training)
+        settings_layout.addWidget(self.skip_infirmary_check_on_new_turn, 7, 0, 1, 2)
+
         # Gambling Train - increase max failure for high score training
         self.gambling_train = QCheckBox("Gambling Train (increase max failure for high score)")
         self.gambling_train.stateChanged.connect(self._on_gambling_train_toggle)
-        settings_layout.addWidget(self.gambling_train, 6, 0, 1, 2)
+        settings_layout.addWidget(self.gambling_train, 8, 0, 1, 2)
         
         # Gambling Train Settings (shown when enabled)
         self.gambling_settings_widget = QWidget()
@@ -189,7 +199,7 @@ class TrainingTab(QScrollArea):
         gambling_layout.addStretch()
         
         self.gambling_settings_widget.hide()
-        settings_layout.addWidget(self.gambling_settings_widget, 7, 0, 1, 2)
+        settings_layout.addWidget(self.gambling_settings_widget, 9, 0, 1, 2)
         
         # ==================== Unity Mode Settings ====================
         self.unity_widget = QWidget()
@@ -214,7 +224,7 @@ class TrainingTab(QScrollArea):
         spirit_row.addStretch()
         unity_layout.addLayout(spirit_row)
         
-        settings_layout.addWidget(self.unity_widget, 8, 0, 1, 2)
+        settings_layout.addWidget(self.unity_widget, 10, 0, 1, 2)
         
         layout.addWidget(settings_group)
         
@@ -439,6 +449,14 @@ class TrainingTab(QScrollArea):
         self.rest_in_june.blockSignals(True)
         self.rest_in_june.setChecked(training.get("rest_in_june", False))
         self.rest_in_june.blockSignals(False)
+
+        self.skip_goal_check.blockSignals(True)
+        self.skip_goal_check.setChecked(training.get("skip_goal_check", False))
+        self.skip_goal_check.blockSignals(False)
+
+        self.skip_infirmary_check_on_new_turn.blockSignals(True)
+        self.skip_infirmary_check_on_new_turn.setChecked(training.get("skip_infirmary_check_on_new_turn", False))
+        self.skip_infirmary_check_on_new_turn.blockSignals(False)
         
         # Gambling Train
         self.gambling_train.blockSignals(True)
@@ -533,6 +551,8 @@ class TrainingTab(QScrollArea):
         config["training"]["min_energy"] = self.energy_spin.value()
         config["training"]["do_race_when_bad_training"] = self.race_when_bad.isChecked()
         config["training"]["rest_in_june"] = self.rest_in_june.isChecked()
+        config["training"]["skip_goal_check"] = self.skip_goal_check.isChecked()
+        config["training"]["skip_infirmary_check_on_new_turn"] = self.skip_infirmary_check_on_new_turn.isChecked()
         
         # Gambling Train
         config["training"]["gambling_train_enabled"] = self.gambling_train.isChecked()

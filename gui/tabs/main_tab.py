@@ -7,7 +7,7 @@ import os
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox,
     QLineEdit, QGroupBox, QGridLayout, QFrame, QScrollArea, QMessageBox,
-    QSizePolicy
+    QSizePolicy, QCheckBox, QSpinBox, QPushButton
 )
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
@@ -119,6 +119,64 @@ class MainTab(QScrollArea):
         adb_layout.addWidget(self.adb_path, 2, 1)
         
         layout.addWidget(adb_group)
+
+        # Other
+        other_group = QGroupBox("API Mode (Experimental)")
+        other_layout = QVBoxLayout(other_group)
+        other_layout.setSpacing(12)
+
+        self.api_enabled = QCheckBox("Turn on API Mode")
+        self.api_enabled.stateChanged.connect(self._on_api_enabled_changed)
+        other_layout.addWidget(self.api_enabled)
+
+        self.api_settings_widget = QWidget()
+        api_settings_layout = QVBoxLayout(self.api_settings_widget)
+        api_settings_layout.setContentsMargins(0, 0, 0, 0)
+        api_settings_layout.setSpacing(12)
+
+        api_desc = QLabel(
+            "Use Kise Uma Capture to read game status directly from network packets.\n"
+            "This feature is experimental and depends on an external module.\n"
+            "Check the Discord server for setup details and more information."
+        )
+        api_desc.setStyleSheet(f"color: {COLORS['text_muted']}; font-size: 12px; margin-left: 25px;")
+        api_settings_layout.addWidget(api_desc)
+
+        api_url_row = QHBoxLayout()
+        api_url_label = QLabel("API Address:")
+        api_url_label.setFixedWidth(100)
+        self.api_base_url = QLineEdit()
+        self.api_base_url.setPlaceholderText("http://localhost:8123")
+        self.api_base_url.editingFinished.connect(self._save_api_url)
+        api_url_row.addWidget(api_url_label)
+        api_url_row.addWidget(self.api_base_url)
+        api_settings_layout.addLayout(api_url_row)
+
+        api_timeout_row = QHBoxLayout()
+        api_timeout_label = QLabel("Timeout (s):")
+        api_timeout_label.setFixedWidth(100)
+        self.api_timeout = QSpinBox()
+        self.api_timeout.setMinimum(1)
+        self.api_timeout.setMaximum(30)
+        self.api_timeout.setValue(2)
+        self.api_timeout.setFixedWidth(80)
+        self.api_timeout.valueChanged.connect(self._save_api_timeout)
+        api_timeout_row.addWidget(api_timeout_label)
+        api_timeout_row.addWidget(self.api_timeout)
+        api_timeout_row.addStretch()
+        api_settings_layout.addLayout(api_timeout_row)
+
+        api_btn_row = QHBoxLayout()
+        self.test_api_btn = QPushButton("Test Connection")
+        self.test_api_btn.setFixedWidth(140)
+        self.test_api_btn.clicked.connect(self._test_api_connection)
+        api_btn_row.addWidget(self.test_api_btn)
+        api_btn_row.addStretch()
+        api_settings_layout.addLayout(api_btn_row)
+
+        other_layout.addWidget(self.api_settings_widget)
+
+        layout.addWidget(other_group)
         
         layout.addStretch()
         self.setWidget(container)
@@ -158,6 +216,19 @@ class MainTab(QScrollArea):
         self.adb_path.setText(adb.get("adb_path", "adb"))
         self.device_addr.blockSignals(False)
         self.adb_path.blockSignals(False)
+
+        # API
+        self.api_enabled.blockSignals(True)
+        self.api_base_url.blockSignals(True)
+        self.api_timeout.blockSignals(True)
+        api = config.get("api", {})
+        self.api_enabled.setChecked(api.get("enabled", False))
+        self.api_base_url.setText(api.get("base_url", "http://localhost:8123"))
+        self.api_timeout.setValue(api.get("timeout", 2))
+        self.api_enabled.blockSignals(False)
+        self.api_base_url.blockSignals(False)
+        self.api_timeout.blockSignals(False)
+        self._update_api_settings_visibility(api.get("enabled", False))
         
         self._loading = False
     
@@ -210,6 +281,84 @@ class MainTab(QScrollArea):
             return
         self.main_window.update_nested_config_value("adb_config", key, value)
         self.main_window.save_config()
+
+    def _get_api_config(self):
+        """Get current API config dict"""
+        config = self.main_window.get_config()
+        return config.get("api", {
+            "enabled": False,
+            "base_url": "http://localhost:8123",
+            "timeout": 2
+        })
+
+    def _save_api_config(self, api_config):
+        """Save API config"""
+        if getattr(self, '_loading', False):
+            return
+        self.main_window.update_config_value("api", api_config)
+        self.main_window.save_config()
+
+    def _on_api_enabled_changed(self, state):
+        """Handle API enabled checkbox change"""
+        enabled = state == Qt.CheckState.Checked.value
+        self._update_api_settings_visibility(enabled)
+        api_config = self._get_api_config()
+        api_config["enabled"] = enabled
+        self._save_api_config(api_config)
+
+    def _update_api_settings_visibility(self, visible):
+        """Show or hide API settings based on enabled state"""
+        self.api_settings_widget.setVisible(visible)
+
+    def _save_api_url(self):
+        """Save API base URL"""
+        api_config = self._get_api_config()
+        api_config["base_url"] = self.api_base_url.text().strip() or "http://localhost:8123"
+        self._save_api_config(api_config)
+
+    def _save_api_timeout(self, value):
+        """Save API timeout"""
+        api_config = self._get_api_config()
+        api_config["timeout"] = value
+        self._save_api_config(api_config)
+
+    def _test_api_connection(self):
+        """Test API connection by hitting the /status endpoint"""
+        import requests
+
+        url = self.api_base_url.text().strip() or "http://localhost:8123"
+        timeout = self.api_timeout.value()
+        try:
+            resp = requests.get(f"{url}/status", timeout=timeout)
+            resp.raise_for_status()
+            data = resp.json()
+            if isinstance(data, dict) and data.get("status") == "waiting":
+                QMessageBox.information(
+                    self, "API Test",
+                    f"Connected to {url}\n\nServer is running but waiting for game data.\nStart a career run to populate data."
+                )
+            else:
+                year = data.get('year', 'N/A')
+                mood = data.get('mood', {}).get('name', 'N/A')
+                stats = data.get('stats', {})
+                stats_str = ', '.join(f"{k.upper()}: {v}" for k, v in stats.items()) if stats else 'N/A'
+                QMessageBox.information(
+                    self, "API Test",
+                    f"Connected to {url}\n\n"
+                    f"Year: {year}\nMood: {mood}\nStats: {stats_str}"
+                )
+        except requests.ConnectionError:
+            QMessageBox.warning(
+                self, "API Test",
+                f"Cannot connect to {url}\n\nMake sure Kise Uma Capture is running."
+            )
+        except requests.Timeout:
+            QMessageBox.warning(
+                self, "API Test",
+                f"Connection timed out ({timeout}s)\n\nCheck the URL and try increasing the timeout."
+            )
+        except Exception as e:
+            QMessageBox.critical(self, "API Test", f"Error: {str(e)}")
     
     def _update_scenario_logo(self, mode):
         """Update the scenario logo based on the selected mode"""

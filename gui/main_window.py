@@ -68,6 +68,7 @@ class MainWindow(QMainWindow):
         self.bot_running = False
         self.config_file = "config.json"
         self.config = {}
+        self._ui_loading = True
         
         # Load configuration
         self.load_config()
@@ -77,6 +78,7 @@ class MainWindow(QMainWindow):
         
         # Create UI
         self._create_ui()
+        self._ui_loading = False
         
         # Initial log
         self.add_log("Uma Musume Auto-Train initialized")
@@ -112,7 +114,7 @@ class MainWindow(QMainWindow):
             except Exception:
                 pass
         try:
-            from utils.emulator_detect import list_emulator_types
+            from utils.platform.emulator_detect import list_emulator_types
             return list_emulator_types()
         except Exception:
             return []
@@ -154,17 +156,28 @@ class MainWindow(QMainWindow):
         sidebar_layout.addWidget(title_label)
         
         # Author credit
-        author_label = QLabel("By Kisegami ❤️")
+        author_label = QLabel("By Kisegami <3")
         author_label.setAlignment(Qt.AlignCenter)
         author_label.setStyleSheet(f"color: {COLORS['text_muted']}; font-size: 11px;")
         sidebar_layout.addWidget(author_label)
         
         # Status indicator
-        self.status_label = QLabel("● Inactive")
+        status_row = QWidget()
+        status_layout = QHBoxLayout(status_row)
+        status_layout.setContentsMargins(0, 0, 0, 0)
+        status_layout.setSpacing(6)
+        status_layout.setAlignment(Qt.AlignCenter)
+
+        self.status_icon_label = QLabel()
+        self.status_icon_label.setPixmap(get_icon("status-idle", COLORS['text_muted']).pixmap(QSize(12, 12)))
+        status_layout.addWidget(self.status_icon_label)
+
+        self.status_label = QLabel("Inactive")
         self.status_label.setObjectName("subtitle")
         self.status_label.setAlignment(Qt.AlignCenter)
         self.status_label.setStyleSheet(f"color: {COLORS['text_muted']}; font-size: 12px;")
-        sidebar_layout.addWidget(self.status_label)
+        status_layout.addWidget(self.status_label)
+        sidebar_layout.addWidget(status_row)
         
         sidebar_layout.addSpacing(16)
         
@@ -212,7 +225,8 @@ class MainWindow(QMainWindow):
         # Left: Stacked pages - 9 pages matching original
         self.page_stack = QStackedWidget()
         
-        # Create all 9 pages
+        # Create all pages during startup so tab initialization failures surface
+        # immediately instead of only when a user opens a tab.
         self.main_page = MainTab(self)
         self.performance_page = PerformanceTab(self)
         self.training_page = TrainingTab(self)
@@ -338,10 +352,11 @@ class MainWindow(QMainWindow):
             "capture_method": "auto",
             "emulator_type": "",
             "adb_config": {"device_address": "127.0.0.1:7555", "adb_path": "adb", "screenshot_timeout": 5, "input_delay": 0.5},
-            "training": {"priority_stat": ["spd", "sta", "wit", "pwr", "guts"], "minimum_mood": "GREAT", "maximum_failure": 15, "min_energy": 30},
+            "training": {"priority_stat": ["spd", "sta", "wit", "pwr", "guts"], "minimum_mood": "GREAT", "maximum_failure": 15, "min_energy": 30, "skip_goal_check": False},
             "racing": {"strategy": "FRONT", "retry_race": True, "stop_on_race_fail": True},
             "skills": {"skill_point_cap": 400, "skill_purchase": "auto"},
             "debug_mode": False,
+            "dump_lobby_template_regions": False,
             "update": {"auto_update": True, "install_dependencies": True, "branch": "main"}
         }
     
@@ -354,9 +369,13 @@ class MainWindow(QMainWindow):
         self.save_config()
     
     def update_config_value(self, key, value):
+        if self._ui_loading:
+            return
         self.config[key] = value
     
     def update_nested_config_value(self, parent_key, child_key, value):
+        if self._ui_loading:
+            return
         if parent_key not in self.config:
             self.config[parent_key] = {}
         self.config[parent_key][child_key] = value
@@ -375,7 +394,8 @@ class MainWindow(QMainWindow):
                 self.start_btn.setIcon(get_icon('stop', 'white'))
                 self.start_btn.setObjectName("danger")
                 self.start_btn.setStyleSheet(f"background-color: {COLORS['accent_red']}; border: none; color: white;")
-                self.status_label.setText("● Running")
+                self.status_icon_label.setPixmap(get_icon("status-running", COLORS['accent_green']).pixmap(QSize(12, 12)))
+                self.status_label.setText("Running")
                 self.status_label.setStyleSheet(f"color: {COLORS['accent_green']};")
                 if hasattr(self, 'log_panel'):
                     self.log_panel.update_bot_state(True)
@@ -396,7 +416,8 @@ class MainWindow(QMainWindow):
             self.start_btn.setIcon(get_icon('play', 'white'))
             self.start_btn.setObjectName("primary")
             self.start_btn.setStyleSheet(f"background-color: {COLORS['accent_green']}; border: none; color: white;")
-            self.status_label.setText("● Inactive")
+            self.status_icon_label.setPixmap(get_icon("status-idle", COLORS['text_muted']).pixmap(QSize(12, 12)))
+            self.status_label.setText("Inactive")
             self.status_label.setStyleSheet(f"color: {COLORS['text_muted']};")
             if hasattr(self, 'log_panel'):
                 self.log_panel.update_bot_state(False)
@@ -442,7 +463,8 @@ class MainWindow(QMainWindow):
         self.start_btn.setIcon(get_icon('play', 'white'))
         self.start_btn.setObjectName("primary")
         self.start_btn.setStyleSheet(f"background-color: {COLORS['accent_green']}; border: none; color: white;")
-        self.status_label.setText("● Inactive")
+        self.status_icon_label.setPixmap(get_icon("status-idle", COLORS['text_muted']).pixmap(QSize(12, 12)))
+        self.status_label.setText("Inactive")
         self.status_label.setStyleSheet(f"color: {COLORS['text_muted']};")
         if hasattr(self, 'log_panel'):
             self.log_panel.update_bot_state(False)

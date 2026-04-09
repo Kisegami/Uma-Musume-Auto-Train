@@ -18,12 +18,12 @@ if os.name == 'nt':  # Windows
     except:
         pass
 
-from utils.recognizer import locate_all_on_screen
-from utils.screenshot import take_screenshot, capture_region
+from utils.vision.recognizer import locate_all_on_screen
+from utils.capture.screenshot import take_screenshot, capture_region
 from core.Ura.ocr import extract_event_name_text
-from utils.log import log_debug, log_info, log_warning, log_error
-from utils.template_matching import deduplicated_matches
-from utils.config_loader import load_main_config
+from utils.core.log import log_debug, log_info, log_warning, log_error
+from utils.vision.template_matching import deduplicated_matches
+from utils.core.config_loader import load_main_config
 
 # Helper function to get project root directory
 def _get_project_root():
@@ -140,9 +140,9 @@ def _load_custom_event_templates():
 def _normalize_event_name(name: str) -> str:
     """Remove special markers and symbols from event names for matching
     
-    Removes: (❯), (❯❯), (❯❯❯), ♪, and extra whitespace
+    Removes: (â¯), (â¯â¯), (â¯â¯â¯), â™ª, and extra whitespace
     """
-    result = name.replace("(❯)", "").replace("(❯❯)", "").replace("(❯❯❯)", "").replace("♪", "")
+    result = name.replace("(â¯)", "").replace("(â¯â¯)", "").replace("(â¯â¯â¯)", "").replace("â™ª", "")
     return result.strip()
 
 
@@ -177,14 +177,14 @@ def search_custom_events(event_name):
         for custom_event, selected_option in _event_cache["custom_uma_events"].items():
             normalized_custom = _normalize_event_name(custom_event).lower()
             if normalized_custom.startswith(normalized_search) and len(normalized_search) >= 5:
-                log_debug(f"Prefix match: '{event_name}' → '{custom_event}'")
+                log_debug(f"Prefix match: '{event_name}' â†’ '{custom_event}'")
                 return selected_option
         
         # Try substring/contains match (e.g., "Get Well Soon!" matches "Failed training (Get Well Soon!)")
         for custom_event, selected_option in _event_cache["custom_uma_events"].items():
             normalized_custom = _normalize_event_name(custom_event).lower()
             if len(normalized_search) >= 5 and normalized_search in normalized_custom:
-                log_debug(f"Substring match: '{event_name}' → '{custom_event}'")
+                log_debug(f"Substring match: '{event_name}' â†’ '{custom_event}'")
                 return selected_option
     
     # Check Support Card events
@@ -203,14 +203,14 @@ def search_custom_events(event_name):
         for custom_event, selected_option in _event_cache["custom_support_events"].items():
             normalized_custom = _normalize_event_name(custom_event).lower()
             if normalized_custom.startswith(normalized_search) and len(normalized_search) >= 5:
-                log_debug(f"Prefix match: '{event_name}' → '{custom_event}'")
+                log_debug(f"Prefix match: '{event_name}' â†’ '{custom_event}'")
                 return selected_option
         
         # Try substring/contains match
         for custom_event, selected_option in _event_cache["custom_support_events"].items():
             normalized_custom = _normalize_event_name(custom_event).lower()
             if len(normalized_search) >= 5 and normalized_search in normalized_custom:
-                log_debug(f"Substring match: '{event_name}' → '{custom_event}'")
+                log_debug(f"Substring match: '{event_name}' â†’ '{custom_event}'")
                 return selected_option
     
     return None
@@ -288,7 +288,7 @@ def find_best_event_match(ocr_text: str) -> str:
         
         def normalize(s: str) -> str:
             """Remove special markers from event names"""
-            return s.replace("(❯)", "").replace("(❯❯)", "").replace("(❯❯❯)", "").strip()
+            return s.replace("(â¯)", "").replace("(â¯â¯)", "").replace("(â¯â¯â¯)", "").strip()
         
         clean_ocr = normalize(ocr_text.strip())
         if not clean_ocr:
@@ -396,8 +396,49 @@ def count_event_choices():
         log_debug(f" Final unique bright locations: {len(bright_locations)} (threshold: {bright_threshold})")
         return len(bright_locations), bright_locations
     except Exception as e:
-        log_info(f"❌ Error counting event choices: {str(e)}")
+        log_info(f"âŒ Error counting event choices: {str(e)}")
         return 0, []
+
+def wait_for_stable_event_choices(timeout: float = 2.0, check_interval: float = 0.2, stable_reads: int = 2):
+    """
+    Wait for event choice markers to stabilize before using them.
+
+    Event title OCR can finish before the choice dialog animation is done,
+    which briefly returns 0 or an incomplete choice list.
+    """
+    start_time = time.time()
+    last_count = None
+    last_locations = []
+    consecutive_same = 0
+    best_count = 0
+    best_locations = []
+
+    while time.time() - start_time < timeout:
+        count, locations = count_event_choices()
+
+        if count > best_count:
+            best_count = count
+            best_locations = locations
+
+        if count == last_count and locations == last_locations:
+            consecutive_same += 1
+        else:
+            last_count = count
+            last_locations = locations
+            consecutive_same = 1
+
+        if count > 0 and consecutive_same >= stable_reads:
+            log_debug(f" Event choices stabilized at {count}")
+            return count, locations
+
+        time.sleep(check_interval)
+
+    if best_count > 0:
+        log_debug(f" Event choices did not fully stabilize, using best observed count: {best_count}")
+        return best_count, best_locations
+
+    return last_count or 0, last_locations
+
 
 def load_event_priorities():
     """Load event priority configuration from event_priority.json"""
@@ -667,6 +708,36 @@ def search_events_fuzzy(event_name):
     
     return {}
 
+
+def get_event_name_api():
+    """
+    Get the current event name from the API instead of OCR.
+
+    Returns:
+        str | None: Event name string, or None if API unavailable.
+    """
+    try:
+        from utils.integrations.umat_api import get_events, is_api_enabled
+        if not is_api_enabled():
+            return None
+        data = get_events()
+    except ImportError:
+        return None
+
+    if data is None:
+        return None
+
+    events = data.get("events", [])
+    if not events:
+        log_debug("[API] No events from API")
+        return None
+
+    name = events[0].get("name", "")
+    if name:
+        log_debug(f"[API] Event name: {name}")
+        return name
+    return None
+
 def handle_event_choice():
     """
     Main function to handle event detection and choice selection.
@@ -676,48 +747,60 @@ def handle_event_choice():
         tuple: (choice_number, success, choice_locations) - choice number, success status, and found locations
     """
     # Define the region for event name detection
-    from utils.constants_ura import EVENT_REGION
+    from utils.constants.ura import EVENT_REGION
     event_region = EVENT_REGION
     
     log_info(f"Event detected, scan event")
     
     try:
-        # Wait for event to stabilize (1.5 seconds)
-        time.sleep(1.5)
+        time.sleep(0.5)
 
         # Re-validate that this is a choices event before OCR (avoid scanning non-choice dialogs)
-        recheck_count, recheck_locations = count_event_choices()
+        recheck_count, recheck_locations = wait_for_stable_event_choices()
         log_debug(f" Recheck choices after delay: {recheck_count}")
         if recheck_count == 0:
             log_info(f"[INFO] Event choices not visible after delay, skipping analysis")
             return 1, False, []
 
-        # Capture the event name
-        event_image = capture_region(event_region)
-        event_name = extract_event_name_text(event_image)
-        event_name = event_name.strip()
+        try:
+            from utils.integrations.umat_api import is_api_enabled
+            _api_on = is_api_enabled()
+        except ImportError:
+            _api_on = False
+
+        if _api_on:
+            event_image = None
+            event_name = get_event_name_api()
+            if event_name:
+                log_info(f"[API] Event name from API: {event_name}")
+            else:
+                log_warning("[API] Failed to get event name from API; skipping event handling for this loop.")
+                return 1, False, []
+        else:
+            event_image = capture_region(event_region)
+            event_name = extract_event_name_text(event_image).strip()
         
         if not event_name:
-            log_error(f"❌ EVENT DETECTION FAILED: No text detected in event region")
+            log_error(f"âŒ EVENT DETECTION FAILED: No text detected in event region")
             
             # Save debug image for analysis (only when debug mode is enabled)
             if DEBUG_MODE:
                 debug_filename = f"debug_event_detection_failure_{int(time.time())}.png"
                 event_image.save(debug_filename)
-                log_error(f"❌ Debug image saved to: {debug_filename}")
-            log_error(f"❌ Event region coordinates: {event_region}")
-            log_error(f"❌ Image size: {event_image.size}")
-            log_error(f"❌ Check the OCR logs above for what text was detected (if any)")
+                log_error(f"âŒ Debug image saved to: {debug_filename}")
+            log_error(f"âŒ Event region coordinates: {event_region}")
+            log_error(f"âŒ Image size: {event_image.size}")
+            log_error(f"âŒ Check the OCR logs above for what text was detected (if any)")
             
             # Check if bot should stop on detection failure (configurable)
             stop_on_event_failure = config.get("stop_on_event_detection_failure", False)
             
             if stop_on_event_failure:
-                log_error(f"❌ BOT STOPPED - Please check the event screen and OCR configuration")
-                log_error(f"❌ (To disable auto-stop, set 'stop_on_event_detection_failure' to false in config.json)")
+                log_error(f"âŒ BOT STOPPED - Please check the event screen and OCR configuration")
+                log_error(f"âŒ (To disable auto-stop, set 'stop_on_event_detection_failure' to false in config.json)")
                 raise RuntimeError("Event detection failed: No text detected in event region. Bot stopped.")
             else:
-                log_warning(f"⚠️  Continuing with fallback (top choice) - Enable 'stop_on_event_detection_failure' in config to stop on failure")
+                log_warning(f"âš ï¸  Continuing with fallback (top choice) - Enable 'stop_on_event_detection_failure' in config to stop on failure")
                 # Fallback to top choice
                 return 1, False, recheck_locations
         
@@ -726,8 +809,8 @@ def handle_event_choice():
         # Check custom event templates first (from config.json)
         custom_choice = search_custom_events(event_name)
         if custom_choice:
-            log_info(f"🎯 Custom template match: {event_name} → {custom_choice}")
-            choices_found, choice_locations = count_event_choices()
+            log_info(f"ðŸŽ¯ Custom template match: {event_name} â†’ {custom_choice}")
+            choices_found, choice_locations = wait_for_stable_event_choices()
             
             # Map custom_choice to choice number
             choice_number = 1
@@ -762,7 +845,7 @@ def handle_event_choice():
             found_events = search_events_fuzzy(event_name)
         
         # Count event choices on screen
-        choices_found, choice_locations = count_event_choices()
+        choices_found, choice_locations = wait_for_stable_event_choices()
         
         # Load event priorities
         priorities = load_event_priorities()
@@ -788,11 +871,11 @@ def handle_event_choice():
                     option_analysis = analysis["option_analysis"][option_name]
                     indicators = []
                     if option_analysis["has_good"]:
-                        indicators.append("✅ Good")
+                        indicators.append("âœ… Good")
                     if option_analysis["has_bad"]:
-                        indicators.append("❌ Bad")
+                        indicators.append("âŒ Bad")
                     if option_name == analysis["recommended_option"]:
-                        indicators.append("🎯 RECOMMENDED")
+                        indicators.append("ðŸŽ¯ RECOMMENDED")
                     
                     indicator_text = f" [{', '.join(indicators)}]" if indicators else ""
                     log_info(f"  {option_name}: {reward_single_line}{indicator_text}")
@@ -851,7 +934,7 @@ def handle_event_choice():
         error_msg = str(e)
         if "Event detection failed" in error_msg:
             # Re-raise the error to stop the bot completely
-            log_error(f"❌ Critical event detection failure - stopping bot execution")
+            log_error(f"âŒ Critical event detection failure - stopping bot execution")
             raise  # Re-raise the original exception to stop execution
         
         # Handle other errors gracefully with fallback
@@ -863,12 +946,12 @@ def handle_event_choice():
         
         # If choices are visible, return their locations to allow fallback top-choice click
         try:
-            _, fallback_locations = count_event_choices()
+            _, fallback_locations = wait_for_stable_event_choices()
         except Exception:
             fallback_locations = []
         
-        log_warning(f"Event analysis failed, falling back to top choice")
-        return 1, False, fallback_locations  # Default to first choice on error
+        log_warning("Event analysis failed; skipping event handling for this loop")
+        return 1, False, []  # Let the main loop continue without clicking
 
 def click_event_choice(choice_number, choice_locations=None):
     """
@@ -882,41 +965,19 @@ def click_event_choice(choice_number, choice_locations=None):
         bool: True if successful, False otherwise
     """
     try:
-        from utils.input import tap
+        from utils.inputs.input import tap
         
         # Use pre-found locations if provided, otherwise search again
-        if choice_locations is None:
+        if choice_locations is None or len(choice_locations) < choice_number:
             log_debug(f" No pre-found locations, searching for event choices...")
-            event_choice_region = (6, 450, 126, 1776)
-            choice_locations = locate_all_on_screen("assets/icons/event_choice_1.png", confidence=0.45, region=event_choice_region)
-            
             if not choice_locations:
-                log_info(f"No event choice icons found")
-                return False
-            
-            # Filter out duplicates
-            unique_locations = []
-            for location in choice_locations:
-                x, y, w, h = location
-                center = (x + w//2, y + h//2)
-                is_duplicate = False
-                
-                for existing in unique_locations:
-                    ex, ey, ew, eh = existing
-                    existing_center = (ex + ew//2, ey + eh//2)
-                    distance = ((center[0] - existing_center[0]) ** 2 + (center[1] - existing_center[1]) ** 2) ** 0.5
-                    if distance < 30:  # Within 30 pixels
-                        is_duplicate = True
-                        break
-                
-                if not is_duplicate:
-                    unique_locations.append(location)
-            
-            # Sort locations by Y coordinate (top to bottom)
-            unique_locations.sort(key=lambda loc: loc[1])
+                _, choice_locations = wait_for_stable_event_choices()
+                if not choice_locations:
+                    log_info(f"No event choice icons found")
+                    return False
         else:
             log_debug(f" Using pre-found choice locations")
-            unique_locations = choice_locations
+        unique_locations = sorted(choice_locations, key=lambda loc: loc[1])
         
         # Click the specified choice
         if 1 <= choice_number <= len(unique_locations):

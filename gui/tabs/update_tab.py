@@ -126,7 +126,7 @@ class UpdateTab(QScrollArea):
     def _refresh_commit_info(self):
         """Refresh current commit information"""
         try:
-            from utils.git_manager import GitManager
+            from utils.update.git_manager import GitManager
             
             git_manager = GitManager()
             if git_manager.is_git_repo():
@@ -183,7 +183,7 @@ class UpdateTab(QScrollArea):
         
         def check_thread():
             try:
-                from utils.updater import Updater
+                from utils.update.updater import Updater
                 
                 branch = self.branch_combo.currentText()
                 config = self.main_window.get_config()
@@ -233,7 +233,7 @@ class UpdateTab(QScrollArea):
         
         def update_thread():
             try:
-                from utils.updater import Updater
+                from utils.update.updater import Updater
                 
                 branch = self.branch_combo.currentText()
                 config = self.main_window.get_config()

@@ -13,7 +13,7 @@ else:
 if script_dir and script_dir not in sys.path:
     sys.path.insert(0, script_dir)
 
-from utils.log import log_info, log_warning, log_error, log_success
+from utils.core.log import log_info, log_warning, log_error, log_success
 
 # Fix Windows console encoding for Unicode support
 if os.name == 'nt':  # Windows
@@ -26,8 +26,8 @@ if os.name == 'nt':  # Windows
     except:
         pass
 
-from utils.screenshot import get_screen_size, load_config
-from utils.config_loader import load_main_config
+from utils.capture.screenshot import get_screen_size, load_config
+from utils.core.config_loader import load_main_config
 
 # Load full config to determine mode
 def load_full_config():
@@ -41,7 +41,7 @@ def load_full_config():
 config = load_full_config()
 mode = config.get("mode", "ura").lower()
 
-from utils.ui_check import ui_check
+from utils.vision.ui_check import ui_check
 
 # Import the appropriate execute module based on mode
 if mode == "unity":
@@ -49,9 +49,9 @@ if mode == "unity":
 else:
     mode_name = "URA"
 
-from utils.device import run_adb, _get_adb_path
+from utils.platform.device import run_adb, _get_adb_path
 
-# Logging is now handled by utils.log module
+# Logging is now handled by utils.core.log module
 
 def check_adb_connection():
     """Check if ADB is connected to a device"""
@@ -154,7 +154,7 @@ def main():
     log_info("=" * 40)
     
     try:
-        ui_check(startup=True)  # First call — stop bot if UI is unrecognized
+        ui_check(startup=True)  # First call â€” stop bot if UI is unrecognized
         while True:
             ui_check()
     except KeyboardInterrupt:

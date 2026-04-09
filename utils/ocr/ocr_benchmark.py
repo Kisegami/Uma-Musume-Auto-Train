@@ -12,9 +12,9 @@ from PIL import Image
 import pytesseract
 import re
 
-from utils.screenshot_unified import get_unified_screenshot
-from utils.screenshot import enhanced_screenshot
-from utils.constants_unity import (
+from utils.capture.screenshot_unified import get_unified_screenshot
+from utils.capture.screenshot import enhanced_screenshot
+from utils.constants.unity import (
     TURN_REGION, YEAR_REGION, CRITERIA_REGION, SKILL_PTS_REGION,
     SPD_REGION, STA_REGION, PWR_REGION, GUTS_REGION, WIT_REGION
 )

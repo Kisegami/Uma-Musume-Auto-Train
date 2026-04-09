@@ -7,13 +7,14 @@ Dating can replace recreation/rest actions when available.
 
 import time
 import os
-from utils.recognizer import locate_on_screen, match_template
-from utils.input import tap
-from utils.screenshot import take_screenshot
-from utils.log import log_debug, log_info, log_warning, log_error
-from utils.template_matching import wait_for_image
+from utils.vision.recognizer import locate_on_screen, match_template
+from utils.inputs.input import tap
+from utils.capture.screenshot import take_screenshot
+from utils.core.log import log_debug, log_info, log_warning, log_error
+from utils.vision.template_matching import wait_for_image
 from core.Unity.state import check_dating_available
-from utils.config_loader import load_main_config
+from utils.core.config_loader import load_main_config
+from utils.constants.unity import get_template_region
 
 
 def do_dating():
@@ -37,7 +38,7 @@ def do_dating():
     try:
         # Step 0: Wait for tazuna_hint to confirm we're in the lobby
         log_debug(f"Waiting for tazuna_hint to confirm we're in lobby...")
-        tazuna_hint = wait_for_image("assets/ui/tazuna_hint.png", timeout=10, confidence=0.9)
+        tazuna_hint = wait_for_image("assets/ui/tazuna_hint.png", timeout=10, confidence=0.9, region=get_template_region("assets/ui/tazuna_hint.png"))
         if not tazuna_hint:
             log_warning(f"tazuna_hint not found after waiting - may not be in lobby")
             # Take screenshot and save debug image
@@ -51,7 +52,7 @@ def do_dating():
         
         # Step 1: Tap recreation button
         log_debug(f"Looking for recreation button...")
-        recreation_btn = locate_on_screen("assets/buttons/recreation_btn.png", confidence=0.8)
+        recreation_btn = locate_on_screen("assets/buttons/recreation_btn.png", confidence=0.8, region=get_template_region("assets/buttons/recreation_btn.png"))
         
         if recreation_btn:
             log_debug(f"Found recreation button at {recreation_btn}")
@@ -96,7 +97,7 @@ def do_dating():
             time.sleep(0.5)  # Wait a bit more for screen to load
             
             screenshot = take_screenshot()
-            pal_date_btn = locate_on_screen("assets/ui/pal_date.png", confidence=0.8)
+            pal_date_btn = locate_on_screen("assets/ui/pal_date.png", confidence=0.8, region=get_template_region("assets/ui/pal_date.png"))
             
             if pal_date_btn:
                 log_debug(f"Found pal date button at {pal_date_btn}")
