@@ -45,7 +45,7 @@ RESTART_COMPLETE_SPAM_TARGET = (543, 1787)
 OK_BUTTON_REGION = (309, 1150, 606, 703)
 
 URA_TEMPLATE_REGIONS = {
-    "assets/buttons/back_btn.png": (20, 1660, 240, 220),
+    "assets/buttons/back_btn.png": (3, 1651, 261, 261),
     "assets/buttons/cancel_lobby.png": (58, 1285, 481, 185),
     "assets/buttons/claw.png": (219, 1259, 642, 582),
     "assets/buttons/close.png": (59, 1153, 472, 186),
