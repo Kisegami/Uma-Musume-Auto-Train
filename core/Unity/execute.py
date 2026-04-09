@@ -950,9 +950,9 @@ def career_lobby(timeout=None):
                         # Go back to lobby if we're on training screen
                         if _on_training_screen:
                             log_debug(f"Going back from training screen to lobby...")
-                            tap_on_image("assets/buttons/back_btn.png")
-                            time.sleep(0.3)
-                        if should_use_dating_for_rest(screenshot):
+                            tap_on_image("assets/buttons/back_btn.png", min_search=5, region=get_template_region("assets/buttons/back_btn.png"))
+                            time.sleep(0.5)
+                        if should_use_dating_for_rest():
                             log_info(f"Using dating instead of rest")
                             if not do_dating():
                                 log_warning(f"Dating failed, falling back to rest")
@@ -986,9 +986,9 @@ def career_lobby(timeout=None):
                             # Go back to lobby if on training screen
                             if _on_training_screen:
                                 log_debug(f"Going back from training screen to lobby...")
-                                tap_on_image("assets/buttons/back_btn.png")
-                                time.sleep(0.3)
-                            if should_use_dating_for_rest(screenshot):
+                                tap_on_image("assets/buttons/back_btn.png", min_search=5, region=get_template_region("assets/buttons/back_btn.png"))
+                                time.sleep(0.5)
+                            if should_use_dating_for_rest():
                                 log_info(f"Using dating instead of rest")
                                 if not do_dating():
                                     log_warning(f"Dating failed, falling back to rest")
@@ -1025,11 +1025,11 @@ def career_lobby(timeout=None):
                             wit_score = results_training.get('wit', {}).get('score', 0)
                             if _on_training_screen:
                                 log_debug(f"Going back from training screen to lobby...")
-                                tap_on_image("assets/buttons/back_btn.png")
-                                time.sleep(0.3)
+                                tap_on_image("assets/buttons/back_btn.png", min_search=5, region=get_template_region("assets/buttons/back_btn.png"))
+                                time.sleep(0.5)
                             if wit_score < 1.0:
                                 log_info(f"No viable training after relaxation and no races. Choosing to rest.")
-                                if should_use_dating_for_rest(screenshot):
+                                if should_use_dating_for_rest():
                                     log_info(f"Using dating instead of rest")
                                     if not do_dating():
                                         log_warning(f"Dating failed, falling back to rest")
@@ -1038,7 +1038,7 @@ def career_lobby(timeout=None):
                                     do_rest()
                             else:
                                 log_info(f"No training selected after relaxation. Choosing to rest.")
-                                if should_use_dating_for_rest(screenshot):
+                                if should_use_dating_for_rest():
                                     log_info(f"Using dating instead of rest")
                                     if not do_dating():
                                         log_warning(f"Dating failed, falling back to rest")
@@ -1058,7 +1058,7 @@ def career_lobby(timeout=None):
                             log_info(f"Good race found in database. Going to do race.")
                             # Go back to lobby if on training screen
                             if _on_training_screen:
-                                tap_on_image("assets/buttons/back_btn.png", text="[INFO] Going back to lobby to search for race...")
+                                tap_on_image("assets/buttons/back_btn.png", min_search=5, text="[INFO] Going back to lobby to search for race...", region=get_template_region("assets/buttons/back_btn.png"))
                                 time.sleep(0.5)
                             race_found = find_and_do_race()
                             if race_found:
@@ -1069,7 +1069,7 @@ def career_lobby(timeout=None):
                                 # Go back to training and use relaxed config
                                 if not go_to_training():
                                     log_warning("Could not return to training screen. Choosing to rest.")
-                                    if should_use_dating_for_rest(screenshot):
+                                    if should_use_dating_for_rest():
                                         log_info(f"Using dating instead of rest")
                                         if not do_dating():
                                             log_warning(f"Dating failed, falling back to rest")
@@ -1105,9 +1105,9 @@ def career_lobby(timeout=None):
                             else:
                                 log_info(f"No training found even with relaxed scoring. Going back to rest.")
                                 if _on_training_screen:
-                                    tap_on_image("assets/buttons/back_btn.png")
-                                    time.sleep(0.3)
-                                if should_use_dating_for_rest(screenshot):
+                                    tap_on_image("assets/buttons/back_btn.png", min_search=5, region=get_template_region("assets/buttons/back_btn.png"))
+                                    time.sleep(0.5)
+                                if should_use_dating_for_rest():
                                     log_info(f"Using dating instead of rest")
                                     if not do_dating():
                                         log_warning(f"Dating failed, falling back to rest")
@@ -1117,9 +1117,9 @@ def career_lobby(timeout=None):
                         else:
                             log_info(f"Energy is {energy_percentage:.1f}% (< 50%). Going to rest.")
                             if _on_training_screen:
-                                tap_on_image("assets/buttons/back_btn.png")
-                                time.sleep(0.3)
-                            if should_use_dating_for_rest(screenshot):
+                                tap_on_image("assets/buttons/back_btn.png", min_search=5, region=get_template_region("assets/buttons/back_btn.png"))
+                                time.sleep(0.5)
+                            if should_use_dating_for_rest():
                                 log_info(f"Using dating instead of rest")
                                 if not do_dating():
                                     log_warning(f"Dating failed, falling back to rest")
@@ -1133,9 +1133,24 @@ def career_lobby(timeout=None):
                 # Go back to lobby if on training screen
                 if _on_training_screen:
                     log_debug(f"Going back from training screen to lobby...")
-                    tap_on_image("assets/buttons/back_btn.png")
-                    time.sleep(0.3)
-                if should_use_dating_for_rest(screenshot):
+                    back_region = get_template_region("assets/buttons/back_btn.png")
+                    log_debug(f"Back button region: {back_region}")
+                    # Save debug screenshot before tapping
+                    debug_ss = take_screenshot()
+                    debug_ss.save("debug_before_back_tap.png")
+                    log_debug(f"Saved pre-back-tap screenshot to debug_before_back_tap.png")
+                    back_success = tap_on_image("assets/buttons/back_btn.png", min_search=5, region=back_region)
+                    log_debug(f"Back button tap result: {back_success}")
+                    if not back_success:
+                        log_warning(f"Back button not found on training screen! Trying without region...")
+                        back_success = tap_on_image("assets/buttons/back_btn.png", min_search=5)
+                        log_debug(f"Back button tap (no region) result: {back_success}")
+                    time.sleep(0.5)
+                    # Save debug screenshot after tapping
+                    debug_ss2 = take_screenshot()
+                    debug_ss2.save("debug_after_back_tap.png")
+                    log_debug(f"Saved post-back-tap screenshot to debug_after_back_tap.png")
+                if should_use_dating_for_rest():
                     log_info(f"Using dating instead of rest")
                     if not do_dating():
                         log_warning(f"Dating failed, falling back to rest")

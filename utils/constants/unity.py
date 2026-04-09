@@ -45,7 +45,7 @@ RESTART_COMPLETE_SPAM_TARGET = (543, 1787)
 OK_BUTTON_REGION = (309, 1163, 705, 690)
 
 UNITY_TEMPLATE_REGIONS = {
-    "assets/buttons/back_btn.png": (20, 1660, 240, 220),
+    "assets/buttons/back_btn.png": (3, 1651, 261, 261),
     "assets/buttons/cancel_lobby.png": (295, 1285, 481, 185),
     "assets/buttons/close.png": (59, 1153, 472, 186),
     "assets/buttons/complete_career.png": (573, 1559, 384, 149),
