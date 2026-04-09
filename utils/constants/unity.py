@@ -3,7 +3,7 @@
 # All regions are in PIL format: (left, top, right, bottom)
 
 # Support card icon region (right side of screen)
-from utils.log import log_info, log_warning, log_error, log_debug, log_success
+from utils.core.log import log_info, log_warning, log_error, log_debug, log_success
 SUPPORT_CARD_ICON_REGION=(828, 240, 1080, 1194)
 
 # Mood region (top area)

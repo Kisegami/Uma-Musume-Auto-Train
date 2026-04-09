@@ -9,10 +9,10 @@ The input method is configured via config.json "input_method" setting.
 """
 
 import time
-from utils.device import run_adb
-from utils.recognizer import locate_on_screen
-from utils.config_loader import load_config_section, load_main_config
-from utils.log import log_info, log_warning, log_error, log_debug
+from utils.platform.device import run_adb
+from utils.vision.recognizer import locate_on_screen
+from utils.core.config_loader import load_config_section, load_main_config
+from utils.core.log import log_info, log_warning, log_error, log_debug
 
 
 # ============================================================================
@@ -78,7 +78,7 @@ def _get_maatouch():
     """Get or create MaaTouch connection"""
     global _maatouch_connection
     if _maatouch_connection is None:
-        from utils.maatouch import MaaTouchConnection
+        from utils.inputs.maatouch import MaaTouchConnection
         _maatouch_connection = MaaTouchConnection()
     return _maatouch_connection
 

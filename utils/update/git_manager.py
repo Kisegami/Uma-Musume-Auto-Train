@@ -3,7 +3,7 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Optional, Tuple
-from utils.log import log_info, log_warning, log_error, log_success
+from utils.core.log import log_info, log_warning, log_error, log_success
 
 
 class GitManager:

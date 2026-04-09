@@ -16,10 +16,10 @@ if os.name == 'nt':  # Windows
     except:
         pass
 
-from utils.recognizer import locate_on_screen, locate_all_on_screen, is_image_on_screen, match_template, max_match_confidence, match_templates_batch
-from utils.input import tap, triple_click, long_press, tap_on_image
-from utils.screenshot import take_screenshot, enhanced_screenshot, capture_region
-from utils.constants_unity import (
+from utils.vision.recognizer import locate_on_screen, locate_all_on_screen, is_image_on_screen, match_template, max_match_confidence, match_templates_batch
+from utils.inputs.input import tap, triple_click, long_press, tap_on_image
+from utils.capture.screenshot import take_screenshot, enhanced_screenshot, capture_region
+from utils.constants.unity import (
     MOOD_LIST, EVENT_REGION, RACE_CARD_REGION, SUPPORT_CARD_ICON_REGION, get_template_region
 )
 
@@ -50,7 +50,7 @@ from core.Unity.races_handling import (
     after_race, is_racing_available, is_pre_debut_year
 )
 
-from utils.config_loader import load_main_config
+from utils.core.config_loader import load_main_config
 config = load_main_config()
 DEBUG_MODE = config.get("debug_mode", False)
 racing_config = config.get("racing", {})
@@ -84,14 +84,14 @@ def should_skip_infirmary_check_for_current_turn():
     log_info("Skipping infirmary check for the first turn of the new career")
     return True
 
-from utils.log import log_debug, log_info, log_warning, log_error, log_success
-from utils.template_matching import deduplicated_matches, wait_for_image
-from utils.device import reopen_and_resume_career
-from utils.ui_check import career_ui_check
+from utils.core.log import log_debug, log_info, log_warning, log_error, log_success
+from utils.vision.template_matching import deduplicated_matches, wait_for_image
+from utils.platform.device import reopen_and_resume_career
+from utils.vision.ui_check import career_ui_check
 
 # API mode support
 try:
-    from utils.umat_api import is_api_enabled
+    from utils.integrations.umat_api import is_api_enabled
     _API_MODE = is_api_enabled()
 except ImportError:
     _API_MODE = False
@@ -110,7 +110,7 @@ def is_infirmary_active_adb(button_location, screenshot=None):
         
         # Use provided screenshot or take new one if not provided
         if screenshot is None:
-            from utils.screenshot import take_screenshot
+            from utils.capture.screenshot import take_screenshot
             screenshot = take_screenshot()
         
         # Crop the button region from the screenshot
@@ -163,12 +163,12 @@ def do_rest():
     
     # Rest button is in the lobby, not on training screen
     # If we're on training screen, go back to lobby first
-    from utils.recognizer import locate_on_screen
+    from utils.vision.recognizer import locate_on_screen
     back_btn = locate_on_screen("assets/buttons/back_btn.png", confidence=0.8, region=get_template_region("assets/buttons/back_btn.png"))
     if back_btn:
         log_debug(f"Going back to lobby to find rest button...")
         log_info(f"Going back to lobby to find rest button...")
-        from utils.input import tap
+        from utils.inputs.input import tap
         tap(back_btn[0], back_btn[1])
         time.sleep(1.0)  # Wait for lobby to load
     tazuna_hint = locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.9, region=get_template_region("assets/ui/tazuna_hint.png"))
@@ -176,7 +176,7 @@ def do_rest():
         log_debug(f"tazuna_hint.png not found, taking screenshot again to ensure we are in the lobby...")
         time.sleep(0.7)
         # Take a new screenshot and try again
-        from utils.screenshot import take_screenshot
+        from utils.capture.screenshot import take_screenshot
         take_screenshot()
         tazuna_hint = locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.9, region=get_template_region("assets/ui/tazuna_hint.png"))
         if not tazuna_hint:
@@ -191,14 +191,14 @@ def do_rest():
     if rest_btn:
         log_debug(f"Clicking rest button at {rest_btn}")
         log_info(f"Clicking rest button at {rest_btn}")
-        from utils.input import tap
+        from utils.inputs.input import tap
         tap(rest_btn[0], rest_btn[1])
         log_debug(f"Clicked rest button")
         log_info(f"Rest button clicked")
     elif rest_summer_btn:
         log_debug(f"Clicking summer rest button at {rest_summer_btn}")
         log_info(f"Clicking summer rest button at {rest_summer_btn}")
-        from utils.input import tap
+        from utils.inputs.input import tap
         tap(rest_summer_btn[0], rest_summer_btn[1])
         log_debug(f"Clicked summer rest button")
         log_info(f"Summer rest button clicked")
@@ -271,21 +271,21 @@ def career_lobby(timeout=None):
     training_config_section = config.get("training", {})
     MINIMUM_MOOD = training_config_section.get("minimum_mood", "GREAT")
 
-    # ── Lobby-stuck watchdog ──────────────────────────────────────────────
+    # â”€â”€ Lobby-stuck watchdog â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     # Tracks time spent spinning while NOT in lobby. Starts at the first
     # tazuna_hint check, resets the moment the lobby is confirmed.
     LOBBY_STUCK_TIMEOUT = 30  # seconds; purely lobby-wait time
     _lobby_wait_start = None  # None = not currently waiting for lobby
     _waiting_for_lobby_logged = False
-    # ─────────────────────────────────────────────────────────────────────
+    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    # ── Freeze detection (identical-screenshot watchdog) ─────────────────
-    FREEZE_SAME_THRESHOLD = 10  # consecutive identical frames → frozen
+    # â”€â”€ Freeze detection (identical-screenshot watchdog) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    FREEZE_SAME_THRESHOLD = 10  # consecutive identical frames â†’ frozen
     _prev_screenshot = None
     _freeze_same_count = 0
     FREEZE_MIN_DURATION = 12.0  # identical frames must persist this long before restart
     _freeze_same_since = None
-    # ─────────────────────────────────────────────────────────────────────
+    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     # Timeout support for bounded checks (e.g. from ui_check)
     _timeout_start = time.time() if timeout else None
@@ -302,7 +302,7 @@ def career_lobby(timeout=None):
         log_debug(f"Taking screenshot for UI element checks...")
         screenshot = take_screenshot()
 
-        # ── Freeze detection: compare with previous screenshot ────────
+        # â”€â”€ Freeze detection: compare with previous screenshot â”€â”€â”€â”€â”€â”€â”€â”€
         if _prev_screenshot is not None:
             try:
                 diff = np.mean(np.abs(
@@ -316,7 +316,7 @@ def career_lobby(timeout=None):
                     log_debug(f"[Watchdog] Identical frame #{_freeze_same_count}/{FREEZE_SAME_THRESHOLD}")
                     frozen_for = time.time() - _freeze_same_since
                     if _freeze_same_count >= FREEZE_SAME_THRESHOLD and frozen_for >= FREEZE_MIN_DURATION:
-                        log_warning(f"[Watchdog] Screen frozen for {_freeze_same_count} consecutive frames — restarting game...")
+                        log_warning(f"[Watchdog] Screen frozen for {_freeze_same_count} consecutive frames â€” restarting game...")
                         try:
                             reopen_and_resume_career()
                         except Exception as _fe:
@@ -334,11 +334,11 @@ def career_lobby(timeout=None):
                 _freeze_same_count = 0
                 _freeze_same_since = None
         _prev_screenshot = screenshot.copy()
-        # ──────────────────────────────────────────────────────────────
+        # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         
-        # ── Batch pre-lobby UI checks ─────────────────────────────────
+        # â”€â”€ Batch pre-lobby UI checks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         # Match ALL interrupt/navigation templates in ONE pass:
-        # single screenshot→CV conversion, cached template loading
+        # single screenshotâ†’CV conversion, cached template loading
         log_debug(f"Performing batch UI element check...")
         lobby_template_specs = [
             ("assets/buttons/complete_career.png", 0.8, (574, 1560, 382, 147)),
@@ -354,7 +354,7 @@ def career_lobby(timeout=None):
             ("assets/buttons/back_btn.png", 0.8, (9, 1743, 237, 196)),
         ]
         batch_results = match_templates_batch(screenshot, lobby_template_specs)
-        # ──────────────────────────────────────────────────────────────
+        # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
         # 1. Check for career restart (highest priority)
         log_debug(f"Quick check for Complete Career screen...")
@@ -504,14 +504,14 @@ def career_lobby(timeout=None):
                 time.sleep(0.5)
                 continue
 
-            # ── Watchdog: start / check lobby-wait timer ──────────────────
+            # â”€â”€ Watchdog: start / check lobby-wait timer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             if _lobby_wait_start is None:
                 _lobby_wait_start = time.time()
                 _freeze_same_count = 0
                 _freeze_same_since = None
                 log_debug(f"[Watchdog] Lobby wait timer started.")
             elif time.time() - _lobby_wait_start > LOBBY_STUCK_TIMEOUT:
-                log_warning(f"[Watchdog] Stuck waiting for lobby >{LOBBY_STUCK_TIMEOUT}s — attempting career_ui_check before restart...")
+                log_warning(f"[Watchdog] Stuck waiting for lobby >{LOBBY_STUCK_TIMEOUT}s â€” attempting career_ui_check before restart...")
                 _recovered = False
                 for _ui_attempt in range(3):
                     log_info(f"[Watchdog] Running career_ui_check - Attempt {_ui_attempt + 1}/3...")
@@ -526,7 +526,7 @@ def career_lobby(timeout=None):
                         log_warning(f"[Watchdog] career_ui_check attempt {_ui_attempt + 1} failed: {_uce}")
                     time.sleep(1)
                 if not _recovered:
-                    log_warning(f"[Watchdog] career_ui_check failed 3 times — restarting game...")
+                    log_warning(f"[Watchdog] career_ui_check failed 3 times â€” restarting game...")
                     try:
                         reopen_and_resume_career()
                     except Exception as _wde:
@@ -534,13 +534,13 @@ def career_lobby(timeout=None):
                 _lobby_wait_start = None
                 _freeze_same_count = 0
                 _freeze_same_since = None
-            # ─────────────────────────────────────────────────────────────
+            # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             if not _waiting_for_lobby_logged:
                 log_info(f"Waiting for Career lobby")
                 _waiting_for_lobby_logged = True
             continue
 
-        # Lobby confirmed — reset watchdog timer
+        # Lobby confirmed â€” reset watchdog timer
         _lobby_wait_start = None
         _waiting_for_lobby_logged = False
         _freeze_same_count = 0
@@ -551,7 +551,7 @@ def career_lobby(timeout=None):
         log_debug(f"Taking fresh screenshot after lobby confirmation...")
         screenshot = take_screenshot()
 
-        # ── Invalidate API status cache for new turn ──────────────────────
+        # â”€â”€ Invalidate API status cache for new turn â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         invalidate_status_cache()
 
         # Check if there is debuff status
@@ -582,7 +582,7 @@ def career_lobby(timeout=None):
             else:
                 log_debug(f"No infirmary button detected")
 
-        # ── Get current state ─────────────────────────────────────────────
+        # â”€â”€ Get current state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         log_debug(f"Getting current game state...")
 
         skip_goal_check = should_skip_goal_check()
@@ -590,14 +590,14 @@ def career_lobby(timeout=None):
         if _API_MODE:
             api_status = check_status_api()
             if api_status is None:
-                log_error("❌ [API] Failed to get status from API. Check that uma_viewer is running or disable API mode in config.")
+                log_error("âŒ [API] Failed to get status from API. Check that uma_viewer is running or disable API mode in config.")
                 raise RuntimeError("API mode is enabled but /status API is not responding. Check API connection or set api.enabled to false in config.json.")
             log_info(f"[API] Using API for game status")
             mood = api_status["mood"]
             year = api_status["year"]
             current_stats = api_status["stats"]
             energy_percentage = api_status["energy_pct"]
-            # API doesn't provide goal_name, criteria, dating — use OCR for those
+            # API doesn't provide goal_name, criteria, dating â€” use OCR for those
             if skip_goal_check:
                 goal_data = "Skipped"
                 criteria_text = "Skipped"
@@ -849,14 +849,14 @@ def career_lobby(timeout=None):
                 do_rest()
             continue
 
-        # ── Training check ────────────────────────────────────────────────
+        # â”€â”€ Training check â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         _on_training_screen = False  # track whether we navigated to training screen
 
         if _API_MODE:
             # Get training data from API without navigating to training screen
             _api_training = check_training_api(year=year, current_stats=current_stats)
             if _api_training is None:
-                log_error("❌ [API] Failed to get training data from API. Check that uma_viewer is running or disable API mode in config.")
+                log_error("âŒ [API] Failed to get training data from API. Check that uma_viewer is running or disable API mode in config.")
                 raise RuntimeError("API mode is enabled but /training API is not responding. Check API connection or set api.enabled to false in config.json.")
             log_info(f"[API] Training data from API (no screen navigation needed)")
             results_training = _api_training
@@ -1178,4 +1178,4 @@ def check_goal_criteria(criteria_data, year):
         "should_prioritize_racing": should_prioritize_racing
     } 
 
-# log_and_flush function removed - using utils.log directly
+# log_and_flush function removed - using utils.core.log directly

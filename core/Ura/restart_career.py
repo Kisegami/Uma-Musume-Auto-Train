@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from utils.log import log_info, log_warning, log_error, log_debug, log_success
+from utils.core.log import log_info, log_warning, log_error, log_debug, log_success
 """
 Restart Career functionality for Uma Musume Emulator Auto Train.
 Handles career completion and auto-restart based on configuration.
@@ -18,13 +18,13 @@ os.makedirs(SUPPORTS_DIR, exist_ok=True)
 RESTART_CONFIRM_REGION = (282, 1286, 498, 180)
 RESTART_BACK_BUTTON_CENTER = (123, 1764)
 
-from utils.recognizer import match_template
-from utils.screenshot import take_screenshot
-from utils.input import tap
+from utils.vision.recognizer import match_template
+from utils.capture.screenshot import take_screenshot
+from utils.inputs.input import tap
 from core.Ura.skill_auto_purchase import click_image_button
 from core.Ura.ocr import extract_text, extract_number
-from utils.config_loader import load_main_config
-from utils.constants_ura import (
+from utils.core.config_loader import load_main_config
+from utils.constants.ura import (
     RESTART_COMPLETE_SPAM_TARGET,
     get_template_region as get_default_template_region,
 )
@@ -118,10 +118,10 @@ def check_complete_career_screen(screenshot=None) -> bool:
         screenshot = take_screenshot()
     matches = restart_match_template(screenshot, "assets/buttons/complete_career.png", confidence=0.8)
     if matches:
-        log_info(f"✓ Complete Career screen detected")
+        log_info(f"âœ“ Complete Career screen detected")
         return True
     else:
-        log_info(f"✗ Complete Career screen not detected")
+        log_info(f"âœ— Complete Career screen not detected")
         return False
 
 
@@ -171,7 +171,7 @@ def should_continue_restarting(current_restart_count: int, max_restart_times: in
 
 
 def execute_skill_purchase_workflow(available_points: int):
-    """Execute the skill purchase workflow with merged priorities (main → end → budget)"""
+    """Execute the skill purchase workflow with merged priorities (main â†’ end â†’ budget)"""
     log_info(f"=== Auto Skill Purchase Workflow ===")
     
     # Import here to avoid circular imports
@@ -181,7 +181,7 @@ def execute_skill_purchase_workflow(available_points: int):
     from core.Ura.skill_auto_purchase import execute_skill_purchases
     from core.Ura.skill_recognizer import deduplicate_skills
     try:
-        from utils.umat_api import is_api_enabled
+        from utils.integrations.umat_api import is_api_enabled
         api_mode = is_api_enabled()
     except ImportError:
         api_mode = False
@@ -335,7 +335,7 @@ def load_config():
         return {}
 
 
-from utils.template_matching import wait_for_image
+from utils.vision.template_matching import wait_for_image
 
 
 def filter_support() -> bool:
@@ -441,7 +441,7 @@ def filter_support() -> bool:
                     else:
                         if scroll_attempt < max_scrolls_per_refresh:
                             log_warning(f"No match found on screen (Refresh {refresh_attempt}, Scroll {scroll_attempt}); attempting to scroll.")
-                            from utils.support_swipe import swipe_support_list_down
+                            from utils.inputs.support_swipe import swipe_support_list_down
                             swipe_support_list_down(wait_before=0.5, wait_after=1.5)
                         else:
                             log_warning(f"Max scrolls reached for this refresh cycle.")
@@ -515,7 +515,7 @@ def restore_tp() -> bool:
     
     if tp_bottle_matches:
         # Step 3: Calculate Use button position (offset from bottle)
-        # TP Bottle at (131, 481) → Use button at (912, 481)
+        # TP Bottle at (131, 481) â†’ Use button at (912, 481)
         # X offset = 912 - 131 = 781
         bottle_x, bottle_y = tp_bottle_matches[0], tp_bottle_matches[1]
         use_btn_x = bottle_x + 781
@@ -562,7 +562,7 @@ def restore_tp() -> bool:
         log_warning("Failed to tap close button")
         return False
     
-    log_info("✓ TP restored successfully")
+    log_info("âœ“ TP restored successfully")
     return True
 
 
@@ -582,7 +582,7 @@ def _detect_skip_variant(screenshot=None, confidence: float = 0.7) -> Tuple[Opti
     best_center = None
     best_confidence = 0.0
 
-    from utils.recognizer import max_match_confidence
+    from utils.vision.recognizer import max_match_confidence
 
     for template_path, variant_name in skip_variants:
         if not os.path.exists(template_path):
@@ -818,7 +818,7 @@ def notify_run_completion(screenshot, current_restart_count: int, max_restart_ti
     
     # Send Discord webhook notification
     try:
-        from utils.discord_webhook import is_webhook_enabled, send_run_complete_webhook
+        from utils.integrations.discord_webhook import is_webhook_enabled, send_run_complete_webhook
         if is_webhook_enabled():
             run_number = current_restart_count + 1
             # If max_restart_times is 0 or 1 generally implies single run if logic holds, 
@@ -899,7 +899,7 @@ def execute_restart_cycle(current_restart_count: int, max_restart_times: int,
         log_info(f"Failed to start new career")
         return False, new_restart_count, new_total_fans, False
     
-    log_info(f"✓ Restart cycle {new_restart_count} completed successfully")
+    log_info(f"âœ“ Restart cycle {new_restart_count} completed successfully")
     # Return True with career_started=True to signal we should exit the loop
     # and let the main bot handle gameplay until next career completion
     return True, new_restart_count, new_total_fans, True

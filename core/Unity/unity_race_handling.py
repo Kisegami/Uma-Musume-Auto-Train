@@ -1,12 +1,12 @@
 import time
 from typing import List, Tuple, Optional
 
-from utils.recognizer import match_template, locate_on_screen, max_match_confidence
-from utils.template_matching import deduplicated_matches
-from utils.screenshot import take_screenshot
-from utils.input import tap, wait_and_tap
-from utils.log import log_info, log_debug, log_warning
-from utils.constants_unity import get_template_region
+from utils.vision.recognizer import match_template, locate_on_screen, max_match_confidence
+from utils.vision.template_matching import deduplicated_matches
+from utils.capture.screenshot import take_screenshot
+from utils.inputs.input import tap, wait_and_tap
+from utils.core.log import log_info, log_debug, log_warning
+from utils.constants.unity import get_template_region
 
 # Regions (x1, y1, x2, y2)
 TEAM_RANK_REGION = (0, 48, 270, 201)

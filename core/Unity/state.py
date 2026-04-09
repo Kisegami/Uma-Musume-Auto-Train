@@ -3,27 +3,27 @@ import time
 import os
 
 from PIL import Image, ImageEnhance
-from utils.screenshot import capture_region, enhanced_screenshot, enhanced_screenshot_for_failure, enhanced_screenshot_for_year, take_screenshot
+from utils.capture.screenshot import capture_region, enhanced_screenshot, enhanced_screenshot_for_failure, enhanced_screenshot_for_year, take_screenshot
 from core.Unity.ocr import extract_text, extract_number
-from utils.recognizer import match_template, max_match_confidence
+from utils.vision.recognizer import match_template, max_match_confidence
 from core.Unity.skill_auto_purchase import execute_skill_purchases, click_image_button, extract_skill_points
 from core.Unity.skill_recognizer import scan_all_skills_with_scroll, get_skills_api
 from core.Unity.skill_purchase_optimizer import load_skill_config, create_purchase_plan, filter_affordable_skills
 
-from utils.constants_unity import (
+from utils.constants.unity import (
     SUPPORT_CARD_ICON_REGION, TURN_REGION, FAILURE_REGION, YEAR_REGION, 
     CRITERIA_REGION, SPD_REGION, STA_REGION, PWR_REGION, GUTS_REGION, WIT_REGION,
     SKILL_PTS_REGION, FAILURE_REGION_SPD, FAILURE_REGION_STA, FAILURE_REGION_PWR, FAILURE_REGION_GUTS, FAILURE_REGION_WIT,
     get_template_region
 )
 
-from utils.log import log_debug, log_info, log_warning, log_error
-from utils.config_loader import load_main_config
+from utils.core.log import log_debug, log_info, log_warning, log_error
+from utils.core.config_loader import load_main_config
 
 # Load config and check debug mode
 config = load_main_config()
 DEBUG_MODE = config.get("debug_mode", False)
-from utils.template_matching import deduplicated_matches
+from utils.vision.template_matching import deduplicated_matches
 
 # Get Stat
 def stat_state(screenshot=None):
@@ -180,7 +180,7 @@ def check_turn(screenshot=None):
         
         # Character replacements for common OCR errors (only for digit extraction)
         original_text = turn_text
-        turn_text = turn_text.replace('y', '9').replace(']', '1').replace('l', '1').replace('I', '1').replace('o', '8').replace('O', '0').replace('/', '7').replace('®', '9')
+        turn_text = turn_text.replace('y', '9').replace(']', '1').replace('l', '1').replace('I', '1').replace('o', '8').replace('O', '0').replace('/', '7').replace('Â®', '9')
         log_debug(f"Turn OCR after character replacement: '{turn_text}' (was '{original_text})')")
         
         # Extract all consecutive digits (not just first digit)
@@ -330,7 +330,7 @@ def check_skill_points_cap(screenshot=None):
 
     # Check if API mode is enabled
     try:
-        from utils.umat_api import is_api_enabled
+        from utils.integrations.umat_api import is_api_enabled
         _api_on = is_api_enabled()
     except ImportError:
         _api_on = False
@@ -338,7 +338,7 @@ def check_skill_points_cap(screenshot=None):
     if _api_on:
         current_skill_points = check_skill_points_api()
         if current_skill_points is None:
-            log_error("❌ [API] Failed to get skill points from API. Check that uma_viewer is running or disable API mode in config.")
+            log_error("âŒ [API] Failed to get skill points from API. Check that uma_viewer is running or disable API mode in config.")
             raise RuntimeError("API mode is enabled but /status API is not responding. Check API connection or set api.enabled to false in config.json.")
     else:
         current_skill_points = check_skill_points(screenshot)
@@ -357,7 +357,7 @@ def check_skill_points_cap(screenshot=None):
                     # API mode: get skill list from API
                     api_skills = get_skills_api()
                     if api_skills is None:
-                        log_error("❌ [API] Failed to get skill list from API. Check that uma_viewer is running or disable API mode in config.")
+                        log_error("âŒ [API] Failed to get skill list from API. Check that uma_viewer is running or disable API mode in config.")
                         raise RuntimeError("API mode is enabled but /skills API is not responding. Check API connection or set api.enabled to false in config.json.")
                     log_info(f"[API] Got {len(api_skills)} skills from API (skipping OCR scan)")
                     all_skills = api_skills
@@ -443,7 +443,7 @@ def check_skill_points_cap(screenshot=None):
             # Show the message box
             result = messagebox.showinfo(
                 title="Skill Points Cap Reached",
-                message=f"Skill points ({current_skill_points}) exceed the cap ({skill_point_cap}).\n\nYou can:\n• Use your skill points manually, then click OK\n• Click OK without spending (automation continues)\n\nNote: This check only happens on race days."
+                message=f"Skill points ({current_skill_points}) exceed the cap ({skill_point_cap}).\n\nYou can:\nâ€¢ Use your skill points manually, then click OK\nâ€¢ Click OK without spending (automation continues)\n\nNote: This check only happens on race days."
             )
             
             # Destroy the root window
@@ -469,8 +469,8 @@ def check_current_stats(screenshot=None):
     Returns:
         dict: Dictionary of current stats with keys: spd, sta, pwr, guts, wit
     """
-    from utils.constants_unity import SPD_REGION, STA_REGION, PWR_REGION, GUTS_REGION, WIT_REGION
-    from utils.screenshot import take_screenshot
+    from utils.constants.unity import SPD_REGION, STA_REGION, PWR_REGION, GUTS_REGION, WIT_REGION
+    from utils.capture.screenshot import take_screenshot
     
     # Use provided screenshot or take new one if not provided
     if screenshot is None:
@@ -528,7 +528,7 @@ def check_energy_bar(screenshot=None, debug_visualization=False):
     try:
         import cv2
         import numpy as np
-        from utils.screenshot import take_screenshot
+        from utils.capture.screenshot import take_screenshot
 
         if screenshot is None:
             screenshot = take_screenshot()
@@ -710,7 +710,7 @@ def _resolve_skill_file_path(path):
     return os.path.join(project_root, candidates[-1])
 
 
-# ── API-powered state functions ──────────────────────────────────────────────
+# â”€â”€ API-powered state functions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # These call the uma_viewer API for fast, packet-backed data.
 # All return None when API is unavailable, allowing OCR fallback.
 
@@ -724,7 +724,7 @@ def _get_status_cached():
     if _cached_status is not None:
         return _cached_status
     try:
-        from utils.umat_api import get_status
+        from utils.integrations.umat_api import get_status
         data = get_status()
         if data is not None:
             _cached_status = data

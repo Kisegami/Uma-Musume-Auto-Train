@@ -3,8 +3,8 @@ import os
 import sys
 from difflib import SequenceMatcher
 from core.Unity.skill_recognizer import scan_all_skills_with_scroll, deduplicate_skills
-from utils.log import log_debug, log_info, log_warning, log_error
-from utils.config_loader import load_main_config
+from utils.core.log import log_debug, log_info, log_warning, log_error
+from utils.core.config_loader import load_main_config
 
 # Fix Windows console encoding for Unicode support
 if os.name == 'nt':  # Windows
@@ -17,7 +17,7 @@ if os.name == 'nt':  # Windows
     except:
         pass
 
-# debug_print is imported from utils.log
+# debug_print is imported from utils.core.log
 
 def load_skill_config(config_path=None):
     """
@@ -198,8 +198,8 @@ def create_purchase_plan(available_skills, config, end_career=False):
     Create optimized purchase plan based on available skills and config.
     
     Regular logic:
-    - If gold skill appears → buy it
-    - If gold skill not available but base skill appears → buy base skill
+    - If gold skill appears â†’ buy it
+    - If gold skill not available but base skill appears â†’ buy base skill
     
     End-career logic:
     - Buy as many skills as possible (cheapest first) to maximize skill points usage
@@ -241,7 +241,7 @@ def create_purchase_plan(available_skills, config, end_career=False):
         if priority_skill in gold_upgrades:
             base_skill_name = gold_upgrades[priority_skill]
             
-            # Rule 1: If gold skill appears → buy it (try exact then fuzzy match)
+            # Rule 1: If gold skill appears â†’ buy it (try exact then fuzzy match)
             skill = None
             if priority_skill in available_by_name and available_by_name[priority_skill]['name'] not in matched_skills:
                 skill = available_by_name[priority_skill]
@@ -253,7 +253,7 @@ def create_purchase_plan(available_skills, config, end_career=False):
                 matched_skills.add(skill['name'])  # Mark as matched
                 log_info(f"Gold skill found: {skill['name']} - {skill['price']}")
                 
-            # Rule 2: If gold not available but base skill appears → buy base
+            # Rule 2: If gold not available but base skill appears â†’ buy base
             else:
                 base_skill = None
                 if base_skill_name in available_by_name and available_by_name[base_skill_name]['name'] not in matched_skills:
@@ -342,13 +342,13 @@ def filter_affordable_skills(purchase_plan, available_points):
                 affordable_skills.append(skill)
                 total_cost += skill_cost
                 remaining_points = available_points - total_cost
-                log_info(f"✅ {skill['name']:<30} | Cost: {skill_cost:<4} | Remaining: {remaining_points}")
+                log_info(f"âœ… {skill['name']:<30} | Cost: {skill_cost:<4} | Remaining: {remaining_points}")
             else:
                 needed_points = skill_cost - (available_points - total_cost)
-                log_info(f"❌ {skill['name']:<30} | Cost: {skill_cost:<4} | Need {needed_points} more points")
+                log_info(f"âŒ {skill['name']:<30} | Cost: {skill_cost:<4} | Need {needed_points} more points")
                 
         except ValueError:
-            log_info(f"⚠️  {skill['name']:<30} | Invalid price: {skill['price']}")
+            log_info(f"âš ï¸  {skill['name']:<30} | Invalid price: {skill['price']}")
     
     remaining_points = available_points - total_cost
     
@@ -369,10 +369,10 @@ def calculate_total_cost(purchase_plan):
 def print_purchase_summary(purchase_plan):
     """Print a nice summary of the purchase plan."""
     if not purchase_plan:
-        log_info(f"📋 No skills to purchase based on your priority list.")
+        log_info(f"ðŸ“‹ No skills to purchase based on your priority list.")
         return
     
-    log_info(f"\n📋 PURCHASE PLAN:")
+    log_info(f"\nðŸ“‹ PURCHASE PLAN:")
     log_info(f"=" * 60)
     
     total_cost = 0

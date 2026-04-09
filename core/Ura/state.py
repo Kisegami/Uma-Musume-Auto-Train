@@ -3,26 +3,26 @@ import time
 import os
 
 from PIL import Image, ImageEnhance
-from utils.screenshot import capture_region, enhanced_screenshot, enhanced_screenshot_for_failure, enhanced_screenshot_for_year, take_screenshot
+from utils.capture.screenshot import capture_region, enhanced_screenshot, enhanced_screenshot_for_failure, enhanced_screenshot_for_year, take_screenshot
 from core.Ura.ocr import extract_text, extract_number
-from utils.recognizer import match_template, max_match_confidence
+from utils.vision.recognizer import match_template, max_match_confidence
 from core.Ura.skill_auto_purchase import execute_skill_purchases, click_image_button, extract_skill_points
 from core.Ura.skill_recognizer import scan_all_skills_with_scroll, get_skills_api
 from core.Ura.skill_purchase_optimizer import load_skill_config, create_purchase_plan, filter_affordable_skills
 
-from utils.constants_ura import (
+from utils.constants.ura import (
     SUPPORT_CARD_ICON_REGION, FAILURE_REGION, YEAR_REGION,
     CRITERIA_REGION, SPD_REGION, STA_REGION, PWR_REGION, GUTS_REGION, WIT_REGION,
     SKILL_PTS_REGION, FAILURE_REGION_SPD, FAILURE_REGION_STA, FAILURE_REGION_PWR, FAILURE_REGION_GUTS, FAILURE_REGION_WIT
 )
 
-from utils.log import log_debug, log_info, log_warning, log_error
-from utils.config_loader import load_main_config
+from utils.core.log import log_debug, log_info, log_warning, log_error
+from utils.core.config_loader import load_main_config
 
 # Load config and check debug mode
 config = load_main_config()
 DEBUG_MODE = config.get("debug_mode", False)
-from utils.template_matching import deduplicated_matches
+from utils.vision.template_matching import deduplicated_matches
 
 # Get Stat
 def stat_state(screenshot=None):
@@ -226,7 +226,7 @@ def check_skill_points_cap(screenshot=None):
     skills_config = config.get("skills", {})
     skill_point_cap = skills_config.get("skill_point_cap", config.get("skill_point_cap", 9999))
     try:
-        from utils.umat_api import is_api_enabled
+        from utils.integrations.umat_api import is_api_enabled
         _api_on = is_api_enabled()
     except ImportError:
         _api_on = False
@@ -340,7 +340,7 @@ def check_skill_points_cap(screenshot=None):
             # Show the message box
             result = messagebox.showinfo(
                 title="Skill Points Cap Reached",
-                message=f"Skill points ({current_skill_points}) exceed the cap ({skill_point_cap}).\n\nYou can:\n• Use your skill points manually, then click OK\n• Click OK without spending (automation continues)\n\nNote: This check only happens on race days."
+                message=f"Skill points ({current_skill_points}) exceed the cap ({skill_point_cap}).\n\nYou can:\nâ€¢ Use your skill points manually, then click OK\nâ€¢ Click OK without spending (automation continues)\n\nNote: This check only happens on race days."
             )
             
             # Destroy the root window
@@ -366,8 +366,8 @@ def check_current_stats(screenshot=None):
     Returns:
         dict: Dictionary of current stats with keys: spd, sta, pwr, guts, wit
     """
-    from utils.constants_ura import SPD_REGION, STA_REGION, PWR_REGION, GUTS_REGION, WIT_REGION
-    from utils.screenshot import take_screenshot
+    from utils.constants.ura import SPD_REGION, STA_REGION, PWR_REGION, GUTS_REGION, WIT_REGION
+    from utils.capture.screenshot import take_screenshot
     from PIL import Image, ImageEnhance
     
     # Use provided screenshot or take new one if not provided
@@ -431,7 +431,7 @@ def check_energy_bar(screenshot=None, debug_visualization=False):
     try:
         import cv2
         import numpy as np
-        from utils.screenshot import take_screenshot
+        from utils.capture.screenshot import take_screenshot
 
         if screenshot is None:
             screenshot = take_screenshot()
@@ -624,7 +624,7 @@ def _get_status_cached():
     if _cached_status is not None:
         return _cached_status
     try:
-        from utils.umat_api import get_status
+        from utils.integrations.umat_api import get_status
         data = get_status()
         if data is not None:
             _cached_status = data

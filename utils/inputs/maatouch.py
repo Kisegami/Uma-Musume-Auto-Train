@@ -16,9 +16,9 @@ from pathlib import Path
 from typing import Optional, Tuple, List
 from dataclasses import dataclass
 
-from utils.device import run_adb, _get_adb_path
-from utils.config_loader import load_config_section
-from utils.log import log_info, log_warning, log_error, log_debug
+from utils.platform.device import run_adb, _get_adb_path
+from utils.core.config_loader import load_config_section
+from utils.core.log import log_info, log_warning, log_error, log_debug
 
 
 @dataclass
@@ -30,8 +30,8 @@ class MaaTouchConfig:
 
 def _find_maatouch_binary() -> Optional[str]:
     """Find the MaaTouch binary in utils/input/"""
-    script_dir = Path(__file__).parent.parent
-    path = script_dir / 'utils' / 'input' / 'maatouchsync'
+    utils_dir = Path(__file__).resolve().parent.parent
+    path = utils_dir / 'input' / 'maatouchsync'
     if path.exists():
         return str(path)
     return None

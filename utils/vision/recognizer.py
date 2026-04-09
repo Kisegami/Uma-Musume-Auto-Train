@@ -2,17 +2,17 @@ import cv2
 import numpy as np
 from PIL import Image
 import os
-from utils.screenshot import take_screenshot
-from utils.log import log_debug, log_info, log_warning, log_error
-from utils.template_match_dump import record_single_template_match, record_template_matches_for_mode
-from utils.config_loader import load_main_config
-from utils.constants_unity import get_template_region as get_unity_template_region
-from utils.constants_ura import get_template_region as get_ura_template_region
+from utils.capture.screenshot import take_screenshot
+from utils.core.log import log_debug, log_info, log_warning, log_error
+from utils.vision.template_match_dump import record_single_template_match, record_template_matches_for_mode
+from utils.core.config_loader import load_main_config
+from utils.constants.unity import get_template_region as get_unity_template_region
+from utils.constants.ura import get_template_region as get_ura_template_region
 
 def _get_project_root():
     """Get the project root directory"""
     current = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.dirname(current)
+    project_root = os.path.dirname(os.path.dirname(current))
     
     if os.path.exists(os.path.join(project_root, 'main.py')) or os.path.exists(os.path.join(project_root, 'assets')):
         return project_root
@@ -36,7 +36,7 @@ def _resolve_asset_path(template_path):
     resolved_path = os.path.normpath(resolved_path)
     return resolved_path
 
-# ── Template image cache & conversion helpers ─────────────────────────
+# â”€â”€ Template image cache & conversion helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 _template_cache = {}
 
 def _load_template(template_path):
@@ -80,7 +80,7 @@ def _resolve_search_region(template_path, region):
     except Exception:
         pass
     return None
-# ──────────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def match_template(screenshot, template_path, confidence=0.8, region=None):
     """

@@ -7,14 +7,14 @@ Dating can replace recreation/rest actions when available.
 
 import time
 import os
-from utils.recognizer import locate_on_screen, match_template
-from utils.input import tap
-from utils.screenshot import take_screenshot
-from utils.log import log_debug, log_info, log_warning, log_error
-from utils.template_matching import wait_for_image
+from utils.vision.recognizer import locate_on_screen, match_template
+from utils.inputs.input import tap
+from utils.capture.screenshot import take_screenshot
+from utils.core.log import log_debug, log_info, log_warning, log_error
+from utils.vision.template_matching import wait_for_image
 from core.Unity.state import check_dating_available
-from utils.config_loader import load_main_config
-from utils.constants_unity import get_template_region
+from utils.core.config_loader import load_main_config
+from utils.constants.unity import get_template_region
 
 
 def do_dating():

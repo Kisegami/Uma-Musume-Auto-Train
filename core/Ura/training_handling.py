@@ -5,13 +5,13 @@ import numpy as np
 import re
 import os
 
-from utils.recognizer import locate_on_screen, locate_all_on_screen, is_image_on_screen, match_template, max_match_confidence
-from utils.input import tap, triple_click, swipe, tap_on_image
-from utils.screenshot import take_screenshot, enhanced_screenshot
-from utils.constants_ura import *
-from utils.log import log_debug, log_info, log_warning, log_error
-from utils.template_matching import wait_for_image, deduplicated_matches
-from utils.config_loader import load_main_config
+from utils.vision.recognizer import locate_on_screen, locate_all_on_screen, is_image_on_screen, match_template, max_match_confidence
+from utils.inputs.input import tap, triple_click, swipe, tap_on_image
+from utils.capture.screenshot import take_screenshot, enhanced_screenshot
+from utils.constants.ura import *
+from utils.core.log import log_debug, log_info, log_warning, log_error
+from utils.vision.template_matching import wait_for_image, deduplicated_matches
+from utils.core.config_loader import load_main_config
 
 # Load config for DEBUG_MODE
 config = load_main_config()
@@ -135,7 +135,7 @@ def check_training(go_back=True, current_stats=None):
         region_cv = (left, top, right - left, bottom - top)
 
         # Support counts - pass screenshot to avoid taking new one
-        support_counts = check_support_card(screenshot)  # ✅ Pass screenshot
+        support_counts = check_support_card(screenshot)  # âœ… Pass screenshot
         total_support = sum(support_counts.values())
 
         # Bond levels per type
@@ -166,7 +166,7 @@ def check_training(go_back=True, current_stats=None):
                 detailed_support[t_key] = entries
 
         # Hint - pass screenshot to avoid taking new one
-        hint_found = check_hint(screenshot)  # ✅ Pass screenshot
+        hint_found = check_hint(screenshot)  # âœ… Pass screenshot
 
         # Calculate score for this training type
         score = calculate_training_score(detailed_support, hint_found, key)
@@ -175,7 +175,7 @@ def check_training(go_back=True, current_stats=None):
 
         log_debug(f"Checking failure rate for {key.upper()} training...")
         # Pass screenshot to avoid taking new ones
-        failure_chance, confidence = check_failure(screenshot, key)  # ✅ Pass screenshot
+        failure_chance, confidence = check_failure(screenshot, key)  # âœ… Pass screenshot
         
         results[key] = {
             "support": support_counts,
@@ -275,7 +275,7 @@ def check_support_card(screenshot, threshold=0.9):
     count_result = {}
 
     # Use provided screenshot instead of taking new one
-    # screenshot = take_screenshot()  # ❌ REMOVED
+    # screenshot = take_screenshot()  # âŒ REMOVED
     
     # Save full screenshot for debugging only in debug mode
     if DEBUG_MODE:
@@ -345,7 +345,7 @@ def check_hint(screenshot, template_path: str = "assets/icons/hint.png", confide
     """
     try:
         # Use provided screenshot instead of taking new one
-        # screenshot = take_screenshot()  # ❌ REMOVED
+        # screenshot = take_screenshot()  # âŒ REMOVED
 
         # Convert PIL (left, top, right, bottom) to OpenCV (x, y, width, height)
         left, top, right, bottom = SUPPORT_CARD_ICON_REGION
@@ -378,8 +378,8 @@ def check_failure(screenshot, train_type):
         (rate, confidence)
     """
     log_debug(f" ===== STARTING FAILURE DETECTION for {train_type.upper()} =====")
-    from utils.constants_ura import FAILURE_REGION_SPD, FAILURE_REGION_STA, FAILURE_REGION_PWR, FAILURE_REGION_GUTS, FAILURE_REGION_WIT
-    from utils.screenshot import enhanced_screenshot, take_screenshot
+    from utils.constants.ura import FAILURE_REGION_SPD, FAILURE_REGION_STA, FAILURE_REGION_PWR, FAILURE_REGION_GUTS, FAILURE_REGION_WIT
+    from utils.capture.screenshot import enhanced_screenshot, take_screenshot
     import numpy as np
     import re
     from PIL import ImageEnhance
@@ -737,7 +737,7 @@ def check_training_api(current_stats=None):
         dict | None: Training results keyed by stat name, or None if API is unavailable.
     """
     try:
-        from utils.umat_api import get_training, is_api_enabled
+        from utils.integrations.umat_api import get_training, is_api_enabled
         if not is_api_enabled():
             return None
         api_data = get_training()

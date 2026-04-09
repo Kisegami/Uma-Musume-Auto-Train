@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
 from typing import List, Tuple, Optional
-from utils.log import debug_print
-from utils.log import log_debug, log_info, log_warning, log_error
+from utils.core.log import debug_print
+from utils.core.log import log_debug, log_info, log_warning, log_error
 
 def deduplicated_matches(matches: List[Tuple[int, int, int, int]], 
                         threshold: int = 30) -> List[Tuple[int, int, int, int]]:
@@ -74,7 +74,7 @@ def wait_for_image(template_path: str,
         (x, y) center coordinates if image found, None if timeout
     """
     import time
-    from utils.recognizer import locate_on_screen
+    from utils.vision.recognizer import locate_on_screen
     
     start_time = time.time()
     

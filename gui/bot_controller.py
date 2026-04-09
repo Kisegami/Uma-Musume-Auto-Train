@@ -9,8 +9,8 @@ import re
 from datetime import datetime
 from PySide6.QtWidgets import QMessageBox
 from PySide6.QtCore import QMetaObject, Qt, Q_ARG, QObject, Signal, Slot
-from utils.emulator_detect import resolve_emulator_connection, EmulatorManager, Emulator
-from utils.device import _get_adb_path
+from utils.platform.emulator_detect import resolve_emulator_connection, EmulatorManager, Emulator
+from utils.platform.device import _get_adb_path
 
 
 class LogSignaler(QObject):

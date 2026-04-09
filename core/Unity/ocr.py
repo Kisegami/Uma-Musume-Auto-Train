@@ -1,11 +1,11 @@
 """
 OCR module for Unity mode.
-This module re-exports OCR functions from utils.ocr_utils for backward compatibility.
-All OCR functionality has been moved to utils.ocr_utils for better code organization.
+This module re-exports OCR functions from utils.ocr.ocr_utils for backward compatibility.
+All OCR functionality has been moved to utils.ocr.ocr_utils for better code organization.
 """
 
-# Re-export all OCR functions from utils.ocr_utils
-from utils.ocr_utils import (
+# Re-export all OCR functions from utils.ocr.ocr_utils
+from utils.ocr.ocr_utils import (
     extract_text,
     extract_number,
     extract_text_with_data,

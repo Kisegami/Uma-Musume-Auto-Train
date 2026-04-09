@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 
 from ..styles import COLORS
+from ..icon_helper import get_icon
 
 
 class SkillTab(QScrollArea):
@@ -108,9 +109,8 @@ class SkillTab(QScrollArea):
         end_skill_layout.setSpacing(12)
         
         # Note label
-        note_label = QLabel("⚠️ Used automatically when Restart Career is enabled")
-        note_label.setStyleSheet(f"color: {COLORS['accent_orange']}; font-size: 11px;")
-        end_skill_layout.addWidget(note_label)
+        note_row = self._create_note_row("warning", "Used automatically when Restart Career is enabled")
+        end_skill_layout.addWidget(note_row)
         
         # End skill template selection (always visible)
         self.end_skill_widget = QWidget()
@@ -186,14 +186,30 @@ class SkillTab(QScrollArea):
         swipe_offset_layout.addLayout(test_buttons_layout)
         
         # Test note
-        test_note_label = QLabel("⚠️ Note: Make sure the game is open on the skill list screen before testing.")
-        test_note_label.setStyleSheet(f"color: {COLORS['accent_orange']}; font-size: 11px;")
-        swipe_offset_layout.addWidget(test_note_label)
+        test_note_row = self._create_note_row("warning", "Make sure the game is open on the skill list screen before testing.")
+        swipe_offset_layout.addWidget(test_note_row)
         
         layout.addWidget(self.swipe_offset_group)
         
         layout.addStretch()
         self.setWidget(container)
+
+    def _create_note_row(self, icon_name, text):
+        row = QWidget()
+        row_layout = QHBoxLayout(row)
+        row_layout.setContentsMargins(0, 0, 0, 0)
+        row_layout.setSpacing(8)
+
+        icon_label = QLabel()
+        icon_label.setPixmap(get_icon(icon_name, COLORS['accent_orange']).pixmap(14, 14))
+        row_layout.addWidget(icon_label, 0, Qt.AlignTop)
+
+        text_label = QLabel(text)
+        text_label.setWordWrap(True)
+        text_label.setStyleSheet(f"color: {COLORS['accent_orange']}; font-size: 11px;")
+        row_layout.addWidget(text_label)
+        row_layout.addStretch()
+        return row
     
     def _get_skills_dir(self):
         """Get skills template directory"""
@@ -417,7 +433,7 @@ class SkillTab(QScrollArea):
     def _test_single_swipe(self):
         """Run single swipe test in background thread"""
         def run_test():
-            from utils.skill_swipe import swipe_skill_list_down_slow
+            from utils.inputs.skill_swipe import swipe_skill_list_down_slow
             swipe_skill_list_down_slow(wait_before=1.0)
             
         threading.Thread(target=run_test, daemon=True).start()

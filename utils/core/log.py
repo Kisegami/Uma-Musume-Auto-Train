@@ -2,7 +2,7 @@ import os
 import sys
 import logging
 from datetime import datetime
-from utils.config_loader import load_main_config
+from utils.core.config_loader import load_main_config
 
 # Load DEBUG_MODE once; fallback to False on error
 _cfg = load_main_config()

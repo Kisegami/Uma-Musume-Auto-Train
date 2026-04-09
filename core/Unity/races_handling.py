@@ -4,15 +4,15 @@ import random
 import numpy as np
 from PIL import ImageStat
 
-from utils.recognizer import locate_on_screen, match_template, locate_all_on_screen, max_match_confidence
-from utils.input import tap, triple_click, long_press, tap_on_image, swipe
-from utils.screenshot import take_screenshot
-from utils.template_matching import wait_for_image, deduplicated_matches
-from utils.log import log_debug, log_info, log_warning, log_error, log_success
-from utils.config_loader import load_main_config
+from utils.vision.recognizer import locate_on_screen, match_template, locate_all_on_screen, max_match_confidence
+from utils.inputs.input import tap, triple_click, long_press, tap_on_image, swipe
+from utils.capture.screenshot import take_screenshot
+from utils.vision.template_matching import wait_for_image, deduplicated_matches
+from utils.core.log import log_debug, log_info, log_warning, log_error, log_success
+from utils.core.config_loader import load_main_config
 from core.Unity.state import check_skill_points_cap, check_current_year
 from core.Unity.ocr import extract_text
-from utils.constants_unity import get_template_region
+from utils.constants.unity import get_template_region
 import os
 
 # Helper function to get project root directory

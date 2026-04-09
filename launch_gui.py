@@ -28,8 +28,8 @@ else:
 if script_dir and script_dir not in sys.path:
     sys.path.insert(0, script_dir)
 
-from utils.log import log_info, log_warning, log_error, log_debug, log_success
-from utils.emulator_detect import list_emulator_types
+from utils.core.log import log_info, log_warning, log_error, log_debug, log_success
+from utils.platform.emulator_detect import list_emulator_types
 
 
 def check_config_file(config_file: str, example_file: str) -> dict:
@@ -118,7 +118,7 @@ def main():
     # Check for updates before starting GUI, but only when auto-update is enabled.
     # Manual update checks remain available from the Update tab.
     try:
-        from utils.config_loader import load_main_config
+        from utils.core.config_loader import load_main_config
         config = load_main_config() if os.path.exists('config.json') else {}
         
         update_config = config.get('update', {})
@@ -128,7 +128,7 @@ def main():
         remote = update_config.get('remote', 'origin')
         
         if auto_update:
-            from utils.updater import check_and_update
+            from utils.update.updater import check_and_update
             if check_and_update(branch=branch, remote=remote, auto_update=True, install_dependencies=install_dependencies):
                 log_info("Application was updated. Please restart to use the new version.")
                 input("Press Enter to exit...")

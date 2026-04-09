@@ -166,9 +166,9 @@ class OthersTab(QScrollArea):
             return
 
         try:
-            from utils.discord_webhook import send_test_webhook
+            from utils.integrations.discord_webhook import send_test_webhook
             try:
-                from utils.screenshot import take_screenshot
+                from utils.capture.screenshot import take_screenshot
                 screenshot = take_screenshot()
             except Exception as e:
                 print(f"Failed to take screenshot for test: {e}")

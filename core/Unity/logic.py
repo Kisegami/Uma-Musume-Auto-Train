@@ -1,6 +1,6 @@
 from core.Unity.state import check_current_year, stat_state
-from utils.log import log_debug, log_info, log_warning, log_error
-from utils.config_loader import load_main_config
+from utils.core.log import log_debug, log_info, log_warning, log_error
+from utils.core.config_loader import load_main_config
 
 config = load_main_config()
 

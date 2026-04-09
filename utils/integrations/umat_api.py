@@ -9,10 +9,10 @@ allowing callers to fall back to OCR-based detection seamlessly.
 """
 
 import requests
-from utils.log import log_debug, log_info, log_warning, log_error
-from utils.config_loader import load_main_config
+from utils.core.log import log_debug, log_info, log_warning, log_error
+from utils.core.config_loader import load_main_config
 
-# ── Configuration ─────────────────────────────────────────────────────────────
+# â”€â”€ Configuration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 _config = load_main_config()
 _api_config = _config.get("api", {})
@@ -22,7 +22,7 @@ API_BASE_URL = _api_config.get("base_url", "http://localhost:8123").rstrip("/")
 API_TIMEOUT = _api_config.get("timeout", 2)  # seconds
 
 
-# ── Internal helpers ──────────────────────────────────────────────────────────
+# â”€â”€ Internal helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def _api_get(endpoint: str) -> dict | None:
     """
@@ -44,7 +44,7 @@ def _api_get(endpoint: str) -> dict | None:
 
         # Check for waiting state
         if isinstance(data, dict) and data.get("status") == "waiting":
-            log_debug(f"[API] {endpoint} → waiting (no packet data yet)")
+            log_debug(f"[API] {endpoint} â†’ waiting (no packet data yet)")
             return None
 
         return data
@@ -73,7 +73,7 @@ def reload_config():
     API_TIMEOUT = _api_config.get("timeout", 2)
 
 
-# ── Public API ────────────────────────────────────────────────────────────────
+# â”€â”€ Public API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def is_api_enabled() -> bool:
     """Check if API mode is enabled in config."""

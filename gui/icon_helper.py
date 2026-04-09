@@ -45,6 +45,13 @@ def get_icon(name: str, color: str = "white") -> QIcon:
         'delete': 'fa5s.trash',
         'add': 'fa5s.plus',
         'remove': 'fa5s.minus',
+        'search': 'fa5s.search',
+        'clipboard': 'fa5s.clipboard',
+        'refresh': 'fa5s.sync-alt',
+        'benchmark': 'fa5s.vial',
+        'install': 'fa5s.download',
+        'status-idle': 'fa5s.circle',
+        'status-running': 'fa5s.play-circle',
     }
     
     icon_name = icon_map.get(name, name)

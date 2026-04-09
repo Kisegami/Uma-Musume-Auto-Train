@@ -16,8 +16,8 @@ import threading
 from PIL import Image
 from typing import Tuple, Optional, Dict, Any
 
-from utils.log import log_debug, log_info, log_warning
-from utils.config_loader import load_main_config
+from utils.core.log import log_debug, log_info, log_warning
+from utils.core.config_loader import load_main_config
 
 # ==================== EasyOCR GPU Backend ====================
 # Lazy-loaded EasyOCR reader singleton (GPU only)
@@ -92,7 +92,7 @@ def _get_easyocr_reader():
             log_info("Initializing EasyOCR GPU reader with english_g2 model...")
             
             # Use custom model from utils/models directory
-            utils_dir = os.path.dirname(os.path.abspath(__file__))
+            utils_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             model_dir = os.path.join(utils_dir, 'models')
             
             _easyocr_reader = easyocr.Reader(
@@ -263,8 +263,8 @@ if os.name == 'nt':
         pass
 
 # Configure Tesseract to use custom trained data
-# Get project root (utils/ocr_utils.py -> utils -> root)
-_project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Get project root (utils/ocr/ocr_utils.py -> utils -> root)
+_project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 tessdata_dir = os.path.join(_project_root, 'tessdata')
 os.environ['TESSDATA_PREFIX'] = tessdata_dir
 
@@ -296,12 +296,12 @@ _setup_tesseract()
 # Verify tessdata directory
 if not os.path.exists(tessdata_dir):
     if DEBUG_MODE:
-        log_info(f"⚠️  Warning: tessdata directory not found: {tessdata_dir}")
+        log_info(f"âš ï¸  Warning: tessdata directory not found: {tessdata_dir}")
         log_info(f"   Falling back to system Tesseract models")
 else:
     available_models = [f for f in os.listdir(tessdata_dir) if f.endswith('.traineddata')]
     if available_models and DEBUG_MODE:
-        log_info(f"✅ Using custom Tesseract models from: {tessdata_dir}")
+        log_info(f"âœ… Using custom Tesseract models from: {tessdata_dir}")
         log_info(f"   Available models: {', '.join(available_models)}")
 
 
@@ -309,26 +309,26 @@ def verify_tesseract_config():
     """Verify which Tesseract configuration is being used"""
     try:
         tesseract_cmd = getattr(pytesseract.pytesseract, 'tesseract_cmd', 'system PATH')
-        log_info(f"🔍 Tesseract executable: {tesseract_cmd}")
+        log_info(f"ðŸ” Tesseract executable: {tesseract_cmd}")
         
         tessdata_prefix = os.environ.get('TESSDATA_PREFIX', 'Not set')
-        log_info(f"🔍 TESSDATA_PREFIX: {tessdata_prefix}")
+        log_info(f"ðŸ” TESSDATA_PREFIX: {tessdata_prefix}")
         
         if os.path.exists(tessdata_dir):
             custom_models = [f for f in os.listdir(tessdata_dir) if f.endswith('.traineddata')]
-            log_info(f"🔍 Custom tessdata models: {custom_models}")
+            log_info(f"ðŸ” Custom tessdata models: {custom_models}")
             
             try:
                 version = pytesseract.get_tesseract_version()
                 languages = pytesseract.get_languages()
-                log_info(f"🔍 Tesseract version: {version}")
-                log_info(f"🔍 Available languages: {languages}")
+                log_info(f"ðŸ” Tesseract version: {version}")
+                log_info(f"ðŸ” Available languages: {languages}")
             except Exception as e:
-                log_info(f"🔍 Could not get Tesseract info: {e}")
+                log_info(f"ðŸ” Could not get Tesseract info: {e}")
         else:
-            log_info(f"🔍 Custom tessdata directory not found: {tessdata_dir}")
+            log_info(f"ðŸ” Custom tessdata directory not found: {tessdata_dir}")
     except Exception as e:
-        log_info(f"🔍 Error verifying Tesseract config: {e}")
+        log_info(f"ðŸ” Error verifying Tesseract config: {e}")
 
 
 # Verify configuration on import if debug mode is enabled

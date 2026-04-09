@@ -11,8 +11,8 @@ from datetime import datetime
 from typing import Optional
 from PIL import Image
 
-from utils.log import log_info, log_warning, log_error
-from utils.config_loader import load_main_config
+from utils.core.log import log_info, log_warning, log_error
+from utils.core.config_loader import load_main_config
 
 
 def get_webhook_config() -> dict:
@@ -82,38 +82,38 @@ def send_run_complete_webhook(
     
     # Build embed
     embed = {
-        "title": f"🎉 Run {run_number}/{max_runs} Complete!",
+        "title": f"ðŸŽ‰ Run {run_number}/{max_runs} Complete!",
         "description": "Uma Musume training run finished.",
         "color": 0x2ECC71,  # Green color
         "fields": [
             {
-                "name": "👁 Fans This Run",
+                "name": "ðŸ‘ Fans This Run",
                 "value": f"**{fans_this_run:,}**",
                 "inline": True
             },
             {
-                "name": "🏠 Session Total",
+                "name": "ðŸ  Session Total",
                 "value": f"**{session_total:,}**",
                 "inline": True
             },
             {
-                "name": "📊 Progress",
+                "name": "ðŸ“Š Progress",
                 "value": f"**{run_number}/{max_runs}** runs",
                 "inline": True
             },
             {
-                "name": "📅 Today Total",
+                "name": "ðŸ“… Today Total",
                 "value": f"**{today_total:,}**",
                 "inline": True
             },
             {
-                "name": "📈 Average/Run",
+                "name": "ðŸ“ˆ Average/Run",
                 "value": f"**{average_per_run:,}**",
                 "inline": True
             }
         ],
         "footer": {
-            "text": f"UMAT - Uma Musume Auto Train • Today at {timestamp}"
+            "text": f"UMAT - Uma Musume Auto Train â€¢ Today at {timestamp}"
         },
         "timestamp": now.isoformat()
     }
@@ -153,7 +153,7 @@ def send_run_complete_webhook(
             )
         
         if response.status_code in [200, 204]:
-            log_info(f"✓ Discord webhook sent successfully for run {run_number}/{max_runs}")
+            log_info(f"âœ“ Discord webhook sent successfully for run {run_number}/{max_runs}")
             return True
         else:
             log_warning(f"Discord webhook failed with status {response.status_code}: {response.text}")
@@ -188,18 +188,18 @@ def send_test_webhook(webhook_url: str, screenshot: Optional[Image.Image] = None
     timestamp = now.strftime("%I:%M %p")
     
     embed = {
-        "title": "🔔 UMAT Webhook Test",
+        "title": "ðŸ”” UMAT Webhook Test",
         "description": "This is a test message from Uma Musume Auto Train.",
         "color": 0x3498DB,  # Blue color
         "fields": [
             {
                 "name": "Status",
-                "value": "✅ Webhook is working!",
+                "value": "âœ… Webhook is working!",
                 "inline": False
             }
         ],
         "footer": {
-            "text": f"UMAT - Uma Musume Auto Train • {timestamp}"
+            "text": f"UMAT - Uma Musume Auto Train â€¢ {timestamp}"
         },
         "timestamp": now.isoformat()
     }

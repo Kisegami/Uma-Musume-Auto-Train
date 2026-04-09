@@ -3,14 +3,14 @@ import os
 import threading
 from typing import Dict, Iterable, List, Optional, Tuple
 
-from utils.config_loader import load_main_config
+from utils.core.config_loader import load_main_config
 
 
 _LOCK = threading.Lock()
 
 
 def _project_root() -> str:
-    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 def _safe_mode(mode: str) -> str:

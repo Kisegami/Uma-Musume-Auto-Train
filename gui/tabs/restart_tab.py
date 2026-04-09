@@ -15,6 +15,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
 
 from ..styles import COLORS
+from ..icon_helper import get_icon
 
 
 class RestartTab(QScrollArea):
@@ -181,8 +182,18 @@ class RestartTab(QScrollArea):
         support_filter_layout.setSpacing(12)
         
         # Note label
-        support_note = QLabel("⚠️ These filters are checked via OCR during auto start career")
-        support_note.setStyleSheet(f"color: {COLORS['accent_orange']}; font-size: 11px;")
+        support_note = QWidget()
+        support_note_layout = QHBoxLayout(support_note)
+        support_note_layout.setContentsMargins(0, 0, 0, 0)
+        support_note_layout.setSpacing(8)
+        support_icon = QLabel()
+        support_icon.setPixmap(get_icon("warning", COLORS['accent_orange']).pixmap(14, 14))
+        support_note_layout.addWidget(support_icon, 0, Qt.AlignTop)
+        support_note_text = QLabel("These filters are checked via OCR during auto start career")
+        support_note_text.setWordWrap(True)
+        support_note_text.setStyleSheet(f"color: {COLORS['accent_orange']}; font-size: 11px;")
+        support_note_layout.addWidget(support_note_text)
+        support_note_layout.addStretch()
         support_filter_layout.addWidget(support_note, 0, 0, 1, 2)
         
         # Support Speciality
@@ -410,7 +421,7 @@ class RestartTab(QScrollArea):
             return
 
         try:
-            from utils.screenshot import take_screenshot
+            from utils.capture.screenshot import take_screenshot
         except ImportError:
             QMessageBox.warning(
                 self, "Error",
