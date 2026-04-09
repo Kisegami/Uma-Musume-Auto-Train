@@ -24,7 +24,10 @@ from utils.input import tap
 from core.Ura.skill_auto_purchase import click_image_button
 from core.Ura.ocr import extract_text, extract_number
 from utils.config_loader import load_main_config
-from utils.constants_ura import get_template_region as get_default_template_region
+from utils.constants_ura import (
+    RESTART_COMPLETE_SPAM_TARGET,
+    get_template_region as get_default_template_region,
+)
 
 # Module-level state for persistent restart tracking across function calls
 _restart_state = {
@@ -285,21 +288,17 @@ def finish_career_completion() -> bool:
         return False
     
     time.sleep(0.5)
-    
-    # Click finish button
+
     if not restart_click_image_button("assets/buttons/finish.png", "finish button", max_attempts=5):
         log_info(f"Failed to click finish button")
         return False
-    
+
     time.sleep(0.5)
-    
-    # Navigate through completion screens with explicit sequence:
-    # next -> next -> close -> spam until Career Home appears
+
+    # Some end-of-run screens are not stable enough for template clicks.
+    # Keep tapping the known continue area until the start-career screen appears.
     start_time = time.time()
     max_duration_seconds = 120  # Safety timeout to avoid infinite loop
-    next_clicks = 0
-    close_clicked = False
-    last_button_target = None
 
     while time.time() - start_time < max_duration_seconds:
         screenshot = take_screenshot()
@@ -308,52 +307,11 @@ def finish_career_completion() -> bool:
             log_info(f"{ready_screen} detected - Career completion successful")
             return True
 
-        if next_clicks < 2:
-            next_button = _find_button_center_full_screen(screenshot, "assets/buttons/next_btn.png")
-            if next_button is not None:
-                next_clicks += 1
-                last_button_target = next_button
-                log_info(f"next button detected at {next_button} - tapping ({next_clicks}/2)")
-                tap(next_button[0], next_button[1])
-                time.sleep(1.0)
-                continue
-
-        if not close_clicked:
-            close_button = _find_button_center_full_screen(screenshot, "assets/buttons/close.png")
-            if close_button is not None:
-                close_clicked = True
-                last_button_target = close_button
-                log_info(f"close button detected at {close_button} - tapping")
-                tap(close_button[0], close_button[1])
-                time.sleep(1.0)
-                continue
-
-        log_info("Spamming taps until start career screen appears")
-        while time.time() - start_time < max_duration_seconds:
-            spam_target = last_button_target if last_button_target is not None else (540, 960)
-            tap(spam_target[0], spam_target[1])
-            time.sleep(0.08)
-
-            screenshot = take_screenshot()
-            ready_screen = _detect_start_career_screen(screenshot)
-            if ready_screen:
-                log_info(f"{ready_screen} detected - Career completion successful")
-                return True
-
-        continue
+        tap(RESTART_COMPLETE_SPAM_TARGET[0], RESTART_COMPLETE_SPAM_TARGET[1])
+        time.sleep(0.08)
 
     log_info(f"Failed to complete career navigation")
     return False
-
-
-def _find_button_center_full_screen(screenshot, template_path: str, confidence: float = 0.8) -> Optional[Tuple[int, int]]:
-    """Find a button center using full-screen template matching only."""
-    matches = match_template(screenshot, template_path, confidence=confidence, region=())
-    if not matches:
-        return None
-
-    x, y, w, h = matches[0]
-    return (x + w // 2, y + h // 2)
 
 
 def _detect_start_career_screen(screenshot=None) -> Optional[str]:

@@ -39,6 +39,7 @@ RACE_CARD_REGION=(0, 0, 610, 220)  # Dynamic region calculated as (x, y, 350, 11
 
 # Default screen region (phone resolution)
 DEFAULT_SCREEN_REGION=(0, 0, 1080, 1920)
+RESTART_COMPLETE_SPAM_TARGET = (543, 1787)
 
 # Merged OK button region covering both the old box and the newly provided box
 OK_BUTTON_REGION = (309, 1163, 705, 690)
