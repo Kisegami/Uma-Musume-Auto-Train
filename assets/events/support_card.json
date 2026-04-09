@@ -8832,5 +8832,117 @@
       "Bottom Option": "Up-Tempo hint +1\r\nNarita Top Road bond +5"
     },
     "CardSlug": "10077-narita-top-road"
+  },
+  {
+    "EventName": "(❯) Fires That Do Not Cross",
+    "EventOptions": {
+      "": "Stamina +10\r\nSkill points +10\r\nSymboli Rudolf bond +5"
+    },
+    "CardSlug": "30090-symboli-rudolf"
+  },
+  {
+    "EventName": "(❯❯) That Which Generates Heat",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nSkill points +10\r\nSoft Step hint +1\r\nSymboli Rudolf bond +5"
+    },
+    "CardSlug": "30090-symboli-rudolf"
+  },
+  {
+    "EventName": "(❯❯) That Which Generates Heat",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nStamina +25\r\nGuts +25\r\nSymboli Rudolf bond -5/+5\r\nEvent chain ended"
+    },
+    "CardSlug": "30090-symboli-rudolf"
+  },
+  {
+    "EventName": "(❯❯❯) Passions That Guide",
+    "EventOptions": {
+      "": "Stamina +10\r\nSkill points +30\r\nBurning Soul hint +1\r\nSymboli Rudolf bond +5"
+    },
+    "CardSlug": "30090-symboli-rudolf"
+  },
+  {
+    "EventName": "The Emperor's Encouragement",
+    "EventOptions": {
+      "Top Option": "Speed +10\r\nSymboli Rudolf bond +5"
+    },
+    "CardSlug": "30090-symboli-rudolf"
+  },
+  {
+    "EventName": "The Emperor's Encouragement",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nSkill points +30\r\nSymboli Rudolf bond +5"
+    },
+    "CardSlug": "30090-symboli-rudolf"
+  },
+  {
+    "EventName": "The Student Council President's Thoughtfulness",
+    "EventOptions": {
+      "Top Option": "Rainy Days ○ hint +1\r\nSymboli Rudolf bond +5"
+    },
+    "CardSlug": "30090-symboli-rudolf"
+  },
+  {
+    "EventName": "The Student Council President's Thoughtfulness",
+    "EventOptions": {
+      "Bottom Option": "Stamina +15\r\nSymboli Rudolf bond +5"
+    },
+    "CardSlug": "30090-symboli-rudolf"
+  },
+  {
+    "EventName": "(❯) Those with the Name of Symboli",
+    "EventOptions": {
+      "Top Option": "Energy +15\r\nSirius Symboli bond +5"
+    },
+    "CardSlug": "30091-sirius-symboli"
+  },
+  {
+    "EventName": "(❯) Those with the Name of Symboli",
+    "EventOptions": {
+      "Bottom Option": "Skill points +30\r\nPlaytime's Over! hint +1\r\nSirius Symboli bond +5\r\nEvent chain ended"
+    },
+    "CardSlug": "30091-sirius-symboli"
+  },
+  {
+    "EventName": "(❯❯) To Set Oneself Free",
+    "EventOptions": {
+      "": "Speed +10\r\nWit +10\r\nLate Surger Savvy ○ hint +1\r\nSirius Symboli bond +5"
+    },
+    "CardSlug": "30091-sirius-symboli"
+  },
+  {
+    "EventName": "(❯❯❯) Tipped Scales",
+    "EventOptions": {
+      "": "Randomly either\r\nWit +15\r\nTake the Chance hint +3\r\nSirius Symboli bond +5\r\nor\r\nor\r\nWit +30\r\nFrom the Brink hint +3\r\nSirius Symboli bond +5"
+    },
+    "CardSlug": "30091-sirius-symboli"
+  },
+  {
+    "EventName": "Want Me to Teach You?",
+    "EventOptions": {
+      "Top Option": "Energy -5\r\nStamina +20\r\nSirius Symboli bond +5"
+    },
+    "CardSlug": "30091-sirius-symboli"
+  },
+  {
+    "EventName": "Want Me to Teach You?",
+    "EventOptions": {
+      "Bottom Option": "Wit +10\r\nSirius Symboli bond +5"
+    },
+    "CardSlug": "30091-sirius-symboli"
+  },
+  {
+    "EventName": "Want Me to Help You?",
+    "EventOptions": {
+      "Top Option": "Wit +5\r\nDisorient hint +1\r\nSirius Symboli bond +5"
+    },
+    "CardSlug": "30091-sirius-symboli"
+  },
+  {
+    "EventName": "Want Me to Help You?",
+    "EventOptions": {
+      "Bottom Option": "Skill points +15\r\nSirius Symboli bond +5"
+    },
+    "CardSlug": "30091-sirius-symboli"
   }
 ]
