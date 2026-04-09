@@ -12,7 +12,7 @@ from utils.core.log import log_debug, log_info, log_warning, log_error, log_succ
 from utils.core.config_loader import load_main_config
 from core.Unity.state import check_skill_points_cap, check_current_year
 from core.Unity.ocr import extract_text
-from utils.constants.unity import get_template_region
+
 import os
 
 # Helper function to get project root directory
@@ -207,14 +207,14 @@ def execute_race_after_selection():
     
     # Wait for race button to appear after selecting race
     log_info(f"Race Execute - Waiting for race button...")
-    race_btn = wait_for_image("assets/buttons/race_btn.png", timeout=10, region=get_template_region("assets/buttons/race_btn.png"))
+    race_btn = wait_for_image("assets/buttons/race_btn.png", timeout=10)
     if not race_btn:
         log_warning(f"Race Execute - Race button not found after 10s")
         return False
     
     # Click race button twice to start the race
     for j in range(2):
-        if tap_on_image("assets/buttons/race_btn.png", confidence=0.8, min_search=1, region=get_template_region("assets/buttons/race_btn.png")):
+        if tap_on_image("assets/buttons/race_btn.png", confidence=0.8, min_search=1):
             log_debug(f"Race button clicked {j+1}/2")
             time.sleep(0.5)
         else:
@@ -278,14 +278,14 @@ def race_day():
         check_skill_points_cap()
     
     log_info(f"Race Day - Clicking race day button...")
-    if tap_on_image("assets/buttons/race_day_btn.png", min_search=10, region=get_template_region("assets/buttons/race_day_btn.png")):
+    if tap_on_image("assets/buttons/race_day_btn.png", min_search=10):
         log_info(f"Race Day - Race day button clicked, clicking OK button...")
         time.sleep(0.5)
-        tap_on_image("assets/buttons/ok_btn.png", confidence=0.6, min_search=2, region=get_template_region("assets/buttons/ok_btn.png"))
+        tap_on_image("assets/buttons/ok_btn.png", confidence=0.6, min_search=2)
         
         # Wait for race selection screen to appear by waiting for race button
         log_info(f"Race Day - Waiting for race selection screen...")
-        race_btn_found = wait_for_image("assets/buttons/race_btn.png", timeout=10, region=get_template_region("assets/buttons/race_btn.png"))
+        race_btn_found = wait_for_image("assets/buttons/race_btn.png", timeout=10)
         if not race_btn_found:
             log_info(f"Race Day - Race button not found after 10s, failed to enter race selection")
             return False
@@ -295,13 +295,13 @@ def race_day():
         # Try to find and click race button with better error handling
         race_clicked = False
         for attempt in range(3):  # Try up to 3 times
-            if tap_on_image("assets/buttons/race_btn.png", confidence=0.7, min_search=1, region=get_template_region("assets/buttons/race_btn.png")):
+            if tap_on_image("assets/buttons/race_btn.png", confidence=0.7, min_search=1):
                 log_info(f"Race Day - Race button clicked (attempt {attempt + 1})")
                 time.sleep(0.5)  # Wait between clicks
                 
                 # Click race button twice like in race_select
                 for j in range(2):
-                    if tap_on_image("assets/buttons/race_btn.png", confidence=0.7, min_search=5, region=get_template_region("assets/buttons/race_btn.png")):
+                    if tap_on_image("assets/buttons/race_btn.png", confidence=0.7, min_search=5):
                         log_debug(f"Race button clicked {j+1} time(s)")
                         time.sleep(0.2)
                     else:
@@ -334,7 +334,7 @@ def race_day():
             screenshot = take_screenshot()
             
             # Check for clock icon (race failure)
-            clock_matches = match_template(screenshot, "assets/icons/clock.png", confidence=0.8, region=get_template_region("assets/icons/clock.png"))
+            clock_matches = match_template(screenshot, "assets/icons/clock.png", confidence=0.8)
             if clock_matches:
                 log_info(f"Race Day - Race FAILED (clock icon detected, attempt {retry_count}), handling retry...")
                 # Handle race retry
@@ -343,7 +343,7 @@ def race_day():
                 continue
             
             # Check for next button
-            next_matches = match_template(screenshot, "assets/buttons/next_btn.png", confidence=0.8, region=get_template_region("assets/buttons/next_btn.png"))
+            next_matches = match_template(screenshot, "assets/buttons/next_btn.png", confidence=0.8)
             if next_matches:
                 log_info(f"Race Day - Race complete (next button found after {retry_count} attempts)")
                 after_race()
@@ -581,7 +581,7 @@ def handle_race_retry_if_failed():
     """
     try:
         # Check for failure indicator (clock icon)
-        clock = locate_on_screen("assets/icons/clock.png", confidence=0.8, region=get_template_region("assets/icons/clock.png"))
+        clock = locate_on_screen("assets/icons/clock.png", confidence=0.8)
         if not clock:
             return False
 
@@ -599,7 +599,7 @@ def handle_race_retry_if_failed():
                     "assets/buttons/cancel_lobby.png",
                     "assets/buttons/cancel_recreation.png",
                 ]:
-                    cancel = locate_on_screen(cancel_path, confidence=0.8, region=get_template_region(cancel_path))
+                    cancel = locate_on_screen(cancel_path, confidence=0.8)
                     if cancel:
                         tap(cancel[0], cancel[1])
                         log_info(f"Tapped {cancel_path}")
@@ -607,7 +607,7 @@ def handle_race_retry_if_failed():
                 time.sleep(1)
                 # Tap next button twice to continue career
                 for i in range(2):
-                    next_btn = locate_on_screen("assets/buttons/next_btn.png", confidence=0.8, region=get_template_region("assets/buttons/next_btn.png"))
+                    next_btn = locate_on_screen("assets/buttons/next_btn.png", confidence=0.8)
                     if next_btn:
                         tap(next_btn[0], next_btn[1])
                         log_info(f"Tapped next button ({i+1}/2)")
@@ -615,7 +615,7 @@ def handle_race_retry_if_failed():
                 return True
 
         # Try to click Try Again button
-        try_again = locate_on_screen("assets/buttons/try_again.png", confidence=0.8, region=get_template_region("assets/buttons/try_again.png"))
+        try_again = locate_on_screen("assets/buttons/try_again.png", confidence=0.8)
         if try_again:
             time.sleep(0.5)
             log_info(f"Clicking Try Again button.")
@@ -623,7 +623,7 @@ def handle_race_retry_if_failed():
         else:
             log_info(f"Try Again button not found. Attempting helper click...")
             # Fallback: attempt generic click using click helper
-            tap_on_image("assets/buttons/try_again.png", confidence=0.8, min_search=10, region=get_template_region("assets/buttons/try_again.png"))
+            tap_on_image("assets/buttons/try_again.png", confidence=0.8, min_search=10)
 
         # Check for clock purchase popup (user is out of clocks)
         time.sleep(2)
@@ -631,7 +631,7 @@ def handle_race_retry_if_failed():
         if clock_purchase:
             if BUY_CLOCK_CARATS:
                 log_info(f"Out of clocks - buying clock with carats...")
-                tap_on_image("assets/buttons/ok_btn.png", confidence=0.6, min_search=5, region=get_template_region("assets/buttons/ok_btn.png"))
+                tap_on_image("assets/buttons/ok_btn.png", confidence=0.6, min_search=5)
             else:
                 log_info(f"Out of clocks and buy_clock_carats is disabled. Stopping automation.")
                 raise SystemExit(0)
@@ -661,7 +661,7 @@ def after_race():
         screenshot = take_screenshot()
         
         # Check for next button
-        next_matches = match_template(screenshot, "assets/buttons/next_btn.png", confidence=0.7, region=get_template_region("assets/buttons/next_btn.png"))
+        next_matches = match_template(screenshot, "assets/buttons/next_btn.png", confidence=0.7)
         if next_matches:
             x, y, w, h = next_matches[0]
             next_btn = (x + w//2, y + h//2)
@@ -671,7 +671,7 @@ def after_race():
             break
         
         # Also check for clock icon (race failure can occur here too)
-        clock_matches = match_template(screenshot, "assets/icons/clock.png", confidence=0.8, region=get_template_region("assets/icons/clock.png"))
+        clock_matches = match_template(screenshot, "assets/icons/clock.png", confidence=0.8)
         if clock_matches:
             log_info(f"After Race - Clock icon found, handling retry...")
             handle_race_retry_if_failed()
@@ -694,7 +694,7 @@ def after_race():
         screenshot = take_screenshot()
         
         # Check for second next button
-        next2_matches = match_template(screenshot, "assets/buttons/next2_btn.png", confidence=0.7, region=get_template_region("assets/buttons/next2_btn.png"))
+        next2_matches = match_template(screenshot, "assets/buttons/next2_btn.png", confidence=0.7)
         if next2_matches:
             x, y, w, h = next2_matches[0]
             next2_btn = (x + w//2, y + h//2)
@@ -704,13 +704,13 @@ def after_race():
             break
         
         # Also check for clock icon (race failure can occur here too)
-        clock_matches = match_template(screenshot, "assets/icons/clock.png", confidence=0.8, region=get_template_region("assets/icons/clock.png"))
+        clock_matches = match_template(screenshot, "assets/icons/clock.png", confidence=0.8)
         if clock_matches:
             log_info(f"After Race - Clock icon found during second next, handling retry...")
             handle_race_retry_if_failed()
             # Restart waiting for next buttons after retry
             # Re-check first next button
-            next_matches = match_template(screenshot, "assets/buttons/next_btn.png", confidence=0.7, region=get_template_region("assets/buttons/next_btn.png"))
+            next_matches = match_template(screenshot, "assets/buttons/next_btn.png", confidence=0.7)
             if next_matches:
                 x, y, w, h = next_matches[0]
                 tap(x + w//2, y + h//2)
@@ -731,14 +731,14 @@ def enter_race_selection_screen():
     log_info(f"Race Select - Entering race selection screen...")
     
     # Tap races button
-    if not tap_on_image("assets/buttons/races_btn.png", min_search=10, region=get_template_region("assets/buttons/races_btn.png")):
+    if not tap_on_image("assets/buttons/races_btn.png", min_search=10):
         log_warning(f"Race Select - Failed to find races button")
         return False
     
     time.sleep(0.5)
     
     # Try to tap OK button if it appears (optional)
-    ok_clicked = tap_on_image("assets/buttons/ok_btn.png", confidence=0.5, min_search=2, region=get_template_region("assets/buttons/ok_btn.png"))
+    ok_clicked = tap_on_image("assets/buttons/ok_btn.png", confidence=0.5, min_search=2)
     if ok_clicked:
         log_debug(f"OK button found and clicked")
     else:
@@ -746,7 +746,7 @@ def enter_race_selection_screen():
     
     # Wait for race button to appear, indicating the race list is loaded
     log_debug(f"Waiting for race button to appear (race list loading)...")
-    race_btn = wait_for_image("assets/buttons/race_btn.png", timeout=10, region=get_template_region("assets/buttons/race_btn.png"))
+    race_btn = wait_for_image("assets/buttons/race_btn.png", timeout=10)
     if not race_btn:
         log_debug(f"Race button not found after 10 seconds, race list may not have loaded")
         return False
@@ -999,7 +999,7 @@ def do_custom_race(year_override=None):
         # If not found, try to navigate back to lobby to resume loop cleanly
         log_info(f"Custom Race - Race not found after search, navigating back to lobby")
         # Try tapping the back button image first; if not found, tap a likely back position
-        if not tap_on_image("assets/buttons/back_btn.png", confidence=0.6, min_search=3, region=get_template_region("assets/buttons/back_btn.png")):
+        if not tap_on_image("assets/buttons/back_btn.png", confidence=0.6, min_search=3):
             # Fallback: common back coordinate in race selection
             tap(78, 138)
             time.sleep(0.5)

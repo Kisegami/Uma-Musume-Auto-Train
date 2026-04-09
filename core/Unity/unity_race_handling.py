@@ -6,7 +6,7 @@ from utils.vision.template_matching import deduplicated_matches
 from utils.capture.screenshot import take_screenshot
 from utils.inputs.input import tap, wait_and_tap
 from utils.core.log import log_info, log_debug, log_warning
-from utils.constants.unity import get_template_region
+
 
 # Regions (x1, y1, x2, y2)
 TEAM_RANK_REGION = (0, 48, 270, 201)
@@ -85,7 +85,7 @@ def _double_tap(x: int, y: int):
 def _wait_and_double_tap(template_path: str, timeout: float, check_interval: float = 0.2, confidence: float = 0.8) -> bool:
     """Wait for template and double tap with 100ms interval."""
     start = time.time()
-    region = get_template_region(template_path)
+    region = None  # auto-resolved by recognizer
     best_score = 0.0
     while time.time() - start < timeout:
         screenshot = take_screenshot()
@@ -124,7 +124,7 @@ def _wait_for_stable_template(
     briefly match before they are safe to tap.
     """
     start = time.time()
-    region = get_template_region(template_path)
+    region = None  # auto-resolved by recognizer
     consecutive_hits = 0
     best_score = 0.0
 
@@ -174,9 +174,9 @@ def unity_race_workflow():
     
     while time.time() - start_time < timeout:
         screenshot = take_screenshot()
-        select_matches = match_template(screenshot, "assets/unity/select_opponent.png", confidence=0.8, region=get_template_region("assets/unity/select_opponent.png"))
+        select_matches = match_template(screenshot, "assets/unity/select_opponent.png", confidence=0.8)
         select_opponent = select_matches[0] if select_matches else None
-        zenith_matches = match_template(screenshot, "assets/unity/zenith_race_btn.png", confidence=0.8, region=get_template_region("assets/unity/zenith_race_btn.png"))
+        zenith_matches = match_template(screenshot, "assets/unity/zenith_race_btn.png", confidence=0.8)
         zenith_btn = zenith_matches[0] if zenith_matches else None
         
         if select_opponent or zenith_btn:

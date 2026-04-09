@@ -20,7 +20,7 @@ from utils.vision.recognizer import locate_on_screen, locate_all_on_screen, is_i
 from utils.inputs.input import tap, triple_click, long_press, tap_on_image
 from utils.capture.screenshot import take_screenshot, enhanced_screenshot, capture_region
 from utils.constants.unity import (
-    MOOD_LIST, EVENT_REGION, RACE_CARD_REGION, SUPPORT_CARD_ICON_REGION, get_template_region
+    MOOD_LIST, EVENT_REGION, RACE_CARD_REGION, SUPPORT_CARD_ICON_REGION
 )
 
 # Import ADB state and logic modules
@@ -138,7 +138,7 @@ def claw_machine():
     time.sleep(1)
     
     # Find the claw button location
-    claw_location = locate_on_screen("assets/buttons/claw.png", confidence=0.8, region=get_template_region("assets/buttons/claw.png"))
+    claw_location = locate_on_screen("assets/buttons/claw.png", confidence=0.8)
     if not claw_location:
         log_warning(f"Claw button not found for interaction")
         return False
@@ -164,26 +164,26 @@ def do_rest():
     # Rest button is in the lobby, not on training screen
     # If we're on training screen, go back to lobby first
     from utils.vision.recognizer import locate_on_screen
-    back_btn = locate_on_screen("assets/buttons/back_btn.png", confidence=0.8, region=get_template_region("assets/buttons/back_btn.png"))
+    back_btn = locate_on_screen("assets/buttons/back_btn.png", confidence=0.8)
     if back_btn:
         log_debug(f"Going back to lobby to find rest button...")
         log_info(f"Going back to lobby to find rest button...")
         from utils.inputs.input import tap
         tap(back_btn[0], back_btn[1])
         time.sleep(1.0)  # Wait for lobby to load
-    tazuna_hint = locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.9, region=get_template_region("assets/ui/tazuna_hint.png"))
+    tazuna_hint = locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.9)
     if not tazuna_hint:
         log_debug(f"tazuna_hint.png not found, taking screenshot again to ensure we are in the lobby...")
         time.sleep(0.7)
         # Take a new screenshot and try again
         from utils.capture.screenshot import take_screenshot
         take_screenshot()
-        tazuna_hint = locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.9, region=get_template_region("assets/ui/tazuna_hint.png"))
+        tazuna_hint = locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.9)
         if not tazuna_hint:
             log_warning(f"Still not in lobby after retrying screenshot. Rest button search may fail.")
     # Now look for rest buttons in the lobby
-    rest_btn = locate_on_screen("assets/buttons/rest_btn.png", confidence=0.5, region=get_template_region("assets/buttons/rest_btn.png"))
-    rest_summer_btn = locate_on_screen("assets/buttons/rest_summer_btn.png", confidence=0.5, region=get_template_region("assets/buttons/rest_summer_btn.png"))
+    rest_btn = locate_on_screen("assets/buttons/rest_btn.png", confidence=0.5)
+    rest_summer_btn = locate_on_screen("assets/buttons/rest_summer_btn.png", confidence=0.5)
     
     log_debug(f"Rest button found: {rest_btn}")
     log_debug(f"Summer rest button found: {rest_summer_btn}")
@@ -211,8 +211,8 @@ def do_rest():
 def do_recreation():
     """Perform recreation action"""
     log_debug(f"Performing recreation action...")
-    recreation_btn = locate_on_screen("assets/buttons/recreation_btn.png", confidence=0.8, region=get_template_region("assets/buttons/recreation_btn.png"))
-    recreation_summer_btn = locate_on_screen("assets/buttons/rest_summer_btn.png", confidence=0.8, region=get_template_region("assets/buttons/rest_summer_btn.png"))
+    recreation_btn = locate_on_screen("assets/buttons/recreation_btn.png", confidence=0.8)
+    recreation_summer_btn = locate_on_screen("assets/buttons/rest_summer_btn.png", confidence=0.8)
     
     if recreation_btn:
         log_debug(f"Found recreation button at {recreation_btn}")
@@ -564,7 +564,6 @@ def career_lobby(timeout=None):
                 screenshot,
                 "assets/buttons/infirmary_btn2.png",
                 confidence=0.9,
-                region=get_template_region("assets/buttons/infirmary_btn2.png"),
             )
 
             if infirmary_matches:
@@ -646,7 +645,6 @@ def career_lobby(timeout=None):
                         "assets/races/fan.png",
                         timeout=2,
                         confidence=0.8,
-                        region=get_template_region("assets/races/fan.png"),
                     )
                     if not fan_loaded:
                         log_debug(f"Race list fan icon not detected before 2-star check")
@@ -687,7 +685,7 @@ def career_lobby(timeout=None):
         min_energy = training_config_section.get("min_energy", 30)
         
         # Early check for race day to avoid rest_in_june on race day
-        goal_matches_early = match_template(screenshot, "assets/unity/goal.png", confidence=0.8, region=get_template_region("assets/unity/goal.png"))
+        goal_matches_early = match_template(screenshot, "assets/unity/goal.png", confidence=0.8)
         is_race_day_early = bool(goal_matches_early)
         
         # Check for rest in June to save energy for summer (skip on Race Day)
@@ -748,7 +746,7 @@ def career_lobby(timeout=None):
 
         # Check for race day using goal.png image
         log_debug(f"Checking for race day (goal.png)...")
-        goal_matches = match_template(screenshot, "assets/unity/goal.png", confidence=0.8, region=get_template_region("assets/unity/goal.png"))
+        goal_matches = match_template(screenshot, "assets/unity/goal.png", confidence=0.8)
         is_race_day = bool(goal_matches)
         
         # URA SCENARIO
@@ -950,7 +948,7 @@ def career_lobby(timeout=None):
                         # Go back to lobby if we're on training screen
                         if _on_training_screen:
                             log_debug(f"Going back from training screen to lobby...")
-                            tap_on_image("assets/buttons/back_btn.png", min_search=5, region=get_template_region("assets/buttons/back_btn.png"))
+                            tap_on_image("assets/buttons/back_btn.png", min_search=5)
                             time.sleep(0.5)
                         if should_use_dating_for_rest():
                             log_info(f"Using dating instead of rest")
@@ -986,7 +984,7 @@ def career_lobby(timeout=None):
                             # Go back to lobby if on training screen
                             if _on_training_screen:
                                 log_debug(f"Going back from training screen to lobby...")
-                                tap_on_image("assets/buttons/back_btn.png", min_search=5, region=get_template_region("assets/buttons/back_btn.png"))
+                                tap_on_image("assets/buttons/back_btn.png", min_search=5)
                                 time.sleep(0.5)
                             if should_use_dating_for_rest():
                                 log_info(f"Using dating instead of rest")
@@ -1025,7 +1023,7 @@ def career_lobby(timeout=None):
                             wit_score = results_training.get('wit', {}).get('score', 0)
                             if _on_training_screen:
                                 log_debug(f"Going back from training screen to lobby...")
-                                tap_on_image("assets/buttons/back_btn.png", min_search=5, region=get_template_region("assets/buttons/back_btn.png"))
+                                tap_on_image("assets/buttons/back_btn.png", min_search=5)
                                 time.sleep(0.5)
                             if wit_score < 1.0:
                                 log_info(f"No viable training after relaxation and no races. Choosing to rest.")
@@ -1058,7 +1056,7 @@ def career_lobby(timeout=None):
                             log_info(f"Good race found in database. Going to do race.")
                             # Go back to lobby if on training screen
                             if _on_training_screen:
-                                tap_on_image("assets/buttons/back_btn.png", min_search=5, text="[INFO] Going back to lobby to search for race...", region=get_template_region("assets/buttons/back_btn.png"))
+                                tap_on_image("assets/buttons/back_btn.png", min_search=5, text="[INFO] Going back to lobby to search for race...")
                                 time.sleep(0.5)
                             race_found = find_and_do_race()
                             if race_found:
@@ -1105,7 +1103,7 @@ def career_lobby(timeout=None):
                             else:
                                 log_info(f"No training found even with relaxed scoring. Going back to rest.")
                                 if _on_training_screen:
-                                    tap_on_image("assets/buttons/back_btn.png", min_search=5, region=get_template_region("assets/buttons/back_btn.png"))
+                                    tap_on_image("assets/buttons/back_btn.png", min_search=5)
                                     time.sleep(0.5)
                                 if should_use_dating_for_rest():
                                     log_info(f"Using dating instead of rest")
@@ -1117,7 +1115,7 @@ def career_lobby(timeout=None):
                         else:
                             log_info(f"Energy is {energy_percentage:.1f}% (< 50%). Going to rest.")
                             if _on_training_screen:
-                                tap_on_image("assets/buttons/back_btn.png", min_search=5, region=get_template_region("assets/buttons/back_btn.png"))
+                                tap_on_image("assets/buttons/back_btn.png", min_search=5)
                                 time.sleep(0.5)
                             if should_use_dating_for_rest():
                                 log_info(f"Using dating instead of rest")
@@ -1133,18 +1131,12 @@ def career_lobby(timeout=None):
                 # Go back to lobby if on training screen
                 if _on_training_screen:
                     log_debug(f"Going back from training screen to lobby...")
-                    back_region = get_template_region("assets/buttons/back_btn.png")
-                    log_debug(f"Back button region: {back_region}")
                     # Save debug screenshot before tapping
                     debug_ss = take_screenshot()
                     debug_ss.save("debug_before_back_tap.png")
                     log_debug(f"Saved pre-back-tap screenshot to debug_before_back_tap.png")
-                    back_success = tap_on_image("assets/buttons/back_btn.png", min_search=5, region=back_region)
+                    back_success = tap_on_image("assets/buttons/back_btn.png", min_search=5)
                     log_debug(f"Back button tap result: {back_success}")
-                    if not back_success:
-                        log_warning(f"Back button not found on training screen! Trying without region...")
-                        back_success = tap_on_image("assets/buttons/back_btn.png", min_search=5)
-                        log_debug(f"Back button tap (no region) result: {back_success}")
                     time.sleep(0.5)
                     # Save debug screenshot after tapping
                     debug_ss2 = take_screenshot()

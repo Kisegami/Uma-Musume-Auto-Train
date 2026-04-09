@@ -66,7 +66,7 @@ def _filtered_template_matches(screenshot, template_path, region_cv, confidence=
 def go_to_training():
     """Go to training screen"""
     log_debug(f"Going to training screen...")
-    success = tap_on_image("assets/buttons/training_btn.png", min_search=10, region=get_template_region("assets/buttons/training_btn.png"))
+    success = tap_on_image("assets/buttons/training_btn.png", min_search=10)
     if success:
         # Wait 500 ms after pressing training button to allow screen to stabilize
         time.sleep(0.5)
@@ -258,7 +258,7 @@ def check_training(go_back=True, year=None, current_stats=None):
     # Only go back if requested
     if go_back:
         log_debug(f"Going back from training screen...")
-        tap_on_image("assets/buttons/back_btn.png", region=get_template_region("assets/buttons/back_btn.png"))
+        tap_on_image("assets/buttons/back_btn.png")
     else:
         log_debug(f"Staying on training screen (go_back=False)")
     
