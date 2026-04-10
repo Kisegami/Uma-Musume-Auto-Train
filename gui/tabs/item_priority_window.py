@@ -22,9 +22,21 @@ ITEM_MIME_TYPE = "application/x-umat-item-id"
 _items_cache = None
 _items_by_id = {}
 
+COL_NO_WIDTH = 32
+COL_ICON_WIDTH = 40
+COL_NAME_WIDTH = 220
+COL_GROUP_WIDTH = 110
+COL_EFFECT_TYPE_WIDTH = 150
+COL_LIMIT_WIDTH = 100
+COL_ACTION_WIDTH = 42
+
 
 def _items_map_path():
     return os.path.join("gui", "assets", "items", "items_map.json")
+
+
+def _items_source_path():
+    return os.path.join("assets", "trackblazer", "items", "items_list.json")
 
 
 def _item_icon_path(icon_name):
@@ -42,7 +54,34 @@ def load_items_catalog():
     try:
         with open(_items_map_path(), "r", encoding="utf-8") as f:
             data = json.load(f)
-        _items_cache = sorted(data.get("items", []), key=lambda item: int(item.get("id", 0)))
+        items = data.get("items", [])
+
+        source_by_id = {}
+        if os.path.exists(_items_source_path()):
+            try:
+                with open(_items_source_path(), "r", encoding="utf-8") as f:
+                    source_items = json.load(f)
+                source_by_id = {
+                    int(item["id"]): item
+                    for item in source_items
+                    if isinstance(item, dict) and "id" in item
+                }
+            except Exception:
+                source_by_id = {}
+
+        merged_items = []
+        for item in items:
+            merged = dict(item)
+            source_item = source_by_id.get(int(item.get("id", 0)), {})
+            if source_item:
+                merged["group"] = source_item.get("Group", "")
+                merged["effect_type"] = source_item.get("Effect Type", "")
+            else:
+                merged["group"] = item.get("group", "")
+                merged["effect_type"] = item.get("effect_type", "")
+            merged_items.append(merged)
+
+        _items_cache = sorted(merged_items, key=lambda item: int(item.get("id", 0)))
         _items_by_id = {int(item["id"]): item for item in _items_cache if "id" in item}
     except Exception:
         _items_cache = []
@@ -157,11 +196,11 @@ class ItemPriorityRow(QWidget):
         self.setCursor(Qt.OpenHandCursor)
 
         self.no_label = QLabel("")
-        self.no_label.setFixedWidth(32)
+        self.no_label.setFixedWidth(COL_NO_WIDTH)
         layout.addWidget(self.no_label)
 
         icon_label = QLabel()
-        icon_label.setFixedSize(40, 40)
+        icon_label.setFixedSize(COL_ICON_WIDTH, 40)
         icon_label.setAlignment(Qt.AlignCenter)
         pixmap = QPixmap(_item_icon_path(self.row_data.get("icon", "")))
         if not pixmap.isNull():
@@ -169,16 +208,30 @@ class ItemPriorityRow(QWidget):
         layout.addWidget(icon_label)
 
         name_label = QLabel(self.row_data.get("name", ""))
-        name_label.setMinimumWidth(220)
+        name_label.setFixedWidth(COL_NAME_WIDTH)
         name_label.setWordWrap(True)
-        layout.addWidget(name_label, stretch=1)
+        layout.addWidget(name_label)
+
+        group_label = QLabel(self.row_data.get("group", ""))
+        group_label.setFixedWidth(COL_GROUP_WIDTH)
+        group_label.setWordWrap(True)
+        group_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
+        layout.addWidget(group_label)
+
+        effect_type_label = QLabel(self.row_data.get("effect_type", ""))
+        effect_type_label.setFixedWidth(COL_EFFECT_TYPE_WIDTH)
+        effect_type_label.setWordWrap(True)
+        effect_type_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
+        layout.addWidget(effect_type_label)
+
+        layout.addStretch()
 
         self.limit_spin = QSpinBox()
         self.limit_spin.setMinimum(1)
         self.limit_spin.setMaximum(999)
         self.limit_spin.setValue(int(self.row_data.get("item_limit", 1)))
         self.limit_spin.valueChanged.connect(self._on_limit_changed)
-        self.limit_spin.setFixedWidth(100)
+        self.limit_spin.setFixedWidth(COL_LIMIT_WIDTH)
         layout.addWidget(self.limit_spin)
 
         remove_button = QPushButton()
@@ -186,7 +239,7 @@ class ItemPriorityRow(QWidget):
         remove_button.setIcon(qta.icon("fa5s.trash", color="white"))
         remove_button.setIconSize(QSize(16, 16))
         remove_button.setToolTip("Remove item")
-        remove_button.setFixedSize(42, 42)
+        remove_button.setFixedSize(COL_ACTION_WIDTH, 42)
         remove_button.clicked.connect(lambda: self.remove_callback(self.row_data["id"]))
         layout.addWidget(remove_button)
 
@@ -351,27 +404,39 @@ class ItemPriorityWindow(QDialog):
         header_layout.setSpacing(12)
 
         no_label = QLabel("No.")
-        no_label.setFixedWidth(32)
+        no_label.setFixedWidth(COL_NO_WIDTH)
         no_label.setStyleSheet(f"color: {COLORS['text_secondary']}; font-weight: 700;")
         header_layout.addWidget(no_label)
 
         icon_label = QLabel("Item")
-        icon_label.setFixedWidth(40)
+        icon_label.setFixedWidth(COL_ICON_WIDTH)
         icon_label.setStyleSheet(f"color: {COLORS['text_secondary']}; font-weight: 700;")
         header_layout.addWidget(icon_label)
 
         name_label = QLabel("Name")
-        name_label.setMinimumWidth(220)
+        name_label.setFixedWidth(COL_NAME_WIDTH)
         name_label.setStyleSheet(f"color: {COLORS['text_secondary']}; font-weight: 700;")
-        header_layout.addWidget(name_label, stretch=1)
+        header_layout.addWidget(name_label)
+
+        group_label = QLabel("Group")
+        group_label.setFixedWidth(COL_GROUP_WIDTH)
+        group_label.setStyleSheet(f"color: {COLORS['text_secondary']}; font-weight: 700;")
+        header_layout.addWidget(group_label)
+
+        effect_type_label = QLabel("Effect Type")
+        effect_type_label.setFixedWidth(COL_EFFECT_TYPE_WIDTH)
+        effect_type_label.setStyleSheet(f"color: {COLORS['text_secondary']}; font-weight: 700;")
+        header_layout.addWidget(effect_type_label)
+
+        header_layout.addStretch()
 
         limit_label = QLabel("Item Limit")
-        limit_label.setFixedWidth(100)
+        limit_label.setFixedWidth(COL_LIMIT_WIDTH)
         limit_label.setStyleSheet(f"color: {COLORS['text_secondary']}; font-weight: 700;")
         header_layout.addWidget(limit_label)
 
         action_label = QLabel("Action")
-        action_label.setFixedWidth(42)
+        action_label.setFixedWidth(COL_ACTION_WIDTH)
         action_label.setStyleSheet(f"color: {COLORS['text_secondary']}; font-weight: 700;")
         header_layout.addWidget(action_label)
 
@@ -398,7 +463,7 @@ class ItemPriorityWindow(QDialog):
         right_layout.addWidget(sidebar_title)
 
         self.search_input = QLineEdit()
-        self.search_input.setPlaceholderText("Search by id, name, or effect")
+        self.search_input.setPlaceholderText("Search by id, name, group, effect type, or effect")
         self.search_input.textChanged.connect(self._refresh_catalog)
         right_layout.addWidget(self.search_input)
 
@@ -435,6 +500,8 @@ class ItemPriorityWindow(QDialog):
             haystack = " ".join([
                 str(item_id),
                 item.get("name", ""),
+                item.get("group", ""),
+                item.get("effect_type", ""),
                 item.get("effect", ""),
             ]).lower()
             if query and query not in haystack:
@@ -453,7 +520,7 @@ class ItemPriorityWindow(QDialog):
             row.set_index(index)
             list_item = QListWidgetItem()
             list_item.setData(Qt.UserRole, int(row_data["id"]))
-            list_item.setSizeHint(QSize(560, 54))
+            list_item.setSizeHint(QSize(760, 58))
             self.selected_list.addItem(list_item)
             self.selected_list.setItemWidget(list_item, row)
 
@@ -472,6 +539,8 @@ class ItemPriorityWindow(QDialog):
         self.selected_items.append({
             "id": int(item_data["id"]),
             "name": item_data.get("name", ""),
+            "group": item_data.get("group", ""),
+            "effect_type": item_data.get("effect_type", ""),
             "icon": item_data.get("icon", ""),
             "item_limit": 1,
         })
@@ -494,6 +563,23 @@ class ItemPriorityWindow(QDialog):
 
     def _save_template(self):
         os.makedirs(os.path.dirname(self.template_path), exist_ok=True)
+        existing_data = {}
+        if os.path.exists(self.template_path):
+            try:
+                with open(self.template_path, "r", encoding="utf-8") as f:
+                    existing_data = json.load(f)
+            except Exception:
+                existing_data = {}
+
+        selected_ids = {entry["id"] for entry in self.selected_items}
+        usage_conditions = []
+        for entry in existing_data.get("items_usage_conditions", []):
+            try:
+                if int(entry.get("id")) in selected_ids:
+                    usage_conditions.append(entry)
+            except Exception:
+                continue
+
         payload = {
             "items_priority": [
                 {
@@ -502,7 +588,8 @@ class ItemPriorityWindow(QDialog):
                     "item_limit": int(entry.get("item_limit", 1)),
                 }
                 for entry in self.selected_items
-            ]
+            ],
+            "items_usage_conditions": usage_conditions,
         }
 
         try:
