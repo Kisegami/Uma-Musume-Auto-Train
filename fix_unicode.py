@@ -1,98 +1,92 @@
 import os
-import sys
+from pathlib import Path
 
-# All corrupted byte patterns mapped to their correct UTF-8 bytes.
-# These arose from double-encoding: UTF-8 bytes read as CP1252, then re-encoded as UTF-8.
-BYTE_REPLACEMENTS = [
-    # Order matters: longer patterns first to avoid partial matches
 
-    # WARNING SIGN U+26A0 + variation selector U+FE0F (11 bytes -> 6 bytes)
-    (b'\xc3\xa2\xc5\xa1\xc2\xa0\xc3\xaf\xc2\xb8\xc2\x8f', b'\xe2\x9a\xa0\xef\xb8\x8f'),
+def cp(*codes: int) -> str:
+    return "".join(chr(code) for code in codes)
 
-    # CHECK MARK U+2713 (6 bytes -> 3 bytes)
-    (b'\xc3\xa2\xc5\x93\xe2\x80\x9c', b'\xe2\x9c\x93'),
 
-    # BALLOT X U+2717 (6 bytes -> 3 bytes)
-    (b'\xc3\xa2\xc5\x93\xe2\x80\x94', b'\xe2\x9c\x97'),
-
-    # WHITE HEAVY CHECK MARK U+2705 (checkmark emoji, 6 bytes -> 3 bytes)
-    (b'\xc3\xa2\xc5\x93\xe2\x80\xa6', b'\xe2\x9c\x85'),
-
-    # CROSS MARK U+274C (5 bytes -> 3 bytes)
-    (b'\xc3\xa2\xc2\x9d\xc5\x92', b'\xe2\x9d\x8c'),
-
-    # EM DASH U+2014 (6 bytes -> 3 bytes)
-    (b'\xc3\xa2\xe2\x82\xac\xe2\x80\x9d', b'\xe2\x80\x94'),
-
-    # EN DASH U+2013 (6 bytes -> 3 bytes)
-    (b'\xc3\xa2\xe2\x82\xac\xe2\x80\x9c', b'\xe2\x80\x93'),
-
-    # BULLET U+2022 (5 bytes -> 3 bytes)
-    (b'\xc3\xa2\xe2\x82\xac\xc2\xa2', b'\xe2\x80\xa2'),
-
-    # RIGHT ARROW U+2192 (6 bytes -> 3 bytes)
-    (b'\xc3\xa2\xe2\x80\xa0\xe2\x80\x99', b'\xe2\x86\x92'),
-
-    # BOX DRAWINGS LIGHT HORIZONTAL U+2500 (6 bytes -> 3 bytes)
-    (b'\xc3\xa2\xe2\x80\x9d\xe2\x82\xac', b'\xe2\x94\x80'),
-
-    # MUSICAL NOTE U+266A (5 bytes -> 3 bytes)
-    (b'\xc3\xa2\xe2\x84\xa2\xc2\xaa', b'\xe2\x99\xaa'),
-
-    # SUN/CIRCLE symbol used in event names - U+2DAF or similar game chars
-    # Actual bytes in reference: e2 9d af which is U+276F? Let me check...
-    # From the reference: the pattern (a-combining-right-half-ring) might be decorative
-    # The reference file has: \xe2\x9d\xaf which is U+276F = HEAVY RIGHT-POINTING ANGLE QUOTATION MARK ORNAMENT
-    (b'\xc3\xa2\xc2\x9d\xc2\xaf', b'\xe2\x9d\xaf'),
+# Mojibake sequences found in the refactored tree.
+# Order matters: longer patterns first to avoid partial matches.
+TEXT_REPLACEMENTS = [
+    (cp(0x00C3, 0x00A2, 0x00C2, 0x009D, 0x00C5, 0x2019), "❌"),
+    (cp(0x00F0, 0x0178, 0x201D, 0x008D), "🔍"),
+    (cp(0x00F0, 0x0178, 0x201C, 0x2039), "📋"),
+    (cp(0x00F0, 0x0178, 0x017D, 0x2030), "🎉"),
+    (cp(0x00F0, 0x0178, 0x2018, 0x0081), "👁"),
+    (cp(0x00F0, 0x0178, 0x008F, 0x00A0), "🏠"),
+    (cp(0x00F0, 0x0178, 0x201C, 0x0160), "📊"),
+    (cp(0x00F0, 0x0178, 0x201C, 0x2026), "📅"),
+    (cp(0x00F0, 0x0178, 0x201C, 0x02C6), "📈"),
+    (cp(0x00F0, 0x0178, 0x201D, 0x201D), "🔔"),
+    (cp(0x00E2, 0x0153, 0x2026), "✅"),
+    (cp(0x00E2, 0x20AC, 0x00A2), "•"),
+    (cp(0x00C3, 0x00A2, 0x00C5, 0x00A1, 0x00C2, 0x00A0, 0x00C3, 0x00AF, 0x00C2, 0x00B8, 0x00C2, 0x008F), "⚠️"),
+    (cp(0x00C3, 0x00A2, 0x00C5, 0x201C, 0x201C), "✓"),
+    (cp(0x00C3, 0x00A2, 0x00C5, 0x201C, 0x2014), "✗"),
+    (cp(0x00C3, 0x00A2, 0x00C5, 0x201C, 0x2026), "✅"),
+    (cp(0x00C3, 0x00A2, 0x00E2, 0x201A, 0x00AC, 0x201D), "—"),
+    (cp(0x00C3, 0x00A2, 0x00E2, 0x201A, 0x00AC, 0x201C), "–"),
+    (cp(0x00C3, 0x00A2, 0x00E2, 0x201A, 0x00AC, 0x00A2), "•"),
+    (cp(0x00C3, 0x00A2, 0x2020, 0x2019), "→"),
+    (cp(0x00C3, 0x00A2, 0x201D, 0x20AC), "─"),
+    (cp(0x00C3, 0x00A2, 0x2122, 0x00AA), "♪"),
+    (cp(0x00C3, 0x00A2, 0x00C2, 0x009D, 0x00C2, 0x00AF), "❯"),
 ]
 
 
-def fix_file(filepath):
-    with open(filepath, 'rb') as f:
-        data = f.read()
+def find_repo_root(start: Path) -> Path:
+    for candidate in (start, *start.parents):
+        if (candidate / "core").is_dir() and (candidate / "gui").is_dir():
+            return candidate
+    return start
 
-    original = data
-    for corrupted, correct in BYTE_REPLACEMENTS:
-        data = data.replace(corrupted, correct)
 
-    if data != original:
-        with open(filepath, 'wb') as f:
-            f.write(data)
+def fix_file(filepath: str) -> bool:
+    with open(filepath, "r", encoding="utf-8", newline="") as f:
+        text = f.read()
+
+    original = text
+    for corrupted, correct in TEXT_REPLACEMENTS:
+        text = text.replace(corrupted, correct)
+
+    if text != original:
+        with open(filepath, "w", encoding="utf-8", newline="") as f:
+            f.write(text)
         return True
     return False
 
 
-def main():
-    base = os.path.dirname(os.path.abspath(__file__))
-    scan_dirs = ['core', 'utils', 'gui']
+def main() -> None:
+    base = find_repo_root(Path(__file__).resolve().parent)
+    scan_dirs = ["core", "utils", "gui"]
     fixed = 0
     scanned = 0
 
     for scan_dir in scan_dirs:
-        dirpath = os.path.join(base, scan_dir)
-        if not os.path.exists(dirpath):
+        dirpath = base / scan_dir
+        if not dirpath.exists():
             continue
         for root, dirs, files in os.walk(dirpath):
-            dirs[:] = [d for d in dirs if d not in ('__pycache__', 'ref', '.git')]
+            dirs[:] = [d for d in dirs if d not in ("__pycache__", "ref", ".git")]
             for fn in files:
-                if fn.endswith('.py'):
+                if fn.endswith(".py"):
                     fpath = os.path.join(root, fn)
                     scanned += 1
                     if fix_file(fpath):
                         print(f"  FIXED: {os.path.relpath(fpath, base)}")
                         fixed += 1
 
-    # Also scan root py files
     for fn in os.listdir(base):
-        if fn.endswith('.py') and fn != 'fix_unicode.py':
-            fpath = os.path.join(base, fn)
+        if fn.endswith(".py") and fn != "fix_unicode.py":
+            fpath = base / fn
             scanned += 1
-            if fix_file(fpath):
+            if fix_file(str(fpath)):
                 print(f"  FIXED: {os.path.relpath(fpath, base)}")
                 fixed += 1
 
     print(f"\nScanned {scanned} files, fixed {fixed} files.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

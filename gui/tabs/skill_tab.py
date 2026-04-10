@@ -109,7 +109,7 @@ class SkillTab(QScrollArea):
         end_skill_layout.setSpacing(12)
         
         # Note label
-        note_row = self._create_note_row("warning", "Used automatically when Restart Career is enabled")
+        note_row = self._create_note_row("warning", "⚠️ Used automatically when Restart Career is enabled")
         end_skill_layout.addWidget(note_row)
         
         # End skill template selection (always visible)
@@ -186,7 +186,7 @@ class SkillTab(QScrollArea):
         swipe_offset_layout.addLayout(test_buttons_layout)
         
         # Test note
-        test_note_row = self._create_note_row("warning", "Make sure the game is open on the skill list screen before testing.")
+        test_note_row = self._create_note_row("warning", "⚠️ Note: Make sure the game is open on the skill list screen before testing.")
         swipe_offset_layout.addWidget(test_note_row)
         
         layout.addWidget(self.swipe_offset_group)
@@ -199,10 +199,6 @@ class SkillTab(QScrollArea):
         row_layout = QHBoxLayout(row)
         row_layout.setContentsMargins(0, 0, 0, 0)
         row_layout.setSpacing(8)
-
-        icon_label = QLabel()
-        icon_label.setPixmap(get_icon(icon_name, COLORS['accent_orange']).pixmap(14, 14))
-        row_layout.addWidget(icon_label, 0, Qt.AlignTop)
 
         text_label = QLabel(text)
         text_label.setWordWrap(True)

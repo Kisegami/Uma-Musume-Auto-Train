@@ -156,7 +156,7 @@ class MainWindow(QMainWindow):
         sidebar_layout.addWidget(title_label)
         
         # Author credit
-        author_label = QLabel("By Kisegami <3")
+        author_label = QLabel("By Kisegami ❤️")
         author_label.setAlignment(Qt.AlignCenter)
         author_label.setStyleSheet(f"color: {COLORS['text_muted']}; font-size: 11px;")
         sidebar_layout.addWidget(author_label)
@@ -168,11 +168,7 @@ class MainWindow(QMainWindow):
         status_layout.setSpacing(6)
         status_layout.setAlignment(Qt.AlignCenter)
 
-        self.status_icon_label = QLabel()
-        self.status_icon_label.setPixmap(get_icon("status-idle", COLORS['text_muted']).pixmap(QSize(12, 12)))
-        status_layout.addWidget(self.status_icon_label)
-
-        self.status_label = QLabel("Inactive")
+        self.status_label = QLabel("● Inactive")
         self.status_label.setObjectName("subtitle")
         self.status_label.setAlignment(Qt.AlignCenter)
         self.status_label.setStyleSheet(f"color: {COLORS['text_muted']}; font-size: 12px;")
@@ -394,8 +390,7 @@ class MainWindow(QMainWindow):
                 self.start_btn.setIcon(get_icon('stop', 'white'))
                 self.start_btn.setObjectName("danger")
                 self.start_btn.setStyleSheet(f"background-color: {COLORS['accent_red']}; border: none; color: white;")
-                self.status_icon_label.setPixmap(get_icon("status-running", COLORS['accent_green']).pixmap(QSize(12, 12)))
-                self.status_label.setText("Running")
+                self.status_label.setText("● Running")
                 self.status_label.setStyleSheet(f"color: {COLORS['accent_green']};")
                 if hasattr(self, 'log_panel'):
                     self.log_panel.update_bot_state(True)
@@ -416,8 +411,7 @@ class MainWindow(QMainWindow):
             self.start_btn.setIcon(get_icon('play', 'white'))
             self.start_btn.setObjectName("primary")
             self.start_btn.setStyleSheet(f"background-color: {COLORS['accent_green']}; border: none; color: white;")
-            self.status_icon_label.setPixmap(get_icon("status-idle", COLORS['text_muted']).pixmap(QSize(12, 12)))
-            self.status_label.setText("Inactive")
+            self.status_label.setText("● Inactive")
             self.status_label.setStyleSheet(f"color: {COLORS['text_muted']};")
             if hasattr(self, 'log_panel'):
                 self.log_panel.update_bot_state(False)
@@ -463,8 +457,7 @@ class MainWindow(QMainWindow):
         self.start_btn.setIcon(get_icon('play', 'white'))
         self.start_btn.setObjectName("primary")
         self.start_btn.setStyleSheet(f"background-color: {COLORS['accent_green']}; border: none; color: white;")
-        self.status_icon_label.setPixmap(get_icon("status-idle", COLORS['text_muted']).pixmap(QSize(12, 12)))
-        self.status_label.setText("Inactive")
+        self.status_label.setText("● Inactive")
         self.status_label.setStyleSheet(f"color: {COLORS['text_muted']};")
         if hasattr(self, 'log_panel'):
             self.log_panel.update_bot_state(False)

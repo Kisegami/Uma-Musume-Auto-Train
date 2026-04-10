@@ -82,32 +82,32 @@ def send_run_complete_webhook(
     
     # Build embed
     embed = {
-        "title": f"ðŸŽ‰ Run {run_number}/{max_runs} Complete!",
+        "title": f"🎉 Run {run_number}/{max_runs} Complete!",
         "description": "Uma Musume training run finished.",
         "color": 0x2ECC71,  # Green color
         "fields": [
             {
-                "name": "ðŸ‘ Fans This Run",
+                "name": "👁 Fans This Run",
                 "value": f"**{fans_this_run:,}**",
                 "inline": True
             },
             {
-                "name": "ðŸ  Session Total",
+                "name": "🏠 Session Total",
                 "value": f"**{session_total:,}**",
                 "inline": True
             },
             {
-                "name": "ðŸ“Š Progress",
+                "name": "📊 Progress",
                 "value": f"**{run_number}/{max_runs}** runs",
                 "inline": True
             },
             {
-                "name": "ðŸ“… Today Total",
+                "name": "📅 Today Total",
                 "value": f"**{today_total:,}**",
                 "inline": True
             },
             {
-                "name": "ðŸ“ˆ Average/Run",
+                "name": "📈 Average/Run",
                 "value": f"**{average_per_run:,}**",
                 "inline": True
             }
@@ -188,7 +188,7 @@ def send_test_webhook(webhook_url: str, screenshot: Optional[Image.Image] = None
     timestamp = now.strftime("%I:%M %p")
     
     embed = {
-        "title": "ðŸ”” UMAT Webhook Test",
+        "title": "🔔 UMAT Webhook Test",
         "description": "This is a test message from Uma Musume Auto Train.",
         "color": 0x3498DB,  # Blue color
         "fields": [

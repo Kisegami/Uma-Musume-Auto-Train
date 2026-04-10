@@ -364,10 +364,10 @@ def calculate_total_cost(purchase_plan):
 def print_purchase_summary(purchase_plan):
     """Print a nice summary of the purchase plan."""
     if not purchase_plan:
-        log_info(f"ðŸ“‹ No skills to purchase based on your priority list.")
+        log_info(f"📋 No skills to purchase based on your priority list.")
         return
     
-    log_info(f"\nðŸ“‹ PURCHASE PLAN:")
+    log_info(f"\n📋 PURCHASE PLAN:")
     log_info(f"=" * 60)
     
     total_cost = 0

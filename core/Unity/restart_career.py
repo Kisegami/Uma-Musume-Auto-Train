@@ -181,7 +181,7 @@ def execute_skill_purchase_workflow(available_points: int):
     if api_mode:
         all_available_skills = get_skills_api()
         if all_available_skills is None:
-            log_error("Ã¢ÂÅ’ [API] Failed to get end-career skill list from API. Check that uma_viewer is running or disable API mode in config.")
+            log_error("❌ [API] Failed to get end-career skill list from API. Check that uma_viewer is running or disable API mode in config.")
             raise RuntimeError("API mode is enabled but /skills API is not responding. Check API connection or set api.enabled to false in config.json.")
         log_info(f"[API] Got {len(all_available_skills)} end-career skills from API (skipping OCR scan)")
     else:
