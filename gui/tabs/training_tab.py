@@ -515,6 +515,14 @@ class TrainingTab(QScrollArea):
         mode = config.get("mode", "ura")
         self.unity_widget.setVisible(mode == "unity")
         self._update_unity_score_visibility()
+
+    def _get_training_score_filename(self, mode):
+        """Return the training score config file for the active mode."""
+        if mode == "unity":
+            return "training_score_unity.json"
+        if mode == "trackblazer":
+            return "training_score_trackblazer.json"
+        return "training_score.json"
     
     def _on_priority_changed(self, order):
         """Handle priority order change"""
@@ -584,7 +592,7 @@ class TrainingTab(QScrollArea):
         
         config = self.main_window.get_config()
         mode = config.get("mode", "ura")
-        filename = "training_score_unity.json" if mode == "unity" else "training_score.json"
+        filename = self._get_training_score_filename(mode)
         
         try:
             if os.path.exists(filename):
@@ -645,7 +653,7 @@ class TrainingTab(QScrollArea):
         
         config = self.main_window.get_config()
         mode = config.get("mode", "ura")
-        filename = "training_score_unity.json" if mode == "unity" else "training_score.json"
+        filename = self._get_training_score_filename(mode)
         
         # Build scoring_rules with proper nested structure
         scoring_rules = {

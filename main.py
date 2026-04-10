@@ -46,6 +46,8 @@ from utils.vision.ui_check import ui_check
 # Import the appropriate execute module based on mode
 if mode == "unity":
     mode_name = "Unity Cup"
+elif mode == "trackblazer":
+    mode_name = "Trackblazer"
 else:
     mode_name = "URA"
 
@@ -148,6 +150,8 @@ def main():
     log_success("Starting automation...")
     if mode == "unity":
         log_info("Make sure Umamusume Unity Cup is running on your device!")
+    elif mode == "trackblazer":
+        log_info("Make sure Umamusume Trackblazer is running on your device!")
     else:
         log_info("Make sure Umamusume is running on your device!")
     log_info("Press Ctrl+C to stop the automation.")
