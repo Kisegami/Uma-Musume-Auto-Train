@@ -253,10 +253,14 @@ def execute_skill_purchase_workflow(available_points: int):
         if purchase_plan:
             affordable_skills, total_cost, remaining_points = filter_affordable_skills(purchase_plan, available_points)
             if affordable_skills:
-                if not restart_click_image_button("assets/buttons/end_skill.png", "end skill button", max_attempts=5):
-                    log_info(f"Failed to tap end skill button")
-                    return
-                time.sleep(2)
+                # OCR mode is already inside the end-skill screen after scanning.
+                # Only API mode needs to open the screen before purchasing.
+                if api_mode:
+                    if not restart_click_image_button("assets/buttons/end_skill.png", "end skill button", max_attempts=5):
+                        log_info(f"Failed to tap end skill button")
+                        return_to_complete_career_screen()
+                        return
+                    time.sleep(2)
                 execute_skill_purchases(affordable_skills, end_career=True, reset_to_top=not api_mode)
     
     # Return to complete career screen
