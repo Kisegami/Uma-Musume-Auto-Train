@@ -299,6 +299,7 @@ def finish_career_completion() -> bool:
         screenshot = take_screenshot()
         ready_screen = _detect_start_career_screen(screenshot)
         if ready_screen:
+            time.sleep(1)
             log_info(f"{ready_screen} detected - Career completion successful")
             return True
 
@@ -608,7 +609,66 @@ def wait_for_skip_variant(timeout: int = 10, confidence: float = 0.7) -> Tuple[O
     return None, None, 0.0
 
 
-def skip_check(timeout: int = 5) -> bool:
+def _find_confirm_center(screenshot=None, confidence: float = 0.8) -> Optional[Tuple[int, int]]:
+    """Return the center of the confirm button when it is visible."""
+    if screenshot is None:
+        screenshot = take_screenshot()
+
+    matches = restart_match_template(screenshot, "assets/buttons/confirm.png", confidence=confidence)
+    if not matches:
+        return None
+
+    x, y, w, h = matches[0]
+    return (x + w // 2, y + h // 2)
+
+
+def wait_for_confirm_after_skip(timeout: int = 30, confidence: float = 0.8) -> Optional[Tuple[int, int]]:
+    """Keep advancing skip state until the confirm button appears."""
+    start_time = time.time()
+    last_skip_tap = 0.0
+
+    while time.time() - start_time < timeout:
+        screenshot = take_screenshot()
+
+        confirm_center = _find_confirm_center(screenshot=screenshot, confidence=confidence)
+        if confirm_center:
+            return confirm_center
+
+        variant, center, match_confidence = _detect_skip_variant(screenshot=screenshot, confidence=0.7)
+        now = time.time()
+        if center and (now - last_skip_tap) >= 0.5:
+            if variant == "skip_off":
+                log_info(
+                    f"Confirm not visible yet; retrying skip_off at {center} "
+                    f"(confidence {match_confidence:.2f})"
+                )
+                tap(center[0], center[1])
+                time.sleep(0.12)
+                tap(center[0], center[1])
+                last_skip_tap = time.time()
+                time.sleep(0.35)
+                continue
+
+            if variant in {"skip_x1", "skip_btn"}:
+                action = "retrying skip_x1" if variant == "skip_x1" else "retrying generic skip"
+                log_info(
+                    f"Confirm not visible yet; {action} at {center} "
+                    f"(confidence {match_confidence:.2f})"
+                )
+                tap(center[0], center[1])
+                if variant == "skip_btn":
+                    time.sleep(0.12)
+                    tap(center[0], center[1])
+                last_skip_tap = time.time()
+                time.sleep(0.35)
+                continue
+
+        time.sleep(0.25)
+
+    return None
+
+
+def normalize_skip_state(timeout: int = 5) -> bool:
     """Normalize skip state to x2 when possible."""
     log_info("Checking skip button state...")
 
@@ -650,7 +710,37 @@ def skip_check(timeout: int = 5) -> bool:
         return True
 
     log_warning(f"Skip normalization incomplete; final state: {final_variant or 'unknown'}")
-    return final_variant is not None
+    return False
+
+
+def skip_check(timeout: int = 5) -> bool:
+    """Backward-compatible alias for skip normalization."""
+    return normalize_skip_state(timeout=timeout)
+
+
+def retry_skip_normalization(max_attempts: int = 3, timeout: int = 30) -> bool:
+    """Retry skip normalization with a fresh screenshot on each attempt."""
+    for attempt in range(1, max_attempts + 1):
+        take_screenshot()
+        log_info(f"[Step 8/13] Skip normalization attempt {attempt}/{max_attempts}")
+        if normalize_skip_state(timeout=timeout):
+            return True
+        if attempt < max_attempts:
+            time.sleep(0.5)
+    return False
+
+
+def retry_confirm_check(max_attempts: int = 3, timeout: int = 30, confidence: float = 0.8) -> Optional[Tuple[int, int]]:
+    """Retry confirm detection with a fresh screenshot on each attempt."""
+    for attempt in range(1, max_attempts + 1):
+        take_screenshot()
+        log_info(f"[Step 9/13] Confirm detection attempt {attempt}/{max_attempts}")
+        confirm_center = wait_for_confirm_after_skip(timeout=timeout, confidence=confidence)
+        if confirm_center:
+            return confirm_center
+        if attempt < max_attempts:
+            time.sleep(0.5)
+    return None
 
 
 def start_career() -> bool:
@@ -742,23 +832,24 @@ def start_career() -> bool:
         
         # Step 8: Wait for skip button state and normalize it
         log_info("[Step 8/13] Waiting for skip control (30s timeout)...")
-        if not skip_check(timeout=30):
-            log_error("[Step 8/13] Skip button state could not be detected or normalized")
-            return False
-        log_info("[Step 8/13] Skip button handled successfully")
+        skip_ready = retry_skip_normalization(max_attempts=3, timeout=30)
+        if not skip_ready:
+            log_warning("[Step 8/13] Skip state not fully normalized; will continue while waiting for confirm")
+            variant, _, _ = _detect_skip_variant(confidence=0.7)
+            if not variant:
+                log_error("[Step 8/13] ✗ Skip button state could not be detected")
+                return False
+        else:
+            log_info("[Step 8/13] ✓ Skip button handled successfully")
         time.sleep(0.5)
         
         # Step 9: Wait for confirm button
         log_info("[Step 9/13] Waiting for confirm button (30s timeout)...")
-        confirm_matches = restart_wait_for_image(
-            "assets/buttons/confirm.png",
-            timeout=30,
-            confidence=0.8,
-        )
-        if not confirm_matches:
-            log_error("[Step 9/13] Confirm button not found within 30s")
+        confirm_center = retry_confirm_check(max_attempts=3, timeout=30, confidence=0.8)
+        if not confirm_center:
+            log_error("[Step 9/13] ✗ Confirm button not found within 30s")
             return False
-        log_info("[Step 9/13] Confirm button found")
+        log_info("[Step 9/13] ✓ Confirm button found")
         
         # Step 10: Tap coordinates
         log_info("[Step 10/13] Tapping coordinates (213, 939)...")
