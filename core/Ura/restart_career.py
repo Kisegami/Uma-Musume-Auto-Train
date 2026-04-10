@@ -17,6 +17,7 @@ SUPPORTS_DIR = os.path.join(PROJECT_ROOT, "template", "supports")
 os.makedirs(SUPPORTS_DIR, exist_ok=True)
 RESTART_BACK_BUTTON_CENTER = (123, 1764)
 RESTART_CAREER_HOME_REGION = (540, 1442, 522, 297)
+RESTART_FULL_SCREEN_REGION = (0, 0, 1080, 1920)
 
 from utils.vision.recognizer import match_template
 from utils.capture.screenshot import take_screenshot
@@ -35,8 +36,11 @@ _restart_state = {
 
 
 def restart_match_template(screenshot, template_path: str, confidence: float = 0.8, region=None):
-    if region is None and template_path.replace("\\", "/") == "assets/buttons/Career_Home.png":
-        region = RESTART_CAREER_HOME_REGION
+    if region is None:
+        if template_path.replace("\\", "/") == "assets/buttons/Career_Home.png":
+            region = RESTART_CAREER_HOME_REGION
+        else:
+            region = RESTART_FULL_SCREEN_REGION
     return match_template(
         screenshot,
         template_path,
@@ -46,8 +50,11 @@ def restart_match_template(screenshot, template_path: str, confidence: float = 0
 
 
 def restart_wait_for_image(template_path: str, timeout: int = 10, confidence: float = 0.8, region=None, check_interval: float = 0.5):
-    if region is None and template_path.replace("\\", "/") == "assets/buttons/Career_Home.png":
-        region = RESTART_CAREER_HOME_REGION
+    if region is None:
+        if template_path.replace("\\", "/") == "assets/buttons/Career_Home.png":
+            region = RESTART_CAREER_HOME_REGION
+        else:
+            region = RESTART_FULL_SCREEN_REGION
     return wait_for_image(
         template_path,
         timeout=timeout,
