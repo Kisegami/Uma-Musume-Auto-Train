@@ -299,6 +299,7 @@ def finish_career_completion() -> bool:
         screenshot = take_screenshot()
         ready_screen = _detect_start_career_screen(screenshot)
         if ready_screen:
+            time.sleep(1)
             log_info(f"{ready_screen} detected - Career completion successful")
             return True
 
