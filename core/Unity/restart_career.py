@@ -16,8 +16,8 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 sys.path.append(PROJECT_ROOT)
 SUPPORTS_DIR = os.path.join(PROJECT_ROOT, "template", "supports")
 os.makedirs(SUPPORTS_DIR, exist_ok=True)
-RESTART_CONFIRM_REGION = (282, 1286, 498, 180)
 RESTART_BACK_BUTTON_CENTER = (123, 1764)
+RESTART_CAREER_HOME_REGION = (540, 1442, 522, 297)
 
 from utils.vision.recognizer import match_template
 from utils.capture.screenshot import take_screenshot
@@ -25,10 +25,7 @@ from utils.inputs.input import tap
 from core.Unity.skill_auto_purchase import click_image_button
 from core.Unity.ocr import extract_text, extract_number
 from utils.core.config_loader import load_main_config
-from utils.constants.unity import (
-    RESTART_COMPLETE_SPAM_TARGET,
-    get_template_region as get_default_template_region,
-)
+from utils.constants.unity import RESTART_COMPLETE_SPAM_TARGET
 
 # Module-level state for persistent restart tracking across function calls
 _restart_state = {
@@ -38,31 +35,25 @@ _restart_state = {
 }
 
 
-RESTART_TEMPLATE_REGION_OVERRIDES = {
-    "assets/buttons/confirm.png": RESTART_CONFIRM_REGION,
-}
-
-
-def get_restart_template_region(template_path: str):
-    normalized_path = template_path.replace("\\", "/")
-    return RESTART_TEMPLATE_REGION_OVERRIDES.get(normalized_path) or get_default_template_region(normalized_path)
-
-
 def restart_match_template(screenshot, template_path: str, confidence: float = 0.8, region=None):
+    if region is None and template_path.replace("\\", "/") == "assets/buttons/Career_Home.png":
+        region = RESTART_CAREER_HOME_REGION
     return match_template(
         screenshot,
         template_path,
         confidence=confidence,
-        region=region if region is not None else get_restart_template_region(template_path),
+        region=region,
     )
 
 
 def restart_wait_for_image(template_path: str, timeout: int = 10, confidence: float = 0.8, region=None, check_interval: float = 0.5):
+    if region is None and template_path.replace("\\", "/") == "assets/buttons/Career_Home.png":
+        region = RESTART_CAREER_HOME_REGION
     return wait_for_image(
         template_path,
         timeout=timeout,
         confidence=confidence,
-        region=region if region is not None else get_restart_template_region(template_path),
+        region=region,
         check_interval=check_interval,
     )
 
