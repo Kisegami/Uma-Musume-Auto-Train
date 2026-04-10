@@ -6,6 +6,7 @@ from utils.capture.screenshot import take_screenshot
 from utils.core.log import log_debug, log_info, log_warning, log_error
 from utils.vision.template_match_dump import record_single_template_match, record_template_matches_for_mode
 from utils.core.config_loader import load_main_config
+from utils.constants.trackblazer import get_template_region as get_trackblazer_template_region
 from utils.constants.unity import get_template_region as get_unity_template_region
 from utils.constants.ura import get_template_region as get_ura_template_region
 
@@ -75,6 +76,8 @@ def _resolve_search_region(template_path, region):
         mode = load_main_config().get("mode")
         if mode == "unity":
             return get_unity_template_region(template_path)
+        if mode == "trackblazer":
+            return get_trackblazer_template_region(template_path)
         if mode == "ura":
             return get_ura_template_region(template_path)
     except Exception:

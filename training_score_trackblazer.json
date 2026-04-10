@@ -1,0 +1,24 @@
+{
+  "scoring_rules": {
+    "rainbow_support": {
+      "description": "Same type support card with bond level >= 4",
+      "points": 1.0
+    },
+    "not_rainbow_support_low": {
+      "description": "Not same type support with bond level < 4",
+      "points": 0.7
+    },
+    "not_rainbow_support_high": {
+      "description": "Not same type support with bond level >= 4 (no need to get more bond)",
+      "points": 0.0
+    },
+    "hint": {
+      "description": "Hint icon present",
+      "points": 0.3
+    },
+    "friend_support": {
+      "description": "Friend support card with bond < 3",
+      "points": 0.5
+    }
+  }
+}
