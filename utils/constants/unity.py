@@ -49,6 +49,7 @@ UNITY_TEMPLATE_REGIONS = {
     "assets/buttons/cancel_lobby.png": (295, 1285, 481, 185),
     "assets/buttons/close.png": (59, 1153, 472, 186),
     "assets/buttons/complete_career.png": (573, 1559, 384, 149),
+    "assets/buttons/confirm.png": (533, 1277, 494, 183),
     "assets/buttons/infirmary_btn2.png": (97, 1592, 441, 213),
     "assets/buttons/inspiration_btn.png": (374, 1470, 298, 256),
     "assets/buttons/next2_btn.png": (351, 1755, 592, 147),

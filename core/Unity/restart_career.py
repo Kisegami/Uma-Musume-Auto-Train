@@ -607,6 +607,182 @@ def skip_check():
                 tap(center[0], center[1])
 
 
+def _detect_skip_variant(screenshot=None, confidence: float = 0.7) -> Tuple[Optional[str], Optional[Tuple[int, int]], float]:
+    """Detect the current skip button variant and return its center position."""
+    if screenshot is None:
+        screenshot = take_screenshot()
+
+    skip_variants = [
+        ("assets/buttons/skip_off.png", "skip_off"),
+        ("assets/buttons/skip_x1.png", "skip_x1"),
+        ("assets/buttons/skip_x2.png", "skip_x2"),
+        ("assets/buttons/skip_btn.png", "skip_btn"),
+    ]
+
+    best_variant = None
+    best_center = None
+    best_confidence = 0.0
+
+    from utils.vision.recognizer import max_match_confidence
+
+    for template_path, variant_name in skip_variants:
+        if not os.path.exists(template_path):
+            continue
+
+        match_confidence = max_match_confidence(screenshot, template_path)
+        if match_confidence and match_confidence > best_confidence:
+            matches = restart_match_template(screenshot, template_path, confidence=confidence)
+            if matches:
+                x, y, w, h = matches[0]
+                best_variant = variant_name
+                best_center = (x + w // 2, y + h // 2)
+                best_confidence = match_confidence
+
+    return best_variant, best_center, best_confidence
+
+
+def wait_for_skip_variant(timeout: int = 10, confidence: float = 0.7) -> Tuple[Optional[str], Optional[Tuple[int, int]], float]:
+    """Wait for any skip button variant to appear."""
+    start_time = time.time()
+
+    while time.time() - start_time < timeout:
+        variant, center, match_confidence = _detect_skip_variant(confidence=confidence)
+        if variant:
+            return variant, center, match_confidence
+        time.sleep(0.3)
+
+    return None, None, 0.0
+
+
+def normalize_skip_state(timeout: int = 5) -> bool:
+    """Normalize skip state to x2 when possible."""
+    log_info("Checking skip button state...")
+
+    variant, center, match_confidence = wait_for_skip_variant(timeout=timeout, confidence=0.7)
+    if not variant or not center:
+        log_warning("Skip button state not detected")
+        return False
+
+    log_info(f"Detected {variant} (confidence {match_confidence:.2f}) at {center}")
+
+    if variant == "skip_off":
+        tap(center[0], center[1])
+        time.sleep(0.15)
+        tap(center[0], center[1])
+        log_info("Tapped skip_off twice")
+        time.sleep(0.3)
+
+        variant, center, _ = wait_for_skip_variant(timeout=2, confidence=0.7)
+        if variant == "skip_x1" and center:
+            tap(center[0], center[1])
+            log_info("Tapped skip_x1 once")
+            time.sleep(0.3)
+    elif variant == "skip_x1":
+        tap(center[0], center[1])
+        log_info("Tapped skip_x1 once")
+        time.sleep(0.3)
+    elif variant == "skip_btn":
+        tap(center[0], center[1])
+        time.sleep(0.1)
+        tap(center[0], center[1])
+        log_info("Double-tapped generic skip button")
+        time.sleep(0.3)
+    else:
+        log_info("Skip already enabled (skip_x2)")
+
+    final_variant, _, final_confidence = _detect_skip_variant(confidence=0.7)
+    if final_variant == "skip_x2":
+        log_info(f"Skip normalized to skip_x2 (confidence {final_confidence:.2f})")
+        return True
+
+    log_warning(f"Skip normalization incomplete; final state: {final_variant or 'unknown'}")
+    return False
+
+
+def _find_confirm_center(screenshot=None, confidence: float = 0.8) -> Optional[Tuple[int, int]]:
+    """Return the center of the confirm button when it is visible."""
+    if screenshot is None:
+        screenshot = take_screenshot()
+
+    matches = restart_match_template(screenshot, "assets/buttons/confirm.png", confidence=confidence)
+    if not matches:
+        return None
+
+    x, y, w, h = matches[0]
+    return (x + w // 2, y + h // 2)
+
+
+def wait_for_confirm_after_skip(timeout: int = 30, confidence: float = 0.8) -> Optional[Tuple[int, int]]:
+    """Keep advancing skip state until the confirm button appears."""
+    start_time = time.time()
+    last_skip_tap = 0.0
+
+    while time.time() - start_time < timeout:
+        screenshot = take_screenshot()
+
+        confirm_center = _find_confirm_center(screenshot=screenshot, confidence=confidence)
+        if confirm_center:
+            return confirm_center
+
+        variant, center, match_confidence = _detect_skip_variant(screenshot=screenshot, confidence=0.7)
+        now = time.time()
+        if center and (now - last_skip_tap) >= 0.5:
+            if variant == "skip_off":
+                log_info(
+                    f"Confirm not visible yet; retrying skip_off at {center} "
+                    f"(confidence {match_confidence:.2f})"
+                )
+                tap(center[0], center[1])
+                time.sleep(0.12)
+                tap(center[0], center[1])
+                last_skip_tap = time.time()
+                time.sleep(0.35)
+                continue
+
+            if variant in {"skip_x1", "skip_btn"}:
+                action = "retrying skip_x1" if variant == "skip_x1" else "retrying generic skip"
+                log_info(
+                    f"Confirm not visible yet; {action} at {center} "
+                    f"(confidence {match_confidence:.2f})"
+                )
+                tap(center[0], center[1])
+                if variant == "skip_btn":
+                    time.sleep(0.12)
+                    tap(center[0], center[1])
+                last_skip_tap = time.time()
+                time.sleep(0.35)
+                continue
+
+        time.sleep(0.25)
+
+    return None
+
+
+def retry_skip_normalization(max_attempts: int = 3, timeout: int = 30) -> bool:
+    """Retry skip normalization with a fresh screenshot on each attempt."""
+    for attempt in range(1, max_attempts + 1):
+        take_screenshot()
+        log_info(f"[Step 8/13] Skip normalization attempt {attempt}/{max_attempts}")
+        if normalize_skip_state(timeout=timeout):
+            return True
+        if attempt < max_attempts:
+            time.sleep(0.5)
+    return False
+
+
+def retry_confirm_check(max_attempts: int = 3, timeout: int = 30, confidence: float = 0.8) -> Optional[Tuple[int, int]]:
+    """Retry confirm detection with a fresh screenshot on each attempt."""
+    for attempt in range(1, max_attempts + 1):
+        take_screenshot()
+        log_info(f"[Step 9/13] Confirm detection attempt {attempt}/{max_attempts}")
+        confirm_center = wait_for_confirm_after_skip(timeout=timeout, confidence=confidence)
+        if confirm_center:
+            return confirm_center
+        if attempt < max_attempts:
+            time.sleep(0.5)
+    return None
+
+
 def start_career() -> bool:
     """Start a new career using the existing start_career logic"""
     log_info(f"=== Starting New Career ===")
@@ -712,27 +888,23 @@ def start_career() -> bool:
             log_error("[Step 7/13] ✗ Start Career 2 button not found")
             return False
         
-        # Step 8: Wait for skip button and double tap
-        log_info("[Step 8/13] Waiting for skip button (30s timeout)...")
-        skip_matches = restart_wait_for_image("assets/buttons/skip_btn.png", timeout=30, confidence=0.8)
-        if skip_matches:
-            tap(skip_matches[0], skip_matches[1])
-            time.sleep(0.1)
-            tap(skip_matches[0], skip_matches[1])
-            log_info("[Step 8/13] ✓ Skip button double-tapped")
-            time.sleep(0.5)
+        # Step 8: Wait for skip button and normalize its state
+        log_info("[Step 8/13] Waiting for skip control (30s timeout)...")
+        skip_ready = retry_skip_normalization(max_attempts=3, timeout=30)
+        if not skip_ready:
+            log_warning("[Step 8/13] Skip state not fully normalized; will continue while waiting for confirm")
+            variant, _, _ = _detect_skip_variant(confidence=0.7)
+            if not variant:
+                log_error("[Step 8/13] ✗ Skip button state could not be detected")
+                return False
         else:
-            log_error("[Step 8/13] ✗ Skip button not found within 30s")
-            return False
+            log_info("[Step 8/13] ✓ Skip button handled successfully")
+        time.sleep(0.5)
         
         # Step 9: Wait for confirm button
         log_info("[Step 9/13] Waiting for confirm button (30s timeout)...")
-        confirm_matches = restart_wait_for_image(
-            "assets/buttons/confirm.png",
-            timeout=30,
-            confidence=0.8,
-        )
-        if not confirm_matches:
+        confirm_center = retry_confirm_check(max_attempts=3, timeout=30, confidence=0.8)
+        if not confirm_center:
             log_error("[Step 9/13] ✗ Confirm button not found within 30s")
             return False
         log_info("[Step 9/13] ✓ Confirm button found")
