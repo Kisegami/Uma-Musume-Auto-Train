@@ -1,0 +1,320 @@
+[
+  {
+    "id": 1001,
+    "name": "Speed Notepad",
+    "price": 10,
+    "effect": "Increase speed by 3 \u203bOnly half effect over 1200"
+  },
+  {
+    "id": 1002,
+    "name": "Stamina Notepad",
+    "price": 10,
+    "effect": "Increase stamina by 3 \u203bOnly half effect over 1200"
+  },
+  {
+    "id": 1003,
+    "name": "Power Notepad",
+    "price": 10,
+    "effect": "Increase power by 3 \u203bOnly half effect over 1200"
+  },
+  {
+    "id": 1004,
+    "name": "Guts Notepad",
+    "price": 10,
+    "effect": "Increase guts by 3 \u203bOnly half effect over 1200"
+  },
+  {
+    "id": 1005,
+    "name": "Wit Notepad",
+    "price": 10,
+    "effect": "Increase wit by 3 \u203bOnly half effect over 1200"
+  },
+  {
+    "id": 1101,
+    "name": "Speed Manual",
+    "price": 15,
+    "effect": "Increase speed by 7 \u203bOnly half effect over 1200"
+  },
+  {
+    "id": 1102,
+    "name": "Stamina Manual",
+    "price": 15,
+    "effect": "Increase stamina by 7 \u203bOnly half effect over 1200"
+  },
+  {
+    "id": 1103,
+    "name": "Power Manual",
+    "price": 15,
+    "effect": "Increase power by 7 \u203bOnly half effect over 1200"
+  },
+  {
+    "id": 1104,
+    "name": "Guts Manual",
+    "price": 15,
+    "effect": "Increase guts by 7 \u203bOnly half effect over 1200"
+  },
+  {
+    "id": 1105,
+    "name": "Wit Manual",
+    "price": 15,
+    "effect": "Increase wit by 7 \u203bOnly half effect over 1200"
+  },
+  {
+    "id": 1201,
+    "name": "Speed Scroll",
+    "price": 30,
+    "effect": "Increase speed by 15 \u203bOnly half effect over 1200"
+  },
+  {
+    "id": 1202,
+    "name": "Stamina Scroll",
+    "price": 30,
+    "effect": "Increase stamina by 15 \u203bOnly half effect over 1200"
+  },
+  {
+    "id": 1203,
+    "name": "Power Scroll",
+    "price": 30,
+    "effect": "Increase power by 15 \u203bOnly half effect over 1200"
+  },
+  {
+    "id": 1204,
+    "name": "Guts Scroll",
+    "price": 30,
+    "effect": "Increase guts by 15 \u203bOnly half effect over 1200"
+  },
+  {
+    "id": 1205,
+    "name": "Wit Scroll",
+    "price": 30,
+    "effect": "Increase wit by 15 \u203bOnly half effect over 1200"
+  },
+  {
+    "id": 2001,
+    "name": "Vita 20",
+    "price": 35,
+    "effect": "Energy +20"
+  },
+  {
+    "id": 2002,
+    "name": "Vita 40",
+    "price": 55,
+    "effect": "Energy +40"
+  },
+  {
+    "id": 2003,
+    "name": "Vita 65",
+    "price": 75,
+    "effect": "Energy +65"
+  },
+  {
+    "id": 2101,
+    "name": "Royal Kale Juice",
+    "price": 70,
+    "effect": "Energy +100, Mood -1"
+  },
+  {
+    "id": 2201,
+    "name": "Energy Drink MAX",
+    "price": 30,
+    "effect": "Maximum energy +4, Energy +5"
+  },
+  {
+    "id": 2202,
+    "name": "Energy Drink MAX EX",
+    "price": 50,
+    "effect": "Maximum energy +8"
+  },
+  {
+    "id": 2301,
+    "name": "Plain Cupcake",
+    "price": 30,
+    "effect": "Mood +1"
+  },
+  {
+    "id": 2302,
+    "name": "Berry Sweet Cupcake",
+    "price": 55,
+    "effect": "Mood +2"
+  },
+  {
+    "id": 3001,
+    "name": "Yummy Cat Food",
+    "price": 10,
+    "effect": "Director Akikawa's Friendship Gauge +5"
+  },
+  {
+    "id": 3101,
+    "name": "Grilled Carrots",
+    "price": 40,
+    "effect": "All support card's Friendship Gauge +5"
+  },
+  {
+    "id": 4001,
+    "name": "Pretty Mirror",
+    "price": 150,
+    "effect": "Get \"Charming\" status effect"
+  },
+  {
+    "id": 4002,
+    "name": "Reporter's Binoculars",
+    "price": 150,
+    "effect": "Get \"Hot Topic\" status effect"
+  },
+  {
+    "id": 4003,
+    "name": "Master Practice Guide",
+    "price": 150,
+    "effect": "Get \"Practice Perfect\" status effect"
+  },
+  {
+    "id": 4004,
+    "name": "Scholar's Hat",
+    "price": 280,
+    "effect": "Get \"Fast Learner\" status effect"
+  },
+  {
+    "id": 4101,
+    "name": "Fluffy Pillow",
+    "price": 15,
+    "effect": "Heal Night Owl"
+  },
+  {
+    "id": 4102,
+    "name": "Pocket Planner",
+    "price": 15,
+    "effect": "Heal Slacker"
+  },
+  {
+    "id": 4103,
+    "name": "Rich Hand Cream",
+    "price": 15,
+    "effect": "Heal Dry Skin"
+  },
+  {
+    "id": 4104,
+    "name": "Smart Scale",
+    "price": 15,
+    "effect": "Heal Slow Metabolism"
+  },
+  {
+    "id": 4105,
+    "name": "Aroma Diffuser",
+    "price": 15,
+    "effect": "Heal Migraine"
+  },
+  {
+    "id": 4106,
+    "name": "Practice Drills DVD",
+    "price": 15,
+    "effect": "Heal Practice Poor"
+  },
+  {
+    "id": 4201,
+    "name": "Miracle Cure",
+    "price": 40,
+    "effect": "Heal all negative status effects"
+  },
+  {
+    "id": 5001,
+    "name": "Speed Training Application",
+    "price": 150,
+    "effect": "Speed Training Level +1"
+  },
+  {
+    "id": 5002,
+    "name": "Stamina Training Application",
+    "price": 150,
+    "effect": "Stamina Training Level +1"
+  },
+  {
+    "id": 5003,
+    "name": "Power Training Application",
+    "price": 150,
+    "effect": "Power Training Level +1"
+  },
+  {
+    "id": 5004,
+    "name": "Guts Training Application",
+    "price": 150,
+    "effect": "Guts Training Level +1"
+  },
+  {
+    "id": 5005,
+    "name": "Wit Training Application",
+    "price": 150,
+    "effect": "Wit Training Level +1"
+  },
+  {
+    "id": 7001,
+    "name": "Reset Whistle",
+    "price": 20,
+    "effect": "Shuffle support cards in training facilities"
+  },
+  {
+    "id": 8001,
+    "name": "Coaching Megaphone",
+    "price": 40,
+    "effect": "All stats gained from training +20% for 4 turns (doesn't stack)"
+  },
+  {
+    "id": 8002,
+    "name": "Motivating Megaphone",
+    "price": 55,
+    "effect": "All stats gained from training +40% for 3 turns (doesn't stack)"
+  },
+  {
+    "id": 8003,
+    "name": "Empowering Megaphone",
+    "price": 70,
+    "effect": "All stats gained from training +60% for 2 turns (doesn't stack)"
+  },
+  {
+    "id": 9001,
+    "name": "Speed Ankle Weights",
+    "price": 50,
+    "effect": "Speed training: 20% increased energy consumption, but 50% extra stats (doesn't stack)"
+  },
+  {
+    "id": 9002,
+    "name": "Stamina Ankle Weights",
+    "price": 50,
+    "effect": "Stamina training: 20% increased energy consumption, but 50% extra stats (doesn't stack)"
+  },
+  {
+    "id": 9003,
+    "name": "Power Ankle Weights",
+    "price": 50,
+    "effect": "Power training: 20% increased energy consumption, but 50% extra stats (doesn't stack)"
+  },
+  {
+    "id": 9004,
+    "name": "Guts Ankle Weights",
+    "price": 50,
+    "effect": "Guts training: 20% increased energy consumption, but 50% extra stats (doesn't stack)"
+  },
+  {
+    "id": 10001,
+    "name": "Good-Luck Charm",
+    "price": 40,
+    "effect": "Training failure rate set to 0% on used turn"
+  },
+  {
+    "id": 11001,
+    "name": "Artisan Cleat Hammer",
+    "price": 25,
+    "effect": "20% race bonus on used turn (doesn't stack)"
+  },
+  {
+    "id": 11002,
+    "name": "Master Cleat Hammer",
+    "price": 40,
+    "effect": "35% race bonus on used turn (doesn't stack)"
+  },
+  {
+    "id": 11003,
+    "name": "Glow Sticks",
+    "price": 15,
+    "effect": "Race fan gain +50% on used turn (doesn't stack)"
+  }
+]
