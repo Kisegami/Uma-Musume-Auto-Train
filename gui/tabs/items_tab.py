@@ -1,6 +1,6 @@
 """
 Items Tab for PySide6 GUI.
-Contains Trackblazer item purchase priority template management.
+Contains Trackblazer item logic template management.
 """
 
 import glob
@@ -14,7 +14,7 @@ from PySide6.QtWidgets import (
 
 
 class ItemsTab(QScrollArea):
-    """Trackblazer items configuration tab."""
+    """Trackblazer item logic configuration tab."""
 
     def __init__(self, main_window):
         super().__init__()
@@ -31,7 +31,7 @@ class ItemsTab(QScrollArea):
         layout.setContentsMargins(16, 16, 16, 16)
         layout.setSpacing(16)
 
-        priority_group = QGroupBox("Items purchase Priority")
+        priority_group = QGroupBox("Item Logic configuration")
         priority_layout = QVBoxLayout(priority_group)
         priority_layout.setSpacing(12)
 
@@ -54,10 +54,15 @@ class ItemsTab(QScrollArea):
         remove_btn.clicked.connect(self._remove_template)
         template_row.addWidget(remove_btn)
 
-        edit_btn = QPushButton("Edit")
-        edit_btn.setObjectName("accent")
-        edit_btn.clicked.connect(self._edit_template)
-        template_row.addWidget(edit_btn)
+        edit_priority_btn = QPushButton("Items Purchase Priority")
+        edit_priority_btn.setObjectName("accent")
+        edit_priority_btn.clicked.connect(self._edit_priority_template)
+        template_row.addWidget(edit_priority_btn)
+
+        edit_usage_btn = QPushButton("Items Usage Condition")
+        edit_usage_btn.setObjectName("accent")
+        edit_usage_btn.clicked.connect(self._edit_usage_conditions)
+        template_row.addWidget(edit_usage_btn)
 
         template_row.addStretch()
         priority_layout.addLayout(template_row)
@@ -75,7 +80,8 @@ class ItemsTab(QScrollArea):
 
     def _default_template_data(self):
         return {
-            "items_priority": []
+            "items_priority": [],
+            "items_usage_conditions": [],
         }
 
     def _ensure_template_exists(self, filename):
@@ -178,7 +184,7 @@ class ItemsTab(QScrollArea):
         self._load_templates()
         self._save_items_config()
 
-    def _edit_template(self):
+    def _edit_priority_template(self):
         filename = self.template_combo.currentText()
         if not filename:
             return
@@ -189,5 +195,32 @@ class ItemsTab(QScrollArea):
         from .item_priority_window import ItemPriorityWindow
 
         dialog = ItemPriorityWindow(self, template_path)
+        dialog.exec()
+
+    def _edit_usage_conditions(self):
+        filename = self.template_combo.currentText()
+        if not filename:
+            return
+
+        self._ensure_template_exists(filename)
+        template_path = os.path.join(self._get_items_dir(), filename)
+
+        try:
+            with open(template_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except Exception:
+            data = self._default_template_data()
+
+        if not data.get("items_priority"):
+            QMessageBox.information(
+                self,
+                "No Items Selected",
+                "Add at least one item in Items Purchase Priority before editing usage conditions.",
+            )
+            return
+
+        from .item_usage_condition_window import ItemUsageConditionWindow
+
+        dialog = ItemUsageConditionWindow(self, template_path)
         dialog.exec()
 

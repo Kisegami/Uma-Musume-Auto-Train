@@ -2,318 +2,501 @@
   {
     "id": 1001,
     "name": "Speed Notepad",
+    "Group": "Stat",
+    "Effect Type": "Stat Notepad",
+    "Stat Type": "Speed",
+    "Value": 3,
     "price": 10,
-    "effect": "Increase speed by 3 \u203bOnly half effect over 1200"
+    "effect": "Increase speed by 3 ※Only half effect over 1200"
   },
   {
     "id": 1002,
     "name": "Stamina Notepad",
+    "Group": "Stat",
+    "Effect Type": "Stat Notepad",
+    "Stat Type": "Stamina",
+    "Value": 3,
     "price": 10,
-    "effect": "Increase stamina by 3 \u203bOnly half effect over 1200"
+    "effect": "Increase stamina by 3 ※Only half effect over 1200"
   },
   {
     "id": 1003,
     "name": "Power Notepad",
+    "Group": "Stat",
+    "Effect Type": "Stat Notepad",
+    "Stat Type": "Power",
+    "Value": 3,
     "price": 10,
-    "effect": "Increase power by 3 \u203bOnly half effect over 1200"
+    "effect": "Increase power by 3 ※Only half effect over 1200"
   },
   {
     "id": 1004,
     "name": "Guts Notepad",
+    "Group": "Stat",
+    "Effect Type": "Stat Notepad",
+    "Stat Type": "Guts",
+    "Value": 3,
     "price": 10,
-    "effect": "Increase guts by 3 \u203bOnly half effect over 1200"
+    "effect": "Increase guts by 3 ※Only half effect over 1200"
   },
   {
     "id": 1005,
     "name": "Wit Notepad",
+    "Group": "Stat",
+    "Effect Type": "Stat Notepad",
+    "Stat Type": "Wit",
+    "Value": 3,
     "price": 10,
-    "effect": "Increase wit by 3 \u203bOnly half effect over 1200"
+    "effect": "Increase wit by 3 ※Only half effect over 1200"
   },
   {
     "id": 1101,
     "name": "Speed Manual",
+    "Group": "Stat",
+    "Effect Type": "Stat Manual",
+    "Stat Type": "Speed",
+    "Value": 7,
     "price": 15,
-    "effect": "Increase speed by 7 \u203bOnly half effect over 1200"
+    "effect": "Increase speed by 7 ※Only half effect over 1200"
   },
   {
     "id": 1102,
     "name": "Stamina Manual",
+    "Group": "Stat",
+    "Effect Type": "Stat Manual",
+    "Stat Type": "Stamina",
+    "Value": 7,
     "price": 15,
-    "effect": "Increase stamina by 7 \u203bOnly half effect over 1200"
+    "effect": "Increase stamina by 7 ※Only half effect over 1200"
   },
   {
     "id": 1103,
     "name": "Power Manual",
+    "Group": "Stat",
+    "Effect Type": "Stat Manual",
+    "Stat Type": "Power",
+    "Value": 7,
     "price": 15,
-    "effect": "Increase power by 7 \u203bOnly half effect over 1200"
+    "effect": "Increase power by 7 ※Only half effect over 1200"
   },
   {
     "id": 1104,
     "name": "Guts Manual",
+    "Group": "Stat",
+    "Effect Type": "Stat Manual",
+    "Stat Type": "Guts",
+    "Value": 7,
     "price": 15,
-    "effect": "Increase guts by 7 \u203bOnly half effect over 1200"
+    "effect": "Increase guts by 7 ※Only half effect over 1200"
   },
   {
     "id": 1105,
     "name": "Wit Manual",
+    "Group": "Stat",
+    "Effect Type": "Stat Manual",
+    "Stat Type": "Wit",
+    "Value": 7,
     "price": 15,
-    "effect": "Increase wit by 7 \u203bOnly half effect over 1200"
+    "effect": "Increase wit by 7 ※Only half effect over 1200"
   },
   {
     "id": 1201,
     "name": "Speed Scroll",
+    "Group": "Stat",
+    "Effect Type": "Stat Scroll",
+    "Stat Type": "Speed",
+    "Value": 15,
     "price": 30,
-    "effect": "Increase speed by 15 \u203bOnly half effect over 1200"
+    "effect": "Increase speed by 15 ※Only half effect over 1200"
   },
   {
     "id": 1202,
     "name": "Stamina Scroll",
+    "Group": "Stat",
+    "Effect Type": "Stat Scroll",
+    "Stat Type": "Stamina",
+    "Value": 15,
     "price": 30,
-    "effect": "Increase stamina by 15 \u203bOnly half effect over 1200"
+    "effect": "Increase stamina by 15 ※Only half effect over 1200"
   },
   {
     "id": 1203,
     "name": "Power Scroll",
+    "Group": "Stat",
+    "Effect Type": "Stat Scroll",
+    "Stat Type": "Power",
+    "Value": 15,
     "price": 30,
-    "effect": "Increase power by 15 \u203bOnly half effect over 1200"
+    "effect": "Increase power by 15 ※Only half effect over 1200"
   },
   {
     "id": 1204,
     "name": "Guts Scroll",
+    "Group": "Stat",
+    "Effect Type": "Stat Scroll",
+    "Stat Type": "Guts",
+    "Value": 15,
     "price": 30,
-    "effect": "Increase guts by 15 \u203bOnly half effect over 1200"
+    "effect": "Increase guts by 15 ※Only half effect over 1200"
   },
   {
     "id": 1205,
     "name": "Wit Scroll",
+    "Group": "Stat",
+    "Effect Type": "Stat Scroll",
+    "Stat Type": "Wit",
+    "Value": 15,
     "price": 30,
-    "effect": "Increase wit by 15 \u203bOnly half effect over 1200"
+    "effect": "Increase wit by 15 ※Only half effect over 1200"
   },
   {
     "id": 2001,
     "name": "Vita 20",
+    "Group": "Energy",
+    "Effect Type": "Energy Recovery",
+    "Value": 20,
     "price": 35,
     "effect": "Energy +20"
   },
   {
     "id": 2002,
     "name": "Vita 40",
+    "Group": "Energy",
+    "Effect Type": "Energy Recovery",
+    "Value": 40,
     "price": 55,
     "effect": "Energy +40"
   },
   {
     "id": 2003,
     "name": "Vita 65",
+    "Group": "Energy",
+    "Effect Type": "Energy Recovery",
+    "Value": 65,
     "price": 75,
     "effect": "Energy +65"
   },
   {
     "id": 2101,
     "name": "Royal Kale Juice",
+    "Group": "Energy",
+    "Effect Type": "Energy Recovery",
+    "Value": 100,
     "price": 70,
     "effect": "Energy +100, Mood -1"
   },
   {
     "id": 2201,
     "name": "Energy Drink MAX",
+    "Group": "Energy",
+    "Effect Type": "Energy Cap",
+    "Value": 4,
     "price": 30,
     "effect": "Maximum energy +4, Energy +5"
   },
   {
     "id": 2202,
     "name": "Energy Drink MAX EX",
+    "Group": "Energy",
+    "Effect Type": "Energy Cap",
+    "Value": 8,
     "price": 50,
     "effect": "Maximum energy +8"
   },
   {
     "id": 2301,
     "name": "Plain Cupcake",
+    "Group": "Mood",
+    "Effect Type": "Mood",
+    "Value": 1,
     "price": 30,
     "effect": "Mood +1"
   },
   {
     "id": 2302,
     "name": "Berry Sweet Cupcake",
+    "Group": "Mood",
+    "Effect Type": "Mood",
+    "Value": 2,
     "price": 55,
     "effect": "Mood +2"
   },
   {
     "id": 3001,
     "name": "Yummy Cat Food",
+    "Group": "Training",
+    "Effect Type": "Friendship",
+    "Value": 5,
     "price": 10,
     "effect": "Director Akikawa's Friendship Gauge +5"
   },
   {
     "id": 3101,
     "name": "Grilled Carrots",
+    "Group": "Training",
+    "Effect Type": "Friendship",
+    "Value": 5,
     "price": 40,
     "effect": "All support card's Friendship Gauge +5"
   },
   {
     "id": 4001,
     "name": "Pretty Mirror",
+    "Group": "Condition",
+    "Effect Type": "Positive Condition",
+    "Value": "Charming",
     "price": 150,
     "effect": "Get \"Charming\" status effect"
   },
   {
     "id": 4002,
     "name": "Reporter's Binoculars",
+    "Group": "Condition",
+    "Effect Type": "Positive Condition",
+    "Value": "Hot Topic",
     "price": 150,
     "effect": "Get \"Hot Topic\" status effect"
   },
   {
     "id": 4003,
     "name": "Master Practice Guide",
+    "Group": "Condition",
+    "Effect Type": "Positive Condition",
+    "Value": "Practice Perfect",
     "price": 150,
     "effect": "Get \"Practice Perfect\" status effect"
   },
   {
     "id": 4004,
     "name": "Scholar's Hat",
+    "Group": "Condition",
+    "Effect Type": "Positive Condition",
+    "Value": "Fast Learner",
     "price": 280,
     "effect": "Get \"Fast Learner\" status effect"
   },
   {
     "id": 4101,
     "name": "Fluffy Pillow",
+    "Group": "Condition",
+    "Effect Type": "Negative Condition Cure",
+    "Value": "Night Owl",
     "price": 15,
     "effect": "Heal Night Owl"
   },
   {
     "id": 4102,
     "name": "Pocket Planner",
+    "Group": "Condition",
+    "Effect Type": "Negative Condition Cure",
+    "Value": "Slacker",
     "price": 15,
     "effect": "Heal Slacker"
   },
   {
     "id": 4103,
     "name": "Rich Hand Cream",
+    "Group": "Condition",
+    "Effect Type": "Negative Condition Cure",
+    "Value": "Dry Skin",
     "price": 15,
     "effect": "Heal Dry Skin"
   },
   {
     "id": 4104,
     "name": "Smart Scale",
+    "Group": "Condition",
+    "Effect Type": "Negative Condition Cure",
+    "Value": "Slow Metabolism",
     "price": 15,
     "effect": "Heal Slow Metabolism"
   },
   {
     "id": 4105,
     "name": "Aroma Diffuser",
+    "Group": "Condition",
+    "Effect Type": "Negative Condition Cure",
+    "Value": "Migraine",
     "price": 15,
     "effect": "Heal Migraine"
   },
   {
     "id": 4106,
     "name": "Practice Drills DVD",
+    "Group": "Condition",
+    "Effect Type": "Negative Condition Cure",
+    "Value": "Practice Poor",
     "price": 15,
     "effect": "Heal Practice Poor"
   },
   {
     "id": 4201,
     "name": "Miracle Cure",
+    "Group": "Condition",
+    "Effect Type": "Negative Condition Cure",
+    "Value": "All Negative Conditions",
     "price": 40,
     "effect": "Heal all negative status effects"
   },
   {
     "id": 5001,
     "name": "Speed Training Application",
+    "Group": "Training",
+    "Effect Type": "Training Level",
+    "Stat Type": "Speed",
+    "Value": 1,
     "price": 150,
     "effect": "Speed Training Level +1"
   },
   {
     "id": 5002,
     "name": "Stamina Training Application",
+    "Group": "Training",
+    "Effect Type": "Training Level",
+    "Stat Type": "Stamina",
+    "Value": 1,
     "price": 150,
     "effect": "Stamina Training Level +1"
   },
   {
     "id": 5003,
     "name": "Power Training Application",
+    "Group": "Training",
+    "Effect Type": "Training Level",
+    "Stat Type": "Power",
+    "Value": 1,
     "price": 150,
     "effect": "Power Training Level +1"
   },
   {
     "id": 5004,
     "name": "Guts Training Application",
+    "Group": "Training",
+    "Effect Type": "Training Level",
+    "Stat Type": "Guts",
+    "Value": 1,
     "price": 150,
     "effect": "Guts Training Level +1"
   },
   {
     "id": 5005,
     "name": "Wit Training Application",
+    "Group": "Training",
+    "Effect Type": "Training Level",
+    "Stat Type": "Wit",
+    "Value": 1,
     "price": 150,
     "effect": "Wit Training Level +1"
   },
   {
     "id": 7001,
     "name": "Reset Whistle",
+    "Group": "Training",
+    "Effect Type": "Training Shuffle",
+    "Value": 0,
     "price": 20,
     "effect": "Shuffle support cards in training facilities"
   },
   {
     "id": 8001,
     "name": "Coaching Megaphone",
+    "Group": "Training",
+    "Effect Type": "Training Buff",
+    "Value": 20,
     "price": 40,
     "effect": "All stats gained from training +20% for 4 turns (doesn't stack)"
   },
   {
     "id": 8002,
     "name": "Motivating Megaphone",
+    "Group": "Training",
+    "Effect Type": "Training Buff",
+    "Value": 40,
     "price": 55,
     "effect": "All stats gained from training +40% for 3 turns (doesn't stack)"
   },
   {
     "id": 8003,
     "name": "Empowering Megaphone",
+    "Group": "Training",
+    "Effect Type": "Training Buff",
+    "Value": 60,
     "price": 70,
     "effect": "All stats gained from training +60% for 2 turns (doesn't stack)"
   },
   {
     "id": 9001,
     "name": "Speed Ankle Weights",
+    "Group": "Training",
+    "Effect Type": "Specialized Training Buff",
+    "Stat Type": "Speed",
+    "Value": 50,
     "price": 50,
     "effect": "Speed training: 20% increased energy consumption, but 50% extra stats (doesn't stack)"
   },
   {
     "id": 9002,
     "name": "Stamina Ankle Weights",
+    "Group": "Training",
+    "Effect Type": "Specialized Training Buff",
+    "Stat Type": "Stamina",
+    "Value": 50,
     "price": 50,
     "effect": "Stamina training: 20% increased energy consumption, but 50% extra stats (doesn't stack)"
   },
   {
     "id": 9003,
     "name": "Power Ankle Weights",
+    "Group": "Training",
+    "Effect Type": "Specialized Training Buff",
+    "Stat Type": "Power",
+    "Value": 50,
     "price": 50,
     "effect": "Power training: 20% increased energy consumption, but 50% extra stats (doesn't stack)"
   },
   {
     "id": 9004,
     "name": "Guts Ankle Weights",
+    "Group": "Training",
+    "Effect Type": "Specialized Training Buff",
+    "Stat Type": "Guts",
+    "Value": 50,
     "price": 50,
     "effect": "Guts training: 20% increased energy consumption, but 50% extra stats (doesn't stack)"
   },
   {
     "id": 10001,
     "name": "Good-Luck Charm",
+    "Group": "Training",
+    "Effect Type": "Safety",
+    "Value": 0,
     "price": 40,
     "effect": "Training failure rate set to 0% on used turn"
   },
   {
     "id": 11001,
     "name": "Artisan Cleat Hammer",
+    "Group": "Race",
+    "Effect Type": "Race Bonus",
+    "Value": 20,
     "price": 25,
     "effect": "20% race bonus on used turn (doesn't stack)"
   },
   {
     "id": 11002,
     "name": "Master Cleat Hammer",
+    "Group": "Race",
+    "Effect Type": "Race Bonus",
+    "Value": 35,
     "price": 40,
     "effect": "35% race bonus on used turn (doesn't stack)"
   },
   {
     "id": 11003,
     "name": "Glow Sticks",
+    "Group": "Race",
+    "Effect Type": "Fan Gain",
+    "Value": 50,
     "price": 15,
     "effect": "Race fan gain +50% on used turn (doesn't stack)"
   }

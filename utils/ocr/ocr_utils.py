@@ -484,52 +484,109 @@ def extract_text_with_data(pil_img: Image.Image, config: Optional[str] = None) -
         return {}
 
 
+def _parse_tesseract_confidence(raw_conf: Any) -> int:
+    """Parse a Tesseract confidence value into an integer score."""
+    try:
+        return int(float(raw_conf))
+    except (TypeError, ValueError):
+        return -1
+
+
+def _extract_event_name_candidates(img_np: np.ndarray) -> list[tuple[str, int, list[str], str]]:
+    """Run several OCR passes and return ranked event-name candidates.
+
+    Each entry is: (text, score, all_words, pass_name)
+    """
+    if len(img_np.shape) == 3:
+        gray = cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY)
+    else:
+        gray = img_np.copy()
+
+    # Upscale small crops to improve OCR stability on emulator captures.
+    upscaled_gray = cv2.resize(gray, None, fx=2.0, fy=2.0, interpolation=cv2.INTER_CUBIC)
+    processed_variants = [
+        ("white_180", _preprocess_white_text(img_np, threshold=180)),
+        ("white_165", _preprocess_white_text(img_np, threshold=165)),
+        ("gray", gray),
+        ("gray_up2x", upscaled_gray),
+    ]
+    tesseract_configs = [
+        ("psm7", "--oem 3 --psm 7 -c preserve_interword_spaces=1"),
+        ("psm6", "--oem 3 --psm 6 -c preserve_interword_spaces=1"),
+    ]
+
+    candidates = []
+    for variant_name, processed in processed_variants:
+        for config_name, tess_config in tesseract_configs:
+            try:
+                data = pytesseract.image_to_data(
+                    processed,
+                    config=tess_config,
+                    lang='eng',
+                    output_type=pytesseract.Output.DICT
+                )
+            except Exception as e:
+                log_debug(f"Event OCR pass failed for {variant_name}/{config_name}: {e}")
+                continue
+
+            words = []
+            conf_sum = 0
+            conf_count = 0
+            all_words = []
+
+            for i in range(len(data.get('text', []))):
+                word = data['text'][i].strip()
+                conf = _parse_tesseract_confidence(data['conf'][i])
+                if word:
+                    all_words.append(f"{word}({conf})")
+                    if conf >= 50:
+                        words.append(word)
+                        conf_sum += conf
+                        conf_count += 1
+
+            text = ' '.join(words).strip()
+            avg_conf = int(conf_sum / conf_count) if conf_count else -1
+
+            # Score favors confident text with useful length.
+            score = avg_conf
+            if text:
+                score += min(len(text), 30)
+
+            candidates.append((text, score, all_words, f"{variant_name}/{config_name}"))
+
+    return sorted(candidates, key=lambda item: item[1], reverse=True)
+
+
 def extract_event_name_text(pil_img: Image.Image) -> str:
-    """Extract event name text using white specialization and confidence filtering"""
+    """Extract event name text using a multi-pass OCR fallback pipeline."""
     try:
         img_np = _normalize_image(pil_img)
-        cleaned = _preprocess_white_text(img_np, threshold=180)
-        
-        # OCR with confidence filtering
-        data = pytesseract.image_to_data(
-            cleaned,
-            config="-c preserve_interword_spaces=1",
-            lang='eng',
-            output_type=pytesseract.Output.DICT
-        )
-        
-        # Filter by confidence (>= 70)
-        high_confidence_words = []
-        all_words = []
-        
-        for i in range(len(data['text'])):
-            word = data['text'][i].strip()
-            conf = int(data['conf'][i])
-            if word:
-                all_words.append(f"{word}({conf})")
-                if conf >= 70:
-                    high_confidence_words.append(word)
-        
+        candidates = _extract_event_name_candidates(img_np)
+
         if DEBUG_MODE:
-            if all_words:
-                log_debug(f"Event name ALL OCR detections: {' '.join(all_words)}")
+            if candidates:
+                for text, score, all_words, pass_name in candidates[:4]:
+                    if all_words:
+                        log_debug(f"Event OCR {pass_name}: {' '.join(all_words)} | score={score} | text='{text}'")
+                    else:
+                        log_debug(f"Event OCR {pass_name}: no text | score={score}")
             else:
-                log_debug(f"Event name OCR: No text detected at all")
-        
-        result_text = ' '.join(high_confidence_words).strip()
-        
-        if result_text:
-            if DEBUG_MODE:
-                log_debug(f"Event name OCR result: '{result_text}'")
-            return result_text
-        else:
-            if DEBUG_MODE:
-                log_debug(f"Event name: No high-confidence text found (threshold: 70)")
-                processed_img = Image.fromarray(cleaned)
-                debug_filename = f"debug_event_ocr_processed_{int(time.time())}.png"
-                processed_img.save(debug_filename)
-                log_debug(f"Event name: Processed OCR image saved to {debug_filename}")
-            return ""
+                log_debug("Event name OCR: No text detected at all")
+
+        for text, score, _, pass_name in candidates:
+            if text:
+                if DEBUG_MODE:
+                    log_debug(f"Event name OCR result: '{text}' from {pass_name} (score={score})")
+                return text
+
+        if DEBUG_MODE:
+            cleaned = _preprocess_white_text(img_np, threshold=180)
+            log_debug("Event name: No usable text found across OCR passes")
+            processed_img = Image.fromarray(cleaned)
+            debug_filename = f"debug_event_ocr_processed_{int(time.time())}.png"
+            processed_img.save(debug_filename)
+            log_debug(f"Event name: Processed OCR image saved to {debug_filename}")
+        return ""
     except Exception as e:
         log_warning(f"Event name OCR extraction failed: {e}")
         return ""
