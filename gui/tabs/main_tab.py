@@ -259,6 +259,8 @@ class MainTab(QScrollArea):
         if hasattr(self.main_window, 'training_page'):
             self.main_window.training_page.update_unity_visibility()
             self.main_window.training_page._load_training_score_config()
+        if hasattr(self.main_window, '_update_mode_dependent_navigation'):
+            self.main_window._update_mode_dependent_navigation()
     
     def _on_unity_team_change(self, text):
         """Handle Unity Team change"""

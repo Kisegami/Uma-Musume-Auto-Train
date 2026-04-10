@@ -25,8 +25,8 @@ from utils.constants.trackblazer import (
 
 # Import ADB state and logic modules
 from core.Trackblazer.state import (
-    check_mood, check_current_year, check_criteria, check_skill_points_cap,
-    check_goal_name, check_current_stats, check_energy_bar,
+    check_mood, check_current_year, check_skill_points_cap,
+    check_current_stats, check_energy_bar,
     check_status_api, check_mood_api, check_current_year_api,
     check_current_stats_api, check_energy_api, check_skill_points_api,
     invalidate_status_cache,
@@ -53,11 +53,6 @@ skills_config_section = config.get("skills", {})
 DEBUG_MODE = config.get("debug_mode", False)
 RETRY_RACE = racing_config_section.get("retry_race", config.get("retry_race", True))
 _skip_infirmary_check_once = False
-
-
-def should_skip_goal_check():
-    """Return whether criteria/goal-name OCR checks should be skipped."""
-    return config.get("training", {}).get("skip_goal_check", False)
 
 
 def arm_skip_infirmary_check_for_new_turn():
@@ -523,7 +518,6 @@ def career_lobby(timeout=None):
 
         # Get current state
         log_debug(f"Getting current game state...")
-        skip_goal_check = should_skip_goal_check()
         if _API_MODE:
             api_status = check_status_api()
             if api_status is None:
@@ -533,22 +527,10 @@ def career_lobby(timeout=None):
             year = api_status["year"]
             current_stats = api_status["stats"]
             energy_percentage = api_status["energy_pct"]
-            if skip_goal_check:
-                goal_data = "Skipped"
-                criteria_text = "Skipped"
-            else:
-                goal_data = check_goal_name(screenshot)
-                criteria_text = check_criteria(screenshot)
         else:
             api_status = None
             mood = check_mood(screenshot)
             year = check_current_year(screenshot)
-            if skip_goal_check:
-                goal_data = "Skipped"
-                criteria_text = "Skipped"
-            else:
-                goal_data = check_goal_name(screenshot)
-                criteria_text = check_criteria(screenshot)
 
         mood_index = MOOD_LIST.index(mood) if mood in MOOD_LIST else 0
         minimum_mood = MOOD_LIST.index(MINIMUM_MOOD)
@@ -561,8 +543,6 @@ def career_lobby(timeout=None):
         log_info(f"=== GAME STATUS{' (API)' if api_status else ''} ===")
         log_info(f"Year: {year}")
         log_info(f"Mood: {mood}")
-        log_info(f"Goal Name: {goal_data}")
-        log_info(f"Status: {criteria_text}")
 
         # Check for maiden (2-star) race opportunity in career lobby
         # Only check if year is not Pre-Debut
@@ -631,36 +611,6 @@ def career_lobby(timeout=None):
         
         log_info(f"Current stats: {stats_str}")
         log_info(f"")
-        
-        # Check if goals criteria are NOT met AND it is not Pre-Debut.
-        # Prioritize racing when criteria are not met to help achieve goals.
-        log_debug(f"Checking goal criteria...")
-        if skip_goal_check:
-            goal_analysis = {
-                "criteria_met": True,
-                "is_pre_debut": is_pre_debut_year(year),
-                "should_prioritize_racing": False,
-            }
-            log_info("Goal criteria check skipped by config")
-        else:
-            goal_analysis = check_goal_criteria({"text": criteria_text}, year)
-        
-        if goal_analysis["should_prioritize_racing"]:
-            log_info(f"Decision: Criteria not met - Prioritizing races to meet goals")
-            race_found = find_and_do_race(year)
-            if race_found:
-                log_info(f"Race Result: Found Race")
-                continue
-            else:
-                log_info(f"Race Result: No Race Found")
-                # If there is no race found, go back and do training instead
-                tap_on_image("assets/buttons/back_btn.png", text="[INFO] Race not found. Proceeding to training.")
-                time.sleep(0.5)
-        else:
-            log_info(f"Decision: Criteria met or conditions not suitable for racing")
-            log_debug(f"Racing not prioritized - Criteria met: {goal_analysis['criteria_met']}, Pre-debut: {goal_analysis['is_pre_debut']}")
-        
-        log_info(f"")
 
         # TRACKBLAZER BASE SCENARIO
         log_debug(f"Checking for Trackblazer base scenario...")
@@ -709,8 +659,8 @@ def career_lobby(timeout=None):
         do_custom_race_enabled = racing_config_section.get("do_custom_race", config.get("do_custom_race", False))
         
         if do_custom_race_enabled:
-            # Build a stable key for the current day without relying on turn OCR.
-            day_key = f"{year}|{goal_data}|{criteria_text}"
+            # Trackblazer has no goal/criteria gating in the main lobby loop.
+            day_key = year
             if last_failed_custom_race_day == day_key:
                 log_debug(f"Skipping custom race check (already attempted and failed this day)")
             else:
@@ -982,38 +932,6 @@ def career_lobby(timeout=None):
                 do_rest()
         
         log_debug(f"Starting next iteration immediately...")
-
-def check_goal_criteria(criteria_data, year):
-    """
-    Check if goal criteria are met and determine if racing should be prioritized.
-    
-    Args:
-        criteria_data (dict): The criteria data from OCR with text
-        year (str): Current year text
-    Returns:
-        dict: Dictionary containing criteria analysis and decision
-    """
-    # Extract criteria text
-    criteria_text = criteria_data.get("text", "")
-    
-    # Check if goals criteria are met
-    criteria_met = (criteria_text.split(" ")[0] == "criteria" or 
-                    "criteria met" in criteria_text.lower() or 
-                    "goal achieved" in criteria_text.lower())
-    
-    # Check if it's pre-debut year
-    is_pre_debut = is_pre_debut_year(year)
-    
-    # Determine if racing should be prioritized (when criteria not met, not pre-debut)
-    should_prioritize_racing = not criteria_met and not is_pre_debut 
-    
-    log_debug(f"Year: '{year}', Criteria met: {criteria_met}, Pre-debut: {is_pre_debut}")
-    
-    return {
-        "criteria_met": criteria_met,
-        "is_pre_debut": is_pre_debut,
-        "should_prioritize_racing": should_prioritize_racing
-    } 
 
 # log_and_flush function removed - using utils.core.log directly
 

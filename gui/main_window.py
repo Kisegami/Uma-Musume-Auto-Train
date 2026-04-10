@@ -27,6 +27,7 @@ from .tabs.training_tab import TrainingTab
 from .tabs.racing_tab import RacingTab
 from .tabs.event_tab import EventTab
 from .tabs.skill_tab import SkillTab
+from .tabs.items_tab import ItemsTab
 from .tabs.restart_tab import RestartTab
 from .tabs.others_tab import OthersTab
 from .tabs.update_tab import UpdateTab
@@ -177,7 +178,7 @@ class MainWindow(QMainWindow):
         
         sidebar_layout.addSpacing(16)
         
-        # Navigation buttons - 9 tabs matching original GUI
+        # Navigation buttons
         self.nav_buttons = []
         nav_items = [
             ("Main", "fa5s.cog"),
@@ -186,6 +187,7 @@ class MainWindow(QMainWindow):
             ("Racing", "fa5s.flag-checkered"),
             ("Event", "fa5s.calendar"),
             ("Skill", "fa5s.star"),
+            ("Items", "fa5s.box"),
             ("Restart", "fa5s.redo"),
             ("Others", "fa5s.wrench"),
             ("Update", "fa5s.download"),
@@ -218,7 +220,7 @@ class MainWindow(QMainWindow):
         content_layout.setContentsMargins(16, 16, 16, 16)
         content_layout.setSpacing(16)
         
-        # Left: Stacked pages - 9 pages matching original
+        # Left: Stacked pages
         self.page_stack = QStackedWidget()
         
         # Create all pages during startup so tab initialization failures surface
@@ -229,6 +231,7 @@ class MainWindow(QMainWindow):
         self.racing_page = RacingTab(self)
         self.event_page = EventTab(self)
         self.skill_page = SkillTab(self)
+        self.items_page = ItemsTab(self)
         self.restart_page = RestartTab(self)
         self.others_page = OthersTab(self)
         self.update_page = UpdateTab(self)
@@ -240,6 +243,7 @@ class MainWindow(QMainWindow):
         self.page_stack.addWidget(self.racing_page)
         self.page_stack.addWidget(self.event_page)
         self.page_stack.addWidget(self.skill_page)
+        self.page_stack.addWidget(self.items_page)
         self.page_stack.addWidget(self.restart_page)
         self.page_stack.addWidget(self.others_page)
         self.page_stack.addWidget(self.update_page)
@@ -265,6 +269,7 @@ class MainWindow(QMainWindow):
         
         # Select first nav button
         self.nav_buttons[0][1].setChecked(True)
+        self._update_mode_dependent_navigation()
     
     def _on_nav_clicked(self, page_name):
         """Handle navigation button click"""
@@ -280,10 +285,11 @@ class MainWindow(QMainWindow):
             "Racing": 3,
             "Event": 4,
             "Skill": 5,
-            "Restart": 6,
-            "Others": 7,
-            "Update": 8,
-            "Donation": 9,
+            "Items": 6,
+            "Restart": 7,
+            "Others": 8,
+            "Update": 9,
+            "Donation": 10,
         }
         
         # Update button states
@@ -293,6 +299,17 @@ class MainWindow(QMainWindow):
         # Switch page
         if page_name in page_map:
             self.page_stack.setCurrentIndex(page_map[page_name])
+
+    def _update_mode_dependent_navigation(self):
+        """Show Trackblazer-only navigation entries when applicable."""
+        is_trackblazer = self.config.get("mode", "ura") == "trackblazer"
+        items_button = next((btn for name, btn in self.nav_buttons if name == "Items"), None)
+        if items_button is None:
+            return
+
+        items_button.setVisible(is_trackblazer)
+        if not is_trackblazer and items_button.isChecked():
+            self._on_nav_clicked("Skill")
     
     def _open_discord_prompt(self):
         """Show a prompt asking user if they want to join the Discord server"""
