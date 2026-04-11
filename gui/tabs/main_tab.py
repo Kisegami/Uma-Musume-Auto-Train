@@ -147,7 +147,7 @@ class MainTab(QScrollArea):
         api_url_label = QLabel("API Address:")
         api_url_label.setFixedWidth(100)
         self.api_base_url = QLineEdit()
-        self.api_base_url.setPlaceholderText("http://localhost:8123")
+        self.api_base_url.setPlaceholderText("http://127.0.0.1:8123")
         self.api_base_url.editingFinished.connect(self._save_api_url)
         api_url_row.addWidget(api_url_label)
         api_url_row.addWidget(self.api_base_url)
@@ -224,7 +224,7 @@ class MainTab(QScrollArea):
         self.api_timeout.blockSignals(True)
         api = config.get("api", {})
         self.api_enabled.setChecked(api.get("enabled", False))
-        self.api_base_url.setText(api.get("base_url", "http://localhost:8123"))
+        self.api_base_url.setText(api.get("base_url", "http://127.0.0.1:8123"))
         self.api_timeout.setValue(api.get("timeout", 2))
         self.api_enabled.blockSignals(False)
         self.api_base_url.blockSignals(False)
@@ -288,7 +288,7 @@ class MainTab(QScrollArea):
         config = self.main_window.get_config()
         return config.get("api", {
             "enabled": False,
-            "base_url": "http://localhost:8123",
+            "base_url": "http://127.0.0.1:8123",
             "timeout": 2
         })
 
@@ -314,7 +314,7 @@ class MainTab(QScrollArea):
     def _save_api_url(self):
         """Save API base URL"""
         api_config = self._get_api_config()
-        base_url = self.api_base_url.text().strip() or "http://localhost:8123"
+        base_url = self.api_base_url.text().strip() or "http://127.0.0.1:8123"
         if "://" not in base_url:
             base_url = f"http://{base_url}"
         api_config["base_url"] = base_url
@@ -382,7 +382,7 @@ class MainTab(QScrollArea):
 
     def _get_api_test_urls(self, raw_url):
         """Return primary and alternate loopback URLs for testing."""
-        base_url = (raw_url or "http://localhost:8123").strip().rstrip("/")
+        base_url = (raw_url or "http://127.0.0.1:8123").strip().rstrip("/")
         if "://" not in base_url:
             base_url = f"http://{base_url}"
         urls = [base_url]
@@ -511,7 +511,7 @@ class MainTab(QScrollArea):
         """Probe all API endpoints UMAT depends on and report actionable diagnostics."""
         import requests
 
-        raw_url = self.api_base_url.text().strip() or "http://localhost:8123"
+        raw_url = self.api_base_url.text().strip() or "http://127.0.0.1:8123"
         configured_timeout = self.api_timeout.value()
         test_timeout = 10
         endpoints = ["/status", "/training", "/skills", "/events"]
