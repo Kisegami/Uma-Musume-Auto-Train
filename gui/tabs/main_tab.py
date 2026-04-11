@@ -314,7 +314,10 @@ class MainTab(QScrollArea):
     def _save_api_url(self):
         """Save API base URL"""
         api_config = self._get_api_config()
-        api_config["base_url"] = self.api_base_url.text().strip() or "http://localhost:8123"
+        base_url = self.api_base_url.text().strip() or "http://localhost:8123"
+        if "://" not in base_url:
+            base_url = f"http://{base_url}"
+        api_config["base_url"] = base_url
         self._save_api_config(api_config)
 
     def _save_api_timeout(self, value):
@@ -356,6 +359,9 @@ class MainTab(QScrollArea):
         if any(result.get("status") == "invalid_json" for result in failing.values()):
             hints.append("The endpoint responded, but not with valid JSON. Check for a proxy, security software, or a non-KUC service on that port.")
 
+        if any(result.get("status") == "invalid_url" for result in failing.values()):
+            hints.append("The API address format is invalid. Use a full URL such as http://127.0.0.1:8123.")
+
         if any(result.get("status") == "schema_error" for result in failing.values()):
             hints.append("The API is reachable but the payload shape does not match what UMAT expects. Check KUC version compatibility.")
 
@@ -377,6 +383,8 @@ class MainTab(QScrollArea):
     def _get_api_test_urls(self, raw_url):
         """Return primary and alternate loopback URLs for testing."""
         base_url = (raw_url or "http://localhost:8123").strip().rstrip("/")
+        if "://" not in base_url:
+            base_url = f"http://{base_url}"
         urls = [base_url]
 
         try:
@@ -428,6 +436,10 @@ class MainTab(QScrollArea):
             resp = session.get(url, timeout=timeout)
             resp.raise_for_status()
             data = resp.json()
+        except requests.InvalidSchema as e:
+            return _result("invalid_url", repr(e))
+        except requests.MissingSchema as e:
+            return _result("invalid_url", repr(e))
         except requests.Timeout:
             return _result("timeout", f"timed out after {timeout}s")
         except requests.ConnectionError as e:
