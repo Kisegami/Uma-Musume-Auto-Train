@@ -640,8 +640,6 @@ def invalidate_status_cache():
 
 def get_status_api_raw():
     return _get_status_cached()
-
-
 def check_status_api():
     """
     Fetch full game status via API in one call.
@@ -720,7 +718,6 @@ def check_skill_points_api():
         return None
     return status.get("skill_points")
 
-
 def get_shop_coin_api():
     status = _get_status_cached()
     if status is None:
@@ -754,4 +751,3 @@ def get_active_item_effects_api():
     if status is None:
         return None
     return status.get("active_item_effects", [])
-

@@ -71,16 +71,13 @@ _skip_infirmary_check_once = False
 def _load_item_runtime_data():
     items_config = load_item_settings(config)
     template_path = items_config.get("item_purchase_file", "template/items/default.json")
-    template_data = load_item_template(template_path)
-    return items_config, template_data
+    return load_item_template(template_path)
 
 
 def _log_item_plan(title, actions):
     if not actions:
         return
     log_info(f"[Items] {title}: {format_action_plan(actions)}")
-
-
 def arm_skip_infirmary_check_for_new_turn():
     """Arm a one-shot skip for the infirmary check after starting a new career."""
     global _skip_infirmary_check_once
@@ -545,7 +542,6 @@ def career_lobby(timeout=None):
         # Get current state
         log_debug(f"Getting current game state...")
         raw_api_status = None
-        item_settings = None
         item_template = None
         base_item_state = None
         planned_purchase_actions = []
@@ -558,7 +554,7 @@ def career_lobby(timeout=None):
                 log_error("API mode is enabled but failed to get status from /status")
                 raise RuntimeError("API mode is enabled but /status API is not responding. Check API connection or set api.enabled to false in config.json.")
             raw_api_status = get_status_api_raw() or {}
-            item_settings, item_template = _load_item_runtime_data()
+            item_template = _load_item_runtime_data()
             mood = api_status["mood"]
             year = api_status["year"]
             current_stats = api_status["stats"]
@@ -574,7 +570,8 @@ def career_lobby(timeout=None):
         race_day_matches = match_template(screenshot, "assets/buttons/race_day_btn.png", confidence=0.8)
         is_race_day = bool(race_day_matches)
         ura_finale_race_matches = match_template(screenshot, "assets/buttons/race_ura.png", confidence=0.8)
-        is_ura_finale_race = bool(ura_finale_race_matches) and year == "TS Climax"
+        is_finale_year = year == "TS Climax"
+        is_ura_finale_race = bool(ura_finale_race_matches) and is_finale_year
         
         log_info(f"=== GAME STATUS{' (API)' if api_status else ''} ===")
         log_info(f"Year: {year}")
@@ -650,7 +647,7 @@ def career_lobby(timeout=None):
                     config,
                     is_custom_race=bool(custom_race_selection and custom_race_selection.get("race")),
                     custom_race_use_glowstick=bool(custom_race_selection and custom_race_selection.get("use_glowstick")),
-                    is_ts_climax_race=(year == "TS Climax"),
+                    is_ts_climax_race=is_finale_year,
                 )
                 _log_item_plan("Race items", planned_race_usage)
         # Check for rest in June to save energy for summer (skip on race day)
@@ -707,7 +704,7 @@ def career_lobby(timeout=None):
 
         # If calendar is race day, do race
         log_debug(f"Checking for race day...")
-        if is_race_day and year != "TS Climax":
+        if is_race_day and not is_finale_year:
             log_info(f"Race Day.")
             race_day()
             continue
@@ -856,7 +853,6 @@ def career_lobby(timeout=None):
                 would_be_rejected,
             )
             _log_item_plan("Training items", planned_training_usage)
-
         if best_training:
             log_debug(f"Scoring algorithm selected: {best_training.upper()} training")
             log_info(f"Selected {best_training.upper()} training based on scoring algorithm")

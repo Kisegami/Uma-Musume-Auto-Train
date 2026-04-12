@@ -681,7 +681,6 @@ class ItemsTab(QScrollArea):
         self.all_conditions_checkbox.setChecked(all_checked)
         self.all_conditions_checkbox.blockSignals(False)
         self._save_items_config()
-
     def _add_template(self):
         name, ok = QInputDialog.getText(self, "New Item Template", "Enter template name:")
         if not ok or not name.strip():
