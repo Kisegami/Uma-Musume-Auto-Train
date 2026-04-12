@@ -7,6 +7,7 @@ import glob
 import json
 import os
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -24,8 +25,121 @@ from PySide6.QtWidgets import (
     QWidget,
     QInputDialog,
 )
+from PySide6.QtGui import QCursor, QPixmap
 
 from core.Trackblazer.items import DEFAULT_ITEM_SETTINGS, NEGATIVE_CONDITIONS
+from .item_priority_window import load_items_catalog
+
+
+def _item_icon_path(icon_name):
+    return os.path.join("gui", "assets", "items", icon_name)
+
+
+def _get_catalog_items_by_name(name):
+    return [item for item in load_items_catalog() if item.get("name", "") == name]
+
+
+def _get_catalog_items_by_group(group):
+    return [item for item in load_items_catalog() if item.get("group", "") == group]
+
+
+def _get_catalog_items_by_effect_type(effect_type):
+    return [item for item in load_items_catalog() if item.get("effect_type", "") == effect_type]
+
+
+class ItemPreviewPopup(QFrame):
+    """Tooltip-style popup showing matching items."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent, Qt.ToolTip)
+        self.setObjectName("card")
+        self.setMinimumWidth(280)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(12, 12, 12, 12)
+        layout.setSpacing(8)
+
+        self.title_label = QLabel("")
+        self.title_label.setStyleSheet("font-weight: 700;")
+        self.title_label.setWordWrap(True)
+        layout.addWidget(self.title_label)
+
+        self.items_widget = QWidget()
+        self.items_layout = QGridLayout(self.items_widget)
+        self.items_layout.setContentsMargins(0, 0, 0, 0)
+        self.items_layout.setHorizontalSpacing(10)
+        self.items_layout.setVerticalSpacing(8)
+        layout.addWidget(self.items_widget)
+
+    def show_preview(self, title, items, global_pos):
+        self.title_label.setText(title)
+
+        while self.items_layout.count() > 0:
+            child = self.items_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+
+        for index, item in enumerate(items[:12]):
+            cell = QWidget()
+            cell_layout = QHBoxLayout(cell)
+            cell_layout.setContentsMargins(0, 0, 0, 0)
+            cell_layout.setSpacing(8)
+
+            icon_label = QLabel()
+            icon_label.setFixedSize(32, 32)
+            pixmap = QPixmap(_item_icon_path(item.get("icon", "")))
+            if not pixmap.isNull():
+                icon_label.setPixmap(pixmap.scaled(28, 28, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            cell_layout.addWidget(icon_label)
+
+            name_label = QLabel(item.get("name", ""))
+            name_label.setWordWrap(True)
+            cell_layout.addWidget(name_label, stretch=1)
+
+            self.items_layout.addWidget(cell, index // 2, index % 2)
+
+        self.adjustSize()
+        self.move(global_pos.x() + 14, global_pos.y() + 18)
+        self.show()
+
+
+class HoverPreviewLabel(QLabel):
+    def __init__(self, text, popup, title_getter, items_getter, parent=None):
+        super().__init__(text, parent)
+        self.popup = popup
+        self.title_getter = title_getter
+        self.items_getter = items_getter
+        self.setCursor(Qt.PointingHandCursor)
+        self.setStyleSheet("text-decoration: underline;")
+
+    def enterEvent(self, event):
+        items = self.items_getter() or []
+        if items:
+            self.popup.show_preview(self.title_getter(), items, QCursor.pos())
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):
+        self.popup.hide()
+        super().leaveEvent(event)
+
+
+class HoverPreviewCheckBox(QCheckBox):
+    def __init__(self, text, popup, title_getter, items_getter, parent=None):
+        super().__init__(text, parent)
+        self.popup = popup
+        self.title_getter = title_getter
+        self.items_getter = items_getter
+        self.setCursor(Qt.PointingHandCursor)
+
+    def enterEvent(self, event):
+        items = self.items_getter() or []
+        if items:
+            self.popup.show_preview(self.title_getter(), items, QCursor.pos())
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):
+        self.popup.hide()
+        super().leaveEvent(event)
 
 
 class ItemsTab(QScrollArea):
@@ -36,6 +150,7 @@ class ItemsTab(QScrollArea):
         self.main_window = main_window
         self.setWidgetResizable(True)
         self.setFrameShape(QFrame.NoFrame)
+        self.preview_popup = ItemPreviewPopup(self)
 
         self.condition_checkboxes = {}
         self.training_level_stat_checkboxes = {}
@@ -84,7 +199,7 @@ class ItemsTab(QScrollArea):
         remove_btn.clicked.connect(self._remove_template)
         template_row.addWidget(remove_btn)
 
-        edit_priority_btn = QPushButton("Items Purchase Priority")
+        edit_priority_btn = QPushButton("Edit")
         edit_priority_btn.setObjectName("accent")
         edit_priority_btn.clicked.connect(self._edit_priority_template)
         template_row.addWidget(edit_priority_btn)
@@ -109,7 +224,12 @@ class ItemsTab(QScrollArea):
         layout = QVBoxLayout(group)
         layout.setSpacing(10)
 
-        self.auto_buy_mood = QCheckBox("Auto-buy mood items when current mood is below minimum mood")
+        self.auto_buy_mood = HoverPreviewCheckBox(
+            "Auto-buy mood items when current mood is below minimum mood",
+            self.preview_popup,
+            lambda: "Mood items",
+            lambda: _get_catalog_items_by_effect_type("Mood"),
+        )
         self.auto_buy_mood.stateChanged.connect(self._save_items_config)
         layout.addWidget(self.auto_buy_mood)
 
@@ -123,7 +243,12 @@ class ItemsTab(QScrollArea):
         layout = QVBoxLayout(group)
         layout.setSpacing(10)
 
-        self.auto_buy_negative_cure = QCheckBox("Automatically buy cure items for bad conditions")
+        self.auto_buy_negative_cure = HoverPreviewCheckBox(
+            "Automatically buy cure items for bad conditions",
+            self.preview_popup,
+            lambda: "Negative Condition Cure items",
+            lambda: _get_catalog_items_by_effect_type("Negative Condition Cure"),
+        )
         self.auto_buy_negative_cure.stateChanged.connect(self._on_auto_buy_negative_cure_changed)
         layout.addWidget(self.auto_buy_negative_cure)
 
@@ -132,7 +257,12 @@ class ItemsTab(QScrollArea):
         options_layout.setContentsMargins(18, 0, 0, 0)
         options_layout.setSpacing(8)
 
-        self.all_conditions_checkbox = QCheckBox("Buy cures for all supported bad conditions")
+        self.all_conditions_checkbox = HoverPreviewCheckBox(
+            "Buy cures for all supported bad conditions",
+            self.preview_popup,
+            lambda: "Negative Condition Cure items",
+            lambda: _get_catalog_items_by_effect_type("Negative Condition Cure"),
+        )
         self.all_conditions_checkbox.stateChanged.connect(self._on_all_conditions_changed)
         options_layout.addWidget(self.all_conditions_checkbox)
 
@@ -158,7 +288,12 @@ class ItemsTab(QScrollArea):
         friendship_group = QGroupBox("Grilled Carrots")
         friendship_layout = QVBoxLayout(friendship_group)
         friendship_layout.setSpacing(8)
-        self.auto_buy_friendship = QCheckBox("Buy Grilled Carrots when enough support cards are still below rainbow bond")
+        self.auto_buy_friendship = HoverPreviewCheckBox(
+            "Buy Grilled Carrots when enough support cards are still below rainbow bond",
+            self.preview_popup,
+            lambda: "Item: Grilled Carrots",
+            lambda: _get_catalog_items_by_name("Grilled Carrots"),
+        )
         self.auto_buy_friendship.stateChanged.connect(self._on_auto_buy_friendship_changed)
         friendship_layout.addWidget(self.auto_buy_friendship)
         self.friendship_options_widget = QWidget()
@@ -176,7 +311,12 @@ class ItemsTab(QScrollArea):
 
         charm_group = QGroupBox("Good-luck Charm")
         charm_layout = QGridLayout(charm_group)
-        self.good_luck_charm_enabled = QCheckBox("Enable Good-luck Charm logic")
+        self.good_luck_charm_enabled = HoverPreviewCheckBox(
+            "Enable Good-luck Charm logic",
+            self.preview_popup,
+            lambda: "Item: Good-Luck Charm",
+            lambda: _get_catalog_items_by_name("Good-Luck Charm"),
+        )
         self.good_luck_charm_enabled.stateChanged.connect(self._on_good_luck_charm_changed)
         charm_layout.addWidget(self.good_luck_charm_enabled, 0, 0, 1, 2)
         self.good_luck_charm_options_widget = QWidget()
@@ -199,17 +339,34 @@ class ItemsTab(QScrollArea):
 
         buff_group = QGroupBox("Training Buffs")
         buff_layout = QGridLayout(buff_group)
-        buff_layout.addWidget(QLabel("Training Buff score threshold:"), 0, 0)
+        training_buff_label = HoverPreviewLabel(
+            "Training Buff score threshold:",
+            self.preview_popup,
+            lambda: "Effect Type: Training Buff",
+            lambda: _get_catalog_items_by_effect_type("Training Buff"),
+        )
+        buff_layout.addWidget(training_buff_label, 0, 0)
         self.training_buff_score_threshold = QDoubleSpinBox()
         self.training_buff_score_threshold.setDecimals(1)
         self.training_buff_score_threshold.setRange(0.0, 20.0)
         self.training_buff_score_threshold.setSingleStep(0.5)
         self.training_buff_score_threshold.valueChanged.connect(self._save_items_config)
         buff_layout.addWidget(self.training_buff_score_threshold, 0, 1)
-        self.specialized_requires_training_buff = QCheckBox("Specialized Training Buff requires Training Buff active or used")
+        self.specialized_requires_training_buff = HoverPreviewCheckBox(
+            "Specialized Training Buff requires Training Buff active or used",
+            self.preview_popup,
+            lambda: "Effect Type: Specialized Training Buff",
+            lambda: _get_catalog_items_by_effect_type("Specialized Training Buff"),
+        )
         self.specialized_requires_training_buff.stateChanged.connect(self._save_items_config)
         buff_layout.addWidget(self.specialized_requires_training_buff, 1, 0, 1, 2)
-        buff_layout.addWidget(QLabel("Use buffs only during:"), 2, 0, 1, 2)
+        buffs_period_label = HoverPreviewLabel(
+            "Use buffs only during:",
+            self.preview_popup,
+            lambda: "Training Buff items",
+            lambda: _get_catalog_items_by_effect_type("Training Buff") + _get_catalog_items_by_effect_type("Specialized Training Buff"),
+        )
+        buff_layout.addWidget(buffs_period_label, 2, 0, 1, 2)
         self.training_buff_periods_widget = QWidget()
         periods_layout = QVBoxLayout(self.training_buff_periods_widget)
         periods_layout.setContentsMargins(18, 0, 0, 0)
@@ -230,7 +387,12 @@ class ItemsTab(QScrollArea):
 
         level_group = QGroupBox("Training Level Items")
         level_layout = QGridLayout(level_group)
-        self.enable_training_level_items = QCheckBox("Automatically buy training level items")
+        self.enable_training_level_items = HoverPreviewCheckBox(
+            "Automatically buy training level items",
+            self.preview_popup,
+            lambda: "Effect Type: Training Level",
+            lambda: _get_catalog_items_by_effect_type("Training Level"),
+        )
         self.enable_training_level_items.stateChanged.connect(self._on_training_level_toggle_changed)
         level_layout.addWidget(self.enable_training_level_items, 0, 0, 1, 2)
         self.training_level_options_widget = QWidget()
@@ -252,7 +414,13 @@ class ItemsTab(QScrollArea):
 
         shuffle_group = QGroupBox("Training Shuffle")
         shuffle_layout = QGridLayout(shuffle_group)
-        shuffle_layout.addWidget(QLabel("Use when best training score is below:"), 0, 0)
+        training_shuffle_label = HoverPreviewLabel(
+            "Use when best training score is below:",
+            self.preview_popup,
+            lambda: "Effect Type: Training Shuffle",
+            lambda: _get_catalog_items_by_effect_type("Training Shuffle"),
+        )
+        shuffle_layout.addWidget(training_shuffle_label, 0, 0)
         self.training_shuffle_score_threshold = QDoubleSpinBox()
         self.training_shuffle_score_threshold.setDecimals(1)
         self.training_shuffle_score_threshold.setRange(0.0, 20.0)
@@ -271,11 +439,21 @@ class ItemsTab(QScrollArea):
         layout = QVBoxLayout(group)
         layout.setSpacing(10)
 
-        self.reserve_hammers = QCheckBox("Reserve at least 3 Cleat Hammers for TS Climax")
+        self.reserve_hammers = HoverPreviewCheckBox(
+            "Reserve at least 3 Cleat Hammers for TS Climax",
+            self.preview_popup,
+            lambda: "Effect Type: Race Bonus",
+            lambda: _get_catalog_items_by_effect_type("Race Bonus"),
+        )
         self.reserve_hammers.stateChanged.connect(self._save_items_config)
         layout.addWidget(self.reserve_hammers)
 
-        self.use_glowstick_ts_climax = QCheckBox("Use Glowstick on TS Climax races")
+        self.use_glowstick_ts_climax = HoverPreviewCheckBox(
+            "Use Glowstick on TS Climax races",
+            self.preview_popup,
+            lambda: "Item: Glow Sticks",
+            lambda: _get_catalog_items_by_name("Glow Sticks"),
+        )
         self.use_glowstick_ts_climax.stateChanged.connect(self._save_items_config)
         layout.addWidget(self.use_glowstick_ts_climax)
 
