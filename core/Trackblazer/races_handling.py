@@ -48,8 +48,8 @@ def is_racing_available(year):
     # No races in Pre-Debut
     if is_pre_debut_year(year):
         return False
-    # No races in Finale Underway (final training period before URA)
-    if "Finale Underway" in year:
+    # No normal race-day flow in TS Climax (final scenario phase)
+    if "TS Climax" in year:
         return False
     year_parts = year.split(" ")
     # No races in July and August (summer break)
@@ -936,17 +936,7 @@ def do_custom_race(year_override=None):
         
         # 2. Load custom races data
         try:
-            # Read config to get optional custom race file override
-            cfg = _load_config()
-            # config now stores custom race path under racing.custom_race_file
-            custom_race_file = (
-                cfg.get("racing", {}).get("custom_race_file")
-                or cfg.get("custom_race_file")
-                or "template/races/custom_races.json"
-            )
-            custom_race_path = _resolve_custom_race_path(custom_race_file, project_root)
-            with open(custom_race_path, "r", encoding="utf-8") as f:
-                custom_races = json.load(f)
+            custom_races = _load_custom_races(project_root)
         except Exception as e:
             log_debug(f"Failed to load custom races file: {e}")
             return False
@@ -955,7 +945,12 @@ def do_custom_race(year_override=None):
         if year not in custom_races:
             return False
         
-        custom_race = custom_races[year]
+        custom_race_entry = custom_races[year]
+        if isinstance(custom_race_entry, dict):
+            custom_race = custom_race_entry.get("race", "")
+        else:
+            custom_race = custom_race_entry
+
         if not custom_race or custom_race.strip() == "":
             return False
         
@@ -1014,6 +1009,44 @@ def do_custom_race(year_override=None):
     except Exception as e:
         log_debug(f"Error in do_custom_race: {e}")
         return False
+
+
+def _load_custom_races(project_root):
+    cfg = _load_config()
+    custom_race_file = (
+        cfg.get("racing", {}).get("custom_race_file")
+        or cfg.get("custom_race_file")
+        or "template/races/custom_races.json"
+    )
+    custom_race_path = _resolve_custom_race_path(custom_race_file, project_root)
+    with open(custom_race_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def get_custom_race_selection(year_override=None):
+    """Return the configured custom-race selection for the given year."""
+    try:
+        project_root = _get_project_root()
+        year = year_override or check_current_year()
+        if not year:
+            return None
+        custom_races = _load_custom_races(project_root)
+    except Exception:
+        return None
+
+    if year not in custom_races:
+        return None
+
+    raw_value = custom_races[year]
+    if isinstance(raw_value, dict):
+        return {
+            "race": raw_value.get("race", ""),
+            "use_glowstick": bool(raw_value.get("use_glowstick", False)),
+        }
+
+    if isinstance(raw_value, str) and raw_value.strip():
+        return {"race": raw_value, "use_glowstick": False}
+    return None
 
 
 def _resolve_custom_race_path(path, project_root):

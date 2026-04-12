@@ -638,6 +638,10 @@ def invalidate_status_cache():
     _cached_status = None
 
 
+def get_status_api_raw():
+    return _get_status_cached()
+
+
 def check_status_api():
     """
     Fetch full game status via API in one call.
@@ -660,7 +664,7 @@ def check_status_api():
 
         api_year = data.get("year", "Unknown Year")
         if "Year 4" in api_year:
-            api_year = "Finale Underway"
+            api_year = "TS Climax"
 
         result = {
             "year": api_year,
@@ -715,4 +719,39 @@ def check_skill_points_api():
     if status is None:
         return None
     return status.get("skill_points")
+
+
+def get_shop_coin_api():
+    status = _get_status_cached()
+    if status is None:
+        return None
+    return status.get("shop_coin", 0)
+
+
+def get_shop_items_api():
+    status = _get_status_cached()
+    if status is None:
+        return None
+    return status.get("shop_items", [])
+
+
+def get_inventory_items_api():
+    status = _get_status_cached()
+    if status is None:
+        return None
+    return status.get("inventory_items", [])
+
+
+def get_conditions_api():
+    status = _get_status_cached()
+    if status is None:
+        return None
+    return status.get("conditions", [])
+
+
+def get_active_item_effects_api():
+    status = _get_status_cached()
+    if status is None:
+        return None
+    return status.get("active_item_effects", [])
 

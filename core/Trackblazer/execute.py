@@ -29,7 +29,20 @@ from core.Trackblazer.state import (
     check_current_stats, check_energy_bar,
     check_status_api, check_mood_api, check_current_year_api,
     check_current_stats_api, check_energy_api, check_skill_points_api,
-    invalidate_status_cache,
+    get_status_api_raw, invalidate_status_cache,
+)
+
+from core.Trackblazer.items import (
+    apply_purchase_plan,
+    apply_usage_plan,
+    format_action_plan,
+    load_item_settings,
+    load_item_template,
+    normalize_item_state,
+    plan_immediate_item_usage,
+    plan_item_purchases,
+    plan_race_item_usage,
+    plan_training_item_usage,
 )
 
 # Import event handling functions
@@ -42,7 +55,7 @@ from core.Trackblazer.training_handling import go_to_training, check_training, d
 from core.Trackblazer.races_handling import (
     find_and_do_race, do_custom_race, race_day, check_strategy_before_race,
     change_strategy_before_race, race_prep, handle_race_retry_if_failed,
-    after_race, is_racing_available, is_pre_debut_year
+    after_race, get_custom_race_selection, is_racing_available, is_pre_debut_year
 )
 
 from utils.core.config_loader import load_main_config
@@ -53,6 +66,19 @@ skills_config_section = config.get("skills", {})
 DEBUG_MODE = config.get("debug_mode", False)
 RETRY_RACE = racing_config_section.get("retry_race", config.get("retry_race", True))
 _skip_infirmary_check_once = False
+
+
+def _load_item_runtime_data():
+    items_config = load_item_settings(config)
+    template_path = items_config.get("item_purchase_file", "template/items/default.json")
+    template_data = load_item_template(template_path)
+    return items_config, template_data
+
+
+def _log_item_plan(title, actions):
+    if not actions:
+        return
+    log_info(f"[Items] {title}: {format_action_plan(actions)}")
 
 
 def arm_skip_infirmary_check_for_new_turn():
@@ -518,11 +544,21 @@ def career_lobby(timeout=None):
 
         # Get current state
         log_debug(f"Getting current game state...")
+        raw_api_status = None
+        item_settings = None
+        item_template = None
+        base_item_state = None
+        planned_purchase_actions = []
+        planned_immediate_usage = []
+        planned_race_usage = []
+        planned_training_usage = []
         if _API_MODE:
             api_status = check_status_api()
             if api_status is None:
                 log_error("API mode is enabled but failed to get status from /status")
                 raise RuntimeError("API mode is enabled but /status API is not responding. Check API connection or set api.enabled to false in config.json.")
+            raw_api_status = get_status_api_raw() or {}
+            item_settings, item_template = _load_item_runtime_data()
             mood = api_status["mood"]
             year = api_status["year"]
             current_stats = api_status["stats"]
@@ -538,7 +574,7 @@ def career_lobby(timeout=None):
         race_day_matches = match_template(screenshot, "assets/buttons/race_day_btn.png", confidence=0.8)
         is_race_day = bool(race_day_matches)
         ura_finale_race_matches = match_template(screenshot, "assets/buttons/race_ura.png", confidence=0.8)
-        is_ura_finale_race = bool(ura_finale_race_matches) and year == "Finale Underway"
+        is_ura_finale_race = bool(ura_finale_race_matches) and year == "TS Climax"
         
         log_info(f"=== GAME STATUS{' (API)' if api_status else ''} ===")
         log_info(f"Year: {year}")
@@ -593,6 +629,30 @@ def career_lobby(timeout=None):
             energy_percentage = check_energy_bar(screenshot)
         min_energy = training_config_section.get("min_energy", config.get("min_energy", 30))
         log_info(f"Energy: {energy_percentage:.1f}% (Minimum: {min_energy}%)")
+
+        if _API_MODE and raw_api_status:
+            base_item_state = normalize_item_state(raw_api_status)
+            planned_purchase_actions = plan_item_purchases(base_item_state, item_template, config)
+            _log_item_plan("Planned purchases", planned_purchase_actions)
+
+            purchased_item_state = apply_purchase_plan(base_item_state, planned_purchase_actions)
+            planned_immediate_usage = plan_immediate_item_usage(
+                purchased_item_state,
+                config,
+                is_race_turn=is_race_day or is_ura_finale_race,
+            )
+            _log_item_plan("Immediate-use items", planned_immediate_usage)
+
+            if is_race_day or is_ura_finale_race:
+                custom_race_selection = get_custom_race_selection(year) if racing_config_section.get("do_custom_race", config.get("do_custom_race", False)) else None
+                planned_race_usage = plan_race_item_usage(
+                    apply_usage_plan(purchased_item_state, planned_immediate_usage),
+                    config,
+                    is_custom_race=bool(custom_race_selection and custom_race_selection.get("race")),
+                    custom_race_use_glowstick=bool(custom_race_selection and custom_race_selection.get("use_glowstick")),
+                    is_ts_climax_race=(year == "TS Climax"),
+                )
+                _log_item_plan("Race items", planned_race_usage)
         # Check for rest in June to save energy for summer (skip on race day)
         rest_in_june_enabled = training_config_section.get("rest_in_june", False)
         if rest_in_june_enabled and "Jun" in year and "Junior" not in year and energy_percentage <= 60 and not is_race_day and not is_ura_finale_race:
@@ -647,7 +707,7 @@ def career_lobby(timeout=None):
 
         # If calendar is race day, do race
         log_debug(f"Checking for race day...")
-        if is_race_day and year != "Finale Underway":
+        if is_race_day and year != "TS Climax":
             log_info(f"Race Day.")
             race_day()
             continue
@@ -664,6 +724,20 @@ def career_lobby(timeout=None):
             if last_failed_custom_race_day == day_key:
                 log_debug(f"Skipping custom race check (already attempted and failed this day)")
             else:
+                if _API_MODE and raw_api_status:
+                    custom_race_selection = get_custom_race_selection(year)
+                    if custom_race_selection and custom_race_selection.get("race"):
+                        custom_race_item_state = normalize_item_state(raw_api_status)
+                        custom_race_item_state = apply_purchase_plan(custom_race_item_state, planned_purchase_actions)
+                        custom_race_item_state = apply_usage_plan(custom_race_item_state, planned_immediate_usage)
+                        planned_race_usage = plan_race_item_usage(
+                            custom_race_item_state,
+                            config,
+                            is_custom_race=True,
+                            custom_race_use_glowstick=bool(custom_race_selection.get("use_glowstick")),
+                            is_ts_climax_race=False,
+                        )
+                        _log_item_plan("Custom race items", planned_race_usage)
                 log_debug(f"Custom race is enabled, checking for custom race...")
                 custom_race_found = do_custom_race(year)
                 if custom_race_found:
@@ -764,7 +838,25 @@ def career_lobby(timeout=None):
         # Use new scoring algorithm to choose best training (with stat cap filtering)
         log_debug(f"Choosing best training with stat cap filtering. Current stats: {current_stats}")
         best_training = choose_best_training(results_training, training_config, current_stats)
-        
+
+        if _API_MODE and raw_api_status:
+            item_state_for_training = normalize_item_state(raw_api_status, results_training)
+            item_state_for_training = apply_purchase_plan(item_state_for_training, planned_purchase_actions)
+            item_state_for_training = apply_usage_plan(item_state_for_training, planned_immediate_usage)
+            chosen_training_result = results_training.get(best_training) if best_training else None
+            would_be_rejected = bool(chosen_training_result) and (
+                energy_percentage < min_energy
+                or int(chosen_training_result.get("failure", 100)) > training_config.get("maximum_failure", 15)
+            )
+            planned_training_usage = plan_training_item_usage(
+                item_state_for_training,
+                config,
+                best_training,
+                chosen_training_result,
+                would_be_rejected,
+            )
+            _log_item_plan("Training items", planned_training_usage)
+
         if best_training:
             log_debug(f"Scoring algorithm selected: {best_training.upper()} training")
             log_info(f"Selected {best_training.upper()} training based on scoring algorithm")

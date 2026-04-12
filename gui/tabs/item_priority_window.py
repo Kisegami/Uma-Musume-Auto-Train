@@ -563,23 +563,6 @@ class ItemPriorityWindow(QDialog):
 
     def _save_template(self):
         os.makedirs(os.path.dirname(self.template_path), exist_ok=True)
-        existing_data = {}
-        if os.path.exists(self.template_path):
-            try:
-                with open(self.template_path, "r", encoding="utf-8") as f:
-                    existing_data = json.load(f)
-            except Exception:
-                existing_data = {}
-
-        selected_ids = {entry["id"] for entry in self.selected_items}
-        usage_conditions = []
-        for entry in existing_data.get("items_usage_conditions", []):
-            try:
-                if int(entry.get("id")) in selected_ids:
-                    usage_conditions.append(entry)
-            except Exception:
-                continue
-
         payload = {
             "items_priority": [
                 {
@@ -589,7 +572,6 @@ class ItemPriorityWindow(QDialog):
                 }
                 for entry in self.selected_items
             ],
-            "items_usage_conditions": usage_conditions,
         }
 
         try:

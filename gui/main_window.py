@@ -368,6 +368,7 @@ class MainWindow(QMainWindow):
             "training": {"priority_stat": ["spd", "sta", "wit", "pwr", "guts"], "minimum_mood": "GREAT", "maximum_failure": 15, "min_energy": 30, "skip_goal_check": False},
             "racing": {"strategy": "FRONT", "retry_race": True, "stop_on_race_fail": True},
             "skills": {"skill_point_cap": 400, "skill_purchase": "auto"},
+            "items": {"item_purchase_file": "template/items/default.json", "budget_strategy": "save_priority"},
             "debug_mode": False,
             "dump_lobby_template_regions": False,
             "update": {"auto_update": True, "install_dependencies": True, "branch": "main"}

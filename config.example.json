@@ -83,6 +83,10 @@
     "skill_file": "template/skills/skills.json",
     "enable_skill_point_check": true
   },
+  "items": {
+    "item_purchase_file": "template/items/default.json",
+    "budget_strategy": "save_priority"
+  },
   "restart_career": {
     "restart_enabled": false,
     "restart_times": 2,

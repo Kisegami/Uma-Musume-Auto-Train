@@ -1,6 +1,6 @@
 """
 Items Tab for PySide6 GUI.
-Contains Trackblazer item logic template management.
+Contains Trackblazer item purchase template management and item behavior settings.
 """
 
 import glob
@@ -8,19 +8,38 @@ import json
 import os
 
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox,
-    QGroupBox, QFrame, QScrollArea, QPushButton, QMessageBox, QInputDialog
+    QCheckBox,
+    QComboBox,
+    QDoubleSpinBox,
+    QFrame,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QMessageBox,
+    QPushButton,
+    QScrollArea,
+    QSpinBox,
+    QVBoxLayout,
+    QWidget,
+    QInputDialog,
 )
+
+from core.Trackblazer.items import DEFAULT_ITEM_SETTINGS, NEGATIVE_CONDITIONS
 
 
 class ItemsTab(QScrollArea):
-    """Trackblazer item logic configuration tab."""
+    """Trackblazer item configuration tab."""
 
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
         self.setWidgetResizable(True)
         self.setFrameShape(QFrame.NoFrame)
+
+        self.condition_checkboxes = {}
+        self.training_level_stat_checkboxes = {}
+        self.training_buff_period_checkboxes = {}
 
         self._create_ui()
         self.load_config()
@@ -31,9 +50,20 @@ class ItemsTab(QScrollArea):
         layout.setContentsMargins(16, 16, 16, 16)
         layout.setSpacing(16)
 
-        priority_group = QGroupBox("Item Logic configuration")
-        priority_layout = QVBoxLayout(priority_group)
-        priority_layout.setSpacing(12)
+        layout.addWidget(self._build_purchase_group())
+        layout.addWidget(self._build_mood_group())
+        layout.addWidget(self._build_condition_group())
+        layout.addWidget(self._build_training_group())
+        layout.addWidget(self._build_race_group())
+        layout.addStretch()
+
+        self.setWidget(container)
+        self._load_templates()
+
+    def _build_purchase_group(self):
+        group = QGroupBox("Purchase Priority")
+        group_layout = QVBoxLayout(group)
+        group_layout.setSpacing(12)
 
         template_row = QHBoxLayout()
         template_row.setSpacing(10)
@@ -59,19 +89,200 @@ class ItemsTab(QScrollArea):
         edit_priority_btn.clicked.connect(self._edit_priority_template)
         template_row.addWidget(edit_priority_btn)
 
-        edit_usage_btn = QPushButton("Items Usage Condition")
-        edit_usage_btn.setObjectName("accent")
-        edit_usage_btn.clicked.connect(self._edit_usage_conditions)
-        template_row.addWidget(edit_usage_btn)
-
         template_row.addStretch()
-        priority_layout.addLayout(template_row)
+        group_layout.addLayout(template_row)
 
-        layout.addWidget(priority_group)
-        layout.addStretch()
-        self.setWidget(container)
+        strategy_row = QHBoxLayout()
+        strategy_row.addWidget(QLabel("Budget Strategy:"))
+        self.budget_strategy_combo = QComboBox()
+        self.budget_strategy_combo.addItem("Save for higher priority items", "save_priority")
+        self.budget_strategy_combo.addItem("Buy as much items as possible", "buy_max")
+        self.budget_strategy_combo.currentIndexChanged.connect(self._save_items_config)
+        strategy_row.addWidget(self.budget_strategy_combo)
+        strategy_row.addStretch()
+        group_layout.addLayout(strategy_row)
 
-        self._load_templates()
+        return group
+
+    def _build_mood_group(self):
+        group = QGroupBox("Mood Items")
+        layout = QVBoxLayout(group)
+        layout.setSpacing(10)
+
+        self.auto_buy_mood = QCheckBox("Auto-buy mood items when current mood is below minimum mood")
+        self.auto_buy_mood.stateChanged.connect(self._save_items_config)
+        layout.addWidget(self.auto_buy_mood)
+
+        info = QLabel("The bot calculates the exact +1 / +2 mood combination it needs, then uses it immediately.")
+        info.setWordWrap(True)
+        layout.addWidget(info)
+        return group
+
+    def _build_condition_group(self):
+        group = QGroupBox("Condition Items")
+        layout = QVBoxLayout(group)
+        layout.setSpacing(10)
+
+        self.auto_buy_negative_cure = QCheckBox("Automatically buy cure items for bad conditions")
+        self.auto_buy_negative_cure.stateChanged.connect(self._on_auto_buy_negative_cure_changed)
+        layout.addWidget(self.auto_buy_negative_cure)
+
+        self.condition_options_widget = QWidget()
+        options_layout = QVBoxLayout(self.condition_options_widget)
+        options_layout.setContentsMargins(18, 0, 0, 0)
+        options_layout.setSpacing(8)
+
+        self.all_conditions_checkbox = QCheckBox("Buy cures for all supported bad conditions")
+        self.all_conditions_checkbox.stateChanged.connect(self._on_all_conditions_changed)
+        options_layout.addWidget(self.all_conditions_checkbox)
+
+        grid = QGridLayout()
+        for index, condition_name in enumerate(NEGATIVE_CONDITIONS):
+            checkbox = QCheckBox(condition_name)
+            checkbox.stateChanged.connect(self._on_condition_checkbox_changed)
+            self.condition_checkboxes[condition_name] = checkbox
+            grid.addWidget(checkbox, index // 3, index % 3)
+        options_layout.addLayout(grid)
+
+        note = QLabel("Miracle Cure is intentionally excluded from cure auto-buy.")
+        note.setWordWrap(True)
+        options_layout.addWidget(note)
+        layout.addWidget(self.condition_options_widget)
+        return group
+
+    def _build_training_group(self):
+        group = QGroupBox("Training Items")
+        layout = QVBoxLayout(group)
+        layout.setSpacing(10)
+
+        friendship_group = QGroupBox("Grilled Carrots")
+        friendship_layout = QVBoxLayout(friendship_group)
+        friendship_layout.setSpacing(8)
+        self.auto_buy_friendship = QCheckBox("Buy Grilled Carrots when enough support cards are still below rainbow bond")
+        self.auto_buy_friendship.stateChanged.connect(self._on_auto_buy_friendship_changed)
+        friendship_layout.addWidget(self.auto_buy_friendship)
+        self.friendship_options_widget = QWidget()
+        friendship_row = QHBoxLayout(self.friendship_options_widget)
+        friendship_row.setContentsMargins(18, 0, 0, 0)
+        friendship_row.addWidget(QLabel("Buy when support cards below rainbow bond level (4) is at least:"))
+        self.friendship_threshold_spin = QSpinBox()
+        self.friendship_threshold_spin.setMinimum(1)
+        self.friendship_threshold_spin.setMaximum(6)
+        self.friendship_threshold_spin.valueChanged.connect(self._save_items_config)
+        friendship_row.addWidget(self.friendship_threshold_spin)
+        friendship_row.addStretch()
+        friendship_layout.addWidget(self.friendship_options_widget)
+        layout.addWidget(friendship_group)
+
+        charm_group = QGroupBox("Good-luck Charm")
+        charm_layout = QGridLayout(charm_group)
+        self.good_luck_charm_enabled = QCheckBox("Enable Good-luck Charm logic")
+        self.good_luck_charm_enabled.stateChanged.connect(self._on_good_luck_charm_changed)
+        charm_layout.addWidget(self.good_luck_charm_enabled, 0, 0, 1, 2)
+        self.good_luck_charm_options_widget = QWidget()
+        good_luck_options_layout = QGridLayout(self.good_luck_charm_options_widget)
+        good_luck_options_layout.setContentsMargins(18, 0, 0, 0)
+        self.good_luck_charm_require_score = QCheckBox("Require chosen training score above:")
+        self.good_luck_charm_require_score.stateChanged.connect(self._save_items_config)
+        good_luck_options_layout.addWidget(self.good_luck_charm_require_score, 0, 0)
+        self.good_luck_charm_score_threshold = QDoubleSpinBox()
+        self.good_luck_charm_score_threshold.setDecimals(1)
+        self.good_luck_charm_score_threshold.setRange(0.0, 20.0)
+        self.good_luck_charm_score_threshold.setSingleStep(0.5)
+        self.good_luck_charm_score_threshold.valueChanged.connect(self._save_items_config)
+        good_luck_options_layout.addWidget(self.good_luck_charm_score_threshold, 0, 1)
+        self.good_luck_charm_require_buff = QCheckBox("Require Training Buff or Specialized Training Buff used this turn")
+        self.good_luck_charm_require_buff.stateChanged.connect(self._save_items_config)
+        good_luck_options_layout.addWidget(self.good_luck_charm_require_buff, 1, 0, 1, 2)
+        charm_layout.addWidget(self.good_luck_charm_options_widget, 1, 0, 1, 2)
+        layout.addWidget(charm_group)
+
+        buff_group = QGroupBox("Training Buffs")
+        buff_layout = QGridLayout(buff_group)
+        buff_layout.addWidget(QLabel("Training Buff score threshold:"), 0, 0)
+        self.training_buff_score_threshold = QDoubleSpinBox()
+        self.training_buff_score_threshold.setDecimals(1)
+        self.training_buff_score_threshold.setRange(0.0, 20.0)
+        self.training_buff_score_threshold.setSingleStep(0.5)
+        self.training_buff_score_threshold.valueChanged.connect(self._save_items_config)
+        buff_layout.addWidget(self.training_buff_score_threshold, 0, 1)
+        self.specialized_requires_training_buff = QCheckBox("Specialized Training Buff requires Training Buff active or used")
+        self.specialized_requires_training_buff.stateChanged.connect(self._save_items_config)
+        buff_layout.addWidget(self.specialized_requires_training_buff, 1, 0, 1, 2)
+        buff_layout.addWidget(QLabel("Use buffs only during:"), 2, 0, 1, 2)
+        self.training_buff_periods_widget = QWidget()
+        periods_layout = QVBoxLayout(self.training_buff_periods_widget)
+        periods_layout.setContentsMargins(18, 0, 0, 0)
+        periods_layout.setSpacing(6)
+        period_options = [
+            ("Any time", "any_time"),
+            ("Classic / Senior Summer (July / August)", "classic_senior_summer"),
+            ("Senior Year", "senior_year"),
+            ("TS Climax", "ts_climax"),
+        ]
+        for label, key in period_options:
+            checkbox = QCheckBox(label)
+            checkbox.stateChanged.connect(self._on_training_buff_period_changed)
+            self.training_buff_period_checkboxes[key] = checkbox
+            periods_layout.addWidget(checkbox)
+        buff_layout.addWidget(self.training_buff_periods_widget, 3, 0, 1, 2)
+        layout.addWidget(buff_group)
+
+        level_group = QGroupBox("Training Level Items")
+        level_layout = QGridLayout(level_group)
+        self.enable_training_level_items = QCheckBox("Automatically buy training level items")
+        self.enable_training_level_items.stateChanged.connect(self._on_training_level_toggle_changed)
+        level_layout.addWidget(self.enable_training_level_items, 0, 0, 1, 2)
+        self.training_level_options_widget = QWidget()
+        training_level_options_layout = QGridLayout(self.training_level_options_widget)
+        training_level_options_layout.setContentsMargins(18, 0, 0, 0)
+        training_level_options_layout.addWidget(QLabel("Buy when training level is below:"), 0, 0)
+        self.training_level_threshold = QSpinBox()
+        self.training_level_threshold.setMinimum(1)
+        self.training_level_threshold.setMaximum(5)
+        self.training_level_threshold.valueChanged.connect(self._save_items_config)
+        training_level_options_layout.addWidget(self.training_level_threshold, 0, 1)
+        for index, (label, key) in enumerate((("Speed", "spd"), ("Stamina", "sta"), ("Power", "pwr"), ("Guts", "guts"), ("Wit", "wit"))):
+            checkbox = QCheckBox(label)
+            checkbox.stateChanged.connect(self._save_items_config)
+            self.training_level_stat_checkboxes[key] = checkbox
+            training_level_options_layout.addWidget(checkbox, 1 + index // 3, index % 3)
+        level_layout.addWidget(self.training_level_options_widget, 1, 0, 1, 2)
+        layout.addWidget(level_group)
+
+        shuffle_group = QGroupBox("Training Shuffle")
+        shuffle_layout = QGridLayout(shuffle_group)
+        shuffle_layout.addWidget(QLabel("Use when best training score is below:"), 0, 0)
+        self.training_shuffle_score_threshold = QDoubleSpinBox()
+        self.training_shuffle_score_threshold.setDecimals(1)
+        self.training_shuffle_score_threshold.setRange(0.0, 20.0)
+        self.training_shuffle_score_threshold.setSingleStep(0.5)
+        self.training_shuffle_score_threshold.valueChanged.connect(self._save_items_config)
+        shuffle_layout.addWidget(self.training_shuffle_score_threshold, 0, 1)
+        self.training_shuffle_restricted = QCheckBox("Only use Training Shuffle in Summer and TS Climax")
+        self.training_shuffle_restricted.stateChanged.connect(self._save_items_config)
+        shuffle_layout.addWidget(self.training_shuffle_restricted, 1, 0, 1, 2)
+        layout.addWidget(shuffle_group)
+
+        return group
+
+    def _build_race_group(self):
+        group = QGroupBox("Race Items")
+        layout = QVBoxLayout(group)
+        layout.setSpacing(10)
+
+        self.reserve_hammers = QCheckBox("Reserve at least 3 Cleat Hammers for TS Climax")
+        self.reserve_hammers.stateChanged.connect(self._save_items_config)
+        layout.addWidget(self.reserve_hammers)
+
+        self.use_glowstick_ts_climax = QCheckBox("Use Glowstick on TS Climax races")
+        self.use_glowstick_ts_climax.stateChanged.connect(self._save_items_config)
+        layout.addWidget(self.use_glowstick_ts_climax)
+
+        note = QLabel("Per-custom-race Glowstick selection is configured in the Custom Race editor.")
+        note.setWordWrap(True)
+        layout.addWidget(note)
+        return group
 
     def _get_items_dir(self):
         items_dir = os.path.join("template", "items")
@@ -81,7 +292,6 @@ class ItemsTab(QScrollArea):
     def _default_template_data(self):
         return {
             "items_priority": [],
-            "items_usage_conditions": [],
         }
 
     def _ensure_template_exists(self, filename):
@@ -115,22 +325,20 @@ class ItemsTab(QScrollArea):
 
         self.template_combo.blockSignals(False)
 
-    def load_config(self):
-        self._loading = True
-        self._load_templates()
+    def _set_condition_checkboxes_enabled(self, enabled):
+        self.condition_options_widget.setVisible(enabled)
+        self.all_conditions_checkbox.setEnabled(enabled)
+        for checkbox in self.condition_checkboxes.values():
+            checkbox.setEnabled(enabled)
 
-        config = self.main_window.get_config()
-        items_config = config.get("items", {})
-        item_file = items_config.get("item_purchase_file", "template/items/default.json")
-        item_file = os.path.basename(item_file)
-        self._ensure_template_exists(item_file)
-        self._load_templates()
+    def _set_friendship_options_visible(self, visible):
+        self.friendship_options_widget.setVisible(visible)
 
-        index = self.template_combo.findText(item_file)
-        if index >= 0:
-            self.template_combo.setCurrentIndex(index)
+    def _set_good_luck_charm_options_visible(self, visible):
+        self.good_luck_charm_options_widget.setVisible(visible)
 
-        self._loading = False
+    def _set_training_level_options_visible(self, visible):
+        self.training_level_options_widget.setVisible(visible)
 
     def _save_items_config(self):
         if getattr(self, "_loading", False):
@@ -141,9 +349,160 @@ class ItemsTab(QScrollArea):
             return
 
         config = self.main_window.get_config()
-        config.setdefault("items", {})
-        config["items"]["item_purchase_file"] = f"template/items/{filename}"
+        items_config = dict(DEFAULT_ITEM_SETTINGS)
+        items_config.update(config.get("items", {}))
+
+        items_config["item_purchase_file"] = f"template/items/{filename}"
+        items_config["budget_strategy"] = self.budget_strategy_combo.currentData()
+        items_config["auto_buy_mood_items"] = self.auto_buy_mood.isChecked()
+        items_config["auto_buy_negative_cure_items"] = self.auto_buy_negative_cure.isChecked()
+        items_config["auto_buy_negative_cure_conditions"] = [
+            name for name, checkbox in self.condition_checkboxes.items() if checkbox.isChecked()
+        ]
+        items_config["auto_buy_friendship_items"] = self.auto_buy_friendship.isChecked()
+        items_config["friendship_support_threshold"] = self.friendship_threshold_spin.value()
+        items_config["good_luck_charm_enabled"] = self.good_luck_charm_enabled.isChecked()
+        items_config["good_luck_charm_score_threshold"] = self.good_luck_charm_score_threshold.value()
+        items_config["good_luck_charm_require_score"] = self.good_luck_charm_require_score.isChecked()
+        items_config["good_luck_charm_require_buff"] = self.good_luck_charm_require_buff.isChecked()
+        items_config["training_buff_score_threshold"] = self.training_buff_score_threshold.value()
+        items_config["specialized_buff_requires_training_buff"] = self.specialized_requires_training_buff.isChecked()
+        selected_periods = [key for key, checkbox in self.training_buff_period_checkboxes.items() if checkbox.isChecked()]
+        items_config["training_buff_periods"] = selected_periods or ["any_time"]
+        items_config["training_buff_period"] = items_config["training_buff_periods"][0]
+        items_config["enable_training_level_items"] = self.enable_training_level_items.isChecked()
+        items_config["training_level_threshold"] = self.training_level_threshold.value()
+        items_config["training_level_stats"] = [
+            key for key, checkbox in self.training_level_stat_checkboxes.items() if checkbox.isChecked()
+        ]
+        items_config["training_shuffle_score_threshold"] = self.training_shuffle_score_threshold.value()
+        items_config["training_shuffle_restricted_periods_only"] = self.training_shuffle_restricted.isChecked()
+        items_config["reserve_ts_climax_hammers"] = self.reserve_hammers.isChecked()
+        items_config["use_glowstick_ts_climax"] = self.use_glowstick_ts_climax.isChecked()
+
+        config["items"] = items_config
         self.main_window.save_config()
+
+    def load_config(self):
+        self._loading = True
+        self._load_templates()
+
+        config = self.main_window.get_config()
+        items_config = dict(DEFAULT_ITEM_SETTINGS)
+        items_config.update(config.get("items", {}))
+        item_file = os.path.basename(items_config.get("item_purchase_file", "template/items/default.json"))
+
+        self._ensure_template_exists(item_file)
+        self._load_templates()
+
+        index = self.template_combo.findText(item_file)
+        if index >= 0:
+            self.template_combo.setCurrentIndex(index)
+
+        strategy_index = self.budget_strategy_combo.findData(items_config.get("budget_strategy", "save_priority"))
+        if strategy_index >= 0:
+            self.budget_strategy_combo.setCurrentIndex(strategy_index)
+
+        self.auto_buy_mood.setChecked(bool(items_config.get("auto_buy_mood_items", False)))
+        self.auto_buy_negative_cure.setChecked(bool(items_config.get("auto_buy_negative_cure_items", False)))
+
+        selected_conditions = set(items_config.get("auto_buy_negative_cure_conditions", NEGATIVE_CONDITIONS))
+        all_selected = len(selected_conditions) == len(NEGATIVE_CONDITIONS)
+        self.all_conditions_checkbox.setChecked(all_selected)
+        for name, checkbox in self.condition_checkboxes.items():
+            checkbox.setChecked(name in selected_conditions)
+        self._set_condition_checkboxes_enabled(self.auto_buy_negative_cure.isChecked())
+
+        self.auto_buy_friendship.setChecked(bool(items_config.get("auto_buy_friendship_items", False)))
+        self._set_friendship_options_visible(self.auto_buy_friendship.isChecked())
+        self.friendship_threshold_spin.setValue(int(items_config.get("friendship_support_threshold", 1)))
+        self.good_luck_charm_enabled.setChecked(bool(items_config.get("good_luck_charm_enabled", True)))
+        self._set_good_luck_charm_options_visible(self.good_luck_charm_enabled.isChecked())
+        self.good_luck_charm_score_threshold.setValue(float(items_config.get("good_luck_charm_score_threshold", 2.0)))
+        self.good_luck_charm_require_score.setChecked(bool(items_config.get("good_luck_charm_require_score", True)))
+        self.good_luck_charm_require_buff.setChecked(bool(items_config.get("good_luck_charm_require_buff", False)))
+        self.training_buff_score_threshold.setValue(float(items_config.get("training_buff_score_threshold", 2.0)))
+        self.specialized_requires_training_buff.setChecked(bool(items_config.get("specialized_buff_requires_training_buff", False)))
+        selected_periods = set(items_config.get("training_buff_periods", [items_config.get("training_buff_period", "any_time")]))
+        if not selected_periods:
+            selected_periods = {"any_time"}
+        for key, checkbox in self.training_buff_period_checkboxes.items():
+            checkbox.setChecked(key in selected_periods)
+        self.enable_training_level_items.setChecked(bool(items_config.get("enable_training_level_items", False)))
+        self._set_training_level_options_visible(self.enable_training_level_items.isChecked())
+        self.training_level_threshold.setValue(int(items_config.get("training_level_threshold", 3)))
+        selected_stats = set(items_config.get("training_level_stats", []))
+        for key, checkbox in self.training_level_stat_checkboxes.items():
+            checkbox.setChecked(key in selected_stats)
+        self.training_shuffle_score_threshold.setValue(float(items_config.get("training_shuffle_score_threshold", 1.0)))
+        self.training_shuffle_restricted.setChecked(bool(items_config.get("training_shuffle_restricted_periods_only", False)))
+        self.reserve_hammers.setChecked(bool(items_config.get("reserve_ts_climax_hammers", True)))
+        self.use_glowstick_ts_climax.setChecked(bool(items_config.get("use_glowstick_ts_climax", False)))
+
+        self._loading = False
+
+    def _on_auto_buy_negative_cure_changed(self):
+        enabled = self.auto_buy_negative_cure.isChecked()
+        self._set_condition_checkboxes_enabled(enabled)
+        self._save_items_config()
+
+    def _on_auto_buy_friendship_changed(self):
+        enabled = self.auto_buy_friendship.isChecked()
+        self._set_friendship_options_visible(enabled)
+        self._save_items_config()
+
+    def _on_good_luck_charm_changed(self):
+        enabled = self.good_luck_charm_enabled.isChecked()
+        self._set_good_luck_charm_options_visible(enabled)
+        self._save_items_config()
+
+    def _on_training_level_toggle_changed(self):
+        enabled = self.enable_training_level_items.isChecked()
+        self._set_training_level_options_visible(enabled)
+        self._save_items_config()
+
+    def _on_training_buff_period_changed(self):
+        if getattr(self, "_loading", False):
+            return
+        if self.sender() is self.training_buff_period_checkboxes.get("any_time") and self.training_buff_period_checkboxes["any_time"].isChecked():
+            for key, checkbox in self.training_buff_period_checkboxes.items():
+                if key == "any_time":
+                    continue
+                checkbox.blockSignals(True)
+                checkbox.setChecked(False)
+                checkbox.blockSignals(False)
+        elif self.sender() is not self.training_buff_period_checkboxes.get("any_time") and self.sender().isChecked():
+            any_checkbox = self.training_buff_period_checkboxes["any_time"]
+            any_checkbox.blockSignals(True)
+            any_checkbox.setChecked(False)
+            any_checkbox.blockSignals(False)
+
+        if not any(checkbox.isChecked() for checkbox in self.training_buff_period_checkboxes.values()):
+            any_checkbox = self.training_buff_period_checkboxes["any_time"]
+            any_checkbox.blockSignals(True)
+            any_checkbox.setChecked(True)
+            any_checkbox.blockSignals(False)
+
+        self._save_items_config()
+
+    def _on_all_conditions_changed(self):
+        if getattr(self, "_loading", False):
+            return
+        checked = self.all_conditions_checkbox.isChecked()
+        for checkbox in self.condition_checkboxes.values():
+            checkbox.blockSignals(True)
+            checkbox.setChecked(checked)
+            checkbox.blockSignals(False)
+        self._save_items_config()
+
+    def _on_condition_checkbox_changed(self):
+        if getattr(self, "_loading", False):
+            return
+        all_checked = all(checkbox.isChecked() for checkbox in self.condition_checkboxes.values())
+        self.all_conditions_checkbox.blockSignals(True)
+        self.all_conditions_checkbox.setChecked(all_checked)
+        self.all_conditions_checkbox.blockSignals(False)
+        self._save_items_config()
 
     def _add_template(self):
         name, ok = QInputDialog.getText(self, "New Item Template", "Enter template name:")
@@ -196,31 +555,3 @@ class ItemsTab(QScrollArea):
 
         dialog = ItemPriorityWindow(self, template_path)
         dialog.exec()
-
-    def _edit_usage_conditions(self):
-        filename = self.template_combo.currentText()
-        if not filename:
-            return
-
-        self._ensure_template_exists(filename)
-        template_path = os.path.join(self._get_items_dir(), filename)
-
-        try:
-            with open(template_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-        except Exception:
-            data = self._default_template_data()
-
-        if not data.get("items_priority"):
-            QMessageBox.information(
-                self,
-                "No Items Selected",
-                "Add at least one item in Items Purchase Priority before editing usage conditions.",
-            )
-            return
-
-        from .item_usage_condition_window import ItemUsageConditionWindow
-
-        dialog = ItemUsageConditionWindow(self, template_path)
-        dialog.exec()
-
