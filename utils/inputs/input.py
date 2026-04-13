@@ -13,6 +13,7 @@ from utils.platform.device import run_adb
 from utils.vision.recognizer import locate_on_screen
 from utils.core.config_loader import load_config_section, load_main_config
 from utils.core.log import log_info, log_warning, log_error, log_debug
+from utils.core.input_trace import write_input_trace
 
 
 # ============================================================================
@@ -20,6 +21,7 @@ from utils.core.log import log_info, log_warning, log_error, log_debug
 # ============================================================================
 
 _cached_input_method = None
+WAIT_AND_TAP_DELAY_BEFORE_TAP = 0.5
 
 
 def get_input_method() -> str:
@@ -109,8 +111,11 @@ def tap(x, y):
     """
     method = get_input_method()
     if method == 'maatouch':
-        return _maatouch_tap(x, y)
-    return _adb_tap(x, y)
+        result = _maatouch_tap(x, y)
+    else:
+        result = _adb_tap(x, y)
+    write_input_trace("TAP", method=method, x=int(x), y=int(y), ok=bool(result))
+    return result
 
 
 def swipe(start_x, start_y, end_x, end_y, duration_ms=20):
@@ -120,8 +125,20 @@ def swipe(start_x, start_y, end_x, end_y, duration_ms=20):
     """
     method = get_input_method()
     if method == 'maatouch':
-        return _maatouch_swipe(start_x, start_y, end_x, end_y, duration_ms)
-    return _adb_swipe(start_x, start_y, end_x, end_y, duration_ms)
+        result = _maatouch_swipe(start_x, start_y, end_x, end_y, duration_ms)
+    else:
+        result = _adb_swipe(start_x, start_y, end_x, end_y, duration_ms)
+    write_input_trace(
+        "SWIPE",
+        method=method,
+        start_x=int(start_x),
+        start_y=int(start_y),
+        end_x=int(end_x),
+        end_y=int(end_y),
+        duration_ms=int(duration_ms),
+        ok=bool(result),
+    )
+    return result
 
 
 def long_press(x, y, duration_ms=1000):
@@ -131,8 +148,18 @@ def long_press(x, y, duration_ms=1000):
     """
     method = get_input_method()
     if method == 'maatouch':
-        return _maatouch_long_press(x, y, duration_ms)
-    return _adb_long_press(x, y, duration_ms)
+        result = _maatouch_long_press(x, y, duration_ms)
+    else:
+        result = _adb_long_press(x, y, duration_ms)
+    write_input_trace(
+        "LONG_PRESS",
+        method=method,
+        x=int(x),
+        y=int(y),
+        duration_ms=int(duration_ms),
+        ok=bool(result),
+    )
+    return result
 
 
 def perform_swipe(start_x, start_y, end_x, end_y, duration_ms=1050):
@@ -175,8 +202,32 @@ def swipe_and_tap(
     )
     result = run_adb(['shell', combined_command])
     if result is not None:
+        write_input_trace(
+            "SWIPE_AND_TAP",
+            method=method,
+            swipe_start_x=int(swipe_start_x),
+            swipe_start_y=int(swipe_start_y),
+            swipe_end_x=int(swipe_end_x),
+            swipe_end_y=int(swipe_end_y),
+            swipe_duration_ms=int(swipe_duration_ms),
+            tap_x=int(tap_x),
+            tap_y=int(tap_y),
+            ok=True,
+        )
         log_debug(f"Swipe+tap: ({swipe_start_x},{swipe_start_y})->({swipe_end_x},{swipe_end_y}), tap({tap_x},{tap_y})")
         return True
+    write_input_trace(
+        "SWIPE_AND_TAP",
+        method=method,
+        swipe_start_x=int(swipe_start_x),
+        swipe_start_y=int(swipe_start_y),
+        swipe_end_x=int(swipe_end_x),
+        swipe_end_y=int(swipe_end_y),
+        swipe_duration_ms=int(swipe_duration_ms),
+        tap_x=int(tap_x),
+        tap_y=int(tap_y),
+        ok=False,
+    )
     log_debug("Failed to perform swipe+tap")
     return False
 
@@ -203,7 +254,12 @@ def tap_on_image(img, confidence=0.8, min_search=1, text="", region=None):
     return False
 
 
-def wait_and_tap(image_path: str, timeout: float = 10.0, check_interval: float = 0.2, confidence: float = 0.8) -> bool:
+def wait_and_tap(
+    image_path: str,
+    timeout: float = 10.0,
+    check_interval: float = 0.2,
+    confidence: float = 0.8,
+) -> bool:
     """
     Poll locate_on_screen until image appears (up to timeout), then tap center.
     
@@ -221,6 +277,7 @@ def wait_and_tap(image_path: str, timeout: float = 10.0, check_interval: float =
         res = locate_on_screen(image_path, confidence=confidence)
         if res:
             cx, cy = res
+            time.sleep(WAIT_AND_TAP_DELAY_BEFORE_TAP)
             tap(cx, cy)
             return True
         time.sleep(check_interval)

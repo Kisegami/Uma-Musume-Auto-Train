@@ -82,10 +82,7 @@ def check_training(go_back=True, current_stats=None):
     """
     log_debug(f"Checking training options...")
     
-    # Load stat caps from config for early filtering
-    training_config = config.get("training", {})
-    stat_caps = training_config.get("stat_caps", config.get("stat_caps", {}))
-    from core.Trackblazer.logic import are_all_stats_capped
+    from core.Trackblazer.logic import are_all_stats_capped, get_effective_stat_cap
     bypass_stat_caps = are_all_stats_capped(current_stats)
     if bypass_stat_caps:
         log_info("All tracked stats are at or above cap; evaluating all training options normally")
@@ -104,10 +101,10 @@ def check_training(go_back=True, current_stats=None):
     for key, coords in training_coords.items():
         # Early stat cap check - skip analysis if stat is already at/above cap
         if current_stats and not bypass_stat_caps:
-            current_stat_value = current_stats.get(key, 0)
-            stat_cap = stat_caps.get(key, 1200)  # Default cap is 1200 (very high = no cap)
+            current_stat_value = int(current_stats.get(key, 0))
+            stat_cap, cap_label = get_effective_stat_cap(key, current_stats)
             if current_stat_value >= stat_cap:
-                log_info(f"[{key.upper()}] SKIPPED - stat {current_stat_value} >= cap {stat_cap}")
+                log_info(f"[{key.upper()}] SKIPPED - stat {current_stat_value} >= {cap_label} cap {stat_cap}")
                 skipped_stats.append(key)
                 # Add placeholder result with score 0 so it won't be selected
                 results[key] = {
@@ -759,9 +756,7 @@ def check_training_api(current_stats=None):
         log_debug("[API] Training data empty")
         return None
 
-    training_config = config.get("training", {})
-    stat_caps = training_config.get("stat_caps", config.get("stat_caps", {}))
-    from core.Trackblazer.logic import are_all_stats_capped
+    from core.Trackblazer.logic import are_all_stats_capped, get_effective_stat_cap
     bypass_stat_caps = are_all_stats_capped(current_stats)
     if bypass_stat_caps:
         log_info("[API] All tracked stats are at or above cap; evaluating all training options normally")
@@ -776,10 +771,10 @@ def check_training_api(current_stats=None):
             continue
 
         if current_stats and not bypass_stat_caps:
-            current_val = current_stats.get(key, 0)
-            cap_val = stat_caps.get(key, 1200)
+            current_val = int(current_stats.get(key, 0))
+            cap_val, cap_label = get_effective_stat_cap(key, current_stats)
             if current_val >= cap_val:
-                log_info(f"[{key.upper()}] SKIPPED - stat {current_val} >= cap {cap_val}")
+                log_info(f"[{key.upper()}] SKIPPED - stat {current_val} >= {cap_label} cap {cap_val}")
                 results[key] = {
                     "support": {},
                     "support_detail": {},

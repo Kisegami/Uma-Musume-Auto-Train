@@ -70,6 +70,7 @@ skills_config_section = config.get("skills", {})
 DEBUG_MODE = config.get("debug_mode", False)
 RETRY_RACE = racing_config_section.get("retry_race", config.get("retry_race", True))
 _skip_infirmary_check_once = False
+LOBBY_PRE_TURN_TAP_DELAY = 0.5
 
 
 def _load_item_runtime_data():
@@ -470,6 +471,7 @@ def career_lobby(timeout=None):
             log_info(f"OK button found, clicking it.")
             tap(center[0], center[1])
             _lobby_wait_start = None
+            time.sleep(LOBBY_PRE_TURN_TAP_DELAY)
             continue
 
         # 4. Check for events
@@ -484,7 +486,7 @@ def career_lobby(timeout=None):
                     click_success = click_event_choice(choice_number, choice_locations)
                     if click_success:
                         log_info(f"Successfully selected choice {choice_number}")
-                        time.sleep(0.5)
+                        time.sleep(LOBBY_PRE_TURN_TAP_DELAY)
                         _lobby_wait_start = None
                         continue
                     else:
@@ -493,6 +495,7 @@ def career_lobby(timeout=None):
                         center = (x + w//2, y + h//2)
                         tap(center[0], center[1])
                         _lobby_wait_start = None
+                        time.sleep(LOBBY_PRE_TURN_TAP_DELAY)
                         continue
                 else:
                     if not choice_locations:
@@ -504,6 +507,7 @@ def career_lobby(timeout=None):
                     center = (x + w//2, y + h//2)
                     tap(center[0], center[1])
                     _lobby_wait_start = None
+                    time.sleep(LOBBY_PRE_TURN_TAP_DELAY)
                     continue
             else:
                 log_debug(f"No events found")
@@ -523,6 +527,7 @@ def career_lobby(timeout=None):
             log_info(f"Inspiration found.")
             tap(center[0], center[1])
             _lobby_wait_start = None
+            time.sleep(LOBBY_PRE_TURN_TAP_DELAY)
             continue
 
         # 6. Check cancel button
@@ -534,6 +539,7 @@ def career_lobby(timeout=None):
             log_debug(f"Clicking cancel_btn.png at position {center}")
             tap(center[0], center[1])
             _lobby_wait_start = None
+            time.sleep(LOBBY_PRE_TURN_TAP_DELAY)
             continue
 
         # 7. Check close button
@@ -545,6 +551,7 @@ def career_lobby(timeout=None):
             log_debug(f"Clicking close.png at position {center}")
             tap(center[0], center[1])
             _lobby_wait_start = None
+            time.sleep(LOBBY_PRE_TURN_TAP_DELAY)
             continue
 
         # 8. Check next button
@@ -556,6 +563,7 @@ def career_lobby(timeout=None):
             log_debug(f"Clicking next_btn.png at position {center}")
             tap(center[0], center[1])
             _lobby_wait_start = None
+            time.sleep(LOBBY_PRE_TURN_TAP_DELAY)
             continue
 
         # 9. Check if in career lobby (no extra screenshot needed now)
@@ -570,7 +578,7 @@ def career_lobby(timeout=None):
                 log_info(f"Back button found, tapping to return to lobby...")
                 tap(center[0], center[1])
                 _lobby_wait_start = None
-                time.sleep(0.5)
+                time.sleep(LOBBY_PRE_TURN_TAP_DELAY)
                 continue
 
             # ── Watchdog: start / check lobby-wait timer ──────────────────

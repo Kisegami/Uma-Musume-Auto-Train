@@ -18,7 +18,7 @@ if os.name == 'nt':  # Windows
     except:
         pass
 
-from utils.vision.recognizer import locate_all_on_screen
+from utils.vision.recognizer import best_match_template, locate_all_on_screen, match_template
 from utils.capture.screenshot import take_screenshot, capture_region
 from core.Unity.ocr import extract_event_name_text
 from utils.core.log import log_debug, log_info, log_warning, log_error
@@ -500,30 +500,13 @@ def count_event_choices():
     try:
         log_debug(f" Searching for event choices using: {template_path}")
         
-        # Take screenshot and convert to OpenCV format
         screenshot = take_screenshot()
-        img_cv = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
-        
-        # Load template
-        template = cv2.imread(template_path)
-        if template is None:
-            log_debug(f" Could not load template: {template_path}")
-            return 0, []
-        
-        # Search in the event choice region (x, y, width, height)
-        x, y, w, h = 6, 450, 126, 1776
-        roi = img_cv[y:y+h, x:x+w]
-        
-        # Template matching with same confidence as before
-        result = cv2.matchTemplate(roi, template, cv2.TM_CCOEFF_NORMED)
-        locations = np.where(result >= 0.45)
-        
-        # Convert to absolute coordinates
-        raw_locations = []
-        for pt in zip(*locations[::-1]):
-            abs_x, abs_y = pt[0] + x, pt[1] + y
-            tw, th = template.shape[1], template.shape[0]
-            raw_locations.append((abs_x, abs_y, tw, th))
+        raw_locations = match_template(
+            screenshot,
+            template_path,
+            confidence=0.45,
+            region=(6, 450, 126, 1776),
+        )
         
         log_debug(f" Raw locations found: {len(raw_locations)}")
         if not raw_locations:
@@ -1039,24 +1022,13 @@ def handle_event_choice():
                 log_info(f"Choose choice: {choice_number} (fallback)")
                 return choice_number, True, choice_locations
             
-            # Take screenshot and find team icon
             screenshot = take_screenshot()
-            img_cv = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
-            template = cv2.imread(asset_path)
-            
-            if template is None:
-                log_warning(f"Could not load team template: {asset_path}, falling back to last choice")
-                choice_number = choices_found
-                return choice_number, True, choice_locations
-            
-            # Template matching on FULL SCREEN (not region)
-            result = cv2.matchTemplate(img_cv, template, cv2.TM_CCOEFF_NORMED)
-            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-            
-            if max_val >= 0.7:
+            team_match = best_match_template(screenshot, asset_path, confidence=0.7)
+
+            if team_match:
                 # Found team icon, calculate which choice it belongs to
-                team_y = max_loc[1] + template.shape[0] // 2
-                log_debug(f"Team {team_name} found at y={team_y}, confidence={max_val:.2f}")
+                team_y = team_match["center"][1]
+                log_debug(f"Team {team_name} found at y={team_y}, confidence={team_match['confidence']:.2f}")
                 
                 # Map icon Y position to choice number by comparing with choice locations
                 for i, (cx, cy, cw, ch) in enumerate(choice_locations):
@@ -1071,7 +1043,7 @@ def handle_event_choice():
                 choice_number = choices_found
                 return choice_number, True, choice_locations
             else:
-                log_warning(f"Team {team_name} not found on screen (max_val={max_val:.2f}), falling back to last choice")
+                log_warning(f"Team {team_name} not found on screen, falling back to last choice")
                 choice_number = choices_found
                 log_info(f"Choose choice: {choice_number} (fallback)")
                 return choice_number, True, choice_locations

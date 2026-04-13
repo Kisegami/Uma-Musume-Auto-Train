@@ -44,6 +44,14 @@
       "sta",
       "pwr"
     ],
+    "soft_cap_enabled": false,
+    "soft_stat_caps": {
+      "spd": 1100,
+      "sta": 850,
+      "pwr": 600,
+      "guts": 600,
+      "wit": 600
+    },
     "stat_caps": {
       "spd": 1100,
       "sta": 850,

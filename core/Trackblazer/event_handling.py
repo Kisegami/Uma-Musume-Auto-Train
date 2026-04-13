@@ -3,8 +3,6 @@ import json
 import re
 import time
 import sys
-import cv2
-import numpy as np
 from PIL import ImageStat
 
 # Fix Windows console encoding for Unicode support
@@ -18,7 +16,7 @@ if os.name == 'nt':  # Windows
     except:
         pass
 
-from utils.vision.recognizer import locate_all_on_screen
+from utils.vision.recognizer import locate_all_on_screen, match_template
 from utils.capture.screenshot import take_screenshot, capture_region
 from core.Trackblazer.ocr import extract_event_name_text
 from utils.core.log import log_debug, log_info, log_warning, log_error
@@ -410,30 +408,13 @@ def count_event_choices():
     try:
         log_debug(f" Searching for event choices using: {template_path}")
         
-        # Take screenshot and convert to OpenCV format
         screenshot = take_screenshot()
-        img_cv = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
-        
-        # Load template
-        template = cv2.imread(template_path)
-        if template is None:
-            log_debug(f" Could not load template: {template_path}")
-            return 0, []
-        
-        # Search in the event choice region (x, y, width, height)
-        x, y, w, h = 6, 450, 126, 1776
-        roi = img_cv[y:y+h, x:x+w]
-        
-        # Template matching with same confidence as before
-        result = cv2.matchTemplate(roi, template, cv2.TM_CCOEFF_NORMED)
-        locations = np.where(result >= 0.45)
-        
-        # Convert to absolute coordinates
-        raw_locations = []
-        for pt in zip(*locations[::-1]):
-            abs_x, abs_y = pt[0] + x, pt[1] + y
-            tw, th = template.shape[1], template.shape[0]
-            raw_locations.append((abs_x, abs_y, tw, th))
+        raw_locations = match_template(
+            screenshot,
+            template_path,
+            confidence=0.45,
+            region=(6, 450, 126, 1776),
+        )
         
         log_debug(f" Raw locations found: {len(raw_locations)}")
         if not raw_locations:

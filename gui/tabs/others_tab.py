@@ -53,6 +53,19 @@ class OthersTab(QScrollArea):
         )
         debug_layout.addWidget(self.dump_lobby_template_regions)
 
+        self.input_action_debug_log = QCheckBox("Live Input Action Log")
+        self.input_action_debug_log.stateChanged.connect(self._on_input_action_debug_log_changed)
+        debug_layout.addWidget(self.input_action_debug_log)
+
+        input_log_row = QHBoxLayout()
+        input_log_row.setContentsMargins(25, 0, 0, 0)
+        self.open_input_log_btn = QPushButton("Open Live Input Log")
+        self.open_input_log_btn.setFixedWidth(180)
+        self.open_input_log_btn.clicked.connect(self.main_window.show_input_log_window)
+        input_log_row.addWidget(self.open_input_log_btn)
+        input_log_row.addStretch()
+        debug_layout.addLayout(input_log_row)
+
         self.bypass_template_regions = QCheckBox("Bypass Template Regions")
         self.bypass_template_regions.stateChanged.connect(
             lambda v: self._update_and_save("bypass_template_regions", v == Qt.CheckState.Checked.value)
@@ -79,6 +92,13 @@ class OthersTab(QScrollArea):
         )
         region_desc.setStyleSheet(f"color: {COLORS['text_muted']}; font-size: 12px; margin-left: 25px;")
         debug_layout.addWidget(region_desc)
+
+        input_log_desc = QLabel(
+            "Writes every bot tap/swipe/long press to `debug/input_actions_live.log` with timestamps.\n"
+            "Use Open Live Input Log to watch the file update in real time while the bot runs."
+        )
+        input_log_desc.setStyleSheet(f"color: {COLORS['text_muted']}; font-size: 12px; margin-left: 25px;")
+        debug_layout.addWidget(input_log_desc)
 
         layout.addWidget(debug_group)
 
@@ -129,6 +149,7 @@ class OthersTab(QScrollArea):
         self.stop_on_failure.setChecked(config.get("stop_on_event_detection_failure", False))
         self.dump_lobby_template_regions.setChecked(config.get("dump_lobby_template_regions", False))
         self.bypass_template_regions.setChecked(config.get("bypass_template_regions", False))
+        self.input_action_debug_log.setChecked(config.get("input_action_debug_log", False))
 
         webhook_config = config.get("discord_webhook", {})
         self.webhook_enabled.setChecked(webhook_config.get("enabled", False))
@@ -139,6 +160,12 @@ class OthersTab(QScrollArea):
         """Update config value and save"""
         self.main_window.update_config_value(key, value)
         self.main_window.save_config()
+
+    def _on_input_action_debug_log_changed(self, state):
+        enabled = state == Qt.CheckState.Checked.value
+        self._update_and_save("input_action_debug_log", enabled)
+        if enabled:
+            self.main_window.show_input_log_window()
 
     def _get_webhook_config(self):
         """Get current webhook config dict"""

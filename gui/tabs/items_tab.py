@@ -473,14 +473,20 @@ class ItemsTab(QScrollArea):
         layout = QVBoxLayout(group)
         layout.setSpacing(10)
 
-        self.reserve_hammers = HoverPreviewCheckBox(
-            "Reserve at least 3 Cleat Hammers for TS Climax",
+        reserve_row = QHBoxLayout()
+        reserve_label = HoverPreviewLabel(
+            "Reserve Cleat Hammers before TS Climax:",
             self.preview_popup,
             lambda: "Effect Type: Race Bonus",
             lambda: _get_catalog_items_by_effect_type("Race Bonus"),
         )
-        self.reserve_hammers.stateChanged.connect(self._save_items_config)
-        layout.addWidget(self.reserve_hammers)
+        reserve_row.addWidget(reserve_label)
+        self.ts_climax_hammer_reserve_count = QSpinBox()
+        self.ts_climax_hammer_reserve_count.setRange(0, 99)
+        self.ts_climax_hammer_reserve_count.valueChanged.connect(self._save_items_config)
+        reserve_row.addWidget(self.ts_climax_hammer_reserve_count)
+        reserve_row.addStretch(1)
+        layout.addLayout(reserve_row)
 
         self.use_glowstick_ts_climax = HoverPreviewCheckBox(
             "Use Glowstick on TS Climax races",
@@ -591,7 +597,8 @@ class ItemsTab(QScrollArea):
         ]
         items_config["training_shuffle_score_threshold"] = self.training_shuffle_score_threshold.value()
         items_config["training_shuffle_restricted_periods_only"] = self.training_shuffle_restricted.isChecked()
-        items_config["reserve_ts_climax_hammers"] = self.reserve_hammers.isChecked()
+        items_config["ts_climax_hammer_reserve_count"] = self.ts_climax_hammer_reserve_count.value()
+        items_config["reserve_ts_climax_hammers"] = items_config["ts_climax_hammer_reserve_count"] > 0
         items_config["use_glowstick_ts_climax"] = self.use_glowstick_ts_climax.isChecked()
 
         config["items"] = items_config
@@ -602,8 +609,9 @@ class ItemsTab(QScrollArea):
         self._load_templates()
 
         config = self.main_window.get_config()
+        raw_items_config = config.get("items", {})
         items_config = dict(DEFAULT_ITEM_SETTINGS)
-        items_config.update(config.get("items", {}))
+        items_config.update(raw_items_config)
         item_file = os.path.basename(items_config.get("item_purchase_file", "template/items/default.json"))
 
         self._ensure_template_exists(item_file)
@@ -652,7 +660,10 @@ class ItemsTab(QScrollArea):
             checkbox.setChecked(key in selected_stats)
         self.training_shuffle_score_threshold.setValue(float(items_config.get("training_shuffle_score_threshold", 1.0)))
         self.training_shuffle_restricted.setChecked(bool(items_config.get("training_shuffle_restricted_periods_only", False)))
-        self.reserve_hammers.setChecked(bool(items_config.get("reserve_ts_climax_hammers", True)))
+        reserve_count = raw_items_config.get("ts_climax_hammer_reserve_count")
+        if reserve_count is None:
+            reserve_count = 3 if bool(items_config.get("reserve_ts_climax_hammers", True)) else 0
+        self.ts_climax_hammer_reserve_count.setValue(max(0, int(reserve_count)))
         self.use_glowstick_ts_climax.setChecked(bool(items_config.get("use_glowstick_ts_climax", False)))
 
         self._loading = False

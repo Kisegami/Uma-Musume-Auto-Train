@@ -1,16 +1,13 @@
-import os
 import time
 from collections import Counter
-
-import cv2
-import numpy as np
 
 from core.Trackblazer.items import load_item_catalog
 from core.Trackblazer.ocr import extract_text
 from utils.capture.screenshot import take_screenshot
 from utils.core.log import log_debug, log_info, log_warning
-from utils.inputs.input import tap, perform_swipe
-from utils.vision.template_matching import deduplicated_matches
+from utils.inputs.input import tap, perform_swipe, wait_and_tap
+from utils.vision.recognizer import best_match_template, match_template
+from utils.vision.template_matching import deduplicated_matches, wait_for_image
 
 
 ITEMS_INVENTORY_TEMPLATE = "assets/trackblazer/items_inventory.png"
@@ -34,66 +31,33 @@ USE_WAIT_BEFORE_SWIPE = 0.2
 USE_WAIT_AFTER_SWIPE = 1.2
 USE_MAX_SWIPES = 10
 
-WAIT_AFTER_OPEN_INVENTORY = 1.0
-WAIT_AFTER_ITEM_TAP = 0.5
-WAIT_AFTER_CONFIRM_USE = 1.0
-WAIT_AFTER_USE_2 = 1.5
-WAIT_AFTER_CLOSE = 1.0
-WAIT_BEFORE_TAP_CLOSE = 1.0
-
-
-def _project_root():
-    return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-
-
-def _resolve_asset_path(relative_path):
-    return os.path.join(_project_root(), relative_path)
-
-
-def _load_template(template_path):
-    resolved_path = _resolve_asset_path(template_path)
-    if not os.path.exists(resolved_path):
-        raise FileNotFoundError(f"Template not found: {resolved_path}")
-    template = cv2.imread(resolved_path, cv2.IMREAD_COLOR)
-    if template is None:
-        raise RuntimeError(f"Failed to load template: {resolved_path}")
-    return template
-
-
-def _screenshot_to_cv(screenshot):
-    return cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+# Keep non-swipe waits short so item automation does not stall the turn loop.
+WAIT_AFTER_OPEN_INVENTORY = 0.3
+WAIT_AFTER_ITEM_TAP = 0.2
+WAIT_AFTER_BUTTON_TAP = 0.3
+WAIT_AFTER_CONFIRM_USE = 0.3
+WAIT_AFTER_USE_2 = 0.3
+WAIT_AFTER_CLOSE = 0.3
+OPEN_INVENTORY_TIMEOUT = 3.0
+OPEN_INVENTORY_CHECK_INTERVAL = 0.1
+CLEAR_INVENTORY_SETTLE_AFTER_OPEN = 0.5
+CLOSE_BUTTON_TIMEOUT = 10.0
 
 
 def _locate_template_fullscreen(template_path, threshold):
     screenshot = take_screenshot()
-    screen_cv = _screenshot_to_cv(screenshot)
-    template = _load_template(template_path)
-    template_h, template_w = template.shape[:2]
-    result = cv2.matchTemplate(screen_cv, template, cv2.TM_CCOEFF_NORMED)
-    _, max_val, _, max_loc = cv2.minMaxLoc(result)
-    if float(max_val) < threshold:
-        return None
-    return {
-        "confidence": float(max_val),
-        "bbox": (max_loc[0], max_loc[1], template_w, template_h),
-        "center": (max_loc[0] + template_w // 2, max_loc[1] + template_h // 2),
-    }
+    return best_match_template(screenshot, template_path, confidence=threshold)
 
 
 def _find_all_matches(screenshot, template_path, threshold, dedup_distance):
-    screen_cv = _screenshot_to_cv(screenshot)
-    template = _load_template(template_path)
-    template_h, template_w = template.shape[:2]
-    result = cv2.matchTemplate(screen_cv, template, cv2.TM_CCOEFF_NORMED)
-    y_coords, x_coords = np.where(result >= threshold)
-    raw_boxes = [(int(x), int(y), template_w, template_h) for x, y in zip(x_coords, y_coords)]
+    raw_boxes = match_template(screenshot, template_path, confidence=threshold)
     filtered_boxes = deduplicated_matches(raw_boxes, threshold=dedup_distance)
 
     matches = []
     for x, y, w, h in filtered_boxes:
         matches.append(
             {
-                "confidence": float(result[y, x]),
+                "confidence": float(threshold),
                 "bbox": (x, y, w, h),
                 "center": (x + w // 2, y + h // 2),
             }
@@ -179,22 +143,27 @@ def _scan_visible_use_items():
     return visible_items
 
 
-def _tap_match(match, wait_after=0.5):
+def _tap_match(match, wait_after=0.2):
     center_x, center_y = match["center"]
     tap(center_x, center_y)
     time.sleep(wait_after)
 
 
 def _tap_button_if_visible(template_path, label, threshold=BUTTON_THRESHOLD, attempts=10, wait_between=0.1):
-    for _ in range(int(attempts)):
-        match = _locate_template_fullscreen(template_path, threshold)
-        if match:
-            if template_path == CLOSE_TEMPLATE:
-                time.sleep(WAIT_BEFORE_TAP_CLOSE)
-            _tap_match(match, wait_after=0.0)
-            return True
-        time.sleep(wait_between)
-    return False
+    del label
+    timeout = max(float(wait_between), int(attempts) * float(wait_between))
+    post_tap_wait = WAIT_AFTER_BUTTON_TAP
+    if template_path == CLOSE_TEMPLATE:
+        timeout = max(timeout, CLOSE_BUTTON_TIMEOUT)
+    tapped = wait_and_tap(
+        template_path,
+        timeout=timeout,
+        check_interval=wait_between,
+        confidence=threshold,
+    )
+    if tapped:
+        time.sleep(post_tap_wait)
+    return tapped
 
 
 def _open_inventory_if_needed():
@@ -206,8 +175,13 @@ def _open_inventory_if_needed():
         log_warning("[Items] Failed to open item inventory from lobby")
         return False
 
-    time.sleep(WAIT_AFTER_OPEN_INVENTORY)
-    if _locate_template_fullscreen(ITEM_USE_TEMPLATE, ITEM_USE_THRESHOLD):
+    if wait_for_image(
+        ITEM_USE_TEMPLATE,
+        timeout=OPEN_INVENTORY_TIMEOUT,
+        confidence=ITEM_USE_THRESHOLD,
+        check_interval=OPEN_INVENTORY_CHECK_INTERVAL,
+    ):
+        time.sleep(CLEAR_INVENTORY_SETTLE_AFTER_OPEN)
         return True
 
     log_warning("[Items] Item inventory did not open after tapping lobby button")

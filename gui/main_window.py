@@ -18,6 +18,7 @@ from .styles import MAIN_STYLESHEET, COLORS
 from .icon_helper import get_icon
 from .status_panel import StatusPanel
 from .log_panel import LogPanel
+from .input_log_window import InputLogWindow
 from .bot_controller import BotController
 
 # Import all 9 tabs matching original GUI
@@ -69,6 +70,7 @@ class MainWindow(QMainWindow):
         self.bot_running = False
         self.config_file = "config.json"
         self.config = {}
+        self.input_log_window = None
         self._ui_loading = True
         
         # Load configuration
@@ -365,7 +367,16 @@ class MainWindow(QMainWindow):
             "capture_method": "auto",
             "emulator_type": "",
             "adb_config": {"device_address": "127.0.0.1:7555", "adb_path": "adb", "screenshot_timeout": 5, "input_delay": 0.5},
-            "training": {"priority_stat": ["spd", "sta", "wit", "pwr", "guts"], "minimum_mood": "GREAT", "maximum_failure": 15, "min_energy": 30, "skip_goal_check": False},
+            "training": {
+                "priority_stat": ["spd", "sta", "wit", "pwr", "guts"],
+                "minimum_mood": "GREAT",
+                "maximum_failure": 15,
+                "min_energy": 30,
+                "skip_goal_check": False,
+                "soft_cap_enabled": False,
+                "soft_stat_caps": {"spd": 600, "sta": 600, "pwr": 600, "guts": 600, "wit": 600},
+                "stat_caps": {"spd": 600, "sta": 600, "pwr": 600, "guts": 600, "wit": 600}
+            },
             "racing": {"strategy": "FRONT", "retry_race": True, "stop_on_race_fail": True},
             "events": {"uma_event_file": "All", "support_card_template": "", "scenario_event_selection": "Current Mode"},
             "skills": {
@@ -378,6 +389,7 @@ class MainWindow(QMainWindow):
             "debug_mode": False,
             "dump_lobby_template_regions": False,
             "bypass_template_regions": False,
+            "input_action_debug_log": False,
             "update": {"auto_update": True, "install_dependencies": True, "branch": "main"}
         }
     
@@ -455,6 +467,14 @@ class MainWindow(QMainWindow):
             self.log_panel.add_log(message, level)
         else:
             print(f"[{level.upper()}] {message}")
+
+    def show_input_log_window(self):
+        """Show the live input action log window."""
+        if self.input_log_window is None:
+            self.input_log_window = InputLogWindow(self)
+        self.input_log_window.show()
+        self.input_log_window.raise_()
+        self.input_log_window.activateWindow()
     
     def after(self, delay_ms, callback, *args):
         """Qt compatibility wrapper for tkinter's root.after() method"""
@@ -468,10 +488,14 @@ class MainWindow(QMainWindow):
                                          QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if reply == QMessageBox.Yes:
                 self.stop_bot()
+                if self.input_log_window is not None:
+                    self.input_log_window.close()
                 event.accept()
             else:
                 event.ignore()
         else:
+            if self.input_log_window is not None:
+                self.input_log_window.close()
             event.accept()
     
     def _on_bot_stopped(self):

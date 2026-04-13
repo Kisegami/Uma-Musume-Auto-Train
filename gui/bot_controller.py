@@ -11,6 +11,7 @@ from PySide6.QtWidgets import QMessageBox
 from PySide6.QtCore import QMetaObject, Qt, Q_ARG, QObject, Signal, Slot
 from utils.platform.emulator_detect import resolve_emulator_connection, EmulatorManager, Emulator
 from utils.platform.device import _get_adb_path
+from utils.core.input_trace import reset_input_trace_log
 
 
 class LogSignaler(QObject):
@@ -264,6 +265,10 @@ class BotController:
 
         if not self.prepare_emulator_connection():
             return
+
+        if self.main_window.get_config().get("input_action_debug_log", False):
+            reset_input_trace_log()
+            self.main_window.show_input_log_window()
 
         self.bot_running = True
         self.main_window.add_log("Starting Uma Musume Auto-Train Bot...", "info")

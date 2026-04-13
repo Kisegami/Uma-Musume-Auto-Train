@@ -162,6 +162,64 @@ def max_match_confidence(screenshot, template_path, region=None):
         log_error(f"Error computing max template confidence: {e}")
         return 0.0
 
+def best_match_template(screenshot, template_path, confidence=0.8, region=None):
+    """
+    Return the best template match above the requested confidence threshold.
+
+    Args:
+        screenshot: PIL Image of the screen
+        template_path: Path to template image
+        confidence: Minimum confidence threshold
+        region: Optional region to search (x, y, w, h)
+
+    Returns:
+        dict with confidence, bbox, and center, or None if no match passed threshold
+    """
+    try:
+        template = _load_template(template_path)
+        if template is None:
+            return None
+
+        screenshot_cv = _screenshot_to_cv(screenshot)
+        region = _resolve_search_region(template_path, region)
+
+        if region:
+            x, y, w, h = region
+            screenshot_cv = screenshot_cv[y:y+h, x:x+w]
+
+        h, w = template.shape[:2]
+        result = cv2.matchTemplate(screenshot_cv, template, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(result)
+
+        bbox = (int(max_loc[0]), int(max_loc[1]), int(w), int(h))
+        if region:
+            bbox = (
+                bbox[0] + int(region[0]),
+                bbox[1] + int(region[1]),
+                bbox[2],
+                bbox[3],
+            )
+
+        passed = float(max_val) >= confidence
+        record_single_template_match(
+            template_path,
+            [bbox] if passed else [],
+            confidence,
+            region,
+        )
+
+        if not passed:
+            return None
+
+        return {
+            "confidence": float(max_val),
+            "bbox": bbox,
+            "center": (bbox[0] + bbox[2] // 2, bbox[1] + bbox[3] // 2),
+        }
+    except Exception as e:
+        log_error(f"Error finding best template match: {e}")
+        return None
+
 def match_templates_batch(screenshot, template_specs):
     """Match multiple templates against a single screenshot efficiently.
 

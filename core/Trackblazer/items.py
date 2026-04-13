@@ -45,6 +45,7 @@ DEFAULT_ITEM_SETTINGS = {
     "training_level_stats": [],
     "training_shuffle_score_threshold": 1.0,
     "training_shuffle_restricted_periods_only": False,
+    "ts_climax_hammer_reserve_count": 3,
     "reserve_ts_climax_hammers": True,
     "use_glowstick_ts_climax": False,
 }
@@ -170,8 +171,9 @@ def load_item_template(template_path):
 
 
 def load_item_settings(config):
+    raw_items_config = config.get("items", {})
     items_config = dict(DEFAULT_ITEM_SETTINGS)
-    items_config.update(config.get("items", {}))
+    items_config.update(raw_items_config)
 
     selected_conditions = items_config.get("auto_buy_negative_cure_conditions")
     if not isinstance(selected_conditions, list) or not selected_conditions:
@@ -190,7 +192,17 @@ def load_item_settings(config):
     normalized_periods = [str(period) for period in periods if period]
     items_config["training_buff_periods"] = normalized_periods or ["any_time"]
 
+    reserve_count = raw_items_config.get("ts_climax_hammer_reserve_count")
+    if reserve_count is None:
+        reserve_count = 3 if bool(items_config.get("reserve_ts_climax_hammers", True)) else 0
+    items_config["ts_climax_hammer_reserve_count"] = max(0, int(reserve_count))
+    items_config["reserve_ts_climax_hammers"] = items_config["ts_climax_hammer_reserve_count"] > 0
+
     return items_config
+
+
+def _get_ts_climax_hammer_reserve_count(settings):
+    return max(0, int(settings.get("ts_climax_hammer_reserve_count", 3)))
 
 
 def _build_inventory_by_id(inventory_items):
@@ -400,7 +412,10 @@ def _priority_limits(template_data):
     return limits
 
 
-def _effective_item_limit(item_id, template_limits, desired_quantity):
+def _effective_item_limit(item_id, template_limits, desired_quantity, state):
+    catalog_item = get_item_by_id(item_id)
+    if catalog_item and catalog_item.get("group") == "Race" and state.get("year") == "TS Climax":
+        return 1
     if item_id in template_limits:
         return template_limits[item_id]
     return max(1, int(desired_quantity))
@@ -419,12 +434,13 @@ def _available_shop_entries(shop_items, item_id):
     return sorted(entries, key=lambda item: (int(item.get("price", 0)), int(item.get("shop_item_id", 0))))
 
 
-def _can_buy_more(item_id, template_limits, inventory_count, planned_count, desired_quantity):
-    limit = _effective_item_limit(item_id, template_limits, desired_quantity)
+def _can_buy_more(item_id, template_limits, inventory_count, planned_count, desired_quantity, state):
+    limit = _effective_item_limit(item_id, template_limits, desired_quantity, state)
     return inventory_count + planned_count < limit
 
 
 def _item_targets_capped_stat(catalog_item, state, config):
+    del config
     target_stat = catalog_item.get("target_stat")
     if not target_stat:
         return False
@@ -432,7 +448,9 @@ def _item_targets_capped_stat(catalog_item, state, config):
     if catalog_item.get("group") != "Stat" and catalog_item.get("effect_type") != "Specialized Training Buff":
         return False
 
-    cap = int(config.get("training", {}).get("stat_caps", {}).get(target_stat, 1200))
+    from core.Trackblazer.logic import get_effective_stat_cap
+
+    cap, _ = get_effective_stat_cap(target_stat, state.get("stats", {}))
     return int(state["stats"].get(target_stat, 0)) >= cap
 
 
@@ -512,29 +530,78 @@ def _build_auto_buy_candidates(state, settings, template_limits, config):
                     candidates.append({"item_id": item["item_id"], "desired_quantity": 1, "reason": f"auto_buy_training_level:{stat_key}"})
                     break
 
-    if settings.get("reserve_ts_climax_hammers", True) and state.get("year") != "TS Climax":
+    reserve_count = _get_ts_climax_hammer_reserve_count(settings)
+
+    if state.get("year") == "TS Climax":
         artisan_count = int(inventory_by_id.get(11001, {}).get("count", 0))
         master_count = int(inventory_by_id.get(11002, {}).get("count", 0))
+        glowstick_count = int(inventory_by_id.get(11003, {}).get("count", 0))
 
         master_entries = _available_shop_entries(state["shop_items"], 11002)
         artisan_entries = _available_shop_entries(state["shop_items"], 11001)
+        glowstick_entries = _available_shop_entries(state["shop_items"], 11003)
 
-        # Keep a single hammer reserved for TS Climax, preferring Master over Artisan.
+        # During TS Climax, keep at least one hammer available for races and
+        # upgrade an Artisan-only inventory to Master when the shop offers it.
         if master_count <= 0:
             if master_entries:
                 candidates.append({
                     "item_id": 11002,
                     "desired_quantity": 1,
-                    "reason": "auto_buy_ts_climax_master_reserve",
+                    "reason": "auto_buy_ts_climax_master_active",
                 })
             elif artisan_count <= 0 and artisan_entries:
                 candidates.append({
                     "item_id": 11001,
                     "desired_quantity": 1,
+                    "reason": "auto_buy_ts_climax_hammer_active",
+                })
+        if bool(settings.get("use_glowstick_ts_climax", False)) and glowstick_count <= 0 and glowstick_entries:
+            candidates.append({
+                "item_id": 11003,
+                "desired_quantity": 1,
+                "reason": "auto_buy_ts_climax_glowstick_active",
+            })
+    elif reserve_count > 0:
+        artisan_count = int(inventory_by_id.get(11001, {}).get("count", 0))
+        master_count = int(inventory_by_id.get(11002, {}).get("count", 0))
+        total_hammer_count = artisan_count + master_count
+
+        if total_hammer_count < reserve_count:
+            missing_hammer_count = reserve_count - total_hammer_count
+            master_entries = _available_shop_entries(state["shop_items"], 11002)
+            artisan_entries = _available_shop_entries(state["shop_items"], 11001)
+
+            # Before TS Climax, buy up to the configured reserve count, preferring Master
+            # when it is available in the shop.
+            if master_entries:
+                candidates.append({
+                    "item_id": 11002,
+                    "desired_quantity": master_count + missing_hammer_count,
+                    "reason": "auto_buy_ts_climax_master_reserve",
+                })
+            elif artisan_entries:
+                candidates.append({
+                    "item_id": 11001,
+                    "desired_quantity": artisan_count + missing_hammer_count,
                     "reason": "auto_buy_ts_climax_hammer_reserve",
                 })
 
     return candidates
+
+
+def _sort_auto_buy_candidates(candidates):
+    priority_order = {
+        "auto_buy_ts_climax_master_active": 0,
+        "auto_buy_ts_climax_hammer_active": 1,
+        "auto_buy_ts_climax_master_reserve": 2,
+        "auto_buy_ts_climax_hammer_reserve": 3,
+        "auto_buy_ts_climax_glowstick_active": 4,
+    }
+    return sorted(
+        enumerate(candidates),
+        key=lambda entry: (priority_order.get(entry[1].get("reason", ""), 100), entry[0]),
+    )
 
 
 def plan_item_purchases(state, template_data, config):
@@ -544,7 +611,22 @@ def plan_item_purchases(state, template_data, config):
     purchase_actions = []
     remaining_coin = int(state["shop_coin"])
 
+    auto_candidates = [
+        candidate
+        for _, candidate in _sort_auto_buy_candidates(
+            _build_auto_buy_candidates(state, settings, template_limits, config)
+        )
+    ]
     candidate_specs = []
+    if state.get("year") == "TS Climax":
+        for auto_candidate in auto_candidates:
+            if auto_candidate["reason"] in {
+                "auto_buy_ts_climax_master_active",
+                "auto_buy_ts_climax_hammer_active",
+                "auto_buy_ts_climax_glowstick_active",
+            }:
+                candidate_specs.append(auto_candidate)
+
     for entry in template_data.get("items_priority", []):
         item_id = int(entry.get("id", 0))
         if item_id <= 0:
@@ -552,7 +634,7 @@ def plan_item_purchases(state, template_data, config):
         candidate_specs.append({"item_id": item_id, "desired_quantity": max(1, int(entry.get("item_limit", 1))), "reason": "priority"})
 
     existing_candidate_ids = {spec["item_id"] for spec in candidate_specs}
-    for auto_candidate in _build_auto_buy_candidates(state, settings, template_limits, config):
+    for auto_candidate in auto_candidates:
         if auto_candidate["item_id"] in existing_candidate_ids:
             continue
         candidate_specs.append(auto_candidate)
@@ -572,14 +654,14 @@ def plan_item_purchases(state, template_data, config):
         inventory_count = int(state["inventory_by_id"].get(item_id, {}).get("count", 0))
         planned_count = int(planned_counts.get(item_id, 0))
         desired_quantity = max(1, int(spec["desired_quantity"]))
-        if not _can_buy_more(item_id, template_limits, inventory_count, planned_count, desired_quantity):
+        if not _can_buy_more(item_id, template_limits, inventory_count, planned_count, desired_quantity, state):
             continue
 
         affordable_for_candidate = False
         available_shop_entries = _available_shop_entries(state["shop_items"], item_id)
         saw_shop_entry = bool(available_shop_entries)
         for shop_entry in available_shop_entries:
-            if not _can_buy_more(item_id, template_limits, inventory_count, planned_counts.get(item_id, 0), desired_quantity):
+            if not _can_buy_more(item_id, template_limits, inventory_count, planned_counts.get(item_id, 0), desired_quantity, state):
                 break
             price = int(shop_entry.get("price", 0))
             if price > remaining_coin:
@@ -690,7 +772,9 @@ def plan_immediate_item_usage(state, config, is_race_turn=False):
         catalog_item = get_item_by_id(item_id)
         if catalog_item and catalog_item["group"] == "Stat":
             if catalog_item["target_stat"]:
-                cap = int(config.get("training", {}).get("stat_caps", {}).get(catalog_item["target_stat"], 1200))
+                from core.Trackblazer.logic import get_effective_stat_cap
+
+                cap, _ = get_effective_stat_cap(catalog_item["target_stat"], state.get("stats", {}))
                 if int(state["stats"].get(catalog_item["target_stat"], 0)) >= cap:
                     continue
             _append_usage(actions, item_id, inventory_item["count"], "use_all_stat_items")
@@ -845,7 +929,7 @@ def plan_training_item_usage(state, config, chosen_training, chosen_training_res
     return actions
 
 
-def _select_race_bonus_item(inventory_by_id, reserve_for_ts_climax, is_ts_climax_race):
+def _select_race_bonus_item(inventory_by_id, reserve_count, is_ts_climax_race):
     artisan_count = int(inventory_by_id.get(11001, {}).get("count", 0))
     master_count = int(inventory_by_id.get(11002, {}).get("count", 0))
     if artisan_count + master_count <= 0:
@@ -854,10 +938,10 @@ def _select_race_bonus_item(inventory_by_id, reserve_for_ts_climax, is_ts_climax
     if is_ts_climax_race:
         return 11002 if master_count > 0 else 11001
 
-    if not reserve_for_ts_climax:
+    if reserve_count <= 0:
         return 11002 if master_count > 0 else 11001
 
-    reserve_total = 3
+    reserve_total = reserve_count
     excess_total = max(0, artisan_count + master_count - reserve_total)
     if excess_total <= 0:
         return None
@@ -873,7 +957,7 @@ def plan_race_item_usage(state, config, is_custom_race=False, custom_race_use_gl
 
     race_bonus_item_id = _select_race_bonus_item(
         state["inventory_by_id"],
-        reserve_for_ts_climax=bool(settings.get("reserve_ts_climax_hammers", True)),
+        reserve_count=_get_ts_climax_hammer_reserve_count(settings),
         is_ts_climax_race=is_ts_climax_race,
     )
     if race_bonus_item_id:
