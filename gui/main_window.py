@@ -367,10 +367,17 @@ class MainWindow(QMainWindow):
             "adb_config": {"device_address": "127.0.0.1:7555", "adb_path": "adb", "screenshot_timeout": 5, "input_delay": 0.5},
             "training": {"priority_stat": ["spd", "sta", "wit", "pwr", "guts"], "minimum_mood": "GREAT", "maximum_failure": 15, "min_energy": 30, "skip_goal_check": False},
             "racing": {"strategy": "FRONT", "retry_race": True, "stop_on_race_fail": True},
-            "skills": {"skill_point_cap": 400, "skill_purchase": "auto"},
+            "events": {"uma_event_file": "All", "support_card_template": "", "scenario_event_selection": "Current Mode"},
+            "skills": {
+                "skill_point_cap": 400,
+                "skill_purchase": "auto",
+                "enable_skill_point_check": True,
+                "pre_custom_race_skill_check": False
+            },
             "items": {"item_purchase_file": "template/items/default.json", "budget_strategy": "save_priority"},
             "debug_mode": False,
             "dump_lobby_template_regions": False,
+            "bypass_template_regions": False,
             "update": {"auto_update": True, "install_dependencies": True, "branch": "main"}
         }
     

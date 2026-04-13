@@ -217,6 +217,40 @@ class ItemsTab(QScrollArea):
         strategy_row.addStretch()
         group_layout.addLayout(strategy_row)
 
+        swipe_offset_group = QGroupBox("Shop Purchase Scan")
+        swipe_offset_layout = QVBoxLayout(swipe_offset_group)
+        swipe_offset_layout.setSpacing(12)
+
+        desc_text = (
+            "Purchase max swipes limits shop scanning so the purchase flow cannot loop forever when an item is missing.\n\n"
+            "Shop swipe offset adjusts swipe duration for your device, similar to the skill list swipe tuning.\n"
+            "Increase offset (+) for a shorter swipe distance, decrease offset (-) for a longer swipe distance."
+        )
+        desc_label = QLabel(desc_text)
+        desc_label.setWordWrap(True)
+        swipe_offset_layout.addWidget(desc_label)
+
+        max_swipes_row = QHBoxLayout()
+        max_swipes_row.addWidget(QLabel("Purchase max swipes:"))
+        self.purchase_max_swipes_spin = QSpinBox()
+        self.purchase_max_swipes_spin.setRange(1, 50)
+        self.purchase_max_swipes_spin.valueChanged.connect(self._save_items_config)
+        max_swipes_row.addWidget(self.purchase_max_swipes_spin)
+        max_swipes_row.addStretch()
+        swipe_offset_layout.addLayout(max_swipes_row)
+
+        swipe_offset_row = QHBoxLayout()
+        swipe_offset_row.addWidget(QLabel("Shop swipe offset (ms):"))
+        self.shop_swipe_offset_spin = QSpinBox()
+        self.shop_swipe_offset_spin.setRange(-2000, 2000)
+        self.shop_swipe_offset_spin.valueChanged.connect(self._save_items_config)
+        self.shop_swipe_offset_spin.setMinimumWidth(100)
+        swipe_offset_row.addWidget(self.shop_swipe_offset_spin)
+        swipe_offset_row.addStretch()
+        swipe_offset_layout.addLayout(swipe_offset_row)
+
+        group_layout.addWidget(swipe_offset_group)
+
         return group
 
     def _build_mood_group(self):
@@ -532,6 +566,8 @@ class ItemsTab(QScrollArea):
 
         items_config["item_purchase_file"] = f"template/items/{filename}"
         items_config["budget_strategy"] = self.budget_strategy_combo.currentData()
+        items_config["purchase_max_swipes"] = self.purchase_max_swipes_spin.value()
+        items_config["shop_swipe_time_offset"] = self.shop_swipe_offset_spin.value()
         items_config["auto_buy_mood_items"] = self.auto_buy_mood.isChecked()
         items_config["auto_buy_negative_cure_items"] = self.auto_buy_negative_cure.isChecked()
         items_config["auto_buy_negative_cure_conditions"] = [
@@ -580,6 +616,8 @@ class ItemsTab(QScrollArea):
         strategy_index = self.budget_strategy_combo.findData(items_config.get("budget_strategy", "save_priority"))
         if strategy_index >= 0:
             self.budget_strategy_combo.setCurrentIndex(strategy_index)
+        self.purchase_max_swipes_spin.setValue(int(items_config.get("purchase_max_swipes", 10)))
+        self.shop_swipe_offset_spin.setValue(int(items_config.get("shop_swipe_time_offset", 0)))
 
         self.auto_buy_mood.setChecked(bool(items_config.get("auto_buy_mood_items", False)))
         self.auto_buy_negative_cure.setChecked(bool(items_config.get("auto_buy_negative_cure_items", False)))

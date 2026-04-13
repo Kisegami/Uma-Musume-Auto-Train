@@ -81,11 +81,14 @@
     "skill_point_cap": 400,
     "skill_purchase": "auto",
     "skill_file": "template/skills/skills.json",
-    "enable_skill_point_check": true
+    "enable_skill_point_check": true,
+    "pre_custom_race_skill_check": false
   },
   "items": {
     "item_purchase_file": "template/items/default.json",
-    "budget_strategy": "save_priority"
+    "budget_strategy": "save_priority",
+    "purchase_max_swipes": 10,
+    "shop_swipe_time_offset": 0
   },
   "restart_career": {
     "restart_enabled": false,
@@ -108,6 +111,7 @@
   "mode": "ura",
   "debug_mode": false,
   "dump_lobby_template_regions": false,
+  "bypass_template_regions": false,
   "stop_on_event_detection_failure": false,
   "events": {
     "uma_event_file": "",

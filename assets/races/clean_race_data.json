@@ -763,6 +763,19 @@
       "fans": 1000,
       "description": "Hanshin Turf 1600m",
       "course": "Outer"
+    },
+    "Zen-Nippon Junior Yushun": {
+      "grade": "G1",
+      "surface": "Dirt",
+      "distance_type": "Mile",
+      "distance_meters": 1600,
+      "racetrack": "Kawasaki",
+      "direction": "Counterclockwise",
+      "participants": "14",
+      "season": "Winter",
+      "time_of_day": "Night",
+      "fans": 4500,
+      "description": "Kawasaki Dirt 1600m"
     }
   },
   "Classic Year Early Jan": {
@@ -1190,6 +1203,19 @@
       "fans": 2000,
       "description": "Hanshin Turf 2000m",
       "course": "Inner"
+    },
+    "Marine Cup": {
+      "grade": "G3",
+      "surface": "Dirt",
+      "distance_type": "Mile",
+      "distance_meters": 1600,
+      "racetrack": "Funabashi",
+      "direction": "Counterclockwise",
+      "participants": "14",
+      "season": "Spring",
+      "time_of_day": "Night",
+      "fans": 3800,
+      "description": "Funabashi Dirt 1600m"
     }
   },
   "Classic Year Late Apr": {
@@ -1464,6 +1490,19 @@
       "time_of_day": "Daytime",
       "fans": 13000,
       "description": "Tokyo Turf 1600m"
+    },
+    "Kanto Oaks": {
+      "grade": "G2",
+      "surface": "Dirt",
+      "distance_type": "Medium",
+      "distance_meters": 2100,
+      "racetrack": "Kawasaki",
+      "direction": "Counterclockwise",
+      "participants": "14",
+      "season": "Spring",
+      "time_of_day": "Night",
+      "fans": 3800,
+      "description": "Kawasaki Dirt 2100m"
     }
   },
   "Classic Year Late Jun": {
@@ -1691,6 +1730,19 @@
       "time_of_day": "Daytime",
       "fans": 2400,
       "description": "Hakodate Turf 1800m"
+    },
+    "Sparking Lady Cup": {
+      "grade": "G3",
+      "surface": "Dirt",
+      "distance_type": "Mile",
+      "distance_meters": 1600,
+      "racetrack": "Kawasaki",
+      "direction": "Counterclockwise",
+      "participants": "14",
+      "season": "Summer",
+      "time_of_day": "Night",
+      "fans": 3800,
+      "description": "Kawasaki Dirt 1600m"
     }
   },
   "Classic Year Late Jul": {
@@ -1745,6 +1797,19 @@
       "time_of_day": "Daytime",
       "fans": 3600,
       "description": "Sapporo Turf 1800m"
+    },
+    "Mercury Cup": {
+      "grade": "G3",
+      "surface": "Dirt",
+      "distance_type": "Medium",
+      "distance_meters": 2000,
+      "racetrack": "Morioka",
+      "direction": "Counterclockwise",
+      "participants": "14",
+      "season": "Summer",
+      "time_of_day": "Evening",
+      "fans": 3600,
+      "description": "Morioka Dirt 2000m"
     }
   },
   "Classic Year Early Aug": {
@@ -1947,6 +2012,19 @@
       "fans": 2500,
       "description": "Niigata Turf 1400m",
       "course": "Inner"
+    },
+    "Cluster Cup": {
+      "grade": "G3",
+      "surface": "Dirt",
+      "distance_type": "Sprint",
+      "distance_meters": 1200,
+      "racetrack": "Morioka",
+      "direction": "Counterclockwise",
+      "participants": "14",
+      "season": "Summer",
+      "time_of_day": "Evening",
+      "fans": 3600,
+      "description": "Morioka Dirt 1200m"
     }
   },
   "Classic Year Early Sep": {
@@ -2169,6 +2247,19 @@
       "fans": 5400,
       "description": "Nakayama Turf 2200m",
       "course": "Outer"
+    },
+    "Sazanka TV Hai": {
+      "grade": "G2",
+      "surface": "Dirt",
+      "distance_type": "Mile",
+      "distance_meters": 1800,
+      "racetrack": "Funabashi",
+      "direction": "Counterclockwise",
+      "participants": "14",
+      "season": "Autumn",
+      "time_of_day": "Night",
+      "fans": 5500,
+      "description": "Funabashi Dirt 1800m"
     }
   },
   "Classic Year Early Oct": {
@@ -2278,6 +2369,45 @@
       "time_of_day": "Daytime",
       "fans": 2200,
       "description": "Kyoto Dirt 1800m"
+    },
+    "Ladies' Prelude": {
+      "grade": "G2",
+      "surface": "Dirt",
+      "distance_type": "Mile",
+      "distance_meters": 1800,
+      "racetrack": "Oi",
+      "direction": "Clockwise",
+      "participants": "16",
+      "season": "Autumn",
+      "time_of_day": "Night",
+      "fans": 3800,
+      "description": "Oi Dirt 1800m"
+    },
+    "Mile Championship Nambu Hai": {
+      "grade": "G1",
+      "surface": "Dirt",
+      "distance_type": "Mile",
+      "distance_meters": 1600,
+      "racetrack": "Morioka",
+      "direction": "Counterclockwise",
+      "participants": "16",
+      "season": "Autumn",
+      "time_of_day": "Night",
+      "fans": 6000,
+      "description": "Morioka Dirt 1600m"
+    },
+    "Tokyo Hai": {
+      "grade": "G2",
+      "surface": "Dirt",
+      "distance_type": "Sprint",
+      "distance_meters": 1200,
+      "racetrack": "Oi",
+      "direction": "Clockwise",
+      "participants": "16",
+      "season": "Autumn",
+      "time_of_day": "Night",
+      "fans": 3800,
+      "description": "Oi Dirt 1200m"
     }
   },
   "Classic Year Late Oct": {
@@ -2899,6 +3029,19 @@
       "fans": 3600,
       "description": "Nakayama Turf 1600m",
       "course": "Outer"
+    },
+    "Queen Sho": {
+      "grade": "G3",
+      "surface": "Dirt",
+      "distance_type": "Mile",
+      "distance_meters": 1800,
+      "racetrack": "Funabashi",
+      "direction": "Counterclockwise",
+      "participants": "14",
+      "season": "Winter",
+      "time_of_day": "Night",
+      "fans": 4000,
+      "description": "Funabashi Dirt 1800m"
     }
   },
   "Classic Year Late Dec": {
@@ -3189,6 +3332,19 @@
       "time_of_day": "Daytime",
       "fans": 5500,
       "description": "Chukyo Dirt 1800m"
+    },
+    "TCK Jo-O Hai": {
+      "grade": "G3",
+      "surface": "Dirt",
+      "distance_type": "Mile",
+      "distance_meters": 1800,
+      "racetrack": "Oi",
+      "direction": "Clockwise",
+      "participants": "16",
+      "season": "Winter",
+      "time_of_day": "Evening",
+      "fans": 3600,
+      "description": "Oi Dirt 1800m"
     }
   },
   "Senior Year Early Feb": {
@@ -3271,6 +3427,19 @@
       "time_of_day": "Daytime",
       "fans": 2200,
       "description": "Kyoto Dirt 1200m"
+    },
+    "Kawasaki Kinen": {
+      "grade": "G1",
+      "surface": "Dirt",
+      "distance_type": "Medium",
+      "distance_meters": 2100,
+      "racetrack": "Kawasaki",
+      "direction": "Counterclockwise",
+      "participants": "14",
+      "season": "Winter",
+      "time_of_day": "Evening",
+      "fans": 6000,
+      "description": "Kawasaki Dirt 2100m"
     }
   },
   "Senior Year Late Feb": {
@@ -3477,6 +3646,19 @@
       "time_of_day": "Daytime",
       "fans": 2200,
       "description": "Hanshin Dirt 1400m"
+    },
+    "Empress Hai": {
+      "grade": "G2",
+      "surface": "Dirt",
+      "distance_type": "Medium",
+      "distance_meters": 2100,
+      "racetrack": "Kawasaki",
+      "direction": "Counterclockwise",
+      "participants": "14",
+      "season": "Spring",
+      "time_of_day": "Evening",
+      "fans": 3800,
+      "description": "Kawasaki Dirt 2100m"
     }
   },
   "Senior Year Late Mar": {
@@ -3574,6 +3756,19 @@
       "time_of_day": "Daytime",
       "fans": 13000,
       "description": "Chukyo Turf 1200m"
+    },
+    "Diolite Kinen": {
+      "grade": "G2",
+      "surface": "Dirt",
+      "distance_type": "Medium",
+      "distance_meters": 2400,
+      "racetrack": "Funabashi",
+      "direction": "Counterclockwise",
+      "participants": "14",
+      "season": "Spring",
+      "time_of_day": "Night",
+      "fans": 5500,
+      "description": "Funabashi Dirt 2400m"
     }
   },
   "Senior Year Early Apr": {
@@ -3683,6 +3878,19 @@
       "fans": 2500,
       "description": "Nakayama Turf 1200m",
       "course": "Outer"
+    },
+    "Marine Cup": {
+      "grade": "G3",
+      "surface": "Dirt",
+      "distance_type": "Mile",
+      "distance_meters": 1600,
+      "racetrack": "Funabashi",
+      "direction": "Counterclockwise",
+      "participants": "14",
+      "season": "Spring",
+      "time_of_day": "Night",
+      "fans": 3800,
+      "description": "Funabashi Dirt 1600m"
     }
   },
   "Senior Year Late Apr": {
@@ -3752,6 +3960,19 @@
       "time_of_day": "Daytime",
       "fans": 2200,
       "description": "Kyoto Dirt 1200m"
+    },
+    "Tokyo Sprint": {
+      "grade": "G3",
+      "surface": "Dirt",
+      "distance_type": "Sprint",
+      "distance_meters": 1200,
+      "racetrack": "Oi",
+      "direction": "Clockwise",
+      "participants": "16",
+      "season": "Spring",
+      "time_of_day": "Night",
+      "fans": 4000,
+      "description": "Oi Dirt 1200m"
     }
   },
   "Senior Year Early May": {
@@ -3875,6 +4096,19 @@
       "time_of_day": "Daytime",
       "fans": 10500,
       "description": "Tokyo Turf 1600m"
+    },
+    "Kashiwa Kinen": {
+      "grade": "G1",
+      "surface": "Dirt",
+      "distance_type": "Mile",
+      "distance_meters": 1600,
+      "racetrack": "Funabashi",
+      "direction": "Counterclockwise",
+      "participants": "14",
+      "season": "Spring",
+      "time_of_day": "Daytime",
+      "fans": 8000,
+      "description": "Funabashi Dirt 1600m"
     }
   },
   "Senior Year Late May": {
@@ -4133,6 +4367,19 @@
       "fans": 2500,
       "description": "Hanshin Turf 1600m",
       "course": "Outer"
+    },
+    "Teio Sho": {
+      "grade": "G1",
+      "surface": "Dirt",
+      "distance_type": "Medium",
+      "distance_meters": 2000,
+      "racetrack": "Oi",
+      "direction": "Clockwise",
+      "participants": "16",
+      "season": "Spring",
+      "time_of_day": "Night",
+      "fans": 6000,
+      "description": "Oi Dirt 2000m"
     }
   },
   "Senior Year Early Jul": {
@@ -4226,6 +4473,86 @@
       "time_of_day": "Daytime",
       "fans": 2400,
       "description": "Hakodate Turf 1800m"
+    },
+    "Sparking Lady Cup": {
+      "grade": "G3",
+      "surface": "Dirt",
+      "distance_type": "Mile",
+      "distance_meters": 1600,
+      "racetrack": "Kawasaki",
+      "direction": "Counterclockwise",
+      "participants": "14",
+      "season": "Summer",
+      "time_of_day": "Night",
+      "fans": 3800,
+      "description": "Kawasaki Dirt 1600m"
+    }
+  },
+  "Senior Year Late Jul": {
+    "Chukyo Kinen": {
+      "grade": "G3",
+      "surface": "Turf",
+      "distance_type": "Mile",
+      "distance_meters": 1600,
+      "racetrack": "Chukyo",
+      "direction": "Counterclockwise",
+      "participants": "16",
+      "season": "Summer",
+      "time_of_day": "Daytime",
+      "fans": 3900,
+      "description": "Chukyo Turf 1600m"
+    },
+    "Fukushima TV Open": {
+      "grade": "OP",
+      "surface": "Turf",
+      "distance_type": "Sprint",
+      "distance_meters": 1200,
+      "racetrack": "Fukushima",
+      "direction": "Clockwise",
+      "participants": "14",
+      "season": "Summer",
+      "time_of_day": "Daytime",
+      "fans": 2300,
+      "description": "Fukushima Turf 1200m"
+    },
+    "Ibis Summer Dash": {
+      "grade": "G3",
+      "surface": "Turf",
+      "distance_type": "Sprint",
+      "distance_meters": 1000,
+      "racetrack": "Niigata",
+      "direction": "Straight",
+      "participants": "18",
+      "season": "Summer",
+      "time_of_day": "Daytime",
+      "fans": 3900,
+      "description": "Niigata Turf 1000m"
+    },
+    "Mercury Cup": {
+      "grade": "G3",
+      "surface": "Dirt",
+      "distance_type": "Medium",
+      "distance_meters": 2000,
+      "racetrack": "Morioka",
+      "direction": "Counterclockwise",
+      "participants": "14",
+      "season": "Summer",
+      "time_of_day": "Evening",
+      "fans": 3600,
+      "description": "Morioka Dirt 2000m"
+    },
+    "Queen Stakes": {
+      "grade": "G3",
+      "surface": "Turf",
+      "distance_type": "Mile",
+      "distance_meters": 1800,
+      "racetrack": "Sapporo",
+      "direction": "Clockwise",
+      "participants": "14",
+      "season": "Summer",
+      "time_of_day": "Daytime",
+      "fans": 3600,
+      "description": "Sapporo Turf 1800m"
     }
   },
   "Senior Year Early Aug": {
@@ -4415,6 +4742,19 @@
       "fans": 2500,
       "description": "Niigata Turf 1400m",
       "course": "Inner"
+    },
+    "Cluster Cup": {
+      "grade": "G3",
+      "surface": "Dirt",
+      "distance_type": "Sprint",
+      "distance_meters": 1200,
+      "racetrack": "Morioka",
+      "direction": "Counterclockwise",
+      "participants": "14",
+      "season": "Summer",
+      "time_of_day": "Evening",
+      "fans": 3600,
+      "description": "Morioka Dirt 1200m"
     }
   },
   "Senior Year Early Sep": {
@@ -4581,6 +4921,19 @@
       "fans": 13000,
       "description": "Nakayama Turf 1200m",
       "course": "Outer"
+    },
+    "Sazanka TV Hai": {
+      "grade": "G2",
+      "surface": "Dirt",
+      "distance_type": "Mile",
+      "distance_meters": 1800,
+      "racetrack": "Funabashi",
+      "direction": "Counterclockwise",
+      "participants": "14",
+      "season": "Autumn",
+      "time_of_day": "Night",
+      "fans": 5500,
+      "description": "Funabashi Dirt 1800m"
     }
   },
   "Senior Year Early Oct": {
@@ -4690,6 +5043,45 @@
       "time_of_day": "Daytime",
       "fans": 2200,
       "description": "Kyoto Dirt 1800m"
+    },
+    "Ladies' Prelude": {
+      "grade": "G2",
+      "surface": "Dirt",
+      "distance_type": "Mile",
+      "distance_meters": 1800,
+      "racetrack": "Oi",
+      "direction": "Clockwise",
+      "participants": "16",
+      "season": "Autumn",
+      "time_of_day": "Night",
+      "fans": 3800,
+      "description": "Oi Dirt 1800m"
+    },
+    "Mile Championship Nambu Hai": {
+      "grade": "G1",
+      "surface": "Dirt",
+      "distance_type": "Mile",
+      "distance_meters": 1600,
+      "racetrack": "Morioka",
+      "direction": "Counterclockwise",
+      "participants": "16",
+      "season": "Autumn",
+      "time_of_day": "Night",
+      "fans": 6000,
+      "description": "Morioka Dirt 1600m"
+    },
+    "Tokyo Hai": {
+      "grade": "G2",
+      "surface": "Dirt",
+      "distance_type": "Sprint",
+      "distance_meters": 1200,
+      "racetrack": "Oi",
+      "direction": "Clockwise",
+      "participants": "16",
+      "season": "Autumn",
+      "time_of_day": "Night",
+      "fans": 3800,
+      "description": "Oi Dirt 1200m"
     }
   },
   "Senior Year Late Oct": {
@@ -5283,6 +5675,19 @@
       "fans": 3600,
       "description": "Nakayama Turf 1600m",
       "course": "Outer"
+    },
+    "Queen Sho": {
+      "grade": "G3",
+      "surface": "Dirt",
+      "distance_type": "Mile",
+      "distance_meters": 1800,
+      "racetrack": "Funabashi",
+      "direction": "Counterclockwise",
+      "participants": "14",
+      "season": "Winter",
+      "time_of_day": "Night",
+      "fans": 4000,
+      "description": "Funabashi Dirt 1800m"
     }
   },
   "Senior Year Late Dec": {

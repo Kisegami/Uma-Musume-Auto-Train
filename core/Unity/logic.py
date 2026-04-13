@@ -26,8 +26,25 @@ def all_training_unsafe(results, maximum_failure=None):
       return False
   return True
 
+def are_all_stats_capped(current_stats):
+  tracked_stats = ("spd", "sta", "pwr", "guts", "wit")
+  if not current_stats:
+    return False
+
+  for stat in tracked_stats:
+    current_value = current_stats.get(stat, 0)
+    stat_cap = STAT_CAPS.get(stat, 1200)
+    if current_value < stat_cap:
+      return False
+
+  return True
+
 def filter_by_stat_caps(results, current_stats):
   filtered = {}
+  if are_all_stats_capped(current_stats):
+    log_info("All tracked stats reached their caps; bypassing stat cap filtering")
+    return dict(results)
+
   log_debug(f"Filtering training options by stat caps. Current stats: {current_stats}")
   log_debug(f"Available training options: {list(results.keys())}")
   

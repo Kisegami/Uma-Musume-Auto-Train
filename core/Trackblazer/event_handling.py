@@ -40,8 +40,10 @@ _event_cache = {
     "support_card": None,
     "uma_data": None,
     "ura_finale": None,
+    "trackblazer": None,
     "custom_uma_events": None,
-    "custom_support_events": None
+    "custom_support_events": None,
+    "custom_scenario_events": None
 }
 
 def _load_event_databases():
@@ -74,8 +76,28 @@ def _load_event_databases():
         except Exception as e:
             log_warning(f"Error loading ura_finale.json: {e}")
             _event_cache["ura_finale"] = []
+
+    # Load Trackblazer events if not cached
+    if _event_cache["trackblazer"] is None and os.path.exists("assets/events/trackblazer.json"):
+        try:
+            with open("assets/events/trackblazer.json", "r", encoding="utf-8-sig") as f:
+                _event_cache["trackblazer"] = json.load(f)
+        except Exception as e:
+            log_warning(f"Error loading trackblazer.json: {e}")
+            _event_cache["trackblazer"] = []
     
     return _event_cache
+
+
+def _merge_event_source(current_source, new_source):
+    """Merge source labels while preserving insertion order."""
+    if not current_source:
+        return new_source
+
+    parts = [part.strip() for part in current_source.split("+")]
+    if new_source not in parts:
+        parts.append(new_source)
+    return " + ".join(parts)
 
 
 def _load_custom_event_templates():
@@ -88,7 +110,11 @@ def _load_custom_event_templates():
     global _event_cache
     
     # Only load once (cache check)
-    if _event_cache["custom_uma_events"] is not None or _event_cache["custom_support_events"] is not None:
+    if (
+        _event_cache["custom_uma_events"] is not None
+        or _event_cache["custom_support_events"] is not None
+        or _event_cache["custom_scenario_events"] is not None
+    ):
         return _event_cache
     
     events_config = config.get("events", {})
@@ -133,6 +159,23 @@ def _load_custom_event_templates():
             _event_cache["custom_support_events"] = {}
     else:
         _event_cache["custom_support_events"] = {}
+
+    scenario_key = "trackblazer"
+    scenario_template_path = os.path.join(project_root, "template", "Events", "Scenario", f"ScenarioEvents_{scenario_key}.json")
+    if os.path.exists(scenario_template_path):
+        try:
+            with open(scenario_template_path, "r", encoding="utf-8-sig") as f:
+                scenario_data = json.load(f)
+                _event_cache["custom_scenario_events"] = scenario_data.get("CustomChoices", {})
+                log_info(
+                    f"Loaded custom Scenario event template: {scenario_key} "
+                    f"({len(_event_cache['custom_scenario_events'])} events)"
+                )
+        except Exception as e:
+            log_warning(f"Error loading Scenario event template {scenario_key}: {e}")
+            _event_cache["custom_scenario_events"] = {}
+    else:
+        _event_cache["custom_scenario_events"] = {}
     
     return _event_cache
 
@@ -212,7 +255,29 @@ def search_custom_events(event_name):
             if len(normalized_search) >= 5 and normalized_search in normalized_custom:
                 log_debug(f"Substring match: '{event_name}' → '{custom_event}'")
                 return selected_option
-    
+
+    # Check Scenario events
+    if _event_cache["custom_scenario_events"]:
+        if event_name in _event_cache["custom_scenario_events"]:
+            return _event_cache["custom_scenario_events"][event_name]
+
+        for custom_event, selected_option in _event_cache["custom_scenario_events"].items():
+            normalized_custom = _normalize_event_name(custom_event).lower()
+            if normalized_custom == normalized_search:
+                return selected_option
+
+        for custom_event, selected_option in _event_cache["custom_scenario_events"].items():
+            normalized_custom = _normalize_event_name(custom_event).lower()
+            if normalized_custom.startswith(normalized_search) and len(normalized_search) >= 5:
+                log_debug(f"Prefix match: '{event_name}' → '{custom_event}'")
+                return selected_option
+
+        for custom_event, selected_option in _event_cache["custom_scenario_events"].items():
+            normalized_custom = _normalize_event_name(custom_event).lower()
+            if len(normalized_search) >= 5 and normalized_search in normalized_custom:
+                log_debug(f"Substring match: '{event_name}' → '{custom_event}'")
+                return selected_option
+
     return None
 
 
@@ -233,7 +298,8 @@ def _load_all_event_names():
         event_files = [
             "assets/events/support_card.json",
             "assets/events/uma_data.json",
-            "assets/events/ura_finale.json"
+            "assets/events/ura_finale.json",
+            "assets/events/trackblazer.json"
         ]
         
         project_root = _get_project_root()
@@ -580,10 +646,7 @@ def search_events_exact(event_name):
             for ev in character.get("UmaEvents", []):
                 if ev.get("EventName") == event_name:
                     entry = results.setdefault(event_name, {"source": "Uma Data", "options": {}})
-                    if entry["source"] == "Support Card":
-                        entry["source"] = "Both"
-                    elif entry["source"].startswith("Support Card +"):
-                        entry["source"] = entry["source"].replace("Support Card +", "Both +")
+                    entry["source"] = _merge_event_source(entry["source"], "Uma Data")
                     entry["options"].update(ev.get("EventOptions", {}))
     
     # Ura Finale
@@ -591,12 +654,15 @@ def search_events_exact(event_name):
         for ev in cache["ura_finale"]:
             if ev.get("EventName") == event_name:
                 entry = results.setdefault(event_name, {"source": "Ura Finale", "options": {}})
-                if entry["source"] == "Support Card":
-                    entry["source"] = "Support Card + Ura Finale"
-                elif entry["source"] == "Uma Data":
-                    entry["source"] = "Uma Data + Ura Finale"
-                elif entry["source"] == "Both":
-                    entry["source"] = "All Sources"
+                entry["source"] = _merge_event_source(entry["source"], "Ura Finale")
+                entry["options"].update(ev.get("EventOptions", {}))
+
+    # Trackblazer
+    if cache["trackblazer"]:
+        for ev in cache["trackblazer"]:
+            if ev.get("EventName") == event_name:
+                entry = results.setdefault(event_name, {"source": "Trackblazer", "options": {}})
+                entry["source"] = _merge_event_source(entry["source"], "Trackblazer")
                 entry["options"].update(ev.get("EventOptions", {}))
     
     return results
@@ -649,12 +715,15 @@ def search_events_fuzzy(event_name):
             match_type = categorize_match(db_name, db_name_lower)
             if match_type == "exact":
                 entry = exact_matches.setdefault(db_name, {"source": "Support Card", "options": {}})
+                entry["source"] = _merge_event_source(entry["source"], "Support Card")
                 entry["options"].update(ev.get("EventOptions", {}))
             elif match_type == "word":
                 entry = word_matches.setdefault(db_name, {"source": "Support Card", "options": {}})
+                entry["source"] = _merge_event_source(entry["source"], "Support Card")
                 entry["options"].update(ev.get("EventOptions", {}))
             elif match_type == "loose":
                 entry = loose_matches.setdefault(db_name, {"source": "Support Card", "options": {}})
+                entry["source"] = _merge_event_source(entry["source"], "Support Card")
                 entry["options"].update(ev.get("EventOptions", {}))
     
     # Process Uma Data events
@@ -671,10 +740,7 @@ def search_events_fuzzy(event_name):
                 
                 if target_dict is not None:
                     entry = target_dict.setdefault(db_name, {"source": "Uma Data", "options": {}})
-                    if entry["source"] == "Support Card":
-                        entry["source"] = "Both"
-                    elif entry["source"].startswith("Support Card +"):
-                        entry["source"] = entry["source"].replace("Support Card +", "Both +")
+                    entry["source"] = _merge_event_source(entry["source"], "Uma Data")
                     entry["options"].update(ev.get("EventOptions", {}))
     
     # Process Ura Finale events
@@ -690,12 +756,23 @@ def search_events_fuzzy(event_name):
             
             if target_dict is not None:
                 entry = target_dict.setdefault(db_name, {"source": "Ura Finale", "options": {}})
-                if entry["source"] == "Support Card":
-                    entry["source"] = "Support Card + Ura Finale"
-                elif entry["source"] == "Uma Data":
-                    entry["source"] = "Uma Data + Ura Finale"
-                elif entry["source"] == "Both":
-                    entry["source"] = "All Sources"
+                entry["source"] = _merge_event_source(entry["source"], "Ura Finale")
+                entry["options"].update(ev.get("EventOptions", {}))
+
+    # Process Trackblazer events
+    if cache["trackblazer"]:
+        for ev in cache["trackblazer"]:
+            db_name = ev.get("EventName", "")
+            if not db_name:
+                continue
+            db_name_lower = db_name.lower().strip()
+
+            match_type = categorize_match(db_name, db_name_lower)
+            target_dict = exact_matches if match_type == "exact" else (word_matches if match_type == "word" else (loose_matches if match_type == "loose" else None))
+
+            if target_dict is not None:
+                entry = target_dict.setdefault(db_name, {"source": "Trackblazer", "options": {}})
+                entry["source"] = _merge_event_source(entry["source"], "Trackblazer")
                 entry["options"].update(ev.get("EventOptions", {}))
     
     # Return in priority order
@@ -837,6 +914,18 @@ def handle_event_choice():
             
             log_info(f"Choose choice: {choice_number}")
             return choice_number, True, choice_locations
+
+        # Hardcoded event handling
+        # Handle "Tutorial" event - always choose 2nd choice
+        if "Tutorial" in event_name:
+            log_info("Hardcoded event: Tutorial - choosing 2nd choice")
+            choices_found, choice_locations = wait_for_stable_event_choices()
+            if choices_found >= 2:
+                log_info(f"Choose choice: 2")
+                return 2, True, choice_locations
+            else:
+                log_warning(f"Tutorial event detected but only {choices_found} choice(s) available, defaulting to first choice")
+                return 1, True, choice_locations
 
         # Search for event in database
         found_events = search_events_exact(event_name)

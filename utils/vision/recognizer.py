@@ -73,7 +73,11 @@ def _resolve_search_region(template_path, region):
     if region is not None:
         return region
     try:
-        mode = load_main_config().get("mode")
+        config = load_main_config()
+        if config.get("bypass_template_regions", False):
+            return None
+
+        mode = config.get("mode")
         if mode == "unity":
             return get_unity_template_region(template_path)
         if mode == "trackblazer":
@@ -120,10 +124,8 @@ def match_template(screenshot, template_path, confidence=0.8, region=None):
                 pt = (pt[0] + region[0], pt[1] + region[1])
             matches.append((pt[0], pt[1], w, h))
 
-        if matches:
-            record_single_template_match(template_path, matches, confidence, region)
-            return matches
-        return []
+        record_single_template_match(template_path, matches, confidence, region)
+        return matches
         
     except Exception as e:
         log_error(f"Error in template matching: {e}")

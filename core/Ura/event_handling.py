@@ -41,7 +41,8 @@ _event_cache = {
     "uma_data": None,
     "ura_finale": None,
     "custom_uma_events": None,
-    "custom_support_events": None
+    "custom_support_events": None,
+    "custom_scenario_events": None
 }
 
 def _load_event_databases():
@@ -88,7 +89,11 @@ def _load_custom_event_templates():
     global _event_cache
     
     # Only load once (cache check)
-    if _event_cache["custom_uma_events"] is not None or _event_cache["custom_support_events"] is not None:
+    if (
+        _event_cache["custom_uma_events"] is not None
+        or _event_cache["custom_support_events"] is not None
+        or _event_cache["custom_scenario_events"] is not None
+    ):
         return _event_cache
     
     events_config = config.get("events", {})
@@ -133,6 +138,23 @@ def _load_custom_event_templates():
             _event_cache["custom_support_events"] = {}
     else:
         _event_cache["custom_support_events"] = {}
+
+    scenario_key = "ura"
+    scenario_template_path = os.path.join(project_root, "template", "Events", "Scenario", f"ScenarioEvents_{scenario_key}.json")
+    if os.path.exists(scenario_template_path):
+        try:
+            with open(scenario_template_path, "r", encoding="utf-8-sig") as f:
+                scenario_data = json.load(f)
+                _event_cache["custom_scenario_events"] = scenario_data.get("CustomChoices", {})
+                log_info(
+                    f"Loaded custom Scenario event template: {scenario_key} "
+                    f"({len(_event_cache['custom_scenario_events'])} events)"
+                )
+        except Exception as e:
+            log_warning(f"Error loading Scenario event template {scenario_key}: {e}")
+            _event_cache["custom_scenario_events"] = {}
+    else:
+        _event_cache["custom_scenario_events"] = {}
     
     return _event_cache
 
@@ -212,7 +234,29 @@ def search_custom_events(event_name):
             if len(normalized_search) >= 5 and normalized_search in normalized_custom:
                 log_debug(f"Substring match: '{event_name}' → '{custom_event}'")
                 return selected_option
-    
+
+    # Check Scenario events
+    if _event_cache["custom_scenario_events"]:
+        if event_name in _event_cache["custom_scenario_events"]:
+            return _event_cache["custom_scenario_events"][event_name]
+
+        for custom_event, selected_option in _event_cache["custom_scenario_events"].items():
+            normalized_custom = _normalize_event_name(custom_event).lower()
+            if normalized_custom == normalized_search:
+                return selected_option
+
+        for custom_event, selected_option in _event_cache["custom_scenario_events"].items():
+            normalized_custom = _normalize_event_name(custom_event).lower()
+            if normalized_custom.startswith(normalized_search) and len(normalized_search) >= 5:
+                log_debug(f"Prefix match: '{event_name}' → '{custom_event}'")
+                return selected_option
+
+        for custom_event, selected_option in _event_cache["custom_scenario_events"].items():
+            normalized_custom = _normalize_event_name(custom_event).lower()
+            if len(normalized_search) >= 5 and normalized_search in normalized_custom:
+                log_debug(f"Substring match: '{event_name}' → '{custom_event}'")
+                return selected_option
+
     return None
 
 

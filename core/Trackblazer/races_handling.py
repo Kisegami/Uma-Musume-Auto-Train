@@ -41,7 +41,7 @@ except Exception:
 
 # Region offsets from fan center (same as test code)
 GRADE_OFFSET = (-118, -115, 93, 69)  # x, y, width, height
-OCR_OFFSET = (-37, -120, 580, 69)  # x, y, width, height
+OCR_OFFSET = (1, -129, 513, 48)  # x, y, width, height
 
 def is_racing_available(year):
     """Check if racing is available based on the current year/month"""
@@ -650,8 +650,18 @@ def handle_race_retry_if_failed():
 def after_race():
     """Handle post-race actions"""
     log_info(f"After Race - Handling post-race actions...")
-    
-    # Wait for first next button with polling (200ms interval, tap between checks)
+
+    # Trackblazer may show close before next, but don't block on it.
+    log_debug(f"Checking for close button before next-button handling...")
+    close_matches = match_template(take_screenshot(), "assets/buttons/close.png", confidence=0.7)
+    if close_matches:
+        x, y, w, h = close_matches[0]
+        log_info(f"After Race - Found close button, tapping it")
+        tap(x + w//2, y + h//2)
+        time.sleep(0.5)
+
+    # Wait for first next button with polling (200ms interval, tap between checks).
+    # If next is found, give close a short 3s grace period to appear first.
     log_debug(f"Waiting for first next button...")
     next_btn = None
     max_attempts = 150  # 30 seconds timeout (150 * 200ms)
@@ -662,10 +672,24 @@ def after_race():
         # Check for next button
         next_matches = match_template(screenshot, "assets/buttons/next_btn.png", confidence=0.7)
         if next_matches:
+            log_info(f"After Race - Found first next button (attempt {attempt + 1})")
+            close_tapped = False
+            for _ in range(15):  # 3 seconds at 200ms interval
+                close_matches = match_template(take_screenshot(), "assets/buttons/close.png", confidence=0.7)
+                if close_matches:
+                    x, y, w, h = close_matches[0]
+                    log_info(f"After Race - Close button appeared before first next, tapping it")
+                    tap(x + w//2, y + h//2)
+                    time.sleep(0.5)
+                    close_tapped = True
+                    break
+                time.sleep(0.2)
+
+            if close_tapped:
+                continue
+
             x, y, w, h = next_matches[0]
             next_btn = (x + w//2, y + h//2)
-            log_info(f"After Race - Found first next button (attempt {attempt + 1})")
-            # Tap next button
             tap(next_btn[0], next_btn[1])
             break
         

@@ -1010,6 +1010,41 @@ def do_custom_race(year_override=None):
         return False
 
 
+def get_custom_race_selection(year_override=None):
+    """Return the configured custom-race selection for the given year."""
+    try:
+        project_root = _get_project_root()
+        year = year_override or check_current_year()
+        if not year:
+            return None
+
+        cfg = _load_config()
+        custom_race_file = (
+            cfg.get("racing", {}).get("custom_race_file")
+            or cfg.get("custom_race_file")
+            or "template/races/custom_races.json"
+        )
+        custom_race_path = _resolve_custom_race_path(custom_race_file, project_root)
+        with open(custom_race_path, "r", encoding="utf-8") as f:
+            custom_races = json.load(f)
+    except Exception:
+        return None
+
+    if year not in custom_races:
+        return None
+
+    raw_value = custom_races[year]
+    if isinstance(raw_value, dict):
+        return {
+            "race": raw_value.get("race", ""),
+            "use_glowstick": bool(raw_value.get("use_glowstick", False)),
+        }
+
+    if isinstance(raw_value, str) and raw_value.strip():
+        return {"race": raw_value, "use_glowstick": False}
+    return None
+
+
 def _resolve_custom_race_path(path, project_root):
     """Resolve custom race file path, preferring files under races/."""
     if not path:

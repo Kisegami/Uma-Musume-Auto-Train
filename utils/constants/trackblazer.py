@@ -59,6 +59,7 @@ TRACKBLAZER_TEMPLATE_REGIONS = {
     "assets/buttons/race_btn.png": (289, 1282, 743, 437),
     "assets/buttons/race_day_btn.png": (599, 1506, 195, 137),
     "assets/buttons/race_ura.png": (595, 1497, 221, 188),
+    "assets/trackblazer/race_ts_climax.png": (595, 1497, 221, 188),
     "assets/buttons/races_btn.png": (704, 1671, 246, 137),
     "assets/buttons/recreation_btn.png": (395, 1663, 292, 142),
     "assets/buttons/rest_btn.png": (19, 1372, 313, 236),

@@ -179,7 +179,7 @@ def check_turn(screenshot=None):
         
         # Character replacements for common OCR errors (only for digit extraction)
         original_text = turn_text
-        turn_text = turn_text.replace('y', '9').replace(']', '1').replace('l', '1').replace('I', '1').replace('o', '8').replace('O', '0').replace('/', '7').replace('Â®', '9')
+        turn_text = turn_text.replace('y', '9').replace(']', '1').replace('l', '1').replace('I', '1').replace('o', '8').replace('O', '0').replace('/', '7').replace('Ã‚Â®', '9')
         log_debug(f"Turn OCR after character replacement: '{turn_text}' (was '{original_text})')")
         
         # Extract all consecutive digits (not just first digit)
@@ -312,12 +312,139 @@ def check_skill_points(screenshot=None):
     
     return result
 
+
+def _execute_auto_skill_purchase(screenshot=None, *, force=False, reason="skill point cap"):
+    """Execute automatic skill purchases from the lobby."""
+    try:
+        config = load_main_config()
+    except Exception as e:
+        log_error(f"Error loading config: {e}")
+        return False
+
+    skills_config = config.get("skills", {})
+    skill_purchase_mode = skills_config.get("skill_purchase", "manual").lower()
+    if skill_purchase_mode != "auto":
+        log_debug(f"Skipping automatic skill purchase for {reason}: skill_purchase={skill_purchase_mode}")
+        return False
+
+    try:
+        from utils.integrations.umat_api import is_api_enabled
+        _api_on = is_api_enabled()
+    except ImportError:
+        _api_on = False
+
+    if force and not _api_on:
+        log_debug(f"Skipping automatic skill purchase for {reason}: API mode is required")
+        return False
+
+    skill_point_cap = skills_config.get("skill_point_cap", 9999)
+    current_skill_points = check_skill_points_api() if _api_on else check_skill_points(screenshot)
+    if current_skill_points is None:
+        if _api_on:
+            log_error("API mode is enabled but failed to get skill points from /status")
+            raise RuntimeError("API mode is enabled but /status API is not responding. Check API connection or set api.enabled to false in config.json.")
+        return False
+
+    if not force and current_skill_points <= skill_point_cap:
+        log_debug(f"Skipping automatic skill purchase for {reason}: {current_skill_points} <= cap {skill_point_cap}")
+        return False
+
+    log_info(f"Starting automatic skill purchase for {reason} with {current_skill_points} skill points")
+
+    if _api_on:
+        all_skills = get_skills_api()
+        if all_skills is None:
+            log_error("API mode is enabled but failed to get skills from /skills")
+            raise RuntimeError("API mode is enabled but /skills API is not responding. Check API connection or set api.enabled to false in config.json.")
+        log_info(f"[API] Got {len(all_skills)} skills from API (skipping OCR scan)")
+        available_points = current_skill_points
+        log_info(f"[API] Using API skill points: {available_points}")
+    else:
+        entered = click_image_button("assets/buttons/skills_btn.png", "skills button", max_attempts=5)
+        if not entered:
+            log_error(f"Could not find/open skills screen")
+            return False
+        time.sleep(1.0)
+
+        scan_result = scan_all_skills_with_scroll()
+        if 'error' in scan_result:
+            log_error(f"Skill scanning failed: {scan_result['error']}")
+            click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
+            time.sleep(1.0)
+            return False
+        all_skills = scan_result.get('all_skills', [])
+        if not all_skills:
+            log_warning(f"No skills detected on skill screen")
+            click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
+            time.sleep(1.0)
+            return False
+
+        available_points = extract_skill_points()
+        log_info(f"Detected available skill points: {available_points}")
+
+    skill_file = skills_config.get("skill_file", "template/skills/skills.json")
+    skill_file = _resolve_skill_file_path(skill_file)
+    log_info(f"Loading skills from: {skill_file}")
+    cfg = load_skill_config(skill_file)
+    purchase_plan = create_purchase_plan(all_skills, cfg, end_career=False)
+    if not purchase_plan:
+        log_info(f"No skills from priority list are currently available")
+        if not _api_on:
+            click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
+            time.sleep(1.0)
+        return False
+
+    final_plan = purchase_plan
+    if isinstance(available_points, int) and available_points > 0:
+        affordable_skills, total_cost, remaining_points = filter_affordable_skills(purchase_plan, available_points)
+        final_plan = affordable_skills if affordable_skills else []
+        log_info(f"Affordable skills: {len(final_plan)}; Total cost: {total_cost}; Remaining: {remaining_points}")
+
+    if not final_plan:
+        log_info(f"Nothing affordable to purchase at the moment")
+        if not _api_on:
+            click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
+            time.sleep(1.0)
+        return False
+
+    if _api_on:
+        entered = click_image_button("assets/buttons/skills_btn.png", "skills button", max_attempts=5)
+        if not entered:
+            log_error(f"Could not find/open skills screen")
+            return False
+        time.sleep(1.0)
+
+    exec_result = execute_skill_purchases(final_plan, reset_to_top=not _api_on)
+    if not exec_result.get('success'):
+        log_warning(f"Automated purchase completed with issues: {exec_result.get('error', 'unknown error')}")
+
+    back = click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
+    if not back:
+        log_warning(f"Could not find back button after purchases; ensure you return to lobby manually")
+    time.sleep(1.0)
+
+    return bool(exec_result.get('purchased_skills'))
+
+
+def check_and_purchase_skills_before_custom_race(screenshot=None):
+    """Purchase planned skills from the lobby before a scheduled custom race."""
+    try:
+        config = load_main_config()
+    except Exception as e:
+        log_error(f"Error loading config: {e}")
+        return False
+
+    skills_config = config.get("skills", {})
+    if not skills_config.get("pre_custom_race_skill_check", False):
+        return False
+
+    return _execute_auto_skill_purchase(screenshot=screenshot, force=True, reason="before custom race")
+
 def check_skill_points_cap(screenshot=None):
     """Check skill points and handle cap logic (same as PC version)"""
     import tkinter as tk
     from tkinter import messagebox
     
-    # Load config
     try:
         config = load_main_config()
     except Exception as e:
@@ -327,7 +454,6 @@ def check_skill_points_cap(screenshot=None):
     skills_config = config.get("skills", {})
     skill_point_cap = skills_config.get("skill_point_cap", 9999)
 
-    # Check if API mode is enabled
     try:
         from utils.integrations.umat_api import is_api_enabled
         _api_on = is_api_enabled()
@@ -337,7 +463,7 @@ def check_skill_points_cap(screenshot=None):
     if _api_on:
         current_skill_points = check_skill_points_api()
         if current_skill_points is None:
-            log_error("❌ [API] Failed to get skill points from API. Check that uma_viewer is running or disable API mode in config.")
+            log_error("API mode is enabled but failed to get skill points from /status")
             raise RuntimeError("API mode is enabled but /status API is not responding. Check API connection or set api.enabled to false in config.json.")
     else:
         current_skill_points = check_skill_points(screenshot)
@@ -347,109 +473,25 @@ def check_skill_points_cap(screenshot=None):
     if current_skill_points > skill_point_cap:
         log_warning(f"Skill points ({current_skill_points}) exceed cap ({skill_point_cap})")
         
-        # Decide flow based on config
         skill_purchase_mode = skills_config.get("skill_purchase", "manual").lower()
         if skill_purchase_mode == "auto":
             log_info(f"Auto skill purchase enabled - starting automation")
             try:
-                if _api_on:
-                    # API mode: get skill list from API
-                    api_skills = get_skills_api()
-                    if api_skills is None:
-                        log_error("❌ [API] Failed to get skill list from API. Check that uma_viewer is running or disable API mode in config.")
-                        raise RuntimeError("API mode is enabled but /skills API is not responding. Check API connection or set api.enabled to false in config.json.")
-                    log_info(f"[API] Got {len(api_skills)} skills from API (skipping OCR scan)")
-                    all_skills = api_skills
-                    # Use API skill points as available points
-                    available_points = current_skill_points
-                    log_info(f"[API] Using API skill points: {available_points}")
-                else:
-                    # OCR mode: Enter skill screen and scan
-                    # 1) Enter skill screen
-                    entered = click_image_button("assets/buttons/skills_btn.png", "skills button", max_attempts=5)
-                    if not entered:
-                        log_error(f"Could not find/open skills screen")
-                        return True
-                    time.sleep(1.0)
-
-                    # 2) Scan skills and prepare purchase plan
-                    scan_result = scan_all_skills_with_scroll()
-                    if 'error' in scan_result:
-                        log_error(f"Skill scanning failed: {scan_result['error']}")
-                        click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
-                        time.sleep(1.0)
-                        return True
-                    all_skills = scan_result.get('all_skills', [])
-                    if not all_skills:
-                        log_warning(f"No skills detected on skill screen")
-                        click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
-                        time.sleep(1.0)
-                        return True
-
-                    # Read current available skill points from the skill screen
-                    available_points = extract_skill_points()
-                    log_info(f"Detected available skill points: {available_points}")
-
-                # Build purchase plan from config priorities
-                skill_file = skills_config.get("skill_file", "template/skills/skills.json")
-                skill_file = _resolve_skill_file_path(skill_file)
-                log_info(f"Loading skills from: {skill_file}")
-                cfg = load_skill_config(skill_file)
-                purchase_plan = create_purchase_plan(all_skills, cfg, end_career=False)
-                if not purchase_plan:
-                    log_info(f"No skills from priority list are currently available")
-                    return True
-
-                # Filter by budget if we have points
-                final_plan = purchase_plan
-                if isinstance(available_points, int) and available_points > 0:
-                    affordable_skills, total_cost, remaining_points = filter_affordable_skills(purchase_plan, available_points)
-                    final_plan = affordable_skills if affordable_skills else []
-                    log_info(f"Affordable skills: {len(final_plan)}; Total cost: {total_cost}; Remaining: {remaining_points}")
-
-                if not final_plan:
-                    log_info(f"Nothing affordable to purchase at the moment")
-                    return True
-
-                if _api_on:
-                    entered = click_image_button("assets/buttons/skills_btn.png", "skills button", max_attempts=5)
-                    if not entered:
-                        log_error(f"Could not find/open skills screen")
-                        return True
-                    time.sleep(1.0)
-
-                # Execute automated purchases
-                exec_result = execute_skill_purchases(final_plan, reset_to_top=not _api_on)
-                if not exec_result.get('success'):
-                    log_warning(f"Automated purchase completed with issues: {exec_result.get('error', 'unknown error')}")
-
-                # 3) Return to lobby
-                back = click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
-                if not back:
-                    log_warning(f"Could not find back button after purchases; ensure you return to lobby manually")
-                time.sleep(1.0)
+                _execute_auto_skill_purchase(screenshot=screenshot, force=False, reason="skill point cap")
             except Exception as e:
                 log_error(f"Auto skill purchase failed: {e}")
             
             return True
         
-        # Manual mode (original prompt)
         try:
-            # Create a hidden root window
             root = tk.Tk()
-            root.withdraw()  # Hide the main window
-            
-            # Show the message box
-            result = messagebox.showinfo(
+            root.withdraw()
+            messagebox.showinfo(
                 title="Skill Points Cap Reached",
-                message=f"Skill points ({current_skill_points}) exceed the cap ({skill_point_cap}).\n\nYou can:\n• Use your skill points manually, then click OK\n• Click OK without spending (automation continues)\n\nNote: This check only happens on race days."
+                message=f"Skill points ({current_skill_points}) exceed the cap ({skill_point_cap}).\n\nYou can:\n- Use your skill points manually, then click OK\n- Click OK without spending (automation continues)\n\nNote: This check only happens on race days."
             )
-            
-            # Destroy the root window
             root.destroy()
-            
             log_info(f"Player acknowledged skill points cap warning")
-            
         except Exception as e:
             log_error(f"Failed to show GUI popup: {e}")
             log_info(f"Skill points cap reached - automation continuing")
@@ -709,7 +751,7 @@ def _resolve_skill_file_path(path):
     return os.path.join(project_root, candidates[-1])
 
 
-# ── API-powered state functions ──────────────────────────────────────────────
+# â”€â”€ API-powered state functions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # These call the uma_viewer API for fast, packet-backed data.
 # All return None when API is unavailable, allowing OCR fallback.
 
@@ -822,3 +864,4 @@ def check_skill_points_api():
     if status is None:
         return None
     return status.get("skill_points")
+

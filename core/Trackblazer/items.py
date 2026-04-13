@@ -26,6 +26,8 @@ NEGATIVE_CONDITIONS = [
 DEFAULT_ITEM_SETTINGS = {
     "item_purchase_file": "template/items/default.json",
     "budget_strategy": "save_priority",
+    "purchase_max_swipes": 10,
+    "shop_swipe_time_offset": 0,
     "auto_buy_mood_items": False,
     "auto_buy_negative_cure_items": False,
     "auto_buy_negative_cure_conditions": list(NEGATIVE_CONDITIONS),
@@ -422,6 +424,18 @@ def _can_buy_more(item_id, template_limits, inventory_count, planned_count, desi
     return inventory_count + planned_count < limit
 
 
+def _item_targets_capped_stat(catalog_item, state, config):
+    target_stat = catalog_item.get("target_stat")
+    if not target_stat:
+        return False
+
+    if catalog_item.get("group") != "Stat" and catalog_item.get("effect_type") != "Specialized Training Buff":
+        return False
+
+    cap = int(config.get("training", {}).get("stat_caps", {}).get(target_stat, 1200))
+    return int(state["stats"].get(target_stat, 0)) >= cap
+
+
 def _build_auto_buy_candidates(state, settings, template_limits, config):
     del template_limits
     candidates = []
@@ -498,6 +512,28 @@ def _build_auto_buy_candidates(state, settings, template_limits, config):
                     candidates.append({"item_id": item["item_id"], "desired_quantity": 1, "reason": f"auto_buy_training_level:{stat_key}"})
                     break
 
+    if settings.get("reserve_ts_climax_hammers", True) and state.get("year") != "TS Climax":
+        artisan_count = int(inventory_by_id.get(11001, {}).get("count", 0))
+        master_count = int(inventory_by_id.get(11002, {}).get("count", 0))
+
+        master_entries = _available_shop_entries(state["shop_items"], 11002)
+        artisan_entries = _available_shop_entries(state["shop_items"], 11001)
+
+        # Keep a single hammer reserved for TS Climax, preferring Master over Artisan.
+        if master_count <= 0:
+            if master_entries:
+                candidates.append({
+                    "item_id": 11002,
+                    "desired_quantity": 1,
+                    "reason": "auto_buy_ts_climax_master_reserve",
+                })
+            elif artisan_count <= 0 and artisan_entries:
+                candidates.append({
+                    "item_id": 11001,
+                    "desired_quantity": 1,
+                    "reason": "auto_buy_ts_climax_hammer_reserve",
+                })
+
     return candidates
 
 
@@ -515,7 +551,13 @@ def plan_item_purchases(state, template_data, config):
             continue
         candidate_specs.append({"item_id": item_id, "desired_quantity": max(1, int(entry.get("item_limit", 1))), "reason": "priority"})
 
-    candidate_specs.extend(_build_auto_buy_candidates(state, settings, template_limits, config))
+    existing_candidate_ids = {spec["item_id"] for spec in candidate_specs}
+    for auto_candidate in _build_auto_buy_candidates(state, settings, template_limits, config):
+        if auto_candidate["item_id"] in existing_candidate_ids:
+            continue
+        candidate_specs.append(auto_candidate)
+        existing_candidate_ids.add(auto_candidate["item_id"])
+
     stop_after_unaffordable = settings.get("budget_strategy", "save_priority") == "save_priority"
 
     for spec in candidate_specs:
@@ -524,10 +566,8 @@ def plan_item_purchases(state, template_data, config):
         if not catalog_item:
             continue
 
-        if catalog_item["group"] == "Stat" and catalog_item["target_stat"]:
-            cap = int(config.get("training", {}).get("stat_caps", {}).get(catalog_item["target_stat"], 1200))
-            if int(state["stats"].get(catalog_item["target_stat"], 0)) >= cap:
-                continue
+        if _item_targets_capped_stat(catalog_item, state, config):
+            continue
 
         inventory_count = int(state["inventory_by_id"].get(item_id, {}).get("count", 0))
         planned_count = int(planned_counts.get(item_id, 0))
@@ -536,7 +576,9 @@ def plan_item_purchases(state, template_data, config):
             continue
 
         affordable_for_candidate = False
-        for shop_entry in _available_shop_entries(state["shop_items"], item_id):
+        available_shop_entries = _available_shop_entries(state["shop_items"], item_id)
+        saw_shop_entry = bool(available_shop_entries)
+        for shop_entry in available_shop_entries:
             if not _can_buy_more(item_id, template_limits, inventory_count, planned_counts.get(item_id, 0), desired_quantity):
                 break
             price = int(shop_entry.get("price", 0))
@@ -556,8 +598,59 @@ def plan_item_purchases(state, template_data, config):
             planned_counts[item_id] = planned_counts.get(item_id, 0) + 1
             affordable_for_candidate = True
 
-        if stop_after_unaffordable and spec["reason"] == "priority" and not affordable_for_candidate:
+        if stop_after_unaffordable and spec["reason"] == "priority" and saw_shop_entry and not affordable_for_candidate:
             return purchase_actions
+
+    return purchase_actions
+
+
+def plan_training_level_purchases(state, config):
+    settings = load_item_settings(config)
+    if not settings.get("enable_training_level_items"):
+        return []
+
+    remaining_coin = int(state["shop_coin"])
+    purchase_actions = []
+    stop_after_unaffordable = settings.get("budget_strategy", "save_priority") == "save_priority"
+    priority_order = {stat: idx for idx, stat in enumerate(config.get("training", {}).get("priority_stat", []))}
+    threshold = int(settings.get("training_level_threshold", 3))
+    selected_stats = sorted(settings.get("training_level_stats", []), key=lambda stat: priority_order.get(stat, 999))
+
+    for stat_key in selected_stats:
+        current_level = int(state["training_levels"].get(stat_key, 5))
+        if current_level >= threshold:
+            continue
+
+        target_item = None
+        for item in load_item_catalog():
+            if item["effect_type"] == "Training Level" and item["target_stat"] == stat_key:
+                target_item = item
+                break
+        if not target_item:
+            continue
+
+        item_id = int(target_item["item_id"])
+        if int(state["inventory_by_id"].get(item_id, {}).get("count", 0)) > 0:
+            continue
+
+        shop_entries = _available_shop_entries(state["shop_items"], item_id)
+        if not shop_entries:
+            continue
+
+        price = int(shop_entries[0].get("price", 0))
+        if price > remaining_coin:
+            if stop_after_unaffordable:
+                break
+            continue
+
+        purchase_actions.append({
+            "shop_item_id": int(shop_entries[0].get("shop_item_id", 0)),
+            "item_id": item_id,
+            "item_name": target_item["name"],
+            "price": price,
+            "reason": f"auto_buy_training_level:{stat_key}",
+        })
+        remaining_coin -= price
 
     return purchase_actions
 
@@ -596,6 +689,10 @@ def plan_immediate_item_usage(state, config, is_race_turn=False):
     for item_id, inventory_item in sorted(inventory_by_id.items()):
         catalog_item = get_item_by_id(item_id)
         if catalog_item and catalog_item["group"] == "Stat":
+            if catalog_item["target_stat"]:
+                cap = int(config.get("training", {}).get("stat_caps", {}).get(catalog_item["target_stat"], 1200))
+                if int(state["stats"].get(catalog_item["target_stat"], 0)) >= cap:
+                    continue
             _append_usage(actions, item_id, inventory_item["count"], "use_all_stat_items")
 
     for item_id, inventory_item in sorted(inventory_by_id.items()):
@@ -657,7 +754,11 @@ def _select_best_training_buff(inventory_by_id, active_effect_keys):
     return best_item
 
 
-def _select_specialized_buff(inventory_by_id, training_type):
+def _select_specialized_buff(inventory_by_id, training_type, active_effect_keys):
+    conflict_key = f"specialized_training_buff:{training_type}"
+    if conflict_key in active_effect_keys:
+        return None
+
     best_item = None
     for item_id, inventory_item in inventory_by_id.items():
         if int(inventory_item.get("count", 0)) <= 0:
@@ -691,15 +792,20 @@ def plan_training_item_usage(state, config, chosen_training, chosen_training_res
     inventory_by_id = state["inventory_by_id"]
     chosen_score = float(chosen_training_result.get("score", 0))
     period_allowed = _is_buff_period_allowed(settings.get("training_buff_periods", ["any_time"]), state["year"])
+    training_is_accepted = not would_be_rejected
 
     training_buff_item = None
-    if period_allowed and chosen_score > float(settings.get("training_buff_score_threshold", 2.0)):
+    if training_is_accepted and period_allowed and chosen_score > float(settings.get("training_buff_score_threshold", 2.0)):
         training_buff_item = _select_best_training_buff(inventory_by_id, state["active_effect_keys"])
         if training_buff_item:
             _append_usage(actions, training_buff_item["item_id"], 1, "use_training_buff")
 
-    if period_allowed and chosen_score > float(settings.get("training_buff_score_threshold", 2.0)):
-        specialized_item = _select_specialized_buff(inventory_by_id, chosen_training)
+    if training_is_accepted and period_allowed and chosen_score > float(settings.get("training_buff_score_threshold", 2.0)):
+        specialized_item = _select_specialized_buff(
+            inventory_by_id,
+            chosen_training,
+            state["active_effect_keys"],
+        )
         requires_training_buff = bool(settings.get("specialized_buff_requires_training_buff"))
         has_training_buff = training_buff_item is not None or "training_buff:any" in state["active_effect_keys"]
         if specialized_item and (not requires_training_buff or has_training_buff):
@@ -806,7 +912,7 @@ def apply_usage_plan(state, usage_actions):
             updated["condition_lookup"].discard(catalog_item["target_condition"])
         elif catalog_item["effect_type"] == "Positive Condition":
             updated["condition_lookup"].add(catalog_item["target_condition"])
-        elif catalog_item["effect_type"] == "Training Buff" and catalog_item["effect_conflict_key"]:
+        elif catalog_item["effect_conflict_key"]:
             updated["active_effect_keys"].add(catalog_item["effect_conflict_key"])
     return updated
 
@@ -817,4 +923,4 @@ def format_action_plan(actions):
     parts = []
     for action in actions:
         parts.append(f"{action['item_name']} x{action.get('quantity', 1)} [{action['reason']}]")
-    return ", ".join(parts)
+    return "\n".join(f"  - {part}" for part in parts)

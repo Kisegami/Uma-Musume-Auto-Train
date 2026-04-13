@@ -53,6 +53,12 @@ class OthersTab(QScrollArea):
         )
         debug_layout.addWidget(self.dump_lobby_template_regions)
 
+        self.bypass_template_regions = QCheckBox("Bypass Template Regions")
+        self.bypass_template_regions.stateChanged.connect(
+            lambda v: self._update_and_save("bypass_template_regions", v == Qt.CheckState.Checked.value)
+        )
+        debug_layout.addWidget(self.bypass_template_regions)
+
         desc = QLabel(
             "When enabled, bot stops if event name cannot be detected.\n"
             "When disabled, bot chooses the top option as a fallback."
@@ -66,6 +72,13 @@ class OthersTab(QScrollArea):
         )
         dump_desc.setStyleSheet(f"color: {COLORS['text_muted']}; font-size: 12px; margin-left: 25px;")
         debug_layout.addWidget(dump_desc)
+
+        region_desc = QLabel(
+            "When enabled, automatic template search regions are ignored and all template matching runs full-screen.\n"
+            "Use this to find missing or incorrect Trackblazer regions before adding them to constants."
+        )
+        region_desc.setStyleSheet(f"color: {COLORS['text_muted']}; font-size: 12px; margin-left: 25px;")
+        debug_layout.addWidget(region_desc)
 
         layout.addWidget(debug_group)
 
@@ -115,6 +128,7 @@ class OthersTab(QScrollArea):
         self.debug_mode.setChecked(config.get("debug_mode", False))
         self.stop_on_failure.setChecked(config.get("stop_on_event_detection_failure", False))
         self.dump_lobby_template_regions.setChecked(config.get("dump_lobby_template_regions", False))
+        self.bypass_template_regions.setChecked(config.get("bypass_template_regions", False))
 
         webhook_config = config.get("discord_webhook", {})
         self.webhook_enabled.setChecked(webhook_config.get("enabled", False))

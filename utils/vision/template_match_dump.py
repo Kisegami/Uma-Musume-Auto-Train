@@ -72,14 +72,6 @@ def record_template_matches(
     """
     del context
 
-    found_any = False
-    for template_path, _, _ in template_specs:
-        if batch_results.get(template_path):
-            found_any = True
-            break
-    if not found_any:
-        return None
-
     path = _session_path(mode)
 
     with _LOCK:
@@ -87,9 +79,6 @@ def record_template_matches(
 
         for template_path, _, _ in template_specs:
             matches = batch_results.get(template_path, [])
-            if not matches:
-                continue
-
             entry = data.setdefault(template_path, [])
             existing = {tuple(int(v) for v in bbox) for bbox in entry if isinstance(bbox, list) and len(bbox) == 4}
 
@@ -130,6 +119,6 @@ def record_single_template_match(
     confidence: float = 0.8,
     region: Optional[Tuple[int, int, int, int]] = None,
 ) -> Optional[str]:
-    if not is_template_dump_enabled() or not matches:
+    if not is_template_dump_enabled():
         return None
     return record_template_matches_for_mode([(template_path, confidence, region)], {template_path: matches})

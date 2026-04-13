@@ -30,7 +30,7 @@ from core.Unity.state import (
     # API-powered state functions
     check_status_api, check_mood_api, check_current_year_api,
     check_current_stats_api, check_energy_api, check_skill_points_api,
-    invalidate_status_cache,
+    invalidate_status_cache, check_and_purchase_skills_before_custom_race,
 )
 
 # Import event handling functions
@@ -47,7 +47,7 @@ from core.Unity.dating_handling import do_dating, should_use_dating_for_mood, sh
 from core.Unity.races_handling import (
     find_and_do_race, do_custom_race, race_day, check_strategy_before_race,
     change_strategy_before_race, race_prep, handle_race_retry_if_failed,
-    after_race, is_racing_available, is_pre_debut_year
+    after_race, is_racing_available, is_pre_debut_year, get_custom_race_selection
 )
 
 from utils.core.config_loader import load_main_config
@@ -797,6 +797,11 @@ def career_lobby(timeout=None):
         do_custom_race_enabled = racing_config_section.get("do_custom_race", False)
         
         if do_custom_race_enabled:
+            custom_race_selection = get_custom_race_selection(year)
+            if custom_race_selection and custom_race_selection.get("race"):
+                if check_and_purchase_skills_before_custom_race(screenshot):
+                    invalidate_status_cache()
+                    screenshot = take_screenshot()
             log_debug(f"Custom race is enabled, checking for custom race...")
             custom_race_found = do_custom_race(year_override=year)
             if custom_race_found:

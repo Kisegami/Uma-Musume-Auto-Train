@@ -18,6 +18,25 @@ from PySide6.QtWidgets import QCompleter
 from ..styles import COLORS
 
 
+SCENARIO_EVENT_FILES = {
+    "URA Finale": {
+        "path": os.path.join("assets", "events", "ura_finale.json"),
+        "template_key": "ura",
+        "note": "Dedicated URA scenario event database.",
+    },
+    "Unity Cup": {
+        "path": os.path.join("assets", "events", "ura_finale.json"),
+        "template_key": "unity",
+        "note": "Unity currently shares the URA scenario event database.",
+    },
+    "Trackblazer": {
+        "path": os.path.join("assets", "events", "trackblazer.json"),
+        "template_key": "trackblazer",
+        "note": "Dedicated Trackblazer scenario event database.",
+    },
+}
+
+
 class EventTab(QScrollArea):
     """Event configuration tab - matches original GUI"""
     
@@ -101,6 +120,44 @@ class EventTab(QScrollArea):
         choice_layout.addLayout(bad_row)
         
         layout.addWidget(choice_group)
+
+        # ==================== Scenario Event Management ====================
+        scenario_group = QGroupBox("Scenario Event Management")
+        scenario_layout = QVBoxLayout(scenario_group)
+        scenario_layout.setSpacing(12)
+
+        scenario_row = QHBoxLayout()
+        scenario_row.addWidget(QLabel("Scenario:"))
+
+        self.scenario_combo = QComboBox()
+        self.scenario_combo.addItems(["Current Mode", "URA Finale", "Unity Cup", "Trackblazer"])
+        self.scenario_combo.setMinimumWidth(180)
+        self.scenario_combo.currentTextChanged.connect(self._save_scenario_selection)
+        self.scenario_combo.currentTextChanged.connect(lambda _: self._refresh_scenario_info())
+        scenario_row.addWidget(self.scenario_combo)
+
+        scenario_edit_btn = QPushButton("Edit Custom Choices")
+        scenario_edit_btn.setObjectName("accent")
+        scenario_edit_btn.clicked.connect(self._open_scenario_event_window)
+        scenario_row.addWidget(scenario_edit_btn)
+        scenario_row.addStretch()
+        scenario_layout.addLayout(scenario_row)
+
+        self.scenario_file_label = QLabel("")
+        self.scenario_file_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.scenario_file_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
+        scenario_layout.addWidget(self.scenario_file_label)
+
+        self.scenario_count_label = QLabel("")
+        self.scenario_count_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
+        scenario_layout.addWidget(self.scenario_count_label)
+
+        self.scenario_note_label = QLabel("")
+        self.scenario_note_label.setWordWrap(True)
+        self.scenario_note_label.setStyleSheet(f"color: {COLORS['text_muted']}; font-size: 12px;")
+        scenario_layout.addWidget(self.scenario_note_label)
+
+        layout.addWidget(scenario_group)
         
         # ==================== Uma Events Management ====================
         uma_group = QGroupBox("Uma Events Management")
@@ -256,6 +313,53 @@ class EventTab(QScrollArea):
         from .choice_editor_window import ChoiceEditorWindow
         dialog = ChoiceEditorWindow(self, ctype)
         dialog.exec()
+
+    def _get_current_mode_display(self):
+        mode = self.main_window.get_config().get("mode", "ura")
+        return {
+            "ura": "URA Finale",
+            "unity": "Unity Cup",
+            "trackblazer": "Trackblazer",
+        }.get(mode, "URA Finale")
+
+    def _get_active_scenario_name(self):
+        selected = self.scenario_combo.currentText()
+        return self._get_current_mode_display() if selected == "Current Mode" else selected
+
+    def _load_scenario_entries(self, scenario_name):
+        scenario_info = SCENARIO_EVENT_FILES.get(scenario_name)
+        if not scenario_info:
+            return [], ""
+
+        file_path = scenario_info["path"]
+        if not os.path.exists(file_path):
+            return [], file_path
+
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                return json.load(f), file_path
+        except Exception:
+            return [], file_path
+
+    def _refresh_scenario_info(self):
+        scenario_name = self._get_active_scenario_name()
+        scenario_info = SCENARIO_EVENT_FILES.get(scenario_name)
+        if not scenario_info:
+            self.scenario_file_label.setText("Scenario database: unavailable")
+            self.scenario_count_label.setText("")
+            self.scenario_note_label.setText("")
+            return
+
+        entries, file_path = self._load_scenario_entries(scenario_name)
+        unique_events = sorted({entry.get("EventName", "") for entry in entries if entry.get("EventName")})
+        self.scenario_file_label.setText(f"Database File: {file_path}")
+        self.scenario_count_label.setText(f"Entries: {len(entries)}   Unique Events: {len(unique_events)}")
+        self.scenario_note_label.setText(scenario_info.get("note", ""))
+
+    def sync_scenario_with_mode(self):
+        """Refresh scenario management when game mode changes."""
+        if self.scenario_combo.currentText() == "Current Mode":
+            self._refresh_scenario_info()
     
     def _open_uma_event_window(self):
         """Open Uma event window"""
@@ -312,6 +416,29 @@ class EventTab(QScrollArea):
         dialog.exec()
         # Update preview after editing
         self._update_deck_preview()
+
+    def _open_scenario_event_window(self):
+        """Open scenario event database editor."""
+        scenario_name = self._get_active_scenario_name()
+        scenario_info = SCENARIO_EVENT_FILES.get(scenario_name)
+        if not scenario_info:
+            QMessageBox.warning(self, "Warning", f"No scenario database configured for: {scenario_name}")
+            return
+
+        file_path = scenario_info["path"]
+        if not os.path.exists(file_path):
+            QMessageBox.warning(self, "Warning", f"Scenario database not found:\n{file_path}")
+            return
+
+        from .scenario_event_window import ScenarioEventWindow
+        dialog = ScenarioEventWindow(
+            self,
+            scenario_name,
+            scenario_info["template_key"],
+            file_path,
+        )
+        dialog.exec()
+        self._refresh_scenario_info()
     
     def _update_deck_preview(self):
         """Update deck preview with card images from selected template"""
@@ -451,6 +578,12 @@ class EventTab(QScrollArea):
             self.main_window.update_nested_config_value("events", "support_card_template", template_name)
             self.main_window.save_config()
             self._update_deck_preview()
+
+    def _save_scenario_selection(self, scenario_name):
+        """Save selected scenario event manager target to config."""
+        if scenario_name:
+            self.main_window.update_nested_config_value("events", "scenario_event_selection", scenario_name)
+            self.main_window.save_config()
     
     def load_config(self):
         """Load saved selections from config"""
@@ -469,4 +602,12 @@ class EventTab(QScrollArea):
         template = events.get("support_card_template", "")
         if template and template in self.support_templates:
             self.template_combo.setCurrentText(template)
+
+        scenario_selection = events.get("scenario_event_selection", "Current Mode")
+        if scenario_selection not in ["Current Mode", "URA Finale", "Unity Cup", "Trackblazer"]:
+            scenario_selection = "Current Mode"
+        self.scenario_combo.blockSignals(True)
+        self.scenario_combo.setCurrentText(scenario_selection)
+        self.scenario_combo.blockSignals(False)
+        self._refresh_scenario_info()
 
