@@ -42,6 +42,7 @@ from core.Trackblazer.items import (
     plan_immediate_item_usage,
     plan_item_purchases,
     plan_race_item_usage,
+    plan_friendship_purchases,
     plan_training_level_purchases,
     plan_training_item_usage,
     training_item_use_requires_refresh,
@@ -1021,12 +1022,18 @@ def career_lobby(timeout=None):
 
             _log_item_plan("Training items", planned_training_usage)
             if not is_pre_debut_year(year):
+                combined_training_purchase_actions = []
                 if planned_training_usage or energy_percentage >= min_energy:
                     planned_training_purchase_actions = plan_training_level_purchases(item_state_for_training, config)
+                    friendship_purchase_actions = plan_friendship_purchases(item_state_for_training, config)
                     _log_item_plan("Training-level purchases", planned_training_purchase_actions)
-                    executed_training_purchase_actions = execute_item_purchase_plan(planned_training_purchase_actions, config)
+                    _log_item_plan("Friendship purchases", friendship_purchase_actions)
+                    combined_training_purchase_actions = (
+                        planned_training_purchase_actions + friendship_purchase_actions
+                    )
+                    executed_training_purchase_actions = execute_item_purchase_plan(combined_training_purchase_actions, config)
                     if executed_training_purchase_actions:
-                        _log_item_plan("Executed training-level purchases", executed_training_purchase_actions)
+                        _log_item_plan("Executed post-training purchases", executed_training_purchase_actions)
                         invalidate_status_cache()
                         refreshed_status = get_status_api_raw() or {}
                         if refreshed_status:
@@ -1044,51 +1051,51 @@ def career_lobby(timeout=None):
                             ):
                                 planned_training_usage = []
                             _log_item_plan("Training items (post-purchase)", planned_training_usage)
-                    elif planned_training_purchase_actions:
-                        log_warning("[Items] Planned training-level purchases were not executed successfully")
+                elif combined_training_purchase_actions:
+                    log_warning("[Items] Planned post-training purchases were not executed successfully")
 
-                training_item_iteration = 0
-                while planned_training_usage and training_item_iteration < 5:
-                    executed_training_usage = execute_item_usage_plan(planned_training_usage)
-                    if not executed_training_usage:
-                        log_warning("[Items] Planned training items were not executed successfully")
-                        break
+            training_item_iteration = 0
+            while planned_training_usage and training_item_iteration < 5:
+                executed_training_usage = execute_item_usage_plan(planned_training_usage)
+                if not executed_training_usage:
+                    log_warning("[Items] Planned training items were not executed successfully")
+                    break
 
-                    _log_item_plan("Executed training items", executed_training_usage)
-                    if any(action.get("reason") == "use_good_luck_charm" for action in executed_training_usage):
-                        charm_bypass_active = True
-                    invalidate_status_cache()
-                    refreshed_status = get_status_api_raw() or {}
-                    if refreshed_status:
-                        raw_api_status = refreshed_status
+                _log_item_plan("Executed training items", executed_training_usage)
+                if any(action.get("reason") == "use_good_luck_charm" for action in executed_training_usage):
+                    charm_bypass_active = True
+                invalidate_status_cache()
+                refreshed_status = get_status_api_raw() or {}
+                if refreshed_status:
+                    raw_api_status = refreshed_status
 
-                    if not training_item_use_requires_refresh(executed_training_usage):
-                        break
+                if not training_item_use_requires_refresh(executed_training_usage):
+                    break
 
-                    results_training = check_training_api(current_stats=current_stats)
-                    if results_training is None:
-                        log_warning("[Items] Failed to refresh training data after using training items")
-                        break
+                results_training = check_training_api(current_stats=current_stats)
+                if results_training is None:
+                    log_warning("[Items] Failed to refresh training data after using training items")
+                    break
 
-                    best_training = choose_best_training(results_training, training_config, current_stats)
-                    relaxed_training_candidate = choose_best_training(results_training, relaxed_training_config, current_stats)
-                    item_state_for_training = normalize_item_state(raw_api_status, results_training)
-                    item_state_for_training = apply_usage_plan(item_state_for_training, executed_training_usage)
-                    training_candidate = best_training or relaxed_training_candidate
-                    chosen_training_result = results_training.get(training_candidate) if training_candidate else None
-                    would_be_rejected = bool(chosen_training_result) and (
-                        energy_percentage < min_energy
-                        or best_training is None
-                    )
-                    planned_training_usage = plan_training_item_usage(
-                        item_state_for_training,
-                        config,
-                        training_candidate,
-                        chosen_training_result,
-                        would_be_rejected,
-                    )
-                    _log_item_plan("Training items (refreshed)", planned_training_usage)
-                    training_item_iteration += 1
+                best_training = choose_best_training(results_training, training_config, current_stats)
+                relaxed_training_candidate = choose_best_training(results_training, relaxed_training_config, current_stats)
+                item_state_for_training = normalize_item_state(raw_api_status, results_training)
+                item_state_for_training = apply_usage_plan(item_state_for_training, executed_training_usage)
+                training_candidate = best_training or relaxed_training_candidate
+                chosen_training_result = results_training.get(training_candidate) if training_candidate else None
+                would_be_rejected = bool(chosen_training_result) and (
+                    energy_percentage < min_energy
+                    or best_training is None
+                )
+                planned_training_usage = plan_training_item_usage(
+                    item_state_for_training,
+                    config,
+                    training_candidate,
+                    chosen_training_result,
+                    would_be_rejected,
+                )
+                _log_item_plan("Training items (refreshed)", planned_training_usage)
+                training_item_iteration += 1
         final_training_choice = best_training
         if not final_training_choice and charm_bypass_active:
             final_training_choice = relaxed_training_candidate

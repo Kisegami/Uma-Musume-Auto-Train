@@ -1,7 +1,7 @@
 import time
 from collections import Counter, defaultdict, deque
 
-from core.Trackblazer.items import get_item_by_id, load_item_settings, load_item_catalog
+from core.Trackblazer.items import load_item_settings, load_item_catalog
 from core.Trackblazer.ocr import extract_text
 from utils.capture.screenshot import take_screenshot
 from utils.core.log import log_debug, log_info, log_warning
@@ -227,9 +227,6 @@ def execute_item_purchase_plan(purchase_actions, config):
     target_counts = Counter()
     for action in purchase_actions:
         normalized_name = _normalize_text(action.get("item_name", ""))
-        if not normalized_name:
-            catalog_item = get_item_by_id(action.get("item_id", 0))
-            normalized_name = _normalize_text(catalog_item["name"] if catalog_item else "")
         if not normalized_name:
             continue
         actions_by_name[normalized_name].append(dict(action))
