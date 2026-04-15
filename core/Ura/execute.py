@@ -759,7 +759,7 @@ def career_lobby(timeout=None):
             
         _on_training_screen = False
         if _API_MODE:
-            results_training = check_training_api(current_stats=current_stats)
+            results_training = check_training_api(year=year, current_stats=current_stats)
             if results_training is None:
                 log_error("API mode is enabled but failed to get training data from /training")
                 raise RuntimeError("API mode is enabled but /training API is not responding. Check API connection or set api.enabled to false in config.json.")
@@ -772,7 +772,7 @@ def career_lobby(timeout=None):
             # Last, do training
             log_debug(f"Analyzing training options...")
             time.sleep(0.5)
-            results_training = check_training(go_back=False, current_stats=current_stats)
+            results_training = check_training(go_back=False, year=year, current_stats=current_stats)
             _on_training_screen = True
         
         log_debug(f"Deciding best training action using scoring algorithm...")
@@ -818,7 +818,7 @@ def career_lobby(timeout=None):
         
         # Use new scoring algorithm to choose best training (with stat cap filtering)
         log_debug(f"Choosing best training with stat cap filtering. Current stats: {current_stats}")
-        best_training = choose_best_training(results_training, training_config, current_stats)
+        best_training = choose_best_training(results_training, training_config, current_stats, year=year)
         
         if best_training:
             log_debug(f"Scoring algorithm selected: {best_training.upper()} training")
@@ -863,7 +863,7 @@ def career_lobby(timeout=None):
                             "guts": 0.0,
                             "wit": 0.0
                         }
-                        fallback_training = choose_best_training(results_training, relaxed_config, current_stats)
+                        fallback_training = choose_best_training(results_training, relaxed_config, current_stats, year=year)
                         if fallback_training:
                             log_info(f"Proceeding with training ({fallback_training.upper()}) despite poor options (relaxed selection)")
                             if not _on_training_screen:
@@ -893,7 +893,7 @@ def career_lobby(timeout=None):
                             "guts": 0.0,
                             "wit": 0.0
                         }
-                        fallback_training = choose_best_training(results_training, relaxed_config, current_stats)
+                        fallback_training = choose_best_training(results_training, relaxed_config, current_stats, year=year)
                         if fallback_training:
                             log_info(f"Proceeding with training ({fallback_training.upper()}) due to no races")
                             if not _on_training_screen:
@@ -956,7 +956,7 @@ def career_lobby(timeout=None):
                                 "guts": 0.0,
                                 "wit": 0.0
                             }
-                            relaxed_training = choose_best_training(results_training, relaxed_config, current_stats)
+                            relaxed_training = choose_best_training(results_training, relaxed_config, current_stats, year=year)
                             if relaxed_training:
                                 log_info(f"Proceeding with training ({relaxed_training.upper()}) using relaxed scoring")
                                 if not _on_training_screen:
