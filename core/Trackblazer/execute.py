@@ -795,6 +795,7 @@ def career_lobby(timeout=None):
                     config,
                     is_custom_race=bool(custom_race_selection and custom_race_selection.get("race")),
                     custom_race_use_glowstick=bool(custom_race_selection and custom_race_selection.get("use_glowstick")),
+                    custom_race_use_hammer=bool(custom_race_selection and custom_race_selection.get("use_hammer")),
                     is_ts_climax_race=is_finale_year,
                 )
                 _log_item_plan("Race items", planned_race_usage)
@@ -893,6 +894,7 @@ def career_lobby(timeout=None):
                             config,
                             is_custom_race=True,
                             custom_race_use_glowstick=bool(custom_race_selection.get("use_glowstick")),
+                            custom_race_use_hammer=bool(custom_race_selection.get("use_hammer")),
                             is_ts_climax_race=False,
                         )
                         _log_item_plan("Custom race items", planned_race_usage)

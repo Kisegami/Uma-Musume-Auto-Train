@@ -1065,11 +1065,14 @@ def get_custom_race_selection(year_override=None):
         return {
             "race": raw_value.get("race", ""),
             "use_glowstick": bool(raw_value.get("use_glowstick", False)),
+            "use_hammer": bool(raw_value.get("use_hammer", False)),
         }
 
     if isinstance(raw_value, str) and raw_value.strip():
-        return {"race": raw_value, "use_glowstick": False}
+        return {"race": raw_value, "use_glowstick": False, "use_hammer": False}
     return None
+
+
 def _resolve_custom_race_path(path, project_root):
     """Resolve custom race file path, preferring files under races/."""
     if not path:

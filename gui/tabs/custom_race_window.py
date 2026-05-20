@@ -1,6 +1,6 @@
 """
 Custom Race Editor Window for PySide6 GUI.
-Shows all racing periods with race selection dropdowns and per-race Glowstick toggles.
+Shows all racing periods with race selection dropdowns and per-race item toggles.
 """
 
 import json
@@ -48,10 +48,11 @@ class CustomRaceWindow(QDialog):
             return {
                 "race": value.get("race", ""),
                 "use_glowstick": bool(value.get("use_glowstick", False)),
+                "use_hammer": bool(value.get("use_hammer", False)),
             }
         if isinstance(value, str):
-            return {"race": value, "use_glowstick": False}
-        return {"race": "", "use_glowstick": False}
+            return {"race": value, "use_glowstick": False, "use_hammer": False}
+        return {"race": "", "use_glowstick": False, "use_hammer": False}
 
     def _load_races(self):
         try:
@@ -220,7 +221,7 @@ class CustomRaceWindow(QDialog):
         combo.setMaximumWidth(280)
         self._populate_race_combo(combo, period)
 
-        current_selection = self.selections.get(period, {"race": "", "use_glowstick": False})
+        current_selection = self.selections.get(period, {"race": "", "use_glowstick": False, "use_hammer": False})
         if current_selection["race"]:
             idx = combo.findText(current_selection["race"])
             if idx >= 0:
@@ -233,6 +234,11 @@ class CustomRaceWindow(QDialog):
         glowstick_checkbox.setChecked(bool(current_selection["use_glowstick"]))
         glowstick_checkbox.stateChanged.connect(lambda _state, p=period: self._on_glowstick_changed(p))
         row_layout.addWidget(glowstick_checkbox)
+
+        hammer_checkbox = QCheckBox("Use Hammer")
+        hammer_checkbox.setChecked(bool(current_selection["use_hammer"]))
+        hammer_checkbox.stateChanged.connect(lambda _state, p=period: self._on_hammer_changed(p))
+        row_layout.addWidget(hammer_checkbox)
 
         details_frame = QFrame()
         details_frame.setStyleSheet(f"background-color: {COLORS['bg_input']}; border-radius: 6px; padding: 4px;")
@@ -254,6 +260,7 @@ class CustomRaceWindow(QDialog):
         self.row_widgets[period] = {
             "combo": combo,
             "glowstick": glowstick_checkbox,
+            "hammer": hammer_checkbox,
             "details": detail_labels,
         }
         self._update_row_details(period)
@@ -296,7 +303,7 @@ class CustomRaceWindow(QDialog):
             combo.setCurrentIndex(idx if idx >= 0 else 0)
 
     def _ensure_selection(self, period):
-        self.selections.setdefault(period, {"race": "", "use_glowstick": False})
+        self.selections.setdefault(period, {"race": "", "use_glowstick": False, "use_hammer": False})
         return self.selections[period]
 
     def _on_race_changed(self, period, race_name):
@@ -307,6 +314,10 @@ class CustomRaceWindow(QDialog):
     def _on_glowstick_changed(self, period):
         selection = self._ensure_selection(period)
         selection["use_glowstick"] = self.row_widgets[period]["glowstick"].isChecked()
+
+    def _on_hammer_changed(self, period):
+        selection = self._ensure_selection(period)
+        selection["use_hammer"] = self.row_widgets[period]["hammer"].isChecked()
 
     def _update_row_details(self, period):
         widgets = self.row_widgets.get(period)
@@ -342,6 +353,7 @@ class CustomRaceWindow(QDialog):
         for widgets in self.row_widgets.values():
             widgets["combo"].setCurrentIndex(0)
             widgets["glowstick"].setChecked(False)
+            widgets["hammer"].setChecked(False)
 
     def _save_races(self):
         try:
@@ -353,6 +365,7 @@ class CustomRaceWindow(QDialog):
                 to_save[period] = {
                     "race": race_name,
                     "use_glowstick": bool(selection.get("use_glowstick", False)),
+                    "use_hammer": bool(selection.get("use_hammer", False)),
                 }
 
             os.makedirs(os.path.dirname(self.race_file), exist_ok=True)

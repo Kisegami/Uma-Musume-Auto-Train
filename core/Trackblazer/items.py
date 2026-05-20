@@ -978,11 +978,14 @@ def plan_training_item_usage(state, config, chosen_training, chosen_training_res
     return actions
 
 
-def _select_race_bonus_item(inventory_by_name, reserve_count, is_ts_climax_race):
+def _select_race_bonus_item(inventory_by_name, reserve_count, is_ts_climax_race, force_use=False):
     artisan_count = int(inventory_by_name.get(_normalize_text("Artisan Cleat Hammer"), {}).get("count", 0))
     master_count = int(inventory_by_name.get(_normalize_text("Master Cleat Hammer"), {}).get("count", 0))
     if artisan_count + master_count <= 0:
         return None
+
+    if force_use:
+        return "Master Cleat Hammer" if master_count > 0 else "Artisan Cleat Hammer"
 
     if is_ts_climax_race:
         return "Master Cleat Hammer" if master_count > 0 else "Artisan Cleat Hammer"
@@ -999,8 +1002,14 @@ def _select_race_bonus_item(inventory_by_name, reserve_count, is_ts_climax_race)
     return "Artisan Cleat Hammer" if artisan_count > 0 else None
 
 
-def plan_race_item_usage(state, config, is_custom_race=False, custom_race_use_glowstick=False, is_ts_climax_race=False):
-    del is_custom_race
+def plan_race_item_usage(
+    state,
+    config,
+    is_custom_race=False,
+    custom_race_use_glowstick=False,
+    custom_race_use_hammer=False,
+    is_ts_climax_race=False,
+):
     settings = load_item_settings(config)
     actions = []
 
@@ -1008,9 +1017,11 @@ def plan_race_item_usage(state, config, is_custom_race=False, custom_race_use_gl
         state["inventory_by_name"],
         reserve_count=_get_ts_climax_hammer_reserve_count(settings),
         is_ts_climax_race=is_ts_climax_race,
+        force_use=bool(is_custom_race and custom_race_use_hammer),
     )
     if race_bonus_item_id:
-        _append_usage(actions, race_bonus_item_id, 1, "use_race_bonus")
+        reason = "use_custom_race_hammer" if is_custom_race and custom_race_use_hammer else "use_race_bonus"
+        _append_usage(actions, race_bonus_item_id, 1, reason)
 
     use_glowstick = custom_race_use_glowstick or (is_ts_climax_race and bool(settings.get("use_glowstick_ts_climax", False)))
     if use_glowstick and int(state["inventory_by_name"].get(_normalize_text("Cheering Glowstick"), {}).get("count", 0)) > 0:
