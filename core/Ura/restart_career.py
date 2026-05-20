@@ -837,6 +837,11 @@ def start_career() -> bool:
         else:
             return False
         
+        optional_confirm_pos = restart_wait_for_image("assets/buttons/confirm.png", timeout=1.5, confidence=0.8)
+        if optional_confirm_pos:
+            tap(optional_confirm_pos[0], optional_confirm_pos[1])
+            time.sleep(0.5)
+
         # Step 8: Wait for skip button state and normalize it
         log_info("[Step 8/13] Waiting for skip control (30s timeout)...")
         skip_ready = retry_skip_normalization(max_attempts=3, timeout=30)
