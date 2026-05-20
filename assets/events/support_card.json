@@ -8944,5 +8944,1069 @@
       "Bottom Option": "Skill points +15\r\nSirius Symboli bond +5"
     },
     "CardSlug": "30091-sirius-symboli"
+  },
+  {
+    "EventName": "(❯) A Wonderful Wedding?",
+    "EventOptions": {
+      "": "Randomly either\r\nEnergy +15\r\nGet Charming ○ status\r\nHaru Urara bond +5\r\nor\r\nor\r\nEnergy +15\r\nHaru Urara bond +5"
+    },
+    "CardSlug": "30098-haru-urara"
+  },
+  {
+    "EventName": "(❯❯) The Theme's Decided!",
+    "EventOptions": {
+      "Top Option": "Energy +25\r\nHaru Urara bond +5"
+    },
+    "CardSlug": "30098-haru-urara"
+  },
+  {
+    "EventName": "(❯❯) The Theme's Decided!",
+    "EventOptions": {
+      "Bottom Option": "Mood +2\r\nHeal a negative status effect\r\nHaru Urara bond +5"
+    },
+    "CardSlug": "30098-haru-urara"
+  },
+  {
+    "EventName": "(❯❯❯) The Gift of Excitement",
+    "EventOptions": {
+      "": "Energy +50\r\nHard Worker hint +1\r\nHaru Urara bond +5"
+    },
+    "CardSlug": "30098-haru-urara"
+  },
+  {
+    "EventName": "Urara's ☆ Study Review",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nWit +5\r\nHaru Urara bond +5"
+    },
+    "CardSlug": "30098-haru-urara"
+  },
+  {
+    "EventName": "Urara's ☆ Study Review",
+    "EventOptions": {
+      "Bottom Option": "Mood +1\r\nWit +5\r\nHaru Urara bond +5"
+    },
+    "CardSlug": "30098-haru-urara"
+  },
+  {
+    "EventName": "Urara's ☆ Long Shot Dash!",
+    "EventOptions": {
+      "Top Option": "Long Shot ○ hint +1\r\nHaru Urara bond +5"
+    },
+    "CardSlug": "30098-haru-urara"
+  },
+  {
+    "EventName": "Urara's ☆ Long Shot Dash!",
+    "EventOptions": {
+      "Bottom Option": "Mood +1\r\nEnergy +10\r\nHaru Urara bond +5"
+    },
+    "CardSlug": "30098-haru-urara"
+  },
+  {
+    "EventName": "(❯) Ikuno-style Cuteness Research",
+    "EventOptions": {
+      "": "Maximum Energy +4\r\nStamina +15\r\nWit +5\r\nIkuno Dictus bond +5"
+    },
+    "CardSlug": "30099-ikuno-dictus"
+  },
+  {
+    "EventName": "(❯❯) Glasses-style Umadol Song ☆",
+    "EventOptions": {
+      "Top Option": "Energy +15\r\nIkuno Dictus bond +10"
+    },
+    "CardSlug": "30099-ikuno-dictus"
+  },
+  {
+    "EventName": "(❯❯) Glasses-style Umadol Song ☆",
+    "EventOptions": {
+      "Bottom Option": "Get Practice Perfect ○ status\r\nIkuno Dictus bond +10"
+    },
+    "CardSlug": "30099-ikuno-dictus"
+  },
+  {
+    "EventName": "(❯❯❯) Ikuno-style Socializing",
+    "EventOptions": {
+      "": "Randomly either\r\nEnergy +15\r\nStamina +15\r\nGuts +8\r\nWit +8\r\nKeep Going! hint +3\r\nIkuno Dictus bond +5\r\nor\r\nor\r\nEnergy +10\r\nStamina +8\r\nGuts +5\r\nWit +5\r\nFull Throttle hint +3\r\nIkuno Dictus bond +5"
+    },
+    "CardSlug": "30099-ikuno-dictus"
+  },
+  {
+    "EventName": "Ikuno-Style Flawless Method",
+    "EventOptions": {
+      "Top Option": "Wit +10\r\nIkuno Dictus bond +5"
+    },
+    "CardSlug": "30099-ikuno-dictus"
+  },
+  {
+    "EventName": "Ikuno-Style Flawless Method",
+    "EventOptions": {
+      "Bottom Option": "Skill points +30\r\nIkuno Dictus bond +5"
+    },
+    "CardSlug": "30099-ikuno-dictus"
+  },
+  {
+    "EventName": "Ikuno-Style Management",
+    "EventOptions": {
+      "Top Option": "Stamina +20\r\nIkuno Dictus bond +5"
+    },
+    "CardSlug": "30099-ikuno-dictus"
+  },
+  {
+    "EventName": "Ikuno-Style Management",
+    "EventOptions": {
+      "Bottom Option": "Trick (Rear) hint +1\r\nIkuno Dictus bond +5"
+    },
+    "CardSlug": "30099-ikuno-dictus"
+  },
+  {
+    "EventName": "(❯) Forever a Child in Our Eyes",
+    "EventOptions": {
+      "": "Energy -5\r\nWit +15\r\nRice Shower bond +5"
+    },
+    "CardSlug": "30100-rice-shower"
+  },
+  {
+    "EventName": "(❯❯) They Grow Up So Fast",
+    "EventOptions": {
+      "Top Option": "Energy -5\r\nKyoto Racecourse ○ hint +2\r\nRice Shower bond +5"
+    },
+    "CardSlug": "30100-rice-shower"
+  },
+  {
+    "EventName": "(❯❯) They Grow Up So Fast",
+    "EventOptions": {
+      "Bottom Option": "Energy +20\r\nRice Shower bond +5"
+    },
+    "CardSlug": "30100-rice-shower"
+  },
+  {
+    "EventName": "(❯❯❯) Hearts Full of Bittersweet Joy",
+    "EventOptions": {
+      "": "Energy -10\r\nWit +25\r\nShatterproof hint +1\r\nRice Shower bond +5"
+    },
+    "CardSlug": "30100-rice-shower"
+  },
+  {
+    "EventName": "A Page of Flower Shop Assistance",
+    "EventOptions": {
+      "Top Option": "Mood +2\r\nRice Shower bond +5"
+    },
+    "CardSlug": "30100-rice-shower"
+  },
+  {
+    "EventName": "A Page of Flower Shop Assistance",
+    "EventOptions": {
+      "Bottom Option": "Stamina +10\r\nRice Shower bond +5"
+    },
+    "CardSlug": "30100-rice-shower"
+  },
+  {
+    "EventName": "A Page About Cloudy Weather",
+    "EventOptions": {
+      "Top Option": "Speed +5\r\nGuts +5\r\nRice Shower bond +5"
+    },
+    "CardSlug": "30100-rice-shower"
+  },
+  {
+    "EventName": "A Page About Cloudy Weather",
+    "EventOptions": {
+      "Bottom Option": "Firm Conditions ○ hint +1\r\nRice Shower bond +5"
+    },
+    "CardSlug": "30100-rice-shower"
+  },
+  {
+    "EventName": "(❯) Party Ditcher",
+    "EventOptions": {
+      "": "Wit +10\r\nSkill points +10\r\nMr. C.B. bond +5"
+    },
+    "CardSlug": "30097-mr-cb"
+  },
+  {
+    "EventName": "(❯❯) Thinking Freely",
+    "EventOptions": {
+      "Top Option": "Randomly either\r\nEnergy +20\r\nCorner Recovery ○ hint +2\r\nMr. C.B. bond +10\r\nor\r\nor\r\nEnergy +15\r\nMr. C.B. bond +5"
+    },
+    "CardSlug": "30097-mr-cb"
+  },
+  {
+    "EventName": "(❯❯) Thinking Freely",
+    "EventOptions": {
+      "Bottom Option": "Power +10\r\nIntense Gaze hint +1\r\nMr. C.B. bond +5"
+    },
+    "CardSlug": "30097-mr-cb"
+  },
+  {
+    "EventName": "(❯❯❯) Overwhelming Freedom",
+    "EventOptions": {
+      "": "Power +10\r\nWit +20\r\nDaring Strike hint +1\r\nMr. C.B. bond +5"
+    },
+    "CardSlug": "30097-mr-cb"
+  },
+  {
+    "EventName": "The Paths that Beckon",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nSkill points +10\r\nMr. C.B. bond +5"
+    },
+    "CardSlug": "30097-mr-cb"
+  },
+  {
+    "EventName": "The Paths that Beckon",
+    "EventOptions": {
+      "Bottom Option": "Power +20\r\nMr. C.B. bond +5"
+    },
+    "CardSlug": "30097-mr-cb"
+  },
+  {
+    "EventName": "Even if I Ruffle Feathers",
+    "EventOptions": {
+      "Top Option": "Wit +15\r\nMr. C.B. bond +5"
+    },
+    "CardSlug": "30097-mr-cb"
+  },
+  {
+    "EventName": "Even if I Ruffle Feathers",
+    "EventOptions": {
+      "Bottom Option": "Early Start hint +1\r\nMr. C.B. bond +5"
+    },
+    "CardSlug": "30097-mr-cb"
+  },
+  {
+    "EventName": "(❯) The Ultimate Omlet Training Arc",
+    "EventOptions": {
+      "Top Option": "Mood +1\r\nEnergy -5\r\nGuts +15\r\nPosition Pilfer hint +1\r\nBamboo Memory bond +1"
+    },
+    "CardSlug": "30094-bamboo-memory"
+  },
+  {
+    "EventName": "(❯) The Ultimate Omlet Training Arc",
+    "EventOptions": {
+      "Bottom Option": "Skill points +30\r\nBamboo Memory bond +5\r\nEvent chain ended"
+    },
+    "CardSlug": "30094-bamboo-memory"
+  },
+  {
+    "EventName": "(❯❯) Sweat, Discipline, and Friendship!",
+    "EventOptions": {
+      "": "Energy -10\r\nPower +15\r\nGuts +15\r\nBamboo Memory bond +5"
+    },
+    "CardSlug": "30094-bamboo-memory"
+  },
+  {
+    "EventName": "(❯❯❯) Miracle Makers! The Red-Hot Cheer Squad!",
+    "EventOptions": {
+      "": "Randomly either\r\nEnergy -10\r\nStamina +20\r\nGuts +20\r\nFull of Vigor hint +3\r\nBamboo Memory bond +5\r\nor\r\nor\r\nEnergy -10\r\nStamina +15\r\nGuts +15\r\nPumped hint +1\r\nBamboo Memory bond +5"
+    },
+    "CardSlug": "30094-bamboo-memory"
+  },
+  {
+    "EventName": "Overthrow the Rival!",
+    "EventOptions": {
+      "Top Option": "Guts +10\r\nBamboo Memory bond +5"
+    },
+    "CardSlug": "30094-bamboo-memory"
+  },
+  {
+    "EventName": "Overthrow the Rival!",
+    "EventOptions": {
+      "Bottom Option": "Maximum Energy +4\r\nEnergy -5\r\nBamboo Memory bond +5"
+    },
+    "CardSlug": "30094-bamboo-memory"
+  },
+  {
+    "EventName": "Tons of Trouble!",
+    "EventOptions": {
+      "Top Option": "Stamina +5\r\nGuts +5\r\nBamboo Memory bond +5"
+    },
+    "CardSlug": "30094-bamboo-memory"
+  },
+  {
+    "EventName": "Tons of Trouble!",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nStandard Distance ○ hint +5\r\nBamboo Memory bond +5"
+    },
+    "CardSlug": "30094-bamboo-memory"
+  },
+  {
+    "EventName": "(❯) It'll All Turn Out Fine",
+    "EventOptions": {
+      "": "Speed +10\r\nWit +10\r\nMaximum Energy +4\r\nSeeking the Pearl bond +5"
+    },
+    "CardSlug": "30095-seeking-the-pearl"
+  },
+  {
+    "EventName": "(❯❯) Re: START!",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nWit +10\r\nUpdrafters hint +2\r\nSeeking the Pearl bond +5"
+    },
+    "CardSlug": "30095-seeking-the-pearl"
+  },
+  {
+    "EventName": "(❯❯) Re: START!",
+    "EventOptions": {
+      "Bottom Option": "Power +20\r\nSkill points +10\r\nLight as a Feather hint +2\r\nSeeking the Pearl bond +5"
+    },
+    "CardSlug": "30095-seeking-the-pearl"
+  },
+  {
+    "EventName": "(❯❯❯) You Are Me",
+    "EventOptions": {
+      "": "Speed +14\r\nGuts +7\r\nWit +7\r\nDauntless hint +1\r\nSeeking the Pearl bond +5"
+    },
+    "CardSlug": "30095-seeking-the-pearl"
+  },
+  {
+    "EventName": "Full-Power Passion!",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nMood +1\r\nSeeking the Pearl bond +5"
+    },
+    "CardSlug": "30095-seeking-the-pearl"
+  },
+  {
+    "EventName": "Full-Power Passion!",
+    "EventOptions": {
+      "Bottom Option": "Power +5\r\nGuts +5\r\nSeeking the Pearl bond +5"
+    },
+    "CardSlug": "30095-seeking-the-pearl"
+  },
+  {
+    "EventName": "Full-Power Thinking!",
+    "EventOptions": {
+      "Top Option": "Wit +20\r\nSeeking the Pearl bond +5"
+    },
+    "CardSlug": "30095-seeking-the-pearl"
+  },
+  {
+    "EventName": "Full-Power Thinking!",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nUma Stan hint +3\r\nSeeking the Pearl bond +5"
+    },
+    "CardSlug": "30095-seeking-the-pearl"
+  },
+  {
+    "EventName": "(❯) OH! MY! Ghost Hunt!",
+    "EventOptions": {
+      "": "Energy -5\r\nPower +10\r\nKawakami Princess bond +5"
+    },
+    "CardSlug": "30096-kawakami-princess"
+  },
+  {
+    "EventName": "(❯❯) Allies Assemble! A Princess Must Be Regal!",
+    "EventOptions": {
+      "": "Energy -10\r\nPower +20\r\nKawakami Princess bond +5"
+    },
+    "CardSlug": "30096-kawakami-princess"
+  },
+  {
+    "EventName": "(❯❯❯) Together as One! Grand Ghost Hunting Finale!",
+    "EventOptions": {
+      "": "Energy -15\r\nPower +30\r\nUnyielding hint +1\r\nKawakami Princess bond +5"
+    },
+    "CardSlug": "30096-kawakami-princess"
+  },
+  {
+    "EventName": "Princess Punch!",
+    "EventOptions": {
+      "Top Option": "Guts +10\r\nKawakami Princess bond +5"
+    },
+    "CardSlug": "30096-kawakami-princess"
+  },
+  {
+    "EventName": "Princess Punch!",
+    "EventOptions": {
+      "Bottom Option": "Mood +1\r\nKawakami Princess bond +5"
+    },
+    "CardSlug": "30096-kawakami-princess"
+  },
+  {
+    "EventName": "Princess Escape!",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nKawakami Princess bond +5"
+    },
+    "CardSlug": "30096-kawakami-princess"
+  },
+  {
+    "EventName": "Princess Escape!",
+    "EventOptions": {
+      "Bottom Option": "Steadfast hint +1\r\nKawakami Princess bond +5"
+    },
+    "CardSlug": "30096-kawakami-princess"
+  },
+  {
+    "EventName": "(❯) Distant Feelings",
+    "EventOptions": {
+      "Top Option": "Stamina +10\r\nFeature Act hint +2\r\nDaiwa Scarlet bond +5"
+    },
+    "CardSlug": "30093-daiwa-scarlet"
+  },
+  {
+    "EventName": "(❯) Distant Feelings",
+    "EventOptions": {
+      "Bottom Option": "Power +10\r\nUp-Tempo hint +2\r\nDaiwa Scarlet bond +5"
+    },
+    "CardSlug": "30093-daiwa-scarlet"
+  },
+  {
+    "EventName": "(❯❯) An Important Signal",
+    "EventOptions": {
+      "": "Skill points +20\r\nDaiwa Scarlet bond +5"
+    },
+    "CardSlug": "30093-daiwa-scarlet"
+  },
+  {
+    "EventName": "(❯❯❯) This is Who I Am",
+    "EventOptions": {
+      "": "Power +15\r\nWit +15\r\nNeck and Neck hint +1\r\nDaiwa Scarlet bond +5"
+    },
+    "CardSlug": "30093-daiwa-scarlet"
+  },
+  {
+    "EventName": "I'm Going to Win Tomorrow!",
+    "EventOptions": {
+      "Top Option": "Wit +10\r\nDaiwa Scarlet bond +5"
+    },
+    "CardSlug": "30093-daiwa-scarlet"
+  },
+  {
+    "EventName": "I'm Going to Win Tomorrow!",
+    "EventOptions": {
+      "Bottom Option": "Mood +1\r\nSkill points +15\r\nDaiwa Scarlet bond +5"
+    },
+    "CardSlug": "30093-daiwa-scarlet"
+  },
+  {
+    "EventName": "This Is Nothing!",
+    "EventOptions": {
+      "Top Option": "Stamina to Spare hint +1\r\nDaiwa Scarlet bond +5"
+    },
+    "CardSlug": "30093-daiwa-scarlet"
+  },
+  {
+    "EventName": "This Is Nothing!",
+    "EventOptions": {
+      "Bottom Option": "Energy +20\r\nMood +1\r\nDaiwa Scarlet bond +5"
+    },
+    "CardSlug": "30093-daiwa-scarlet"
+  },
+  {
+    "EventName": "(❯) Both High and Low",
+    "EventOptions": {
+      "Top Option": "Speed +10\r\nPower +10\r\nAir Shakur bond +5"
+    },
+    "CardSlug": "30092-air-shakur"
+  },
+  {
+    "EventName": "(❯) Both High and Low",
+    "EventOptions": {
+      "Bottom Option": "Eager hint +1\r\nAir Shakur bond +5"
+    },
+    "CardSlug": "30092-air-shakur"
+  },
+  {
+    "EventName": "(❯❯) BPM in Sync",
+    "EventOptions": {
+      "": "Speed +15\r\nEnd Closer Straightaways ○ hint +1\r\nAir Shakur bond +5"
+    },
+    "CardSlug": "30092-air-shakur"
+  },
+  {
+    "EventName": "(❯❯❯) Connected EQs",
+    "EventOptions": {
+      "": "Speed +10\r\nSkill points +10\r\nSerenity hint +1\r\nAir Shakur bond +5"
+    },
+    "CardSlug": "30092-air-shakur"
+  },
+  {
+    "EventName": "//Verification Required",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nGuts +5\r\nAir Shakur bond +5"
+    },
+    "CardSlug": "30092-air-shakur"
+  },
+  {
+    "EventName": "//Verification Required",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nStamina +5\r\nGuts +10\r\nAir Shakur bond +5"
+    },
+    "CardSlug": "30092-air-shakur"
+  },
+  {
+    "EventName": "//Absolute Desire",
+    "EventOptions": {
+      "Top Option": "Pace Strategy hint +1\r\nAir Shakur bond +5"
+    },
+    "CardSlug": "30092-air-shakur"
+  },
+  {
+    "EventName": "//Absolute Desire",
+    "EventOptions": {
+      "Bottom Option": "Maximum Energy +4\r\nGuts +5\r\nAir Shakur bond +5"
+    },
+    "CardSlug": "30092-air-shakur"
+  },
+  {
+    "EventName": "I Shall Have the Last Laugh (Mejiro McQueen)",
+    "EventOptions": {
+      "": "Maximum Energy +4\r\nStamina +11\r\nGuts +11\r\nWit +11\r\nRisky Business hint +2\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "The Secret to Her Success (Rice Shower)",
+    "EventOptions": {
+      "": "Energy +30\r\nSkill points +17\r\nTarget in Sight ○ hint +2\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "Common Threads, Dreams Entwined (Winning Ticket)",
+    "EventOptions": {
+      "": "Energy +12\r\nMood +1\r\nPower +17\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "It's Tough Being a Little Sister (Narita Brian)",
+    "EventOptions": {
+      "": "Speed +23\r\nSkill points +23\r\nTeam Sirius bond +5\r\nHeal Practice Poor"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "The Scenery that Lies Beyond (Silence Suzuka)",
+    "EventOptions": {
+      "": "Energy -5\r\nSpeed +17\r\nPower +17\r\nSkill points +17\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "I Want to Share My Dream (Special Week)",
+    "EventOptions": {
+      "": "Energy +48\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "The Meaning of Support",
+    "EventOptions": {
+      "": "Energy +24\r\nSpeed +11\r\nStamina +11\r\nPower +11\r\nBest in Japan hint +1\r\nGet Pure Passion: Team Sirius status\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "Watch Where You're Going!",
+    "EventOptions": {
+      "Top Option": "Extra Tank hint +1\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "Watch Where You're Going!",
+    "EventOptions": {
+      "Bottom Option": "Guts +17\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "So Many Options!",
+    "EventOptions": {
+      "Top Option": "Energy +12\r\nMood +1\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "So Many Options!",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nStamina +17\r\nSkill points +17\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "On and On",
+    "EventOptions": {
+      "Top Option": "Speed +11\r\nStamina +5\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "On and On",
+    "EventOptions": {
+      "Bottom Option": "Speed +17\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "What Should I Do?",
+    "EventOptions": {
+      "Top Option": "Speed +5\r\nStamina +5\r\nWit +5\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "What Should I Do?",
+    "EventOptions": {
+      "Bottom Option": "Left-Handed ○ hint +1\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "To Maintain My Weight",
+    "EventOptions": {
+      "Top Option": "Energy -10\r\nStamina +17\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "To Maintain My Weight",
+    "EventOptions": {
+      "Bottom Option": "Maximum Energy +4\r\nStamina +5\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "To Reach the Greatest Heights",
+    "EventOptions": {
+      "Top Option": "Stamina +5\r\nGuts +5\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "To Reach the Greatest Heights",
+    "EventOptions": {
+      "Bottom Option": "Early Lead hint +1\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "A Page of Flower Shop Assistance",
+    "EventOptions": {
+      "Top Option": "Mood +2\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "A Page of Flower Shop Assistance",
+    "EventOptions": {
+      "Bottom Option": "Stamina +11\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "A Page About Cloudy Weather",
+    "EventOptions": {
+      "Top Option": "Speed +5\r\nGuts +5\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "A Page About Cloudy Weather",
+    "EventOptions": {
+      "Bottom Option": "Firm Conditions ○ hint +1\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "Full-Power Muscles!",
+    "EventOptions": {
+      "Top Option": "Stamina +5\r\nSkill points +17\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "Full-Power Muscles!",
+    "EventOptions": {
+      "Bottom Option": "Mood +1\r\nSkill points +17\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "Full-Power Racing!",
+    "EventOptions": {
+      "Top Option": "Late Surger Corners ○ hint +1\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "Full-Power Racing!",
+    "EventOptions": {
+      "Bottom Option": "Skill points +34\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "Student Council Member!",
+    "EventOptions": {
+      "Top Option": "Mood +1\r\nSpeed +5\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "Student Council Member!",
+    "EventOptions": {
+      "Bottom Option": "Maximum Energy +4\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "Lone Wolf",
+    "EventOptions": {
+      "Top Option": "Speed +3\r\nStamina +3\r\nPower +3\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "Lone Wolf",
+    "EventOptions": {
+      "Bottom Option": "Lone Wolf hint +1\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "We're All Shining Stars",
+    "EventOptions": {
+      "": "Speed +6\r\nStamina +5\r\nPower +5\r\nGet Pure Passion: Team Sirius status\r\nTeam Sirius bond +5\r\nCan start dating"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "Teamwork Makes the Dream Work!",
+    "EventOptions": {
+      "Top Option": "Energy +12\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "Teamwork Makes the Dream Work!",
+    "EventOptions": {
+      "Bottom Option": "Speed +11\r\nWit +5\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "Every One of Us Has a Dream",
+    "EventOptions": {
+      "": "Speed +6\r\nPower +6\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "A Second Serving of Training",
+    "EventOptions": {
+      "Top Option": "Stamina +4\r\n(random) Skill points +4\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "A Second Serving of Training",
+    "EventOptions": {
+      "Middle Option": "Speed +4\r\n(random) Skill points +4\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "A Second Serving of Training",
+    "EventOptions": {
+      "Bottom Option": "(random) Energy +3\r\nSkill points +4\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "Beyond the Horizon of Our Dreams",
+    "EventOptions": {
+      "": "All stats +5\r\nSkill points +11"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "Another Day, Another Step Towards Our Dream",
+    "EventOptions": {
+      "": "All stats +3\r\nSkill points +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "The Luckiest Racer in Japan",
+    "EventOptions": {
+      "": "Speed +8\r\nStamina +8\r\nPower +8\r\nCorner Recovery ○ hint +1\r\nTeam Sirius bond +5"
+    },
+    "CardSlug": "30081-team-sirius"
+  },
+  {
+    "EventName": "(❯) Marvelous☆Dive!",
+    "EventOptions": {
+      "Top Option": "Wit +10\r\nSkill points +10\r\nMarvelous Sunday bond +5"
+    },
+    "CardSlug": "30089-marvelous-sunday"
+  },
+  {
+    "EventName": "(❯) Marvelous☆Dive!",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nGuts +25\r\nMarvelous Sunday bond +5"
+    },
+    "CardSlug": "30089-marvelous-sunday"
+  },
+  {
+    "EventName": "(❯❯) Marvelous☆School!",
+    "EventOptions": {
+      "": "Skill points +30\r\nMarvelous Sunday bond +5"
+    },
+    "CardSlug": "30089-marvelous-sunday"
+  },
+  {
+    "EventName": "(❯❯❯) Marvelous☆Victory!",
+    "EventOptions": {
+      "": "Energy -10\r\nGuts +10\r\nWit +10\r\nSkill points +20\r\nAdrenaline Rush hint +3\r\nMarvelous Sunday bond +5"
+    },
+    "CardSlug": "30089-marvelous-sunday"
+  },
+  {
+    "EventName": "Marvelous, No Question ☆",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nSpeed +5\r\nMarvelous Sunday bond +5"
+    },
+    "CardSlug": "30089-marvelous-sunday"
+  },
+  {
+    "EventName": "Marvelous, No Question ☆",
+    "EventOptions": {
+      "Bottom Option": "Mood +1\r\nSpeed +5\r\nMarvelous Sunday bond +5"
+    },
+    "CardSlug": "30089-marvelous-sunday"
+  },
+  {
+    "EventName": "How To Be More Marvelous ☆",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nMood +1\r\nMarvelous Sunday bond +5"
+    },
+    "CardSlug": "30089-marvelous-sunday"
+  },
+  {
+    "EventName": "How To Be More Marvelous ☆",
+    "EventOptions": {
+      "Bottom Option": "Hanshin Racecourse ○ hint +1\r\nMarvelous Sunday bond +5"
+    },
+    "CardSlug": "30089-marvelous-sunday"
+  },
+  {
+    "EventName": "(❯) A Selfish (?) Desire",
+    "EventOptions": {
+      "": "Maximum Energy +4\r\nSkill points +10\r\nTokai Teio bond +5"
+    },
+    "CardSlug": "20047-tokai-teio"
+  },
+  {
+    "EventName": "(❯❯) Spreading the Love of Dance!",
+    "EventOptions": {
+      "Top Option": "Skill points +15\r\nMedium Corners ○ hint +1\r\nTokai Teio bond +5"
+    },
+    "CardSlug": "20047-tokai-teio"
+  },
+  {
+    "EventName": "(❯❯) Spreading the Love of Dance!",
+    "EventOptions": {
+      "Bottom Option": "Energy +20\r\nTokai Teio bond +5"
+    },
+    "CardSlug": "20047-tokai-teio"
+  },
+  {
+    "EventName": "My Way, Or...",
+    "EventOptions": {
+      "Top Option": "Mood +1\r\nSkill points +15\r\nTokai Teio bond +5"
+    },
+    "CardSlug": "20047-tokai-teio"
+  },
+  {
+    "EventName": "My Way, Or...",
+    "EventOptions": {
+      "Bottom Option": "Guts +15\r\nTokai Teio bond +5"
+    },
+    "CardSlug": "20047-tokai-teio"
+  },
+  {
+    "EventName": "My Weapon",
+    "EventOptions": {
+      "Top Option": "Mood +1\r\nGuts +10\r\nTokai Teio bond +5"
+    },
+    "CardSlug": "20047-tokai-teio"
+  },
+  {
+    "EventName": "My Weapon",
+    "EventOptions": {
+      "Bottom Option": "Pace Chaser Straightaways ○ hint +1\r\nTokai Teio bond +5"
+    },
+    "CardSlug": "20047-tokai-teio"
+  },
+  {
+    "EventName": "(❯) What's Behind the Foul Mood?",
+    "EventOptions": {
+      "": "Skill points +30\r\nTrick (Rear) hint +2\r\nSweep Tosho bond +5"
+    },
+    "CardSlug": "20046-sweep-tosho"
+  },
+  {
+    "EventName": "(❯❯) The Trick to Perseverance!",
+    "EventOptions": {
+      "Top Option": "Wit +10\r\nSubdued End Closers hint +2\r\nSweep Tosho bond +5"
+    },
+    "CardSlug": "20046-sweep-tosho"
+  },
+  {
+    "EventName": "(❯❯) The Trick to Perseverance!",
+    "EventOptions": {
+      "Bottom Option": "Speed +10\r\nEnd Closer Straightaways ○ hint +2\r\nSweep Tosho bond +5"
+    },
+    "CardSlug": "20046-sweep-tosho"
+  },
+  {
+    "EventName": "Miracle ☆ Escape!",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nSpeed +5\r\nSweep Tosho bond +5"
+    },
+    "CardSlug": "20046-sweep-tosho"
+  },
+  {
+    "EventName": "Miracle ☆ Escape!",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nSpeed +20\r\nSweep Tosho bond +5"
+    },
+    "CardSlug": "20046-sweep-tosho"
+  },
+  {
+    "EventName": "Wonderful ☆ Mistake!",
+    "EventOptions": {
+      "Top Option": "Randomly either\r\nEnergy -15\r\nSkill points +40\r\nor\r\nor\r\nEnergy -20\r\nSkill points +40\r\nSweep Tosho bond +5"
+    },
+    "CardSlug": "20046-sweep-tosho"
+  },
+  {
+    "EventName": "Wonderful ☆ Mistake!",
+    "EventOptions": {
+      "Bottom Option": "Get Charming ○ status\r\nSweep Tosho bond +5"
+    },
+    "CardSlug": "20046-sweep-tosho"
+  },
+  {
+    "EventName": "(❯) What Is an Umadol?",
+    "EventOptions": {
+      "Top Option": "Leader's Pride hint +1\r\nSmart Falcon bond +5"
+    },
+    "CardSlug": "20045-smart-falcon"
+  },
+  {
+    "EventName": "(❯) What Is an Umadol?",
+    "EventOptions": {
+      "Bottom Option": "Energy +10\r\nPower +5\r\nSmart Falcon bond +5"
+    },
+    "CardSlug": "20045-smart-falcon"
+  },
+  {
+    "EventName": "(❯❯) This Is an Umadol!",
+    "EventOptions": {
+      "": "Skill points +25\r\nTop Pick hint +1\r\nSmart Falcon bond +5"
+    },
+    "CardSlug": "20045-smart-falcon"
+  },
+  {
+    "EventName": "Chants Are the Life of a Concert ☆",
+    "EventOptions": {
+      "Top Option": "Stamina +5\r\nGuts +10\r\nSmart Falcon bond +5"
+    },
+    "CardSlug": "20045-smart-falcon"
+  },
+  {
+    "EventName": "Chants Are the Life of a Concert ☆",
+    "EventOptions": {
+      "Bottom Option": "Wit +15\r\nSmart Falcon bond +5"
+    },
+    "CardSlug": "20045-smart-falcon"
+  },
+  {
+    "EventName": "If I'm Cute, Come to My Show! ☆",
+    "EventOptions": {
+      "Top Option": "Energy -10\r\nPower +10\r\nFinal Push hint +1\r\nSmart Falcon bond +5"
+    },
+    "CardSlug": "20045-smart-falcon"
+  },
+  {
+    "EventName": "If I'm Cute, Come to My Show! ☆",
+    "EventOptions": {
+      "Bottom Option": "Energy +10\r\nWit +5\r\nSmart Falcon bond +5"
+    },
+    "CardSlug": "20045-smart-falcon"
+  },
+  {
+    "EventName": "(❯) #AWildCurrenAppeared",
+    "EventOptions": {
+      "Top Option": "Speed +20\r\nCurren Chan bond +5"
+    },
+    "CardSlug": "20044-curren-chan"
+  },
+  {
+    "EventName": "(❯) #AWildCurrenAppeared",
+    "EventOptions": {
+      "Bottom Option": "Skill points +10\r\nShrewd Step hint +1\r\nCurren Chan bond +5"
+    },
+    "CardSlug": "20044-curren-chan"
+  },
+  {
+    "EventName": "(❯❯) #CuteFluffyOverload",
+    "EventOptions": {
+      "": "Sprint Corners ○ hint +1\r\nCurren Chan bond +5"
+    },
+    "CardSlug": "20044-curren-chan"
+  },
+  {
+    "EventName": "#UrUniqueCuteness",
+    "EventOptions": {
+      "Top Option": "Speed +5\r\nWit +10\r\nCurren Chan bond +5"
+    },
+    "CardSlug": "20044-curren-chan"
+  },
+  {
+    "EventName": "#UrUniqueCuteness",
+    "EventOptions": {
+      "Bottom Option": "Speed +10\r\nPower +5\r\nCurren Chan bond +5"
+    },
+    "CardSlug": "20044-curren-chan"
+  },
+  {
+    "EventName": "#Cuteness4U ☆",
+    "EventOptions": {
+      "Top Option": "Skill points +15\r\nCurren Chan bond +5"
+    },
+    "CardSlug": "20044-curren-chan"
+  },
+  {
+    "EventName": "#Cuteness4U ☆",
+    "EventOptions": {
+      "Bottom Option": "Intimidate hint +1\r\nCurren Chan bond +5"
+    },
+    "CardSlug": "20044-curren-chan"
+  },
+  {
+    "EventName": "The Paths that Beckon",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nSkill points +10\r\nMr. C.B. bond +5"
+    },
+    "CardSlug": "10078-mr-cb"
+  },
+  {
+    "EventName": "The Paths that Beckon",
+    "EventOptions": {
+      "Bottom Option": "Power +20\r\nMr. C.B. bond +5"
+    },
+    "CardSlug": "10078-mr-cb"
+  },
+  {
+    "EventName": "Even if I Ruffle Feathers",
+    "EventOptions": {
+      "Top Option": "Wit +15\r\nMr. C.B. bond +5"
+    },
+    "CardSlug": "10078-mr-cb"
+  },
+  {
+    "EventName": "Even if I Ruffle Feathers",
+    "EventOptions": {
+      "Bottom Option": "Early Start hint +1\r\nMr. C.B. bond +5"
+    },
+    "CardSlug": "10078-mr-cb"
   }
 ]
