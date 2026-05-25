@@ -47,7 +47,7 @@ OK_BUTTON_REGION = (309, 1163, 705, 690)
 UNITY_TEMPLATE_REGIONS = {
     "assets/buttons/back_btn.png": (3, 1651, 261, 261),
     "assets/buttons/cancel_lobby.png": (295, 1285, 481, 185),
-    "assets/buttons/close.png": (59, 1153, 472, 186),
+    "assets/buttons/close.png": (57, 1152, 712, 710),
     "assets/buttons/complete_career.png": (573, 1559, 384, 149),
     "assets/buttons/confirm.png": (296, 1277, 731, 429),
     "assets/buttons/infirmary_btn2.png": (97, 1592, 441, 213),
