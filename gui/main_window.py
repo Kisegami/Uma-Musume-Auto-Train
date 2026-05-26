@@ -390,6 +390,13 @@ class MainWindow(QMainWindow):
                 "enable_skill_point_check": True,
                 "pre_custom_race_skill_check": False
             },
+            "restart_career": {
+                "restart_enabled": False,
+                "restart_times": 2,
+                "total_fans_requirement": 0,
+                "end_skill_file": "",
+                "ignore_end_skill_purchase": False
+            },
             "items": {"item_purchase_file": "template/items/default.json", "budget_strategy": "save_priority"},
             "debug_mode": False,
             "dump_lobby_template_regions": False,

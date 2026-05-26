@@ -123,6 +123,10 @@ class SkillTab(QScrollArea):
         # Note label
         note_row = self._create_note_row("warning", "⚠️ Used automatically when Restart Career is enabled")
         end_skill_layout.addWidget(note_row)
+
+        self.ignore_end_skill_purchase_check = QCheckBox("Ignore end career skill purchase")
+        self.ignore_end_skill_purchase_check.stateChanged.connect(self._save_end_skill)
+        end_skill_layout.addWidget(self.ignore_end_skill_purchase_check)
         
         # End skill template selection (always visible)
         self.end_skill_widget = QWidget()
@@ -292,6 +296,10 @@ class SkillTab(QScrollArea):
         self.auto_widget.setVisible(enabled and self.purchase_combo.currentText() == 'auto')
         
         # End skill file
+        self.ignore_end_skill_purchase_check.blockSignals(True)
+        self.ignore_end_skill_purchase_check.setChecked(restart.get("ignore_end_skill_purchase", False))
+        self.ignore_end_skill_purchase_check.blockSignals(False)
+
         end_skill_file = restart.get("end_skill_file", "default.json")
         if "/" in end_skill_file or "\\" in end_skill_file:
             end_skill_file = os.path.basename(end_skill_file)
@@ -395,6 +403,7 @@ class SkillTab(QScrollArea):
         
 
         config["restart_career"]["end_skill_file"] = f"template/End_skill/{self.end_skill_dropdown.currentText()}"
+        config["restart_career"]["ignore_end_skill_purchase"] = self.ignore_end_skill_purchase_check.isChecked()
         
         self.main_window.save_config()
         

@@ -193,6 +193,40 @@ def find_matching_skill(skill_name, available_skills, excluded_skills=None):
     log_debug(f"No match found for '{skill_name}' in available skills")
     return None
 
+def _skill_price(skill, default=999999):
+    """Return numeric skill price for planning sort order."""
+    price = skill.get('price', default)
+    if isinstance(price, int):
+        return price
+    if isinstance(price, str) and price.isdigit():
+        return int(price)
+    return default
+
+def _reorder_end_career_gold_first(purchase_plan, gold_upgrades):
+    """Move configured gold skills ahead of regular priority and fallback skills."""
+    if not purchase_plan or not gold_upgrades:
+        return purchase_plan
+
+    reordered = []
+    used_indexes = set()
+    for gold_skill_name in gold_upgrades:
+        for index, skill in enumerate(purchase_plan):
+            if index in used_indexes:
+                continue
+            if fuzzy_match_skill_name(skill.get('name', ''), gold_skill_name):
+                reordered.append(skill)
+                used_indexes.add(index)
+                break
+
+    if not reordered:
+        return purchase_plan
+
+    reordered.extend(
+        skill for index, skill in enumerate(purchase_plan)
+        if index not in used_indexes
+    )
+    return reordered
+
 def create_purchase_plan(available_skills, config, end_career=False):
     """
     Create optimized purchase plan based on available skills and config.
@@ -274,7 +308,7 @@ def create_purchase_plan(available_skills, config, end_career=False):
                 matched_skills.add(skill['name'])  # Mark as matched
                 log_info(f"Regular skill: {skill['name']} - {skill['price']}")
     
-    # End-career mode: after priority skills, add remaining skills (cheapest first)
+    # End-career mode: after priority skills, add configured gold skills, then fill cheapest first
     if end_career:
         # Get skills already selected for purchase
         purchased_skill_names = {skill['name'] for skill in purchase_plan}
@@ -285,6 +319,32 @@ def create_purchase_plan(available_skills, config, end_career=False):
             if skill['name'] not in purchased_skill_names
         ]
         
+        promoted_gold_skills = []
+        for gold_skill_name in gold_upgrades:
+            gold_skill = None
+            if gold_skill_name in available_by_name and available_by_name[gold_skill_name]['name'] not in purchased_skill_names:
+                gold_skill = available_by_name[gold_skill_name]
+            else:
+                gold_skill = find_matching_skill(gold_skill_name, remaining_skills, excluded_skills=purchased_skill_names)
+
+            if gold_skill:
+                purchase_plan.append(gold_skill)
+                purchased_skill_names.add(gold_skill['name'])
+                promoted_gold_skills.append(gold_skill)
+                log_info(f"End-career gold skill promoted: {gold_skill['name']} - {gold_skill['price']}")
+
+        if promoted_gold_skills:
+            remaining_skills = [
+                skill for skill in remaining_skills
+                if skill['name'] not in purchased_skill_names
+            ]
+            log_info(f"End-career: Promoted {len(promoted_gold_skills)} configured gold skills before cheapest-fill purchases")
+
+        reordered_purchase_plan = _reorder_end_career_gold_first(purchase_plan, gold_upgrades)
+        if reordered_purchase_plan != purchase_plan:
+            purchase_plan = reordered_purchase_plan
+            log_info("End-career: Configured gold skills moved before regular priority skills")
+
         if remaining_skills:
             log_info(f"End-career: Adding {len(remaining_skills)} remaining skills (cheapest first)")
             
@@ -292,7 +352,7 @@ def create_purchase_plan(available_skills, config, end_career=False):
             try:
                 sorted_remaining = sorted(
                     remaining_skills,
-                    key=lambda x: int(x.get('price', '999999')) if x.get('price', '0').isdigit() else 999999
+                    key=_skill_price
                 )
             except:
                 sorted_remaining = remaining_skills

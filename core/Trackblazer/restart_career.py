@@ -933,7 +933,13 @@ def complete_career(current_restart_count: int, max_restart_times: int,
     
     # Extract fans and skill points first
     screenshot = take_screenshot()
-    skill_points = extract_skill_points(screenshot)
+    restart_config = load_restart_config()
+    ignore_end_skill_purchase = restart_config.get("ignore_end_skill_purchase", False)
+    if ignore_end_skill_purchase:
+        skill_points = 0
+        log_info("End career skill purchase ignored by config")
+    else:
+        skill_points = extract_skill_points(screenshot)
     
     # Handle notification and fan merging
     run_fans, total_fans_acquired = notify_run_completion(
@@ -953,7 +959,7 @@ def complete_career(current_restart_count: int, max_restart_times: int,
         return False, current_restart_count, total_fans_acquired
     
     # Execute skill purchase workflow (if skill points available)
-    if skill_points > 0:
+    if not ignore_end_skill_purchase and skill_points > 0:
         execute_skill_purchase_workflow(skill_points)
     
     # Complete the career
