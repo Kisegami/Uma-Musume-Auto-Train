@@ -84,7 +84,7 @@
     ],
     "do_custom_race": true,
     "custom_race_file": "template/races/custom_races.json",
-    "custom_race_search_method": "ocr"
+    "custom_race_search_method": "template_matching"
   },
   "skills": {
     "skill_point_cap": 400,

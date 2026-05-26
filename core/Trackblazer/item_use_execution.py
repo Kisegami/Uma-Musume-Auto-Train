@@ -19,6 +19,7 @@ CLOSE_TEMPLATE = "assets/buttons/close.png"
 ITEM_USE_THRESHOLD = 0.80
 ITEM_USE_DEDUP_DISTANCE = 30
 BUTTON_THRESHOLD = 0.80
+OPEN_INVENTORY_BUTTON_THRESHOLD = 0.70
 ITEM_NAME_MIN_MATCH_SCORE = 0.85
 
 ITEM_NAME_OCR_OFFSET = (-742, -86, 525, 54)
@@ -171,7 +172,11 @@ def _open_inventory_if_needed():
         log_debug("[Items] Item inventory already open")
         return True
 
-    if not _tap_button_if_visible(ITEMS_INVENTORY_TEMPLATE, "items inventory button"):
+    if not _tap_button_if_visible(
+        ITEMS_INVENTORY_TEMPLATE,
+        "items inventory button",
+        threshold=OPEN_INVENTORY_BUTTON_THRESHOLD,
+    ):
         log_warning("[Items] Failed to open item inventory from lobby")
         return False
 

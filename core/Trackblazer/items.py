@@ -649,25 +649,37 @@ def _build_auto_buy_candidates(state, settings, template_limits, config):
         master_count = int(inventory_by_name.get(_normalize_text("Master Cleat Hammer"), {}).get("count", 0))
         total_hammer_count = artisan_count + master_count
 
+        master_entries = _available_shop_entries(state["shop_items"], "Master Cleat Hammer")
+        artisan_entries = _available_shop_entries(state["shop_items"], "Artisan Cleat Hammer")
+
         if total_hammer_count < reserve_count:
             missing_hammer_count = reserve_count - total_hammer_count
-            master_entries = _available_shop_entries(state["shop_items"], "Master Cleat Hammer")
-            artisan_entries = _available_shop_entries(state["shop_items"], "Artisan Cleat Hammer")
+            master_purchase_count = min(missing_hammer_count, len(master_entries))
+            artisan_purchase_count = missing_hammer_count - master_purchase_count
 
-            # Before TS Climax, buy up to the configured reserve count, preferring Master
-            # when it is available in the shop.
-            if master_entries:
+            # Before TS Climax, fill the configured reserve count. Masters take
+            # the first slots, then Artisans cover any remaining missing reserve.
+            if master_purchase_count > 0:
                 candidates.append({
                     "item_name": "Master Cleat Hammer",
-                    "desired_quantity": master_count + missing_hammer_count,
+                    "desired_quantity": master_count + master_purchase_count,
                     "reason": "auto_buy_ts_climax_master_reserve",
                 })
-            elif artisan_entries:
+            if artisan_purchase_count > 0 and artisan_entries:
                 candidates.append({
                     "item_name": "Artisan Cleat Hammer",
-                    "desired_quantity": artisan_count + missing_hammer_count,
+                    "desired_quantity": artisan_count + artisan_purchase_count,
                     "reason": "auto_buy_ts_climax_hammer_reserve",
                 })
+        elif artisan_count > 0 and master_entries:
+            # If the reserve is already full but contains Artisan hammers, buy a
+            # Master as an upgrade. The displaced Artisan becomes excess and can
+            # be spent before TS Climax.
+            candidates.append({
+                "item_name": "Master Cleat Hammer",
+                "desired_quantity": master_count + 1,
+                "reason": "auto_buy_ts_climax_master_reserve",
+            })
 
     return candidates
 

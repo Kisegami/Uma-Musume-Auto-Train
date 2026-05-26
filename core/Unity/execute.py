@@ -75,8 +75,14 @@ def arm_skip_infirmary_check_for_new_turn():
 
 
 def should_skip_infirmary_check_for_current_turn():
-    """Return True once when the first-turn infirmary check should be skipped."""
+    """Return whether the infirmary check should be skipped for this lobby turn."""
     global _skip_infirmary_check_once
+    training_config = load_main_config().get("training", {})
+    if training_config.get("skip_infirmary_check_on_new_turn", False):
+        log_info("Skipping infirmary check for this turn")
+        _skip_infirmary_check_once = False
+        return True
+
     if not _skip_infirmary_check_once:
         return False
 
