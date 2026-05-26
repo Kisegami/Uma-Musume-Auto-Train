@@ -29,6 +29,7 @@ DEFAULT_ITEM_SETTINGS = {
     "purchase_max_swipes": 10,
     "shop_swipe_time_offset": 0,
     "auto_buy_mood_items": False,
+    "save_energy_recovery_for_summer": False,
     "auto_buy_negative_cure_items": False,
     "auto_buy_negative_cure_conditions": list(NEGATIVE_CONDITIONS),
     "auto_buy_friendship_items": False,
@@ -363,6 +364,47 @@ def _is_buff_period_allowed(settings, year):
     return any(_is_single_buff_period_allowed(setting, year) for setting in periods)
 
 
+def _is_summer_period(year):
+    return _is_single_buff_period_allowed("classic_senior_summer", year)
+
+
+def _is_after_senior_summer_or_ts_climax(year):
+    normalized_year = str(year or "")
+    if "TS Climax" in normalized_year:
+        return True
+    if "Senior" not in normalized_year:
+        return False
+
+    month_order = {
+        "Jan": 1,
+        "Feb": 2,
+        "Mar": 3,
+        "Apr": 4,
+        "May": 5,
+        "Jun": 6,
+        "Jul": 7,
+        "Aug": 8,
+        "Sep": 9,
+        "Oct": 10,
+        "Nov": 11,
+        "Dec": 12,
+    }
+    for month_name, month_index in month_order.items():
+        if month_name in normalized_year:
+            return month_index > month_order["Aug"]
+    return False
+
+
+def _should_hold_energy_recovery_for_summer(settings, year):
+    if not bool(settings.get("save_energy_recovery_for_summer", False)):
+        return False
+    if _is_summer_period(year):
+        return False
+    if _is_after_senior_summer_or_ts_climax(year):
+        return False
+    return True
+
+
 def _expand_inventory_items(inventory_by_name, effect_type=None):
     expanded = []
     for item_name, item_data in inventory_by_name.items():
@@ -472,6 +514,17 @@ def _item_targets_capped_stat(catalog_item, state, config):
     stat_caps = training_config.get("stat_caps", {})
     hard_cap = int(stat_caps.get(target_stat, 1200))
     return int(state["stats"].get(target_stat, 0)) >= hard_cap
+
+
+def _item_grants_existing_positive_condition(catalog_item, state):
+    if catalog_item.get("effect_type") != "Positive Condition":
+        return False
+
+    target_condition = catalog_item.get("target_condition")
+    if not target_condition:
+        return False
+
+    return target_condition in state.get("condition_lookup", set())
 
 
 def _is_item_usage_blocked_by_hard_cap(catalog_item, state, config):
@@ -680,6 +733,9 @@ def plan_item_purchases(state, template_data, config):
         if _item_targets_capped_stat(catalog_item, state, config):
             continue
 
+        if _item_grants_existing_positive_condition(catalog_item, state):
+            continue
+
         inventory_count = int(state["inventory_by_name"].get(_normalize_text(item_name), {}).get("count", 0))
         planned_count = int(planned_counts.get(_normalize_text(item_name), 0))
         desired_quantity = max(1, int(spec["desired_quantity"]))
@@ -814,6 +870,7 @@ def _append_usage(actions, item_name, quantity, reason):
 
 
 def plan_immediate_item_usage(state, config, is_race_turn=False):
+    settings = load_item_settings(config)
     actions = []
     minimum_mood_value = get_minimum_mood_value(config.get("training", {}))
     inventory_by_name = state["inventory_by_name"]
@@ -835,7 +892,7 @@ def plan_immediate_item_usage(state, config, is_race_turn=False):
         if catalog_item and catalog_item["effect_type"] == "Energy Cap":
             _append_usage(actions, catalog_item["name"], inventory_item["count"], "use_energy_cap")
 
-    if not is_race_turn:
+    if not is_race_turn and not _should_hold_energy_recovery_for_summer(settings, state.get("year")):
         missing_energy = max(0, int(state["energy_max"]) - int(state["energy_current"]))
         for item_name, quantity in _find_best_energy_combo(inventory_by_name, missing_energy).items():
             _append_usage(actions, item_name, quantity, "use_energy_recovery")

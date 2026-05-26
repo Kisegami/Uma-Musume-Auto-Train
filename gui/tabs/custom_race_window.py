@@ -35,13 +35,18 @@ class CustomRaceWindow(QDialog):
         self.period_order = []
         self.selections = {}
         self.row_widgets = {}
+        self.trackblazer_mode = getattr(parent, "main_window", None).get_config().get("mode") == "trackblazer"
 
         self.setWindowTitle("Custom Race List")
         self.setMinimumSize(1180, 750)
         self.setStyleSheet(MAIN_STYLESHEET)
 
-        self._load_races()
-        self._create_ui()
+        self.setUpdatesEnabled(False)
+        try:
+            self._load_races()
+            self._create_ui()
+        finally:
+            self.setUpdatesEnabled(True)
 
     def _normalize_selection(self, value):
         if isinstance(value, dict):
@@ -230,15 +235,18 @@ class CustomRaceWindow(QDialog):
         combo.currentTextChanged.connect(lambda text, p=period: self._on_race_changed(p, text))
         row_layout.addWidget(combo)
 
-        glowstick_checkbox = QCheckBox("Use Glowstick")
-        glowstick_checkbox.setChecked(bool(current_selection["use_glowstick"]))
-        glowstick_checkbox.stateChanged.connect(lambda _state, p=period: self._on_glowstick_changed(p))
-        row_layout.addWidget(glowstick_checkbox)
+        glowstick_checkbox = None
+        hammer_checkbox = None
+        if self.trackblazer_mode:
+            glowstick_checkbox = QCheckBox("Use Glowstick")
+            glowstick_checkbox.setChecked(bool(current_selection["use_glowstick"]))
+            glowstick_checkbox.stateChanged.connect(lambda _state, p=period: self._on_glowstick_changed(p))
+            row_layout.addWidget(glowstick_checkbox)
 
-        hammer_checkbox = QCheckBox("Use Hammer")
-        hammer_checkbox.setChecked(bool(current_selection["use_hammer"]))
-        hammer_checkbox.stateChanged.connect(lambda _state, p=period: self._on_hammer_changed(p))
-        row_layout.addWidget(hammer_checkbox)
+            hammer_checkbox = QCheckBox("Use Hammer")
+            hammer_checkbox.setChecked(bool(current_selection["use_hammer"]))
+            hammer_checkbox.stateChanged.connect(lambda _state, p=period: self._on_hammer_changed(p))
+            row_layout.addWidget(hammer_checkbox)
 
         details_frame = QFrame()
         details_frame.setStyleSheet(f"background-color: {COLORS['bg_input']}; border-radius: 6px; padding: 4px;")
@@ -313,11 +321,15 @@ class CustomRaceWindow(QDialog):
 
     def _on_glowstick_changed(self, period):
         selection = self._ensure_selection(period)
-        selection["use_glowstick"] = self.row_widgets[period]["glowstick"].isChecked()
+        glowstick = self.row_widgets[period]["glowstick"]
+        if glowstick is not None:
+            selection["use_glowstick"] = glowstick.isChecked()
 
     def _on_hammer_changed(self, period):
         selection = self._ensure_selection(period)
-        selection["use_hammer"] = self.row_widgets[period]["hammer"].isChecked()
+        hammer = self.row_widgets[period]["hammer"]
+        if hammer is not None:
+            selection["use_hammer"] = hammer.isChecked()
 
     def _update_row_details(self, period):
         widgets = self.row_widgets.get(period)
@@ -352,8 +364,10 @@ class CustomRaceWindow(QDialog):
         self.selections = {}
         for widgets in self.row_widgets.values():
             widgets["combo"].setCurrentIndex(0)
-            widgets["glowstick"].setChecked(False)
-            widgets["hammer"].setChecked(False)
+            if widgets["glowstick"] is not None:
+                widgets["glowstick"].setChecked(False)
+            if widgets["hammer"] is not None:
+                widgets["hammer"].setChecked(False)
 
     def _save_races(self):
         try:

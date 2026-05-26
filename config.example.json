@@ -83,7 +83,8 @@
       "Long"
     ],
     "do_custom_race": true,
-    "custom_race_file": "template/races/custom_races.json"
+    "custom_race_file": "template/races/custom_races.json",
+    "custom_race_search_method": "ocr"
   },
   "skills": {
     "skill_point_cap": 400,
@@ -96,7 +97,8 @@
     "item_purchase_file": "template/items/default.json",
     "budget_strategy": "save_priority",
     "purchase_max_swipes": 10,
-    "shop_swipe_time_offset": 0
+    "shop_swipe_time_offset": 0,
+    "save_energy_recovery_for_summer": false
   },
   "restart_career": {
     "restart_enabled": false,

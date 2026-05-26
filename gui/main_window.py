@@ -377,7 +377,12 @@ class MainWindow(QMainWindow):
                 "soft_stat_caps": {"spd": 600, "sta": 600, "pwr": 600, "guts": 600, "wit": 600},
                 "stat_caps": {"spd": 600, "sta": 600, "pwr": 600, "guts": 600, "wit": 600}
             },
-            "racing": {"strategy": "FRONT", "retry_race": True, "stop_on_race_fail": True},
+            "racing": {
+                "strategy": "FRONT",
+                "retry_race": True,
+                "stop_on_race_fail": True,
+                "custom_race_search_method": "ocr",
+            },
             "events": {"uma_event_file": "All", "support_card_template": "", "scenario_event_selection": "Current Mode"},
             "skills": {
                 "skill_point_cap": 400,

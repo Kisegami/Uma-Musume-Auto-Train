@@ -166,6 +166,7 @@ class ItemsTab(QScrollArea):
         layout.setSpacing(16)
 
         layout.addWidget(self._build_purchase_group())
+        layout.addWidget(self._build_energy_group())
         layout.addWidget(self._build_mood_group())
         layout.addWidget(self._build_condition_group())
         layout.addWidget(self._build_training_group())
@@ -251,6 +252,25 @@ class ItemsTab(QScrollArea):
 
         group_layout.addWidget(swipe_offset_group)
 
+        return group
+
+    def _build_energy_group(self):
+        group = QGroupBox("Energy Items")
+        layout = QVBoxLayout(group)
+        layout.setSpacing(10)
+
+        self.save_energy_recovery_for_summer = HoverPreviewCheckBox(
+            "Save energy recovery items for summer",
+            self.preview_popup,
+            lambda: "Effect Type: Energy Recovery",
+            lambda: _get_catalog_items_by_effect_type("Energy Recovery"),
+        )
+        self.save_energy_recovery_for_summer.stateChanged.connect(self._save_items_config)
+        layout.addWidget(self.save_energy_recovery_for_summer)
+
+        info = QLabel("When enabled, recovery items are held outside summer until Senior September or TS Climax, then used normally.")
+        info.setWordWrap(True)
+        layout.addWidget(info)
         return group
 
     def _build_mood_group(self):
@@ -574,6 +594,7 @@ class ItemsTab(QScrollArea):
         items_config["budget_strategy"] = self.budget_strategy_combo.currentData()
         items_config["purchase_max_swipes"] = self.purchase_max_swipes_spin.value()
         items_config["shop_swipe_time_offset"] = self.shop_swipe_offset_spin.value()
+        items_config["save_energy_recovery_for_summer"] = self.save_energy_recovery_for_summer.isChecked()
         items_config["auto_buy_mood_items"] = self.auto_buy_mood.isChecked()
         items_config["auto_buy_negative_cure_items"] = self.auto_buy_negative_cure.isChecked()
         items_config["auto_buy_negative_cure_conditions"] = [
@@ -627,6 +648,7 @@ class ItemsTab(QScrollArea):
         self.purchase_max_swipes_spin.setValue(int(items_config.get("purchase_max_swipes", 10)))
         self.shop_swipe_offset_spin.setValue(int(items_config.get("shop_swipe_time_offset", 0)))
 
+        self.save_energy_recovery_for_summer.setChecked(bool(items_config.get("save_energy_recovery_for_summer", False)))
         self.auto_buy_mood.setChecked(bool(items_config.get("auto_buy_mood_items", False)))
         self.auto_buy_negative_cure.setChecked(bool(items_config.get("auto_buy_negative_cure_items", False)))
 
