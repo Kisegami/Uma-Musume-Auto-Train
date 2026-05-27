@@ -218,6 +218,47 @@ from utils.vision.template_matching import deduplicated_matches, wait_for_image
 from utils.platform.device import reopen_and_resume_career
 from utils.vision.ui_check import career_ui_check
 
+WATCHDOG_MAX_RESTARTS = 3
+WATCHDOG_CENTER_TAPS = 5
+WATCHDOG_CENTER_TAP_INTERVAL = 0.4
+_watchdog_restart_count = 0
+
+
+def _watchdog_tap_center_recovery():
+    """Try to advance an unrecognized post-resume screen before restarting."""
+    log_warning(f"[Watchdog] Unrecognized career screen - tapping centre {WATCHDOG_CENTER_TAPS} times before restart.")
+    for _ in range(WATCHDOG_CENTER_TAPS):
+        tap(540, 960)
+        time.sleep(WATCHDOG_CENTER_TAP_INTERVAL)
+
+
+def _watchdog_restart_game(reason):
+    """Restart the game from watchdog paths, stopping after too many restarts."""
+    global _watchdog_restart_count
+    _watchdog_restart_count += 1
+
+    if _watchdog_restart_count > WATCHDOG_MAX_RESTARTS:
+        log_error(
+            f"[Watchdog] Restart triggered {_watchdog_restart_count} times "
+            f"(limit {WATCHDOG_MAX_RESTARTS}) - stopping bot."
+        )
+        return False
+
+    log_warning(
+        f"[Watchdog] {reason} Restarting game "
+        f"({_watchdog_restart_count}/{WATCHDOG_MAX_RESTARTS})..."
+    )
+    try:
+        if not reopen_and_resume_career():
+            log_error("[Watchdog] Reopen/resume failed - stopping bot.")
+            return False
+    except RuntimeError:
+        raise
+    except Exception as exc:
+        log_error(f"[Watchdog] Reopen failed: {exc}")
+        return False
+    return True
+
 try:
     from utils.integrations.umat_api import is_api_enabled
     _API_MODE = is_api_enabled()
@@ -408,11 +449,10 @@ def career_lobby(timeout=None):
                     log_debug(f"[Watchdog] Identical frame #{_freeze_same_count}/{FREEZE_SAME_THRESHOLD}")
                     frozen_for = time.time() - _freeze_same_since
                     if _freeze_same_count >= FREEZE_SAME_THRESHOLD and frozen_for >= FREEZE_MIN_DURATION:
-                        log_warning(f"[Watchdog] Screen frozen for {_freeze_same_count} consecutive frames — restarting game...")
-                        try:
-                            reopen_and_resume_career()
-                        except Exception as _fe:
-                            log_error(f"[Watchdog] Reopen after freeze failed: {_fe}")
+                        if not _watchdog_restart_game(
+                            f"Screen frozen for {_freeze_same_count} consecutive frames."
+                        ):
+                            return False
                         _freeze_same_count = 0
                         _freeze_same_since = None
                         _prev_screenshot = None
@@ -610,11 +650,22 @@ def career_lobby(timeout=None):
                         log_warning(f"[Watchdog] career_ui_check attempt {_ui_attempt + 1} failed: {_uce}")
                     time.sleep(1)
                 if not _recovered:
-                    log_warning(f"[Watchdog] career_ui_check failed 3 times — restarting game...")
-                    try:
-                        reopen_and_resume_career()
-                    except Exception as _wde:
-                        log_error(f"[Watchdog] Reopen failed: {_wde}")
+                    _watchdog_tap_center_recovery()
+                    for _ui_attempt in range(3):
+                        log_info(f"[Watchdog] Re-running career_ui_check after centre taps - Attempt {_ui_attempt + 1}/3...")
+                        try:
+                            if career_ui_check():
+                                log_info(f"[Watchdog] Centre-tap recovery succeeded on attempt {_ui_attempt + 1}")
+                                _recovered = True
+                                break
+                        except RuntimeError:
+                            raise
+                        except Exception as _uce:
+                            log_warning(f"[Watchdog] post-tap career_ui_check attempt {_ui_attempt + 1} failed: {_uce}")
+                        time.sleep(1)
+                if not _recovered:
+                    if not _watchdog_restart_game("career_ui_check failed after centre-tap recovery."):
+                        return False
                 _lobby_wait_start = None
                 _freeze_same_count = 0
                 _freeze_same_since = None
