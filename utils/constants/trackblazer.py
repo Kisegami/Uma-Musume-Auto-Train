@@ -45,7 +45,7 @@ RESTART_COMPLETE_SPAM_TARGET = (543, 1787)
 OK_BUTTON_REGION = (632, 1150, 283, 189)
 
 TRACKBLAZER_TEMPLATE_REGIONS = {
-    "assets/buttons/back_btn.png": (17, 1754, 233, 166),
+    "assets/buttons/back_btn.png": (0, 1650, 300, 270),
     "assets/buttons/cancel_lobby.png": (55, 1151, 484, 715),
     "assets/buttons/claw.png": (219, 1259, 642, 582),
     "assets/buttons/close.png": (57, 1152, 712, 710),

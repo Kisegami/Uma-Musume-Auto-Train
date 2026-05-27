@@ -7,6 +7,7 @@ from PIL import ImageStat
 from utils.vision.recognizer import best_match_template, locate_on_screen, match_template, locate_all_on_screen, max_match_confidence
 from utils.inputs.input import tap, triple_click, long_press, tap_on_image, swipe
 from utils.capture.screenshot import take_screenshot
+from utils.capture.debug import save_debug_screenshot
 from utils.vision.template_matching import wait_for_image, deduplicated_matches
 from utils.core.log import log_debug, log_info, log_warning, log_error, log_success
 from utils.core.config_loader import load_main_config
@@ -456,6 +457,7 @@ def check_strategy_before_race(region=(660, 974, 378, 120), max_retries=2) -> bo
     """Check and ensure strategy matches config before race."""
     log_debug(f"Checking strategy before race... (retries left: {max_retries})")
     
+    screenshot = None
     try:
         screenshot = take_screenshot()
         
@@ -491,6 +493,7 @@ def check_strategy_before_race(region=(660, 974, 378, 120), max_retries=2) -> bo
         
         if not best_match:
             log_debug(f"No strategy found with brightness >= 160")
+            save_debug_screenshot("ura_strategy_check_failed", screenshot)
             return False
         
         strategy_name, bbox, conf, bright = best_match
@@ -503,6 +506,7 @@ def check_strategy_before_race(region=(660, 974, 378, 120), max_retries=2) -> bo
             expected_strategy = racing_config.get("strategy", "").upper()
         except Exception:
             log_debug(f"Cannot read config.json")
+            save_debug_screenshot("ura_strategy_check_failed", screenshot)
             return False
         
         matches = current_strategy == expected_strategy
@@ -515,6 +519,7 @@ def check_strategy_before_race(region=(660, 974, 378, 120), max_retries=2) -> bo
         # Strategy doesn't match, try to change it
         if max_retries <= 0:
             log_warning(f"Strategy Check - Max retries reached, giving up on strategy change")
+            save_debug_screenshot("ura_strategy_check_failed", screenshot)
             return False
         
         log_info(f"Strategy Check - Mismatch, changing to {expected_strategy}")
@@ -531,10 +536,13 @@ def check_strategy_before_race(region=(660, 974, 378, 120), max_retries=2) -> bo
                 return False
         else:
             log_debug(f"Failed to change strategy")
+            save_debug_screenshot("ura_strategy_check_failed", screenshot)
             return False
             
     except Exception as e:
         log_debug(f"Error checking strategy: {e}")
+        if screenshot is not None:
+            save_debug_screenshot("ura_strategy_check_failed", screenshot)
         return False
 
 def change_strategy_before_race(expected_strategy: str) -> bool:
