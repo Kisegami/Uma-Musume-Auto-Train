@@ -93,9 +93,11 @@ from utils.platform.device import reopen_and_resume_career
 from utils.vision.ui_check import career_ui_check
 
 WATCHDOG_MAX_RESTARTS = 3
+WATCHDOG_RESTART_RESET_AFTER = 300
 WATCHDOG_CENTER_TAPS = 5
 WATCHDOG_CENTER_TAP_INTERVAL = 0.4
 _watchdog_restart_count = 0
+_watchdog_last_restart_at = None
 
 
 def _watchdog_tap_center_recovery():
@@ -108,8 +110,9 @@ def _watchdog_tap_center_recovery():
 
 def _watchdog_restart_game(reason):
     """Restart the game from watchdog paths, stopping after too many restarts."""
-    global _watchdog_restart_count
+    global _watchdog_restart_count, _watchdog_last_restart_at
     _watchdog_restart_count += 1
+    _watchdog_last_restart_at = time.time()
 
     if _watchdog_restart_count > WATCHDOG_MAX_RESTARTS:
         log_error(
@@ -132,6 +135,21 @@ def _watchdog_restart_game(reason):
         log_error(f"[Watchdog] Reopen failed: {exc}")
         return False
     return True
+
+
+def _watchdog_reset_restart_count_if_stable():
+    """Reset watchdog restart count after a stable period without restarts."""
+    global _watchdog_restart_count, _watchdog_last_restart_at
+    if not _watchdog_restart_count or _watchdog_last_restart_at is None:
+        return
+
+    stable_for = time.time() - _watchdog_last_restart_at
+    if stable_for >= WATCHDOG_RESTART_RESET_AFTER:
+        log_info(
+            f"[Watchdog] No restart for {int(stable_for)}s - resetting restart counter."
+        )
+        _watchdog_restart_count = 0
+        _watchdog_last_restart_at = None
 
 try:
     from utils.integrations.umat_api import is_api_enabled
@@ -548,6 +566,7 @@ def career_lobby(timeout=None):
         _freeze_same_count = 0
         _freeze_same_since = None
         log_debug(f"Confirmed in career lobby")
+        _watchdog_reset_restart_count_if_stable()
         time.sleep(0.5)
         # Take a fresh screenshot after confirming lobby to ensure stable UI state
         log_debug(f"Taking fresh screenshot after lobby confirmation...")
