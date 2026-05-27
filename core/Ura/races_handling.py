@@ -4,7 +4,7 @@ import random
 import numpy as np
 from PIL import ImageStat
 
-from utils.vision.recognizer import locate_on_screen, match_template, locate_all_on_screen, max_match_confidence
+from utils.vision.recognizer import best_match_template, locate_on_screen, match_template, locate_all_on_screen, max_match_confidence
 from utils.inputs.input import tap, triple_click, long_press, tap_on_image, swipe
 from utils.capture.screenshot import take_screenshot
 from utils.vision.template_matching import wait_for_image, deduplicated_matches
@@ -42,6 +42,8 @@ except Exception:
 # Region offsets from fan center (same as test code)
 GRADE_OFFSET = (-118, -115, 93, 69)  # x, y, width, height
 OCR_OFFSET = (-37, -120, 580, 69)  # x, y, width, height
+CUSTOM_RACE_TEMPLATE_REGION = (0, 1000, 369, 543)
+CUSTOM_RACE_TEMPLATE_CONFIDENCE = 0.8
 
 def is_racing_available(year):
     """Check if racing is available based on the current year/month"""
@@ -263,6 +265,98 @@ def search_race_with_swiping(race_description, year, max_swipes=3):
             return True
     
     log_info(f"Race Search - Race not found after {max_swipes} swipes")
+    return False
+
+
+def _scaled_race_thumbnail_path(thumbnail_path):
+    normalized = thumbnail_path.replace("\\", "/")
+    return normalized.replace("assets/races/races_thumb/", "assets/races/race_thumb_scaled/")
+
+
+def _find_race_thumbnail_template(race_name, year):
+    map_path = os.path.join(project_root, "assets/races/race_thumbnail_map.json")
+    try:
+        with open(map_path, "r", encoding="utf-8") as f:
+            thumbnail_map = json.load(f)
+    except Exception as e:
+        log_debug(f"Race Template Search - Failed to load race thumbnail map: {e}")
+        return None
+
+    races_by_period = thumbnail_map.get("races", {})
+    period_races = races_by_period.get(year, {})
+    race_info = period_races.get(race_name) if isinstance(period_races, dict) else None
+
+    if race_info is None:
+        for period, races in races_by_period.items():
+            if not isinstance(races, dict):
+                continue
+            race_info = races.get(race_name)
+            if race_info is not None:
+                log_debug(f"Race Template Search - Using '{race_name}' thumbnail from {period}")
+                break
+
+    if not race_info:
+        log_debug(f"Race Template Search - No thumbnail map entry for '{race_name}'")
+        return None
+
+    thumbnail_path = race_info.get("thumbnail_path")
+    if not thumbnail_path:
+        log_debug(f"Race Template Search - Missing thumbnail path for '{race_name}'")
+        return None
+
+    scaled_path = _scaled_race_thumbnail_path(thumbnail_path)
+    if not os.path.exists(os.path.join(project_root, scaled_path)):
+        log_debug(f"Race Template Search - Missing scaled template: {scaled_path}")
+        return None
+
+    return scaled_path
+
+
+def find_target_race_template_in_screenshot(screenshot, race_name, year):
+    template_path = _find_race_thumbnail_template(race_name, year)
+    if not template_path:
+        return None, None
+
+    match = best_match_template(
+        screenshot,
+        template_path,
+        confidence=CUSTOM_RACE_TEMPLATE_CONFIDENCE,
+        region=CUSTOM_RACE_TEMPLATE_REGION,
+    )
+    if not match:
+        score = max_match_confidence(screenshot, template_path, region=CUSTOM_RACE_TEMPLATE_REGION)
+        log_info(f"Race Template Search - '{race_name}' not found; best score {score:.4f}")
+        return None, None
+
+    x, y = match["center"]
+    log_info(f"Race Template Search - Found '{race_name}' with score {match['confidence']:.4f} at ({x}, {y})")
+    return x, y
+
+
+def search_race_template_with_swiping(race_name, year, max_swipes=3):
+    log_info(f"Race Template Search - Looking for: {race_name}")
+
+    screenshot = take_screenshot()
+    target_x, target_y = find_target_race_template_in_screenshot(screenshot, race_name, year)
+    if target_x and target_y:
+        tap(target_x, target_y)
+        time.sleep(0.5)
+        return True
+
+    log_debug("Race template not found on initial screen, performing swipes...")
+    for swipe_num in range(1, max_swipes + 1):
+        log_debug(f"Template swipe {swipe_num}:")
+        swipe(381, 1415, 381, 1223, duration_ms=240)
+        time.sleep(1)
+
+        screenshot = take_screenshot()
+        target_x, target_y = find_target_race_template_in_screenshot(screenshot, race_name, year)
+        if target_x and target_y:
+            log_info(f"Race Template Search - Race found after swipe {swipe_num}!")
+            tap(target_x, target_y)
+            return True
+
+    log_info(f"Race Template Search - Race not found after {max_swipes} swipes")
     return False
 
 def race_day():
@@ -907,6 +1001,16 @@ def find_and_do_race(year_override=None):
         race_description = race_info.get("description", "")
         log_info(f"Race Selection - Description: {race_description}")
         
+        search_method = racing_config_section.get("custom_race_search_method", "ocr")
+        if search_method == "template_matching":
+            log_info("Race Selection - Using template matching search")
+            if search_race_template_with_swiping(best_race, year):
+                log_info(f"Race Selection - Race selection completed successfully!")
+                # Execute the race after selection
+                return execute_race_after_selection()
+
+            log_info(f"Race Selection - Template matching failed for '{best_race}', falling back to OCR search")
+
         # Search for race with swiping using the same logic as test file
         if search_race_with_swiping(race_description, year):
             log_info(f"Race Selection - Race selection completed successfully!")
@@ -975,8 +1079,24 @@ def do_custom_race(year_override=None):
         
         log_debug(f"No maiden races found, proceeding with custom race...")
         
-        # 6. Search for the custom race using OCR
+        # 6. Search for the custom race using the configured method
         log_debug(f"Searching for custom race in Race Select Screen...")
+
+        try:
+            config = _load_config()
+            search_method = config.get("racing", {}).get("custom_race_search_method", "ocr")
+        except Exception:
+            search_method = "ocr"
+
+        if search_method == "template_matching":
+            log_info("Custom Race - Using template matching search")
+            if search_race_template_with_swiping(custom_race, year):
+                log_info(f"Custom Race - Race selection completed successfully!")
+                return execute_race_after_selection()
+
+            log_info(f"Custom Race - Template matching failed for '{custom_race}', falling back to OCR search")
+        else:
+            log_info("Custom Race - Using OCR search")
         
         # Load race data to get the description for OCR matching
         try:

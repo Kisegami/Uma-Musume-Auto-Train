@@ -551,7 +551,7 @@ def restore_tp() -> bool:
         log_warning("Failed to tap OK button")
         return False
     
-    time.sleep(0.5)
+    time.sleep(2)
     
     # Step 5: Tap Close button
     if not restart_click_image_button("assets/buttons/close.png", "close button", max_attempts=10):

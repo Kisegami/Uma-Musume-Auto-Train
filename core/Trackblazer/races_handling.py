@@ -1025,6 +1025,16 @@ def find_and_do_race(year_override=None):
         race_description = race_info.get("description", "")
         log_info(f"Race Selection - Description: {race_description}")
         
+        search_method = racing_config_section.get("custom_race_search_method", "ocr")
+        if search_method == "template_matching":
+            log_info("Race Selection - Using template matching search")
+            if search_race_template_with_swiping(best_race, year):
+                log_info(f"Race Selection - Race selection completed successfully!")
+                # Execute the race after selection
+                return execute_race_after_selection()
+
+            log_info(f"Race Selection - Template matching failed for '{best_race}', falling back to OCR search")
+
         # Search for race with swiping using the same logic as test file
         if search_race_with_swiping(race_description, year):
             log_info(f"Race Selection - Race selection completed successfully!")
