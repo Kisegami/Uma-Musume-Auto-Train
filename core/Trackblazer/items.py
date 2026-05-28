@@ -51,6 +51,8 @@ DEFAULT_ITEM_SETTINGS = {
     "use_glowstick_ts_climax": False,
 }
 
+GLOWSTICK_ITEM_NAME = "Glow Sticks"
+
 _CATALOG_CACHE = None
 _CATALOG_BY_ID = None
 _CATALOG_BY_NAME = None
@@ -617,11 +619,11 @@ def _build_auto_buy_candidates(state, settings, template_limits, config):
     if state.get("year") == "TS Climax":
         artisan_count = int(inventory_by_name.get(_normalize_text("Artisan Cleat Hammer"), {}).get("count", 0))
         master_count = int(inventory_by_name.get(_normalize_text("Master Cleat Hammer"), {}).get("count", 0))
-        glowstick_count = int(inventory_by_name.get(_normalize_text("Cheering Glowstick"), {}).get("count", 0))
+        glowstick_count = int(inventory_by_name.get(_normalize_text(GLOWSTICK_ITEM_NAME), {}).get("count", 0))
 
         master_entries = _available_shop_entries(state["shop_items"], "Master Cleat Hammer")
         artisan_entries = _available_shop_entries(state["shop_items"], "Artisan Cleat Hammer")
-        glowstick_entries = _available_shop_entries(state["shop_items"], "Cheering Glowstick")
+        glowstick_entries = _available_shop_entries(state["shop_items"], GLOWSTICK_ITEM_NAME)
 
         # During TS Climax, keep at least one hammer available for races and
         # upgrade an Artisan-only inventory to Master when the shop offers it.
@@ -640,7 +642,7 @@ def _build_auto_buy_candidates(state, settings, template_limits, config):
                 })
         if bool(settings.get("use_glowstick_ts_climax", False)) and glowstick_count <= 0 and glowstick_entries:
             candidates.append({
-                "item_name": "Cheering Glowstick",
+                "item_name": GLOWSTICK_ITEM_NAME,
                 "desired_quantity": 1,
                 "reason": "auto_buy_ts_climax_glowstick_active",
             })
@@ -1093,8 +1095,8 @@ def plan_race_item_usage(
         _append_usage(actions, race_bonus_item_id, 1, reason)
 
     use_glowstick = custom_race_use_glowstick or (is_ts_climax_race and bool(settings.get("use_glowstick_ts_climax", False)))
-    if use_glowstick and int(state["inventory_by_name"].get(_normalize_text("Cheering Glowstick"), {}).get("count", 0)) > 0:
-        _append_usage(actions, "Cheering Glowstick", 1, "use_glowstick")
+    if use_glowstick and int(state["inventory_by_name"].get(_normalize_text(GLOWSTICK_ITEM_NAME), {}).get("count", 0)) > 0:
+        _append_usage(actions, GLOWSTICK_ITEM_NAME, 1, "use_glowstick")
 
     return actions
 
