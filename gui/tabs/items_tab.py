@@ -155,6 +155,7 @@ class ItemsTab(QScrollArea):
         self.condition_checkboxes = {}
         self.training_level_stat_checkboxes = {}
         self.training_buff_period_checkboxes = {}
+        self.training_buff_rainbow_threshold_spins = {"normal": {}, "summer": {}}
 
         self._create_ui()
         self.load_config()
@@ -394,18 +395,35 @@ class ItemsTab(QScrollArea):
         buff_group = QGroupBox("Training Buffs")
         buff_layout = QGridLayout(buff_group)
         training_buff_label = HoverPreviewLabel(
-            "Training Buff score threshold:",
+            "Use buffs when selected training has at least this many rainbows:",
             self.preview_popup,
             lambda: "Effect Type: Training Buff",
             lambda: _get_catalog_items_by_effect_type("Training Buff"),
         )
-        buff_layout.addWidget(training_buff_label, 0, 0)
-        self.training_buff_score_threshold = QDoubleSpinBox()
-        self.training_buff_score_threshold.setDecimals(1)
-        self.training_buff_score_threshold.setRange(0.0, 20.0)
-        self.training_buff_score_threshold.setSingleStep(0.5)
-        self.training_buff_score_threshold.valueChanged.connect(self._save_items_config)
-        buff_layout.addWidget(self.training_buff_score_threshold, 0, 1)
+        buff_layout.addWidget(training_buff_label, 0, 0, 1, 2)
+        thresholds_widget = QWidget()
+        thresholds_layout = QGridLayout(thresholds_widget)
+        thresholds_layout.setContentsMargins(18, 0, 0, 0)
+        thresholds_layout.setHorizontalSpacing(8)
+        thresholds_layout.setVerticalSpacing(6)
+        stat_labels = [("SPD", "spd"), ("STA", "sta"), ("PWR", "pwr"), ("GUTS", "guts"), ("WIT", "wit")]
+        for column, (label, _) in enumerate(stat_labels, start=1):
+            stat_label = QLabel(label)
+            stat_label.setAlignment(Qt.AlignCenter)
+            stat_label.setFixedWidth(58)
+            thresholds_layout.addWidget(stat_label, 0, column)
+        for row, (period_label, period_key) in enumerate((("Normal", "normal"), ("Summer", "summer")), start=1):
+            period_row_label = QLabel(period_label)
+            period_row_label.setFixedWidth(72)
+            thresholds_layout.addWidget(period_row_label, row, 0)
+            for column, (_, stat_key) in enumerate(stat_labels, start=1):
+                spin = QSpinBox()
+                spin.setRange(0, 6)
+                spin.setFixedWidth(58)
+                spin.valueChanged.connect(self._save_items_config)
+                self.training_buff_rainbow_threshold_spins[period_key][stat_key] = spin
+                thresholds_layout.addWidget(spin, row, column)
+        buff_layout.addWidget(thresholds_widget, 1, 0, 1, 2)
         self.specialized_requires_training_buff = HoverPreviewCheckBox(
             "Specialized Training Buff requires Training Buff active or used",
             self.preview_popup,
@@ -413,14 +431,14 @@ class ItemsTab(QScrollArea):
             lambda: _get_catalog_items_by_effect_type("Specialized Training Buff"),
         )
         self.specialized_requires_training_buff.stateChanged.connect(self._save_items_config)
-        buff_layout.addWidget(self.specialized_requires_training_buff, 1, 0, 1, 2)
+        buff_layout.addWidget(self.specialized_requires_training_buff, 2, 0, 1, 2)
         buffs_period_label = HoverPreviewLabel(
             "Use buffs only during:",
             self.preview_popup,
             lambda: "Training Buff items",
             lambda: _get_catalog_items_by_effect_type("Training Buff") + _get_catalog_items_by_effect_type("Specialized Training Buff"),
         )
-        buff_layout.addWidget(buffs_period_label, 2, 0, 1, 2)
+        buff_layout.addWidget(buffs_period_label, 3, 0, 1, 2)
         self.training_buff_periods_widget = QWidget()
         periods_layout = QVBoxLayout(self.training_buff_periods_widget)
         periods_layout.setContentsMargins(18, 0, 0, 0)
@@ -436,7 +454,27 @@ class ItemsTab(QScrollArea):
             checkbox.stateChanged.connect(self._on_training_buff_period_changed)
             self.training_buff_period_checkboxes[key] = checkbox
             periods_layout.addWidget(checkbox)
-        buff_layout.addWidget(self.training_buff_periods_widget, 3, 0, 1, 2)
+        buff_layout.addWidget(self.training_buff_periods_widget, 4, 0, 1, 2)
+        self.training_buff_period_rainbow_override_enabled = QCheckBox(
+            "Use buffs outside selected periods when rainbows are at least:"
+        )
+        self.training_buff_period_rainbow_override_enabled.stateChanged.connect(self._save_items_config)
+        buff_layout.addWidget(self.training_buff_period_rainbow_override_enabled, 5, 0)
+        self.training_buff_period_rainbow_override_threshold = QSpinBox()
+        self.training_buff_period_rainbow_override_threshold.setRange(0, 6)
+        self.training_buff_period_rainbow_override_threshold.setFixedWidth(58)
+        self.training_buff_period_rainbow_override_threshold.valueChanged.connect(self._save_items_config)
+        buff_layout.addWidget(self.training_buff_period_rainbow_override_threshold, 5, 1)
+        self.training_buff_highest_rainbow_override_enabled = QCheckBox(
+            "Use highest value megaphone when rainbows are at least:"
+        )
+        self.training_buff_highest_rainbow_override_enabled.stateChanged.connect(self._save_items_config)
+        buff_layout.addWidget(self.training_buff_highest_rainbow_override_enabled, 6, 0)
+        self.training_buff_highest_rainbow_override_threshold = QSpinBox()
+        self.training_buff_highest_rainbow_override_threshold.setRange(0, 6)
+        self.training_buff_highest_rainbow_override_threshold.setFixedWidth(58)
+        self.training_buff_highest_rainbow_override_threshold.valueChanged.connect(self._save_items_config)
+        buff_layout.addWidget(self.training_buff_highest_rainbow_override_threshold, 6, 1)
         layout.addWidget(buff_group)
 
         level_group = QGroupBox("Training Level Items")
@@ -606,11 +644,21 @@ class ItemsTab(QScrollArea):
         items_config["good_luck_charm_score_threshold"] = self.good_luck_charm_score_threshold.value()
         items_config["good_luck_charm_require_score"] = self.good_luck_charm_require_score.isChecked()
         items_config["good_luck_charm_require_buff"] = self.good_luck_charm_require_buff.isChecked()
-        items_config["training_buff_score_threshold"] = self.training_buff_score_threshold.value()
+        items_config["training_buff_rainbow_thresholds"] = {
+            period_key: {
+                stat_key: spin.value()
+                for stat_key, spin in stat_spins.items()
+            }
+            for period_key, stat_spins in self.training_buff_rainbow_threshold_spins.items()
+        }
         items_config["specialized_buff_requires_training_buff"] = self.specialized_requires_training_buff.isChecked()
         selected_periods = [key for key, checkbox in self.training_buff_period_checkboxes.items() if checkbox.isChecked()]
         items_config["training_buff_periods"] = selected_periods or ["any_time"]
         items_config["training_buff_period"] = items_config["training_buff_periods"][0]
+        items_config["training_buff_period_rainbow_override_enabled"] = self.training_buff_period_rainbow_override_enabled.isChecked()
+        items_config["training_buff_period_rainbow_override_threshold"] = self.training_buff_period_rainbow_override_threshold.value()
+        items_config["training_buff_highest_rainbow_override_enabled"] = self.training_buff_highest_rainbow_override_enabled.isChecked()
+        items_config["training_buff_highest_rainbow_override_threshold"] = self.training_buff_highest_rainbow_override_threshold.value()
         items_config["enable_training_level_items"] = self.enable_training_level_items.isChecked()
         items_config["training_level_threshold"] = self.training_level_threshold.value()
         items_config["training_level_stats"] = [
@@ -667,13 +715,30 @@ class ItemsTab(QScrollArea):
         self.good_luck_charm_score_threshold.setValue(float(items_config.get("good_luck_charm_score_threshold", 2.0)))
         self.good_luck_charm_require_score.setChecked(bool(items_config.get("good_luck_charm_require_score", True)))
         self.good_luck_charm_require_buff.setChecked(bool(items_config.get("good_luck_charm_require_buff", False)))
-        self.training_buff_score_threshold.setValue(float(items_config.get("training_buff_score_threshold", 2.0)))
+        legacy_threshold = int(float(items_config.get("training_buff_score_threshold", 2.0)))
+        rainbow_thresholds = items_config.get("training_buff_rainbow_thresholds", {})
+        for period_key, stat_spins in self.training_buff_rainbow_threshold_spins.items():
+            period_thresholds = rainbow_thresholds.get(period_key, {}) if isinstance(rainbow_thresholds, dict) else {}
+            for stat_key, spin in stat_spins.items():
+                spin.setValue(int(period_thresholds.get(stat_key, legacy_threshold)))
         self.specialized_requires_training_buff.setChecked(bool(items_config.get("specialized_buff_requires_training_buff", False)))
         selected_periods = set(items_config.get("training_buff_periods", [items_config.get("training_buff_period", "any_time")]))
         if not selected_periods:
             selected_periods = {"any_time"}
         for key, checkbox in self.training_buff_period_checkboxes.items():
             checkbox.setChecked(key in selected_periods)
+        self.training_buff_period_rainbow_override_enabled.setChecked(
+            bool(items_config.get("training_buff_period_rainbow_override_enabled", False))
+        )
+        self.training_buff_period_rainbow_override_threshold.setValue(
+            int(items_config.get("training_buff_period_rainbow_override_threshold", 2))
+        )
+        self.training_buff_highest_rainbow_override_enabled.setChecked(
+            bool(items_config.get("training_buff_highest_rainbow_override_enabled", False))
+        )
+        self.training_buff_highest_rainbow_override_threshold.setValue(
+            int(items_config.get("training_buff_highest_rainbow_override_threshold", 3))
+        )
         self.enable_training_level_items.setChecked(bool(items_config.get("enable_training_level_items", False)))
         self._set_training_level_options_visible(self.enable_training_level_items.isChecked())
         self.training_level_threshold.setValue(int(items_config.get("training_level_threshold", 3)))

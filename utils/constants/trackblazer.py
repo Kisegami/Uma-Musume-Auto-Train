@@ -41,8 +41,8 @@ RACE_CARD_REGION=(0, 0, 610, 220)  # Dynamic region calculated as (x, y, 350, 11
 DEFAULT_SCREEN_REGION=(0, 0, 1080, 1920)
 RESTART_COMPLETE_SPAM_TARGET = (543, 1787)
 
-# Unified OK button region derived from template-match dump
-OK_BUTTON_REGION = (632, 1150, 283, 189)
+# Broad OK button region covering both high dialog buttons and bottom result buttons.
+OK_BUTTON_REGION = (309, 1150, 606, 703)
 
 TRACKBLAZER_TEMPLATE_REGIONS = {
     "assets/buttons/back_btn.png": (0, 1650, 300, 270),

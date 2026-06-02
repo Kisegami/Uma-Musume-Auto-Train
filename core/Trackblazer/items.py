@@ -39,8 +39,16 @@ DEFAULT_ITEM_SETTINGS = {
     "good_luck_charm_require_score": True,
     "good_luck_charm_require_buff": False,
     "training_buff_score_threshold": 2.0,
+    "training_buff_rainbow_thresholds": {
+        "normal": {"spd": 2, "sta": 2, "pwr": 2, "guts": 2, "wit": 2},
+        "summer": {"spd": 2, "sta": 2, "pwr": 2, "guts": 2, "wit": 2},
+    },
     "specialized_buff_requires_training_buff": False,
     "training_buff_periods": ["any_time"],
+    "training_buff_period_rainbow_override_enabled": False,
+    "training_buff_period_rainbow_override_threshold": 2,
+    "training_buff_highest_rainbow_override_enabled": False,
+    "training_buff_highest_rainbow_override_threshold": 3,
     "enable_training_level_items": False,
     "training_level_threshold": 3,
     "training_level_stats": [],
@@ -203,6 +211,27 @@ def load_item_settings(config):
         periods = [legacy_period] if legacy_period else ["any_time"]
     normalized_periods = [str(period) for period in periods if period]
     items_config["training_buff_periods"] = normalized_periods or ["any_time"]
+
+    default_rainbow_threshold = max(0, int(float(items_config.get("training_buff_score_threshold", 2.0))))
+    raw_rainbow_thresholds = items_config.get("training_buff_rainbow_thresholds", {})
+    normalized_rainbow_thresholds = {}
+    for period_key in ("normal", "summer"):
+        period_thresholds = raw_rainbow_thresholds.get(period_key, {}) if isinstance(raw_rainbow_thresholds, dict) else {}
+        normalized_rainbow_thresholds[period_key] = {}
+        for stat_key in ("spd", "sta", "pwr", "guts", "wit"):
+            normalized_rainbow_thresholds[period_key][stat_key] = max(
+                0,
+                int(period_thresholds.get(stat_key, default_rainbow_threshold)),
+            )
+    items_config["training_buff_rainbow_thresholds"] = normalized_rainbow_thresholds
+    items_config["training_buff_period_rainbow_override_threshold"] = max(
+        0,
+        int(items_config.get("training_buff_period_rainbow_override_threshold", 2)),
+    )
+    items_config["training_buff_highest_rainbow_override_threshold"] = max(
+        0,
+        int(items_config.get("training_buff_highest_rainbow_override_threshold", 3)),
+    )
 
     reserve_count = raw_items_config.get("ts_climax_hammer_reserve_count")
     if reserve_count is None:
@@ -368,6 +397,37 @@ def _is_buff_period_allowed(settings, year):
 
 def _is_summer_period(year):
     return _is_single_buff_period_allowed("classic_senior_summer", year)
+
+
+def _count_rainbow_supports(training_type, training_result):
+    if not training_type or not training_result:
+        return 0
+
+    count = 0
+    for entry in training_result.get("support_detail", {}).get(training_type, []):
+        if int(entry.get("bond_level", 0)) >= 4:
+            count += 1
+    return count
+
+
+def _get_training_buff_rainbow_threshold(settings, training_type, year):
+    period_key = "summer" if _is_summer_period(year) else "normal"
+    thresholds = settings.get("training_buff_rainbow_thresholds", {})
+    period_thresholds = thresholds.get(period_key, {}) if isinstance(thresholds, dict) else {}
+    return int(period_thresholds.get(training_type, 2))
+
+
+def _is_training_buff_allowed(settings, training_type, training_result, year):
+    rainbow_count = _count_rainbow_supports(training_type, training_result)
+    threshold = _get_training_buff_rainbow_threshold(settings, training_type, year)
+    rainbow_allowed = rainbow_count >= threshold
+    period_allowed = _is_buff_period_allowed(settings.get("training_buff_periods", ["any_time"]), year)
+    if period_allowed:
+        return rainbow_allowed, rainbow_count
+
+    override_enabled = bool(settings.get("training_buff_period_rainbow_override_enabled", False))
+    override_threshold = int(settings.get("training_buff_period_rainbow_override_threshold", 2))
+    return override_enabled and rainbow_count >= override_threshold, rainbow_count
 
 
 def _is_after_senior_summer_or_ts_climax(year):
@@ -945,19 +1005,24 @@ def plan_immediate_item_usage(state, config, is_race_turn=False):
     return actions
 
 
-def _select_best_training_buff(inventory_by_name, active_effect_keys):
+def _select_training_buff(inventory_by_name, active_effect_keys, prefer_highest=False):
     if "training_buff:any" in active_effect_keys:
         return None
-    best_item = None
+    selected_item = None
     for item_name, inventory_item in inventory_by_name.items():
         if int(inventory_item.get("count", 0)) <= 0:
             continue
         catalog_item = get_item_by_name(item_name)
         if not catalog_item or catalog_item["effect_type"] != "Training Buff":
             continue
-        if best_item is None or int(catalog_item["value"]) > int(best_item["value"]):
-            best_item = catalog_item
-    return best_item
+        if selected_item is None:
+            selected_item = catalog_item
+            continue
+        if prefer_highest and int(catalog_item["value"]) > int(selected_item["value"]):
+            selected_item = catalog_item
+        if not prefer_highest and int(catalog_item["value"]) < int(selected_item["value"]):
+            selected_item = catalog_item
+    return selected_item
 
 
 def _select_specialized_buff(inventory_by_name, training_type, active_effect_keys):
@@ -995,16 +1060,29 @@ def plan_training_item_usage(state, config, chosen_training, chosen_training_res
     inventory_by_name = state["inventory_by_name"]
     has_training_choice = bool(chosen_training and chosen_training_result)
     chosen_score = float(chosen_training_result.get("score", 0)) if chosen_training_result else 0.0
-    period_allowed = _is_buff_period_allowed(settings.get("training_buff_periods", ["any_time"]), state["year"])
     training_is_accepted = has_training_choice and not would_be_rejected
+    buff_allowed, rainbow_count = _is_training_buff_allowed(
+        settings,
+        chosen_training,
+        chosen_training_result,
+        state["year"],
+    ) if has_training_choice else (False, 0)
 
     training_buff_item = None
-    if training_is_accepted and period_allowed and chosen_score > float(settings.get("training_buff_score_threshold", 2.0)):
-        training_buff_item = _select_best_training_buff(inventory_by_name, state["active_effect_keys"])
+    if training_is_accepted and buff_allowed:
+        prefer_highest = _is_summer_period(state["year"])
+        if bool(settings.get("training_buff_highest_rainbow_override_enabled", False)):
+            highest_threshold = int(settings.get("training_buff_highest_rainbow_override_threshold", 3))
+            prefer_highest = prefer_highest or rainbow_count >= highest_threshold
+        training_buff_item = _select_training_buff(
+            inventory_by_name,
+            state["active_effect_keys"],
+            prefer_highest=prefer_highest,
+        )
         if training_buff_item:
             _append_usage(actions, training_buff_item["name"], 1, "use_training_buff")
 
-    if training_is_accepted and period_allowed and chosen_score > float(settings.get("training_buff_score_threshold", 2.0)):
+    if training_is_accepted and buff_allowed:
         specialized_item = _select_specialized_buff(
             inventory_by_name,
             chosen_training,

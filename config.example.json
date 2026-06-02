@@ -98,7 +98,28 @@
     "budget_strategy": "save_priority",
     "purchase_max_swipes": 10,
     "shop_swipe_time_offset": 0,
-    "save_energy_recovery_for_summer": false
+    "save_energy_recovery_for_summer": false,
+    "training_buff_rainbow_thresholds": {
+      "normal": {
+        "spd": 2,
+        "sta": 2,
+        "pwr": 2,
+        "guts": 2,
+        "wit": 2
+      },
+      "summer": {
+        "spd": 2,
+        "sta": 2,
+        "pwr": 2,
+        "guts": 2,
+        "wit": 2
+      }
+    },
+    "training_buff_periods": ["any_time"],
+    "training_buff_period_rainbow_override_enabled": false,
+    "training_buff_period_rainbow_override_threshold": 2,
+    "training_buff_highest_rainbow_override_enabled": false,
+    "training_buff_highest_rainbow_override_threshold": 3
   },
   "restart_career": {
     "restart_enabled": false,

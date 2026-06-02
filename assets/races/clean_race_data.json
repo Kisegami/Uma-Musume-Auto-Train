@@ -2083,19 +2083,6 @@
       "description": "Niigata Turf 2000m",
       "course": "Outer"
     },
-    "Prix Niel": {
-      "grade": "G2",
-      "surface": "Turf",
-      "distance_type": "Medium",
-      "distance_meters": 2400,
-      "racetrack": "Longchamp",
-      "direction": "Clockwise",
-      "participants": "9",
-      "season": "Summer",
-      "time_of_day": "Daytime",
-      "fans": 5000,
-      "description": "Longchamp Turf 2400m"
-    },
     "Radio Nippon Sho": {
       "grade": "OP",
       "surface": "Dirt",
@@ -4838,19 +4825,6 @@
       "time_of_day": "Daytime",
       "fans": 2400,
       "description": "Sapporo Turf 2600m"
-    },
-    "Prix Foy": {
-      "grade": "G2",
-      "surface": "Turf",
-      "distance_type": "Medium",
-      "distance_meters": 2400,
-      "racetrack": "Longchamp",
-      "direction": "Clockwise",
-      "participants": "9",
-      "season": "Summer",
-      "time_of_day": "Daytime",
-      "fans": 5000,
-      "description": "Longchamp Turf 2400m"
     }
   },
   "Senior Year Late Sep": {

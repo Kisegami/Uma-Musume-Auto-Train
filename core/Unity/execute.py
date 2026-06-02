@@ -407,13 +407,13 @@ def career_lobby(timeout=None):
         lobby_template_specs = [
             ("assets/buttons/complete_career.png", 0.8, (574, 1560, 382, 147)),
             ("assets/buttons/claw.png", 0.8, (219, 1259, 642, 582)),
-            ("assets/buttons/ok_btn.png", 0.8, (296, 1567, 487, 188)),
+            ("assets/buttons/ok_btn.png", 0.8, None),
             ("assets/icons/event_choice_1.png", 0.7, (6, 450, 126, 1776)),
             ("assets/unity/unity_cup.png", 0.8, (422, 121, 230, 154)),
             ("assets/buttons/inspiration_btn.png", 0.5, (375, 1471, 297, 255)),
             ("assets/buttons/cancel_lobby.png", 0.8, (295, 1285, 481, 185)),
             ("assets/buttons/close.png", 0.8, (59, 1153, 472, 186)),
-            ("assets/buttons/next_btn.png", 0.8, (296, 1567, 487, 188)),
+            ("assets/buttons/next_btn.png", 0.8, None),
             ("assets/ui/tazuna_hint.png", 0.9, (903, 248, 155, 150)),
             ("assets/buttons/back_btn.png", 0.8, (9, 1743, 237, 196)),
         ]
