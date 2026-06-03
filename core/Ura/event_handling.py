@@ -3,8 +3,6 @@ import json
 import re
 import time
 import sys
-import cv2
-import numpy as np
 from PIL import ImageStat
 
 # Fix Windows console encoding for Unicode support
@@ -18,7 +16,7 @@ if os.name == 'nt':  # Windows
     except:
         pass
 
-from utils.vision.recognizer import locate_all_on_screen
+from utils.vision.recognizer import locate_all_on_screen, match_template
 from utils.capture.screenshot import take_screenshot, capture_region
 from core.Ura.ocr import extract_event_name_text
 from utils.core.log import log_debug, log_info, log_warning, log_error
@@ -41,7 +39,8 @@ _event_cache = {
     "uma_data": None,
     "ura_finale": None,
     "custom_uma_events": None,
-    "custom_support_events": None
+    "custom_support_events": None,
+    "custom_scenario_events": None
 }
 
 def _load_event_databases():
@@ -88,7 +87,11 @@ def _load_custom_event_templates():
     global _event_cache
     
     # Only load once (cache check)
-    if _event_cache["custom_uma_events"] is not None or _event_cache["custom_support_events"] is not None:
+    if (
+        _event_cache["custom_uma_events"] is not None
+        or _event_cache["custom_support_events"] is not None
+        or _event_cache["custom_scenario_events"] is not None
+    ):
         return _event_cache
     
     events_config = config.get("events", {})
@@ -133,6 +136,23 @@ def _load_custom_event_templates():
             _event_cache["custom_support_events"] = {}
     else:
         _event_cache["custom_support_events"] = {}
+
+    scenario_key = "ura"
+    scenario_template_path = os.path.join(project_root, "template", "Events", "Scenario", f"ScenarioEvents_{scenario_key}.json")
+    if os.path.exists(scenario_template_path):
+        try:
+            with open(scenario_template_path, "r", encoding="utf-8-sig") as f:
+                scenario_data = json.load(f)
+                _event_cache["custom_scenario_events"] = scenario_data.get("CustomChoices", {})
+                log_info(
+                    f"Loaded custom Scenario event template: {scenario_key} "
+                    f"({len(_event_cache['custom_scenario_events'])} events)"
+                )
+        except Exception as e:
+            log_warning(f"Error loading Scenario event template {scenario_key}: {e}")
+            _event_cache["custom_scenario_events"] = {}
+    else:
+        _event_cache["custom_scenario_events"] = {}
     
     return _event_cache
 
@@ -212,7 +232,29 @@ def search_custom_events(event_name):
             if len(normalized_search) >= 5 and normalized_search in normalized_custom:
                 log_debug(f"Substring match: '{event_name}' → '{custom_event}'")
                 return selected_option
-    
+
+    # Check Scenario events
+    if _event_cache["custom_scenario_events"]:
+        if event_name in _event_cache["custom_scenario_events"]:
+            return _event_cache["custom_scenario_events"][event_name]
+
+        for custom_event, selected_option in _event_cache["custom_scenario_events"].items():
+            normalized_custom = _normalize_event_name(custom_event).lower()
+            if normalized_custom == normalized_search:
+                return selected_option
+
+        for custom_event, selected_option in _event_cache["custom_scenario_events"].items():
+            normalized_custom = _normalize_event_name(custom_event).lower()
+            if normalized_custom.startswith(normalized_search) and len(normalized_search) >= 5:
+                log_debug(f"Prefix match: '{event_name}' → '{custom_event}'")
+                return selected_option
+
+        for custom_event, selected_option in _event_cache["custom_scenario_events"].items():
+            normalized_custom = _normalize_event_name(custom_event).lower()
+            if len(normalized_search) >= 5 and normalized_search in normalized_custom:
+                log_debug(f"Substring match: '{event_name}' → '{custom_event}'")
+                return selected_option
+
     return None
 
 
@@ -344,30 +386,13 @@ def count_event_choices():
     try:
         log_debug(f" Searching for event choices using: {template_path}")
         
-        # Take screenshot and convert to OpenCV format
         screenshot = take_screenshot()
-        img_cv = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
-        
-        # Load template
-        template = cv2.imread(template_path)
-        if template is None:
-            log_debug(f" Could not load template: {template_path}")
-            return 0, []
-        
-        # Search in the event choice region (x, y, width, height)
-        x, y, w, h = 6, 450, 126, 1776
-        roi = img_cv[y:y+h, x:x+w]
-        
-        # Template matching with same confidence as before
-        result = cv2.matchTemplate(roi, template, cv2.TM_CCOEFF_NORMED)
-        locations = np.where(result >= 0.45)
-        
-        # Convert to absolute coordinates
-        raw_locations = []
-        for pt in zip(*locations[::-1]):
-            abs_x, abs_y = pt[0] + x, pt[1] + y
-            tw, th = template.shape[1], template.shape[0]
-            raw_locations.append((abs_x, abs_y, tw, th))
+        raw_locations = match_template(
+            screenshot,
+            template_path,
+            confidence=0.45,
+            region=(6, 450, 126, 1776),
+        )
         
         log_debug(f" Raw locations found: {len(raw_locations)}")
         if not raw_locations:

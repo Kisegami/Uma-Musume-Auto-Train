@@ -29,7 +29,7 @@ from core.Ura.state import (
     check_goal_name, check_current_stats, check_energy_bar,
     check_status_api, check_mood_api, check_current_year_api,
     check_current_stats_api, check_energy_api, check_skill_points_api,
-    invalidate_status_cache,
+    invalidate_status_cache, check_and_purchase_skills_before_custom_race,
 )
 
 # Import event handling functions
@@ -42,7 +42,7 @@ from core.Ura.training_handling import go_to_training, check_training, do_train,
 from core.Ura.races_handling import (
     find_and_do_race, do_custom_race, race_day, check_strategy_before_race,
     change_strategy_before_race, race_prep, handle_race_retry_if_failed,
-    after_race, is_racing_available, is_pre_debut_year
+    after_race, is_racing_available, is_pre_debut_year, get_custom_race_selection
 )
 
 from utils.core.config_loader import load_main_config
@@ -72,8 +72,14 @@ def arm_skip_infirmary_check_for_new_turn():
 
 
 def should_skip_infirmary_check_for_current_turn():
-    """Return True once when the first-turn infirmary check should be skipped."""
+    """Return whether the infirmary check should be skipped for this lobby turn."""
     global _skip_infirmary_check_once
+    training_config = load_main_config().get("training", {})
+    if training_config.get("skip_infirmary_check_on_new_turn", False):
+        log_info("Skipping infirmary check for this turn")
+        _skip_infirmary_check_once = False
+        return True
+
     if not _skip_infirmary_check_once:
         return False
 
@@ -85,6 +91,65 @@ from utils.core.log import log_debug, log_info, log_warning, log_error, log_succ
 from utils.vision.template_matching import deduplicated_matches, wait_for_image
 from utils.platform.device import reopen_and_resume_career
 from utils.vision.ui_check import career_ui_check
+
+WATCHDOG_MAX_RESTARTS = 3
+WATCHDOG_RESTART_RESET_AFTER = 300
+WATCHDOG_CENTER_TAPS = 5
+WATCHDOG_CENTER_TAP_INTERVAL = 0.4
+_watchdog_restart_count = 0
+_watchdog_last_restart_at = None
+
+
+def _watchdog_tap_center_recovery():
+    """Try to advance an unrecognized post-resume screen before restarting."""
+    log_warning(f"[Watchdog] Unrecognized career screen - tapping centre {WATCHDOG_CENTER_TAPS} times before restart.")
+    for _ in range(WATCHDOG_CENTER_TAPS):
+        tap(540, 960)
+        time.sleep(WATCHDOG_CENTER_TAP_INTERVAL)
+
+
+def _watchdog_restart_game(reason):
+    """Restart the game from watchdog paths, stopping after too many restarts."""
+    global _watchdog_restart_count, _watchdog_last_restart_at
+    _watchdog_restart_count += 1
+    _watchdog_last_restart_at = time.time()
+
+    if _watchdog_restart_count > WATCHDOG_MAX_RESTARTS:
+        log_error(
+            f"[Watchdog] Restart triggered {_watchdog_restart_count} times "
+            f"(limit {WATCHDOG_MAX_RESTARTS}) - stopping bot."
+        )
+        return False
+
+    log_warning(
+        f"[Watchdog] {reason} Restarting game "
+        f"({_watchdog_restart_count}/{WATCHDOG_MAX_RESTARTS})..."
+    )
+    try:
+        if not reopen_and_resume_career():
+            log_error("[Watchdog] Reopen/resume failed - stopping bot.")
+            return False
+    except RuntimeError:
+        raise
+    except Exception as exc:
+        log_error(f"[Watchdog] Reopen failed: {exc}")
+        return False
+    return True
+
+
+def _watchdog_reset_restart_count_if_stable():
+    """Reset watchdog restart count after a stable period without restarts."""
+    global _watchdog_restart_count, _watchdog_last_restart_at
+    if not _watchdog_restart_count or _watchdog_last_restart_at is None:
+        return
+
+    stable_for = time.time() - _watchdog_last_restart_at
+    if stable_for >= WATCHDOG_RESTART_RESET_AFTER:
+        log_info(
+            f"[Watchdog] No restart for {int(stable_for)}s - resetting restart counter."
+        )
+        _watchdog_restart_count = 0
+        _watchdog_last_restart_at = None
 
 try:
     from utils.integrations.umat_api import is_api_enabled
@@ -276,11 +341,10 @@ def career_lobby(timeout=None):
                     log_debug(f"[Watchdog] Identical frame #{_freeze_same_count}/{FREEZE_SAME_THRESHOLD}")
                     frozen_for = time.time() - _freeze_same_since
                     if _freeze_same_count >= FREEZE_SAME_THRESHOLD and frozen_for >= FREEZE_MIN_DURATION:
-                        log_warning(f"[Watchdog] Screen frozen for {_freeze_same_count} consecutive frames — restarting game...")
-                        try:
-                            reopen_and_resume_career()
-                        except Exception as _fe:
-                            log_error(f"[Watchdog] Reopen after freeze failed: {_fe}")
+                        if not _watchdog_restart_game(
+                            f"Screen frozen for {_freeze_same_count} consecutive frames."
+                        ):
+                            return False
                         _freeze_same_count = 0
                         _freeze_same_since = None
                         _prev_screenshot = None
@@ -471,11 +535,22 @@ def career_lobby(timeout=None):
                         log_warning(f"[Watchdog] career_ui_check attempt {_ui_attempt + 1} failed: {_uce}")
                     time.sleep(1)
                 if not _recovered:
-                    log_warning(f"[Watchdog] career_ui_check failed 3 times — restarting game...")
-                    try:
-                        reopen_and_resume_career()
-                    except Exception as _wde:
-                        log_error(f"[Watchdog] Reopen failed: {_wde}")
+                    _watchdog_tap_center_recovery()
+                    for _ui_attempt in range(3):
+                        log_info(f"[Watchdog] Re-running career_ui_check after centre taps - Attempt {_ui_attempt + 1}/3...")
+                        try:
+                            if career_ui_check():
+                                log_info(f"[Watchdog] Centre-tap recovery succeeded on attempt {_ui_attempt + 1}")
+                                _recovered = True
+                                break
+                        except RuntimeError:
+                            raise
+                        except Exception as _uce:
+                            log_warning(f"[Watchdog] post-tap career_ui_check attempt {_ui_attempt + 1} failed: {_uce}")
+                        time.sleep(1)
+                if not _recovered:
+                    if not _watchdog_restart_game("career_ui_check failed after centre-tap recovery."):
+                        return False
                 _lobby_wait_start = None
                 _freeze_same_count = 0
                 _freeze_same_since = None
@@ -491,6 +566,7 @@ def career_lobby(timeout=None):
         _freeze_same_count = 0
         _freeze_same_since = None
         log_debug(f"Confirmed in career lobby")
+        _watchdog_reset_restart_count_if_stable()
         time.sleep(0.5)
         # Take a fresh screenshot after confirming lobby to ensure stable UI state
         log_debug(f"Taking fresh screenshot after lobby confirmation...")
@@ -714,6 +790,11 @@ def career_lobby(timeout=None):
             if last_failed_custom_race_day == day_key:
                 log_debug(f"Skipping custom race check (already attempted and failed this day)")
             else:
+                custom_race_selection = get_custom_race_selection(year)
+                if custom_race_selection and custom_race_selection.get("race"):
+                    if check_and_purchase_skills_before_custom_race(screenshot):
+                        invalidate_status_cache()
+                        screenshot = take_screenshot()
                 log_debug(f"Custom race is enabled, checking for custom race...")
                 custom_race_found = do_custom_race(year)
                 if custom_race_found:
@@ -754,7 +835,7 @@ def career_lobby(timeout=None):
             
         _on_training_screen = False
         if _API_MODE:
-            results_training = check_training_api(current_stats=current_stats)
+            results_training = check_training_api(year=year, current_stats=current_stats)
             if results_training is None:
                 log_error("API mode is enabled but failed to get training data from /training")
                 raise RuntimeError("API mode is enabled but /training API is not responding. Check API connection or set api.enabled to false in config.json.")
@@ -767,7 +848,7 @@ def career_lobby(timeout=None):
             # Last, do training
             log_debug(f"Analyzing training options...")
             time.sleep(0.5)
-            results_training = check_training(go_back=False, current_stats=current_stats)
+            results_training = check_training(go_back=False, year=year, current_stats=current_stats)
             _on_training_screen = True
         
         log_debug(f"Deciding best training action using scoring algorithm...")
@@ -813,7 +894,7 @@ def career_lobby(timeout=None):
         
         # Use new scoring algorithm to choose best training (with stat cap filtering)
         log_debug(f"Choosing best training with stat cap filtering. Current stats: {current_stats}")
-        best_training = choose_best_training(results_training, training_config, current_stats)
+        best_training = choose_best_training(results_training, training_config, current_stats, year=year)
         
         if best_training:
             log_debug(f"Scoring algorithm selected: {best_training.upper()} training")
@@ -858,7 +939,7 @@ def career_lobby(timeout=None):
                             "guts": 0.0,
                             "wit": 0.0
                         }
-                        fallback_training = choose_best_training(results_training, relaxed_config, current_stats)
+                        fallback_training = choose_best_training(results_training, relaxed_config, current_stats, year=year)
                         if fallback_training:
                             log_info(f"Proceeding with training ({fallback_training.upper()}) despite poor options (relaxed selection)")
                             if not _on_training_screen:
@@ -888,7 +969,7 @@ def career_lobby(timeout=None):
                             "guts": 0.0,
                             "wit": 0.0
                         }
-                        fallback_training = choose_best_training(results_training, relaxed_config, current_stats)
+                        fallback_training = choose_best_training(results_training, relaxed_config, current_stats, year=year)
                         if fallback_training:
                             log_info(f"Proceeding with training ({fallback_training.upper()}) due to no races")
                             if not _on_training_screen:
@@ -951,7 +1032,7 @@ def career_lobby(timeout=None):
                                 "guts": 0.0,
                                 "wit": 0.0
                             }
-                            relaxed_training = choose_best_training(results_training, relaxed_config, current_stats)
+                            relaxed_training = choose_best_training(results_training, relaxed_config, current_stats, year=year)
                             if relaxed_training:
                                 log_info(f"Proceeding with training ({relaxed_training.upper()}) using relaxed scoring")
                                 if not _on_training_screen:

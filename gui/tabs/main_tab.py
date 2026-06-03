@@ -50,11 +50,20 @@ class MainTab(QScrollArea):
         mode_row.setSpacing(8)
         mode_row.addWidget(QLabel("Game Mode:"))
         self.mode_combo = QComboBox()
-        self.mode_combo.addItems(["URA Finale", "Unity Cup"])
+        self.mode_combo.addItems(["URA Finale", "Unity Cup", "Trackblazer"])
         self.mode_combo.setFixedWidth(140)
         self.mode_combo.currentTextChanged.connect(self._on_mode_change)
         mode_row.addWidget(self.mode_combo)
         settings_layout.addLayout(mode_row)
+
+        self.trackblazer_warning = QLabel(
+            "Trackblazer mode only works with KUC and API Mode turned on."
+        )
+        self.trackblazer_warning.setWordWrap(True)
+        self.trackblazer_warning.setStyleSheet(
+            f"color: {COLORS['accent_orange']}; font-size: 12px;"
+        )
+        settings_layout.addWidget(self.trackblazer_warning)
         
         # Unity Team row (only visible when Unity mode selected)
         self.unity_team_row = QWidget()
@@ -190,7 +199,11 @@ class MainTab(QScrollArea):
         # Mode
         self.mode_combo.blockSignals(True)
         mode = config.get("mode", "ura")
-        mode_display = {"ura": "URA Finale", "unity": "Unity Cup"}.get(mode, "URA Finale")
+        mode_display = {
+            "ura": "URA Finale",
+            "unity": "Unity Cup",
+            "trackblazer": "Trackblazer",
+        }.get(mode, "URA Finale")
         self.mode_combo.setCurrentText(mode_display)
         self.mode_combo.blockSignals(False)
         
@@ -202,6 +215,7 @@ class MainTab(QScrollArea):
         # Set Unity Team visibility based on mode and update scenario logo
         is_unity = (mode == "unity")
         self.unity_team_row.setVisible(is_unity)
+        self.trackblazer_warning.setVisible(mode == "trackblazer")
         self._update_scenario_logo(mode)
         
         # Emulator
@@ -237,7 +251,11 @@ class MainTab(QScrollArea):
         """Handle mode change"""
         if getattr(self, '_loading', False):
             return
-        mode_map = {"URA Finale": "ura", "Unity Cup": "unity"}
+        mode_map = {
+            "URA Finale": "ura",
+            "Unity Cup": "unity",
+            "Trackblazer": "trackblazer",
+        }
         mode = mode_map.get(text, "ura")
         self.main_window.update_config_value("mode", mode)
         self.main_window.save_config()
@@ -245,12 +263,17 @@ class MainTab(QScrollArea):
         # Toggle Unity Team visibility and update scenario logo
         is_unity = (mode == "unity")
         self.unity_team_row.setVisible(is_unity)
+        self.trackblazer_warning.setVisible(mode == "trackblazer")
         self._update_scenario_logo(mode)
         
         # Update Unity fields visibility and reload training scores for new mode
         if hasattr(self.main_window, 'training_page'):
             self.main_window.training_page.update_unity_visibility()
             self.main_window.training_page._load_training_score_config()
+        if hasattr(self.main_window, '_update_mode_dependent_navigation'):
+            self.main_window._update_mode_dependent_navigation()
+        if hasattr(self.main_window, 'event_page'):
+            self.main_window.event_page.sync_scenario_with_mode()
     
     def _on_unity_team_change(self, text):
         """Handle Unity Team change"""
@@ -611,6 +634,8 @@ class MainTab(QScrollArea):
         
         if mode == "unity":
             logo_path = os.path.join(assets_dir, "Unity_Cup.png")
+        elif mode == "trackblazer":
+            logo_path = os.path.join(assets_dir, "Trackblazer.png")
         else:
             logo_path = os.path.join(assets_dir, "Ura_Finale.png")
         

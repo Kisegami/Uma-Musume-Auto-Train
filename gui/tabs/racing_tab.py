@@ -132,6 +132,19 @@ class RacingTab(QScrollArea):
         self.do_custom_race = QCheckBox("Do Custom Races")
         self.do_custom_race.stateChanged.connect(self._toggle_custom_settings)
         custom_layout.addWidget(self.do_custom_race)
+
+        custom_method_widget = QWidget()
+        custom_method_layout = QHBoxLayout(custom_method_widget)
+        custom_method_layout.setContentsMargins(0, 0, 0, 0)
+        custom_method_layout.addWidget(QLabel("Custom Race Method:"))
+        self.custom_race_method_combo = QComboBox()
+        self.custom_race_method_combo.addItem("OCR", "ocr")
+        self.custom_race_method_combo.addItem("Template Matching", "template_matching")
+        self.custom_race_method_combo.currentIndexChanged.connect(self._save_racing)
+        custom_method_layout.addWidget(self.custom_race_method_combo)
+        custom_method_layout.addStretch()
+        custom_layout.addWidget(custom_method_widget)
+        self.custom_method_widget = custom_method_widget
         
         # Custom race file container (hidden when disabled)
         self.custom_file_widget = QWidget()
@@ -171,6 +184,7 @@ class RacingTab(QScrollArea):
     def _toggle_custom_settings(self):
         """Toggle custom race file settings visibility"""
         self.custom_file_widget.setVisible(self.do_custom_race.isChecked())
+        self.custom_method_widget.setVisible(self.do_custom_race.isChecked())
         self._save_racing()
     
     def _on_retry_race_changed(self, state):
@@ -248,6 +262,14 @@ class RacingTab(QScrollArea):
         self.do_custom_race.setChecked(racing.get("do_custom_race", True))
         self.do_custom_race.blockSignals(False)
         self.custom_file_widget.setVisible(self.do_custom_race.isChecked())
+        self.custom_method_widget.setVisible(self.do_custom_race.isChecked())
+
+        # Custom race method
+        self.custom_race_method_combo.blockSignals(True)
+        custom_race_method = racing.get("custom_race_search_method", "ocr")
+        idx = self.custom_race_method_combo.findData(custom_race_method)
+        self.custom_race_method_combo.setCurrentIndex(idx if idx >= 0 else 0)
+        self.custom_race_method_combo.blockSignals(False)
         
         # Custom file
         custom_file = racing.get("custom_race_file", "custom_races.json")
@@ -277,6 +299,7 @@ class RacingTab(QScrollArea):
         config["racing"]["stop_on_race_fail"] = self.stop_on_race_fail.isChecked()
         config["racing"]["do_custom_race"] = self.do_custom_race.isChecked()
         config["racing"]["custom_race_file"] = f"template/races/{self.custom_file_combo.currentText()}"
+        config["racing"]["custom_race_search_method"] = self.custom_race_method_combo.currentData() or "ocr"
         
         self.main_window.save_config()
     

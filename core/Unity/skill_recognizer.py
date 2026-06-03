@@ -8,6 +8,7 @@ import json
 from utils.capture.screenshot import take_screenshot
 from utils.inputs.input import perform_swipe
 from utils.inputs.skill_swipe import swipe_skill_list_down_slow
+from utils.vision.recognizer import match_template
 
 from utils.core.log import log_debug, log_info, log_warning, log_error
 
@@ -281,38 +282,19 @@ def is_button_available(screenshot, x, y, width, height, brightness_threshold=15
 
 # Helper functions for skill recognition (broken down from large function)
 def _load_skill_template():
-    """Load skill_up template image. Returns (template, error_dict)."""
+    """Return the skill_up template path. Returns (path, error_dict)."""
     template_path = "assets/buttons/skill_up.png"
     if not os.path.exists(template_path):
         return None, {
             'count': 0, 'locations': [], 'debug_image_path': None,
             'error': f"Template not found: {template_path}"
         }
-    
-    template = cv2.imread(template_path, cv2.IMREAD_COLOR)
-    if template is None:
-        return None, {
-            'count': 0, 'locations': [], 'debug_image_path': None,
-            'error': f"Failed to load template: {template_path}"
-        }
-    
-    return template, None
 
-def _perform_template_matching(screenshot, template, confidence):
-    """Perform template matching and return raw matches."""
-    screenshot_cv = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
-    template_height, template_width = template.shape[:2]
-    
-    # Perform template matching
-    result = cv2.matchTemplate(screenshot_cv, template, cv2.TM_CCOEFF_NORMED)
-    locations = np.where(result >= confidence)
-    
-    # Convert to list of rectangles  
-    matches = []
-    for pt in zip(*locations[::-1]):  # Switch columns and rows
-        matches.append((pt[0], pt[1], template_width, template_height))
-    
-    return matches
+    return template_path, None
+
+def _perform_template_matching(screenshot, template_path, confidence):
+    """Perform template matching through the shared recognizer."""
+    return match_template(screenshot, template_path, confidence=confidence)
 
 def _filter_available_buttons(screenshot, unique_matches, filter_dark_buttons, brightness_threshold):
     """Filter out dark/unavailable buttons and return available matches with brightness info."""

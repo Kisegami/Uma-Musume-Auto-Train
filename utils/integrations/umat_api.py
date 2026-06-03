@@ -80,6 +80,44 @@ def is_api_enabled() -> bool:
     return API_ENABLED
 
 
+def check_kuc_connection(base_url: str | None = None, timeout: float | None = None) -> tuple[bool, str]:
+    """
+    Check whether KUC is reachable through its /status endpoint.
+
+    A waiting response is accepted because it confirms KUC is running even
+    when no active career packet data is available yet.
+    """
+    url_base = (base_url or API_BASE_URL).rstrip("/")
+    request_timeout = timeout if timeout is not None else API_TIMEOUT
+    url = f"{url_base}/status"
+
+    try:
+        resp = requests.get(url, timeout=request_timeout)
+        resp.raise_for_status()
+        data = resp.json()
+    except requests.Timeout:
+        return False, f"KUC connection timed out at {url}"
+    except requests.ConnectionError:
+        return False, f"Could not connect to KUC at {url}"
+    except requests.RequestException as e:
+        return False, f"KUC request failed at {url}: {e}"
+    except ValueError:
+        return False, f"KUC returned invalid JSON from {url}"
+
+    if not isinstance(data, dict):
+        return False, f"KUC returned an invalid /status payload from {url}"
+
+    if data.get("status") == "waiting":
+        return True, f"KUC is connected at {url} and waiting for game data"
+
+    required_keys = ("year", "stats", "energy", "mood", "current_skill_points")
+    missing = [key for key in required_keys if key not in data]
+    if missing:
+        return False, f"KUC /status payload is missing keys: {', '.join(missing)}"
+
+    return True, f"KUC is connected at {url}"
+
+
 def is_api_available() -> bool:
     """
     Quick health check: call /status and verify it returns real data.

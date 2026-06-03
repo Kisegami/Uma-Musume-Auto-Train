@@ -1,0 +1,374 @@
+[
+  {
+    "EventName": "Ordinary? Or Full Throttle?!",
+    "EventOptions": {
+      "Top Option": "Stamina +6\nGuts +6"
+    }
+  },
+  {
+    "EventName": "Ordinary? Or Full Throttle?!",
+    "EventOptions": {
+      "Bottom Option": "Fighter hint +1"
+    }
+  },
+  {
+    "EventName": "All on the Line",
+    "EventOptions": {
+      "Top Option": "Stamina +6\nWit +6"
+    }
+  },
+  {
+    "EventName": "All on the Line",
+    "EventOptions": {
+      "Bottom Option": "Triple 7s hint +1"
+    }
+  },
+  {
+    "EventName": "Pondering over Perennials",
+    "EventOptions": {
+      "Top Option": "Speed +6\nPower +6"
+    }
+  },
+  {
+    "EventName": "Pondering over Perennials",
+    "EventOptions": {
+      "Bottom Option": "Standing By hint +1"
+    }
+  },
+  {
+    "EventName": "Living Alone",
+    "EventOptions": {
+      "Top Option": "Power +6\nGuts +6"
+    }
+  },
+  {
+    "EventName": "Living Alone",
+    "EventOptions": {
+      "Bottom Option": "Ramp Up hint +1"
+    }
+  },
+  {
+    "EventName": "A Grandkid Get-Together",
+    "EventOptions": {
+      "Top Option": "Stamina +6\nWit +6"
+    }
+  },
+  {
+    "EventName": "A Grandkid Get-Together",
+    "EventOptions": {
+      "Bottom Option": "Prepared to Pass hint +1"
+    }
+  },
+  {
+    "EventName": "Agnes Digital Explodes",
+    "EventOptions": {
+      "Top Option": "Mood +1"
+    }
+  },
+  {
+    "EventName": "Agnes Digital Explodes",
+    "EventOptions": {
+      "Bottom Option": "Uma Stan hint +1"
+    }
+  },
+  {
+    "EventName": "The Inescapable Ardan",
+    "EventOptions": {
+      "Top Option": "Speed +6\nGuts +6"
+    }
+  },
+  {
+    "EventName": "The Inescapable Ardan",
+    "EventOptions": {
+      "Bottom Option": "Front Runner Straightaways ◯ hint +1"
+    }
+  },
+  {
+    "EventName": "Tamamo's Struggle at the Arcade",
+    "EventOptions": {
+      "Top Option": "Guts +6\nWit +6"
+    }
+  },
+  {
+    "EventName": "Tamamo's Struggle at the Arcade",
+    "EventOptions": {
+      "Bottom Option": "Unyielding Spirit hint +1"
+    }
+  },
+  {
+    "EventName": "The Strongest, Mightiest Cinderella!",
+    "EventOptions": {
+      "Top Option": "Mood +1"
+    }
+  },
+  {
+    "EventName": "The Strongest, Mightiest Cinderella!",
+    "EventOptions": {
+      "Bottom Option": "Prudent Positioning hint +1"
+    }
+  },
+  {
+    "EventName": "A Trip to the Victory Club!",
+    "EventOptions": {
+      "Top Option": "Stamina +6\nWit +6"
+    }
+  },
+  {
+    "EventName": "A Trip to the Victory Club!",
+    "EventOptions": {
+      "Bottom Option": "Sprint Straightaways ◯ hint +1"
+    }
+  },
+  {
+    "EventName": "Golshi Games: Who Is the Werewolf?!",
+    "EventOptions": {
+      "Top Option": "Power +6\nWit +6"
+    }
+  },
+  {
+    "EventName": "Golshi Games: Who Is the Werewolf?!",
+    "EventOptions": {
+      "Bottom Option": "Studious hint +1"
+    }
+  },
+  {
+    "EventName": "The Exciting Fruit Fest",
+    "EventOptions": {
+      "Top Option": "Stamina +6\nPower +6"
+    }
+  },
+  {
+    "EventName": "The Exciting Fruit Fest",
+    "EventOptions": {
+      "Bottom Option": "Front Runner Straightaways ◯ hint +1"
+    }
+  },
+  {
+    "EventName": "Taiki and Pearl's Language Exchange",
+    "EventOptions": {
+      "Top Option": "Speed +6\nWit +6"
+    }
+  },
+  {
+    "EventName": "Taiki and Pearl's Language Exchange",
+    "EventOptions": {
+      "Bottom Option": "Sympathy hint +1"
+    }
+  },
+  {
+    "EventName": "Brian Gets Jealous?",
+    "EventOptions": {
+      "Top Option": "All stats +4"
+    }
+  },
+  {
+    "EventName": "Brian Gets Jealous?",
+    "EventOptions": {
+      "Bottom Option": "Steadfast hint +1"
+    }
+  },
+  {
+    "EventName": "Vega and Spica",
+    "EventOptions": {
+      "Top Option": "Speed +6\nWit +6"
+    }
+  },
+  {
+    "EventName": "Vega and Spica",
+    "EventOptions": {
+      "Bottom Option": "Fast-Paced hint +1"
+    }
+  },
+  {
+    "EventName": "The Little Marvelous Match Girl",
+    "EventOptions": {
+      "Top Option": "Energy +10"
+    }
+  },
+  {
+    "EventName": "The Little Marvelous Match Girl",
+    "EventOptions": {
+      "Bottom Option": "Hydrate hint +1"
+    }
+  },
+  {
+    "EventName": "Expressing My Feelings to Maruzen",
+    "EventOptions": {
+      "Top Option": "Skill points +24"
+    }
+  },
+  {
+    "EventName": "Expressing My Feelings to Maruzen",
+    "EventOptions": {
+      "Bottom Option": "Shifting Gears hint +1"
+    }
+  },
+  {
+    "EventName": "Worldwide Windy",
+    "EventOptions": {
+      "Top Option": "Speed +6\nGuts +6"
+    }
+  },
+  {
+    "EventName": "Worldwide Windy",
+    "EventOptions": {
+      "Bottom Option": "Masterful Gambit hint +1"
+    }
+  },
+  {
+    "EventName": "Keeping It Cute!",
+    "EventOptions": {
+      "Top Option": "Stamina +6\nPower +6"
+    }
+  },
+  {
+    "EventName": "Keeping It Cute!",
+    "EventOptions": {
+      "Bottom Option": "Trick (Front) hint +1"
+    }
+  },
+  {
+    "EventName": "Mission: Big Surprise!",
+    "EventOptions": {
+      "Top Option": "Mood +1"
+    }
+  },
+  {
+    "EventName": "Mission: Big Surprise!",
+    "EventOptions": {
+      "Bottom Option": "Trick (Front) hint +1"
+    }
+  },
+  {
+    "EventName": "What's Wrong with Golshi?!",
+    "EventOptions": {
+      "Top Option": "Speed +6\nPower +6"
+    }
+  },
+  {
+    "EventName": "What's Wrong with Golshi?!",
+    "EventOptions": {
+      "Bottom Option": "Disorient hint +1"
+    }
+  },
+  {
+    "EventName": "The Perfect Combo",
+    "EventOptions": {
+      "Top Option": "Power +6\nGuts +6"
+    }
+  },
+  {
+    "EventName": "The Perfect Combo",
+    "EventOptions": {
+      "Bottom Option": "Sprinting Gear hint +1"
+    }
+  },
+  {
+    "EventName": "Idle Committee Banter",
+    "EventOptions": {
+      "Top Option": "Speed +6\nPower +6"
+    }
+  },
+  {
+    "EventName": "Idle Committee Banter",
+    "EventOptions": {
+      "Bottom Option": "Passing Pro hint +1"
+    }
+  },
+  {
+    "EventName": "A Family (?) Shopping Trip!",
+    "EventOptions": {
+      "Top Option": "Power +6\nWit +6"
+    }
+  },
+  {
+    "EventName": "A Family (?) Shopping Trip!",
+    "EventOptions": {
+      "Bottom Option": "Pace Strategy hint +1"
+    }
+  },
+  {
+    "EventName": "An Unusual Addition",
+    "EventOptions": {
+      "Top Option": "Power +6\nWit +6"
+    }
+  },
+  {
+    "EventName": "An Unusual Addition",
+    "EventOptions": {
+      "Bottom Option": "Pace Strategy hint +1"
+    }
+  },
+  {
+    "EventName": "Under the Same Umbrella",
+    "EventOptions": {
+      "Top Option": "Speed +6\nGuts +6"
+    }
+  },
+  {
+    "EventName": "Under the Same Umbrella",
+    "EventOptions": {
+      "Bottom Option": "Rainy Days ◯ hint +1"
+    }
+  },
+  {
+    "EventName": "Hungry for Affection",
+    "EventOptions": {
+      "Top Option": "Speed +6\nWit +6"
+    }
+  },
+  {
+    "EventName": "Hungry for Affection",
+    "EventOptions": {
+      "Bottom Option": "Murmur hint +1"
+    }
+  },
+  {
+    "EventName": "Fear the Fearless",
+    "EventOptions": {
+      "Top Option": "Stamina +6\nGuts +6"
+    }
+  },
+  {
+    "EventName": "Fear the Fearless",
+    "EventOptions": {
+      "Bottom Option": "Levelheaded hint +1"
+    }
+  },
+  {
+    "EventName": "Leave It to the Great Detective!",
+    "EventOptions": {
+      "Top Option": "Speed +6\nStamina +6"
+    }
+  },
+  {
+    "EventName": "Leave It to the Great Detective!",
+    "EventOptions": {
+      "Bottom Option": "Nimble Navigator hint +1"
+    }
+  },
+  {
+    "EventName": "Gullible Socialites",
+    "EventOptions": {
+      "Top Option": "Guts +6\nWit +6"
+    }
+  },
+  {
+    "EventName": "Gullible Socialites",
+    "EventOptions": {
+      "Bottom Option": "Go with the Flow hint +1"
+    }
+  },
+  {
+    "EventName": "I Wanna Join the Discussion!",
+    "EventOptions": {
+      "Top Option": "Stamina +6\nGuts +6"
+    }
+  },
+  {
+    "EventName": "I Wanna Join the Discussion!",
+    "EventOptions": {
+      "Bottom Option": "Shake It Out hint +1"
+    }
+  }
+]

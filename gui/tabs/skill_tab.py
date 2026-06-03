@@ -67,6 +67,18 @@ class SkillTab(QScrollArea):
         self.purchase_combo.addItems(['auto', 'manual'])
         self.purchase_combo.currentTextChanged.connect(self._toggle_auto_settings)
         settings_layout.addWidget(self.purchase_combo, 1, 1)
+
+        # Pre-custom-race skill check
+        self.pre_custom_race_skill_check = QCheckBox("Check and purchase skills before custom race (API only)")
+        self.pre_custom_race_skill_check.stateChanged.connect(self._save_skill)
+        settings_layout.addWidget(self.pre_custom_race_skill_check, 2, 0, 1, 2)
+
+        pre_custom_race_note = QLabel(
+            "Runs from the lobby before a scheduled custom race, even when skill points are below the cap."
+        )
+        pre_custom_race_note.setWordWrap(True)
+        pre_custom_race_note.setStyleSheet(f"color: {COLORS['text_muted']}; font-size: 11px;")
+        settings_layout.addWidget(pre_custom_race_note, 3, 0, 1, 2)
         
         skill_layout.addWidget(self.settings_widget)
         
@@ -111,6 +123,10 @@ class SkillTab(QScrollArea):
         # Note label
         note_row = self._create_note_row("warning", "⚠️ Used automatically when Restart Career is enabled")
         end_skill_layout.addWidget(note_row)
+
+        self.ignore_end_skill_purchase_check = QCheckBox("Ignore end career skill purchase")
+        self.ignore_end_skill_purchase_check.stateChanged.connect(self._save_end_skill)
+        end_skill_layout.addWidget(self.ignore_end_skill_purchase_check)
         
         # End skill template selection (always visible)
         self.end_skill_widget = QWidget()
@@ -261,6 +277,10 @@ class SkillTab(QScrollArea):
         self.purchase_combo.blockSignals(True)
         self.purchase_combo.setCurrentText(skills.get("skill_purchase", "auto"))
         self.purchase_combo.blockSignals(False)
+
+        self.pre_custom_race_skill_check.blockSignals(True)
+        self.pre_custom_race_skill_check.setChecked(skills.get("pre_custom_race_skill_check", False))
+        self.pre_custom_race_skill_check.blockSignals(False)
         
         # Skill file
         skill_file = skills.get("skill_file", "skills.json")
@@ -276,6 +296,10 @@ class SkillTab(QScrollArea):
         self.auto_widget.setVisible(enabled and self.purchase_combo.currentText() == 'auto')
         
         # End skill file
+        self.ignore_end_skill_purchase_check.blockSignals(True)
+        self.ignore_end_skill_purchase_check.setChecked(restart.get("ignore_end_skill_purchase", False))
+        self.ignore_end_skill_purchase_check.blockSignals(False)
+
         end_skill_file = restart.get("end_skill_file", "default.json")
         if "/" in end_skill_file or "\\" in end_skill_file:
             end_skill_file = os.path.basename(end_skill_file)
@@ -299,6 +323,7 @@ class SkillTab(QScrollArea):
         config["skills"]["skill_point_cap"] = self.skill_cap_spin.value()
         config["skills"]["swipe_time_offset"] = self.swipe_offset_spin.value()
         config["skills"]["skill_purchase"] = self.purchase_combo.currentText()
+        config["skills"]["pre_custom_race_skill_check"] = self.pre_custom_race_skill_check.isChecked()
         config["skills"]["skill_file"] = f"template/skills/{self.skill_dropdown.currentText()}"
         
         self.main_window.save_config()
@@ -378,6 +403,7 @@ class SkillTab(QScrollArea):
         
 
         config["restart_career"]["end_skill_file"] = f"template/End_skill/{self.end_skill_dropdown.currentText()}"
+        config["restart_career"]["ignore_end_skill_purchase"] = self.ignore_end_skill_purchase_check.isChecked()
         
         self.main_window.save_config()
         

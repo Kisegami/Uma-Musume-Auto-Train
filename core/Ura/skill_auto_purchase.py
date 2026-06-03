@@ -1,12 +1,11 @@
 import time
-import os
-import json
 from core.Ura.skill_recognizer import take_screenshot, recognize_skill_up_locations
 from utils.inputs.input import tap, tap_on_image
 from utils.inputs.skill_swipe import swipe_skill_list_down_slow
 from core.Ura.skill_purchase_optimizer import fuzzy_match_skill_name
 from utils.core.log import log_debug, log_info, log_warning, log_error
 from utils.core.config_loader import load_main_config
+from utils.vision.recognizer import locate_on_screen
 
 # Load config and check debug mode
 _config = load_main_config()
@@ -185,48 +184,21 @@ def click_image_button(image_path, description="button", max_attempts=10, wait_b
         bool: True if button was found and clicked, False otherwise
     """
     try:
-        import cv2
-        import numpy as np
-        
-        if not os.path.exists(image_path):
-            log_error(f"{description} template not found: {image_path}")
-            return False
-        
-        # Load template once
-        template = cv2.imread(image_path, cv2.IMREAD_COLOR)
-        if template is None:
-            log_error(f"Failed to load {description} template: {image_path}")
-            return False
-        
         log_debug(f"Looking for {description} (max {max_attempts} attempts)")
         
         for attempt in range(max_attempts):
             try:
-                # Take screenshot
-                screenshot = take_screenshot()
-                screenshot_cv = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
-                
-                # Perform template matching
-                result = cv2.matchTemplate(screenshot_cv, template, cv2.TM_CCOEFF_NORMED)
-                
-                # Find the best match
-                min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-                
-                if max_val >= 0.8:  # High confidence threshold
-                    # Calculate center of the button
-                    template_height, template_width = template.shape[:2]
-                    center_x = max_loc[0] + template_width // 2
-                    center_y = max_loc[1] + template_height // 2
-                    
-                    # Click the button
-                    success = click_skill_up_button(center_x, center_y)
+                location = locate_on_screen(image_path, confidence=0.8)
+
+                if location:
+                    success = click_skill_up_button(location[0], location[1])
                     if success:
                         log_info(f"{description} clicked successfully (attempt {attempt + 1}")
                         return True
                     else:
                         log_error(f"Failed to click {description} (attempt {attempt + 1}")
                 else:
-                    log_debug(f"{description} not found (attempt {attempt + 1}/{max_attempts}, confidence: {max_val:.3f}")
+                    log_debug(f"{description} not found (attempt {attempt + 1}/{max_attempts})")
                 
                 # Wait before next attempt (except on last attempt)
                 if attempt < max_attempts - 1:

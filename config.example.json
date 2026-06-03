@@ -44,6 +44,14 @@
       "sta",
       "pwr"
     ],
+    "soft_cap_enabled": false,
+    "soft_stat_caps": {
+      "spd": 1100,
+      "sta": 850,
+      "pwr": 600,
+      "guts": 600,
+      "wit": 600
+    },
     "stat_caps": {
       "spd": 1100,
       "sta": 850,
@@ -75,19 +83,50 @@
       "Long"
     ],
     "do_custom_race": true,
-    "custom_race_file": "template/races/custom_races.json"
+    "custom_race_file": "template/races/custom_races.json",
+    "custom_race_search_method": "template_matching"
   },
   "skills": {
     "skill_point_cap": 400,
     "skill_purchase": "auto",
     "skill_file": "template/skills/skills.json",
-    "enable_skill_point_check": true
+    "enable_skill_point_check": true,
+    "pre_custom_race_skill_check": false
+  },
+  "items": {
+    "item_purchase_file": "template/items/default.json",
+    "budget_strategy": "save_priority",
+    "purchase_max_swipes": 10,
+    "shop_swipe_time_offset": 0,
+    "save_energy_recovery_for_summer": false,
+    "training_buff_rainbow_thresholds": {
+      "normal": {
+        "spd": 2,
+        "sta": 2,
+        "pwr": 2,
+        "guts": 2,
+        "wit": 2
+      },
+      "summer": {
+        "spd": 2,
+        "sta": 2,
+        "pwr": 2,
+        "guts": 2,
+        "wit": 2
+      }
+    },
+    "training_buff_periods": ["any_time"],
+    "training_buff_period_rainbow_override_enabled": false,
+    "training_buff_period_rainbow_override_threshold": 2,
+    "training_buff_highest_rainbow_override_enabled": false,
+    "training_buff_highest_rainbow_override_threshold": 3
   },
   "restart_career": {
     "restart_enabled": false,
     "restart_times": 2,
     "total_fans_requirement": 0,
-    "end_skill_file": ""
+    "end_skill_file": "",
+    "ignore_end_skill_purchase": false
   },
   "auto_start_career": {
     "include_guests_legacy": false,
@@ -104,6 +143,7 @@
   "mode": "ura",
   "debug_mode": false,
   "dump_lobby_template_regions": false,
+  "bypass_template_regions": false,
   "stop_on_event_detection_failure": false,
   "events": {
     "uma_event_file": "",

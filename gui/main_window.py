@@ -18,6 +18,7 @@ from .styles import MAIN_STYLESHEET, COLORS
 from .icon_helper import get_icon
 from .status_panel import StatusPanel
 from .log_panel import LogPanel
+from .input_log_window import InputLogWindow
 from .bot_controller import BotController
 
 # Import all 9 tabs matching original GUI
@@ -27,6 +28,7 @@ from .tabs.training_tab import TrainingTab
 from .tabs.racing_tab import RacingTab
 from .tabs.event_tab import EventTab
 from .tabs.skill_tab import SkillTab
+from .tabs.items_tab import ItemsTab
 from .tabs.restart_tab import RestartTab
 from .tabs.others_tab import OthersTab
 from .tabs.update_tab import UpdateTab
@@ -68,6 +70,7 @@ class MainWindow(QMainWindow):
         self.bot_running = False
         self.config_file = "config.json"
         self.config = {}
+        self.input_log_window = None
         self._ui_loading = True
         
         # Load configuration
@@ -149,7 +152,7 @@ class MainWindow(QMainWindow):
         sidebar_layout.addSpacing(8)
         
         # App title in sidebar
-        title_label = QLabel("UMAT v0.2")
+        title_label = QLabel("UMAT v0.3")
         title_label.setObjectName("title")
         title_label.setAlignment(Qt.AlignCenter)
         title_label.setStyleSheet("font-size: 16px;")
@@ -177,7 +180,7 @@ class MainWindow(QMainWindow):
         
         sidebar_layout.addSpacing(16)
         
-        # Navigation buttons - 9 tabs matching original GUI
+        # Navigation buttons
         self.nav_buttons = []
         nav_items = [
             ("Main", "fa5s.cog"),
@@ -186,6 +189,7 @@ class MainWindow(QMainWindow):
             ("Racing", "fa5s.flag-checkered"),
             ("Event", "fa5s.calendar"),
             ("Skill", "fa5s.star"),
+            ("Items", "fa5s.box"),
             ("Restart", "fa5s.redo"),
             ("Others", "fa5s.wrench"),
             ("Update", "fa5s.download"),
@@ -218,7 +222,7 @@ class MainWindow(QMainWindow):
         content_layout.setContentsMargins(16, 16, 16, 16)
         content_layout.setSpacing(16)
         
-        # Left: Stacked pages - 9 pages matching original
+        # Left: Stacked pages
         self.page_stack = QStackedWidget()
         
         # Create all pages during startup so tab initialization failures surface
@@ -229,6 +233,7 @@ class MainWindow(QMainWindow):
         self.racing_page = RacingTab(self)
         self.event_page = EventTab(self)
         self.skill_page = SkillTab(self)
+        self.items_page = ItemsTab(self)
         self.restart_page = RestartTab(self)
         self.others_page = OthersTab(self)
         self.update_page = UpdateTab(self)
@@ -240,6 +245,7 @@ class MainWindow(QMainWindow):
         self.page_stack.addWidget(self.racing_page)
         self.page_stack.addWidget(self.event_page)
         self.page_stack.addWidget(self.skill_page)
+        self.page_stack.addWidget(self.items_page)
         self.page_stack.addWidget(self.restart_page)
         self.page_stack.addWidget(self.others_page)
         self.page_stack.addWidget(self.update_page)
@@ -265,6 +271,7 @@ class MainWindow(QMainWindow):
         
         # Select first nav button
         self.nav_buttons[0][1].setChecked(True)
+        self._update_mode_dependent_navigation()
     
     def _on_nav_clicked(self, page_name):
         """Handle navigation button click"""
@@ -280,10 +287,11 @@ class MainWindow(QMainWindow):
             "Racing": 3,
             "Event": 4,
             "Skill": 5,
-            "Restart": 6,
-            "Others": 7,
-            "Update": 8,
-            "Donation": 9,
+            "Items": 6,
+            "Restart": 7,
+            "Others": 8,
+            "Update": 9,
+            "Donation": 10,
         }
         
         # Update button states
@@ -293,6 +301,17 @@ class MainWindow(QMainWindow):
         # Switch page
         if page_name in page_map:
             self.page_stack.setCurrentIndex(page_map[page_name])
+
+    def _update_mode_dependent_navigation(self):
+        """Show Trackblazer-only navigation entries when applicable."""
+        is_trackblazer = self.config.get("mode", "ura") == "trackblazer"
+        items_button = next((btn for name, btn in self.nav_buttons if name == "Items"), None)
+        if items_button is None:
+            return
+
+        items_button.setVisible(is_trackblazer)
+        if not is_trackblazer and items_button.isChecked():
+            self._on_nav_clicked("Skill")
     
     def _open_discord_prompt(self):
         """Show a prompt asking user if they want to join the Discord server"""
@@ -348,11 +367,41 @@ class MainWindow(QMainWindow):
             "capture_method": "auto",
             "emulator_type": "",
             "adb_config": {"device_address": "127.0.0.1:7555", "adb_path": "adb", "screenshot_timeout": 5, "input_delay": 0.5},
-            "training": {"priority_stat": ["spd", "sta", "wit", "pwr", "guts"], "minimum_mood": "GREAT", "maximum_failure": 15, "min_energy": 30, "skip_goal_check": False},
-            "racing": {"strategy": "FRONT", "retry_race": True, "stop_on_race_fail": True},
-            "skills": {"skill_point_cap": 400, "skill_purchase": "auto"},
+            "training": {
+                "priority_stat": ["spd", "sta", "wit", "pwr", "guts"],
+                "minimum_mood": "GREAT",
+                "maximum_failure": 15,
+                "min_energy": 30,
+                "skip_goal_check": False,
+                "soft_cap_enabled": False,
+                "soft_stat_caps": {"spd": 600, "sta": 600, "pwr": 600, "guts": 600, "wit": 600},
+                "stat_caps": {"spd": 600, "sta": 600, "pwr": 600, "guts": 600, "wit": 600}
+            },
+            "racing": {
+                "strategy": "FRONT",
+                "retry_race": True,
+                "stop_on_race_fail": True,
+                "custom_race_search_method": "ocr",
+            },
+            "events": {"uma_event_file": "All", "support_card_template": "", "scenario_event_selection": "Current Mode"},
+            "skills": {
+                "skill_point_cap": 400,
+                "skill_purchase": "auto",
+                "enable_skill_point_check": True,
+                "pre_custom_race_skill_check": False
+            },
+            "restart_career": {
+                "restart_enabled": False,
+                "restart_times": 2,
+                "total_fans_requirement": 0,
+                "end_skill_file": "",
+                "ignore_end_skill_purchase": False
+            },
+            "items": {"item_purchase_file": "template/items/default.json", "budget_strategy": "save_priority"},
             "debug_mode": False,
             "dump_lobby_template_regions": False,
+            "bypass_template_regions": False,
+            "input_action_debug_log": False,
             "update": {"auto_update": True, "install_dependencies": True, "branch": "main"}
         }
     
@@ -383,7 +432,9 @@ class MainWindow(QMainWindow):
         if hasattr(self, 'bot_controller'):
             self.add_log("BotController exists, calling start_bot()", "info")
             try:
-                self.bot_controller.start_bot()
+                started = self.bot_controller.start_bot()
+                if not started:
+                    return
                 self.bot_running = True
                 # Update UI
                 self.start_btn.setText("  Stop Bot")
@@ -430,6 +481,14 @@ class MainWindow(QMainWindow):
             self.log_panel.add_log(message, level)
         else:
             print(f"[{level.upper()}] {message}")
+
+    def show_input_log_window(self):
+        """Show the live input action log window."""
+        if self.input_log_window is None:
+            self.input_log_window = InputLogWindow(self)
+        self.input_log_window.show()
+        self.input_log_window.raise_()
+        self.input_log_window.activateWindow()
     
     def after(self, delay_ms, callback, *args):
         """Qt compatibility wrapper for tkinter's root.after() method"""
@@ -443,10 +502,14 @@ class MainWindow(QMainWindow):
                                          QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if reply == QMessageBox.Yes:
                 self.stop_bot()
+                if self.input_log_window is not None:
+                    self.input_log_window.close()
                 event.accept()
             else:
                 event.ignore()
         else:
+            if self.input_log_window is not None:
+                self.input_log_window.close()
             event.accept()
     
     def _on_bot_stopped(self):

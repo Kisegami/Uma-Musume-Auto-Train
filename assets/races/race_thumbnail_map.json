@@ -1,0 +1,2796 @@
+{
+  "metadata": {
+    "source_database": "assets/races/master.mdb",
+    "source_race_data": "assets/races/clean_race_data.json",
+    "thumbnail_directory": "assets/races/races_thumb",
+    "total_entries": 422,
+    "matched_entries": 394,
+    "fallback_entries": 18,
+    "unmapped_entries": 28,
+    "note": "Unmapped entries are races present in clean_race_data.json but not found by name in master.mdb text_data category 32."
+  },
+  "races": {
+    "Junior Year Late Jul": {
+      "Chukyo Junior Stakes": {
+        "race_id": 4068,
+        "thumbnail_id": 4068,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4068_00.png",
+        "match": "exact"
+      },
+      "Hakodate Junior Stakes": {
+        "race_id": 3041,
+        "thumbnail_id": 3041,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3041_00.png",
+        "match": "exact"
+      }
+    },
+    "Junior Year Early Aug": {
+      "Cosmos Sho": {
+        "race_id": 4075,
+        "thumbnail_id": 4075,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4075_00.png",
+        "match": "exact"
+      },
+      "Dahlia Sho": {
+        "race_id": 4070,
+        "thumbnail_id": 4070,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4070_00.png",
+        "match": "exact"
+      },
+      "Phoenix Sho": {
+        "race_id": 4074,
+        "thumbnail_id": 4074,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4074_00.png",
+        "match": "exact"
+      }
+    },
+    "Junior Year Late Aug": {
+      "Clover Sho": {
+        "race_id": 4077,
+        "thumbnail_id": 4077,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4077_00.png",
+        "match": "exact"
+      },
+      "Niigata Junior Stakes": {
+        "race_id": 3049,
+        "thumbnail_id": 3049,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3049_00.png",
+        "match": "exact"
+      }
+    },
+    "Junior Year Early Sep": {
+      "Aster Sho": {
+        "race_id": 4501,
+        "thumbnail_id": 4501,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4501_00.png",
+        "match": "exact"
+      },
+      "Kokura Junior Stakes": {
+        "race_id": 3052,
+        "thumbnail_id": 3052,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3052_00.png",
+        "match": "exact"
+      },
+      "Nojigiku Stakes": {
+        "race_id": 4085,
+        "thumbnail_id": 4085,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4085_00.png",
+        "match": "exact"
+      },
+      "Sapporo Junior Stakes": {
+        "race_id": 3051,
+        "thumbnail_id": 3051,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3051_00.png",
+        "match": "exact"
+      },
+      "Suzuran Sho": {
+        "race_id": 4083,
+        "thumbnail_id": 4083,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4083_00.png",
+        "match": "exact"
+      }
+    },
+    "Junior Year Late Sep": {
+      "Canna Stakes": {
+        "race_id": 4089,
+        "thumbnail_id": 4089,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4089_00.png",
+        "match": "exact"
+      },
+      "Fuyo Stakes": {
+        "race_id": 4088,
+        "thumbnail_id": 4088,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4088_00.png",
+        "match": "exact"
+      },
+      "Kikyo Stakes": {
+        "race_id": 4087,
+        "thumbnail_id": 4087,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4087_00.png",
+        "match": "exact"
+      },
+      "Saffron Sho": {
+        "race_id": 4502,
+        "thumbnail_id": 4502,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4502_00.png",
+        "match": "exact"
+      }
+    },
+    "Junior Year Early Oct": {
+      "Momiji Stakes": {
+        "race_id": 4093,
+        "thumbnail_id": 4093,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4093_00.png",
+        "match": "exact"
+      },
+      "Platanus Sho": {
+        "race_id": 4505,
+        "thumbnail_id": 4505,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4505_00.png",
+        "match": "exact"
+      },
+      "Rindo Sho": {
+        "race_id": 4503,
+        "thumbnail_id": 4503,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4503_00.png",
+        "match": "exact"
+      },
+      "Saudi Arabia Royal Cup": {
+        "race_id": 3057,
+        "thumbnail_id": 3057,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3057_00.png",
+        "match": "exact"
+      },
+      "Shigiku Sho": {
+        "race_id": 4504,
+        "thumbnail_id": 4504,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4504_00.png",
+        "match": "exact"
+      }
+    },
+    "Junior Year Late Oct": {
+      "Artemis Stakes": {
+        "race_id": 3059,
+        "thumbnail_id": 3059,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3059_00.png",
+        "match": "exact"
+      },
+      "Hagi Stakes": {
+        "race_id": 4099,
+        "thumbnail_id": 4099,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4099_00.png",
+        "match": "exact"
+      },
+      "Ivy Stakes": {
+        "race_id": 4096,
+        "thumbnail_id": 4096,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4096_00.png",
+        "match": "exact"
+      },
+      "Nadeshiko Sho": {
+        "race_id": 4506,
+        "thumbnail_id": 4506,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4506_00.png",
+        "match": "exact"
+      }
+    },
+    "Junior Year Early Nov": {
+      "Daily Hai Junior Stakes": {
+        "race_id": 2032,
+        "thumbnail_id": 2032,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2032_00.png",
+        "match": "exact"
+      },
+      "Fantasy Stakes": {
+        "race_id": 3060,
+        "thumbnail_id": 3060,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3060_00.png",
+        "match": "exact"
+      },
+      "Fukushima Junior Stakes": {
+        "race_id": 4103,
+        "thumbnail_id": 4103,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4103_00.png",
+        "match": "exact"
+      },
+      "Hyakunichiso Tokubetsu": {
+        "race_id": 4507,
+        "thumbnail_id": 4507,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4507_00.png",
+        "match": "exact"
+      },
+      "Keio Hai Junior Stakes": {
+        "race_id": 2030,
+        "thumbnail_id": 2030,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2030_00.png",
+        "match": "exact"
+      },
+      "Kigiku Sho": {
+        "race_id": 4510,
+        "thumbnail_id": 4510,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4510_00.png",
+        "match": "exact"
+      },
+      "Kimmokusei Tokubetsu": {
+        "race_id": 4508,
+        "thumbnail_id": 4508,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4508_00.png",
+        "match": "exact"
+      },
+      "Oxalis Sho": {
+        "race_id": 4509,
+        "thumbnail_id": 4509,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4509_00.png",
+        "match": "exact"
+      }
+    },
+    "Junior Year Late Nov": {
+      "Akamatsu Sho": {
+        "race_id": 4512,
+        "thumbnail_id": 4512,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4512_00.png",
+        "match": "exact"
+      },
+      "Begonia Sho": {
+        "race_id": 4515,
+        "thumbnail_id": 4515,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4515_00.png",
+        "match": "exact"
+      },
+      "Cattleya Sho": {
+        "race_id": 4514,
+        "thumbnail_id": 4514,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4514_00.png",
+        "match": "exact"
+      },
+      "Habotan Sho": {
+        "race_id": 4517,
+        "thumbnail_id": 4517,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4517_00.png",
+        "match": "exact"
+      },
+      "Koyamaki Sho": {
+        "race_id": 4518,
+        "thumbnail_id": 4518,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4518_00.png",
+        "match": "exact"
+      },
+      "Kyoto Junior Stakes": {
+        "race_id": 3065,
+        "thumbnail_id": 3065,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3065_00.png",
+        "match": "exact"
+      },
+      "Mochinoki Sho": {
+        "race_id": 4511,
+        "thumbnail_id": 4511,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4511_00.png",
+        "match": "exact"
+      },
+      "Shiragiku Sho": {
+        "race_id": 4516,
+        "thumbnail_id": 4516,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4516_00.png",
+        "match": "exact"
+      },
+      "Shumeigiku Sho": {
+        "race_id": 4513,
+        "thumbnail_id": 4513,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4513_00.png",
+        "match": "exact"
+      },
+      "Tokyo Sports Hai Junior Stakes": {
+        "race_id": 3064,
+        "thumbnail_id": 3064,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3064_00.png",
+        "match": "exact"
+      }
+    },
+    "Junior Year Early Dec": {
+      "Asahi Hai Futurity Stakes": {
+        "race_id": 1022,
+        "thumbnail_id": 1022,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1022_00.png",
+        "match": "exact"
+      },
+      "Erica Sho": {
+        "race_id": 4521,
+        "thumbnail_id": 4521,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4521_00.png",
+        "match": "exact"
+      },
+      "Hanshin Juvenile Fillies": {
+        "race_id": 1021,
+        "thumbnail_id": 1021,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1021_00.png",
+        "match": "exact"
+      },
+      "Hiiragi Sho": {
+        "race_id": 4523,
+        "thumbnail_id": 4523,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4523_00.png",
+        "match": "exact"
+      },
+      "Kantsubaki Sho": {
+        "race_id": 4525,
+        "thumbnail_id": 4525,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4525_00.png",
+        "match": "exact"
+      },
+      "Kuromatsu Sho": {
+        "race_id": 4520,
+        "thumbnail_id": 4520,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4520_00.png",
+        "match": "exact"
+      },
+      "Manryo Sho": {
+        "race_id": 4519,
+        "thumbnail_id": 4519,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4519_00.png",
+        "match": "exact"
+      },
+      "Sazanka Sho": {
+        "race_id": 4524,
+        "thumbnail_id": 4524,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4524_00.png",
+        "match": "exact"
+      },
+      "Tsuwabuki Sho": {
+        "race_id": 4522,
+        "thumbnail_id": 4522,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4522_00.png",
+        "match": "exact"
+      }
+    },
+    "Junior Year Late Dec": {
+      "Christmas Rose Stakes": {
+        "race_id": 4114,
+        "thumbnail_id": 4114,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4114_00.png",
+        "match": "exact"
+      },
+      "Hopeful Stakes": {
+        "race_id": 1024,
+        "thumbnail_id": 1024,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1024_00.png",
+        "match": "exact"
+      },
+      "Senryo Sho": {
+        "race_id": 4526,
+        "thumbnail_id": 4526,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4526_00.png",
+        "match": "exact"
+      },
+      "Zen-Nippon Junior Yushun": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      }
+    },
+    "Classic Year Early Jan": {
+      "Fairy Stakes": {
+        "race_id": 3004,
+        "thumbnail_id": 3004,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3004_00.png",
+        "match": "exact"
+      },
+      "Junior Cup": {
+        "race_id": 4002,
+        "thumbnail_id": 4002,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4002_00.png",
+        "match": "exact"
+      },
+      "Keisei Hai": {
+        "race_id": 3006,
+        "thumbnail_id": 3006,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3006_00.png",
+        "match": "exact"
+      },
+      "Kobai Stakes": {
+        "race_id": 4007,
+        "thumbnail_id": 4007,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4007_00.png",
+        "match": "exact"
+      },
+      "Shinzan Kinen": {
+        "race_id": 3003,
+        "thumbnail_id": 3003,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3003_00.png",
+        "match": "exact"
+      }
+    },
+    "Classic Year Late Jan": {
+      "Crocus Stakes": {
+        "race_id": 4012,
+        "thumbnail_id": 4012,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4012_00.png",
+        "match": "exact"
+      },
+      "Wakagoma Stakes": {
+        "race_id": 4009,
+        "thumbnail_id": 4009,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4009_00.png",
+        "match": "exact"
+      }
+    },
+    "Classic Year Early Feb": {
+      "Elfin Stakes": {
+        "race_id": 4014,
+        "thumbnail_id": 4014,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4014_00.png",
+        "match": "exact"
+      },
+      "Kisaragi Sho": {
+        "race_id": 3009,
+        "thumbnail_id": 3009,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3009_00.png",
+        "match": "exact"
+      },
+      "Kyodo News Hai": {
+        "race_id": 3012,
+        "thumbnail_id": 3012,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3012_00.png",
+        "match": "exact"
+      },
+      "Queen Cup": {
+        "race_id": 3011,
+        "thumbnail_id": 3011,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3011_00.png",
+        "match": "exact"
+      }
+    },
+    "Classic Year Late Feb": {
+      "Hyacinth Stakes": {
+        "race_id": 4018,
+        "thumbnail_id": 4018,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4018_00.png",
+        "match": "exact"
+      },
+      "Marguerite Stakes": {
+        "race_id": 4032,
+        "thumbnail_id": 4032,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4032_00.png",
+        "match": "exact"
+      },
+      "Sumire Stakes": {
+        "race_id": 4020,
+        "thumbnail_id": 4020,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4020_00.png",
+        "match": "exact"
+      }
+    },
+    "Classic Year Early Mar": {
+      "Anemone Stakes": {
+        "race_id": 4024,
+        "thumbnail_id": 4024,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4024_00.png",
+        "match": "exact"
+      },
+      "Fillies' Revue": {
+        "race_id": 2008,
+        "thumbnail_id": 2008,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2008_00.png",
+        "match": "exact"
+      },
+      "Shoryu Stakes": {
+        "race_id": 4025,
+        "thumbnail_id": 4025,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4025_00.png",
+        "match": "exact"
+      },
+      "Tulip Sho": {
+        "race_id": 3018,
+        "thumbnail_id": 3018,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3018_00.png",
+        "match": "exact"
+      },
+      "Yayoi Sho": {
+        "race_id": 2006,
+        "thumbnail_id": 2006,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2006_00.png",
+        "match": "exact"
+      }
+    },
+    "Classic Year Late Mar": {
+      "Falcon Stakes": {
+        "race_id": 3021,
+        "thumbnail_id": 3021,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3021_00.png",
+        "match": "exact"
+      },
+      "Flower Cup": {
+        "race_id": 3022,
+        "thumbnail_id": 3022,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3022_00.png",
+        "match": "exact"
+      },
+      "Mainichi Hai": {
+        "race_id": 3023,
+        "thumbnail_id": 3023,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3023_00.png",
+        "match": "exact"
+      },
+      "Spring Stakes": {
+        "race_id": 2010,
+        "thumbnail_id": 2010,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2010_00.png",
+        "match": "exact"
+      },
+      "Wakaba Stakes": {
+        "race_id": 4027,
+        "thumbnail_id": 4027,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4027_00.png",
+        "match": "exact"
+      }
+    },
+    "Classic Year Early Apr": {
+      "Arlington Cup": {
+        "race_id": 3016,
+        "thumbnail_id": 3016,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3016_00.png",
+        "match": "exact"
+      },
+      "Fukuryu Stakes": {
+        "race_id": 4033,
+        "thumbnail_id": 4033,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4033_00.png",
+        "match": "exact"
+      },
+      "New Zealand Trophy": {
+        "race_id": 2013,
+        "thumbnail_id": 2013,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2013_00.png",
+        "match": "exact"
+      },
+      "Oka Sho": {
+        "race_id": 1004,
+        "thumbnail_id": 1004,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1004_00.png",
+        "match": "exact"
+      },
+      "Satsuki Sho": {
+        "race_id": 1005,
+        "thumbnail_id": 1005,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1005_00.png",
+        "match": "exact"
+      },
+      "Wasurenagusa Sho": {
+        "race_id": 4035,
+        "thumbnail_id": 4035,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4035_00.png",
+        "match": "exact"
+      },
+      "Marine Cup": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      }
+    },
+    "Classic Year Late Apr": {
+      "Aoba Sho": {
+        "race_id": 2016,
+        "thumbnail_id": 2016,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2016_00.png",
+        "match": "exact"
+      },
+      "Flora Stakes": {
+        "race_id": 2015,
+        "thumbnail_id": 2015,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2015_00.png",
+        "match": "exact"
+      },
+      "Sweetpea Stakes": {
+        "race_id": 4043,
+        "thumbnail_id": 4043,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4043_00.png",
+        "match": "exact"
+      },
+      "Tachibana Stakes": {
+        "race_id": 4039,
+        "thumbnail_id": 4039,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4039_00.png",
+        "match": "exact"
+      },
+      "Tango Stakes": {
+        "race_id": 4042,
+        "thumbnail_id": 4042,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4042_00.png",
+        "match": "exact"
+      }
+    },
+    "Classic Year Early May": {
+      "Kyoto Shimbun Hai": {
+        "race_id": 2017,
+        "thumbnail_id": 2017,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2017_00.png",
+        "match": "exact"
+      },
+      "NHK Mile Cup": {
+        "race_id": 1007,
+        "thumbnail_id": 1007,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1007_00.png",
+        "match": "exact"
+      },
+      "Principal Stakes": {
+        "race_id": 4045,
+        "thumbnail_id": 4045,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4045_00.png",
+        "match": "exact"
+      },
+      "Seiryu Stakes": {
+        "race_id": 4052,
+        "thumbnail_id": 4052,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4052_00.png",
+        "match": "exact"
+      }
+    },
+    "Classic Year Late May": {
+      "Aoi Stakes": {
+        "race_id": 4050,
+        "thumbnail_id": 4050,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4050_00.png",
+        "match": "exact"
+      },
+      "Hosu Stakes": {
+        "race_id": 4054,
+        "thumbnail_id": 4054,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4054_00.png",
+        "match": "exact"
+      },
+      "Japanese Oaks": {
+        "race_id": 1009,
+        "thumbnail_id": 1009,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1009_00.png",
+        "match": "exact"
+      },
+      "Shirayuri Stakes": {
+        "race_id": 4056,
+        "thumbnail_id": 4056,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4056_00.png",
+        "match": "exact"
+      },
+      "Tokyo Yushun (Japanese Derby)": {
+        "race_id": 1010,
+        "thumbnail_id": 1010,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1010_00.png",
+        "match": "exact"
+      }
+    },
+    "Classic Year Early Jun": {
+      "Epsom Cup": {
+        "race_id": 3032,
+        "thumbnail_id": 3032,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3032_00.png",
+        "match": "exact"
+      },
+      "Mermaid Stakes": {
+        "race_id": 3031,
+        "thumbnail_id": 3031,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3031_00.png",
+        "match": "exact"
+      },
+      "Naruo Kinen": {
+        "race_id": 3030,
+        "thumbnail_id": 3030,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3030_00.png",
+        "match": "exact"
+      },
+      "Sleipnir Stakes": {
+        "race_id": 4120,
+        "thumbnail_id": 4119,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4119_00.png",
+        "match": "exact"
+      },
+      "Tempozan Stakes": {
+        "race_id": 4060,
+        "thumbnail_id": 4060,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4060_00.png",
+        "match": "exact"
+      },
+      "Yasuda Kinen": {
+        "race_id": 1011,
+        "thumbnail_id": 1011,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1011_00.png",
+        "match": "exact"
+      },
+      "Kanto Oaks": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      }
+    },
+    "Classic Year Late Jun": {
+      "Akhalteke Stakes": {
+        "race_id": 4059,
+        "thumbnail_id": 4059,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4059_00.png",
+        "match": "exact"
+      },
+      "Hakodate Sprint Stakes": {
+        "race_id": 3034,
+        "thumbnail_id": 3034,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3034_00.png",
+        "match": "exact"
+      },
+      "Onuma Stakes": {
+        "race_id": 4062,
+        "thumbnail_id": 4062,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4062_00.png",
+        "match": "exact"
+      },
+      "Paradise Stakes": {
+        "race_id": 4063,
+        "thumbnail_id": 4063,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4063_00.png",
+        "match": "exact"
+      },
+      "Sannomiya Stakes": {
+        "race_id": 4121,
+        "thumbnail_id": 4120,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4120_00.png",
+        "match": "exact"
+      },
+      "Takarazuka Kinen": {
+        "race_id": 1012,
+        "thumbnail_id": 1012,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1012_00.png",
+        "match": "exact"
+      },
+      "Unicorn Stakes": {
+        "race_id": 3033,
+        "thumbnail_id": 3033,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3033_00.png",
+        "match": "exact"
+      },
+      "Yonago Stakes": {
+        "race_id": 4061,
+        "thumbnail_id": 4061,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4061_00.png",
+        "match": "exact"
+      }
+    },
+    "Classic Year Early Jul": {
+      "CBC Sho": {
+        "race_id": 3035,
+        "thumbnail_id": 3035,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3035_00.png",
+        "match": "exact"
+      },
+      "Hakodate Kinen": {
+        "race_id": 3039,
+        "thumbnail_id": 3039,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3039_00.png",
+        "match": "exact"
+      },
+      "Japan Dirt Derby": {
+        "race_id": 1102,
+        "thumbnail_id": 1102,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1102_00.png",
+        "match": "exact"
+      },
+      "Marine Stakes": {
+        "race_id": 4065,
+        "thumbnail_id": 4065,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4065_00.png",
+        "match": "exact"
+      },
+      "Meitetsu Hai": {
+        "race_id": 4066,
+        "thumbnail_id": 4066,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4066_00.png",
+        "match": "exact"
+      },
+      "Procyon Stakes": {
+        "race_id": 3037,
+        "thumbnail_id": 3037,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3037_00.png",
+        "match": "exact"
+      },
+      "Radio Nikkei Sho": {
+        "race_id": 3036,
+        "thumbnail_id": 3036,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3036_00.png",
+        "match": "exact"
+      },
+      "Tanabata Sho": {
+        "race_id": 3038,
+        "thumbnail_id": 3038,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3038_00.png",
+        "match": "exact"
+      },
+      "Tomoe Sho": {
+        "race_id": 4064,
+        "thumbnail_id": 4064,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4064_00.png",
+        "match": "exact"
+      },
+      "Sparking Lady Cup": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      }
+    },
+    "Classic Year Late Jul": {
+      "Chukyo Kinen": {
+        "race_id": 3040,
+        "thumbnail_id": 3040,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3040_00.png",
+        "match": "exact"
+      },
+      "Fukushima TV Open": {
+        "race_id": 4069,
+        "thumbnail_id": 4069,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4069_00.png",
+        "match": "exact"
+      },
+      "Ibis Summer Dash": {
+        "race_id": 3042,
+        "thumbnail_id": 3042,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3042_00.png",
+        "match": "exact"
+      },
+      "Queen Stakes": {
+        "race_id": 3043,
+        "thumbnail_id": 3043,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3043_00.png",
+        "match": "exact"
+      },
+      "Mercury Cup": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      }
+    },
+    "Classic Year Early Aug": {
+      "Aso Stakes": {
+        "race_id": 4073,
+        "thumbnail_id": 4073,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4073_00.png",
+        "match": "exact"
+      },
+      "Elm Stakes": {
+        "race_id": 3047,
+        "thumbnail_id": 3047,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3047_00.png",
+        "match": "exact"
+      },
+      "Kanetsu Stakes": {
+        "race_id": 4122,
+        "thumbnail_id": 4121,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4121_00.png",
+        "match": "exact"
+      },
+      "Kokura Kinen": {
+        "race_id": 3044,
+        "thumbnail_id": 3044,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3044_00.png",
+        "match": "exact"
+      },
+      "Leopard Stakes": {
+        "race_id": 3045,
+        "thumbnail_id": 3045,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3045_00.png",
+        "match": "exact"
+      },
+      "Sapporo Nikkei Open": {
+        "race_id": 4071,
+        "thumbnail_id": 4071,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4071_00.png",
+        "match": "exact"
+      },
+      "Sekiya Kinen": {
+        "race_id": 3046,
+        "thumbnail_id": 3046,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3046_00.png",
+        "match": "exact"
+      },
+      "UHB Sho": {
+        "race_id": 4072,
+        "thumbnail_id": 4072,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4072_00.png",
+        "match": "exact"
+      }
+    },
+    "Classic Year Late Aug": {
+      "BSN Sho": {
+        "race_id": 4079,
+        "thumbnail_id": 4079,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4079_00.png",
+        "match": "exact"
+      },
+      "Keeneland Cup": {
+        "race_id": 3050,
+        "thumbnail_id": 3050,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3050_00.png",
+        "match": "exact"
+      },
+      "Kitakyushu Kinen": {
+        "race_id": 3048,
+        "thumbnail_id": 3048,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3048_00.png",
+        "match": "exact"
+      },
+      "Kokura Nikkei Open": {
+        "race_id": 4080,
+        "thumbnail_id": 4080,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4080_00.png",
+        "match": "exact"
+      },
+      "NST Sho": {
+        "race_id": 4076,
+        "thumbnail_id": 4076,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4076_00.png",
+        "match": "exact"
+      },
+      "Sapporo Kinen": {
+        "race_id": 2020,
+        "thumbnail_id": 2020,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2020_00.png",
+        "match": "exact"
+      },
+      "Toki Stakes": {
+        "race_id": 4081,
+        "thumbnail_id": 4081,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4081_00.png",
+        "match": "exact"
+      },
+      "Cluster Cup": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      }
+    },
+    "Classic Year Early Sep": {
+      "Centaur Stakes": {
+        "race_id": 2021,
+        "thumbnail_id": 2021,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2021_00.png",
+        "match": "exact"
+      },
+      "Enif Stakes": {
+        "race_id": 4084,
+        "thumbnail_id": 4084,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4084_00.png",
+        "match": "exact"
+      },
+      "Keisei Hai Autumn Handicap": {
+        "race_id": 3055,
+        "thumbnail_id": 3055,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3055_00.png",
+        "match": "exact"
+      },
+      "Niigata Kinen": {
+        "race_id": 3053,
+        "thumbnail_id": 3053,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3053_00.png",
+        "match": "exact"
+      },
+      "Prix Niel": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      },
+      "Radio Nippon Sho": {
+        "race_id": 4086,
+        "thumbnail_id": 4086,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4086_00.png",
+        "match": "exact"
+      },
+      "Rose Stakes": {
+        "race_id": 2022,
+        "thumbnail_id": 2022,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2022_00.png",
+        "match": "exact"
+      },
+      "Shion Stakes": {
+        "race_id": 3054,
+        "thumbnail_id": 3054,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3054_00.png",
+        "match": "exact"
+      },
+      "Tancho Stakes": {
+        "race_id": 4082,
+        "thumbnail_id": 4082,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4082_00.png",
+        "match": "exact"
+      }
+    },
+    "Classic Year Late Sep": {
+      "All Comers": {
+        "race_id": 2025,
+        "thumbnail_id": 2025,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2025_00.png",
+        "match": "exact"
+      },
+      "Kobe Shimbun Hai": {
+        "race_id": 2024,
+        "thumbnail_id": 2024,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2024_00.png",
+        "match": "exact"
+      },
+      "Nagatsuki Stakes": {
+        "race_id": 4123,
+        "thumbnail_id": 4122,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4122_00.png",
+        "match": "exact"
+      },
+      "Port Island Stakes": {
+        "race_id": 4090,
+        "thumbnail_id": 4090,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4090_00.png",
+        "match": "exact"
+      },
+      "Sirius Stakes": {
+        "race_id": 3056,
+        "thumbnail_id": 3056,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3056_00.png",
+        "match": "exact"
+      },
+      "Sprinters Stakes": {
+        "race_id": 1013,
+        "thumbnail_id": 1013,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1013_00.png",
+        "match": "exact"
+      },
+      "St. Lite Kinen": {
+        "race_id": 2023,
+        "thumbnail_id": 2023,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2023_00.png",
+        "match": "exact"
+      },
+      "Sazanka TV Hai": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      }
+    },
+    "Classic Year Early Oct": {
+      "Fuchu Umamusume Stakes": {
+        "race_id": 2028,
+        "thumbnail_id": 2028,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2028_00.png",
+        "match": "exact"
+      },
+      "Green Channel Cup": {
+        "race_id": 4092,
+        "thumbnail_id": 4092,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4092_00.png",
+        "match": "exact"
+      },
+      "Kyoto Daishoten": {
+        "race_id": 2027,
+        "thumbnail_id": 2027,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2027_00.png",
+        "match": "exact"
+      },
+      "Mainichi Okan": {
+        "race_id": 2026,
+        "thumbnail_id": 2026,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2026_00.png",
+        "match": "exact"
+      },
+      "October Stakes": {
+        "race_id": 4094,
+        "thumbnail_id": 4094,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4094_00.png",
+        "match": "exact"
+      },
+      "Opal Stakes": {
+        "race_id": 4091,
+        "thumbnail_id": 4091,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4091_00.png",
+        "match": "exact"
+      },
+      "Shinetsu Stakes": {
+        "race_id": 4095,
+        "thumbnail_id": 4095,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4095_00.png",
+        "match": "exact"
+      },
+      "Uzumasa Stakes": {
+        "race_id": 4124,
+        "thumbnail_id": 4123,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4123_00.png",
+        "match": "exact"
+      },
+      "Ladies' Prelude": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      },
+      "Mile Championship Nambu Hai": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      },
+      "Tokyo Hai": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      }
+    },
+    "Classic Year Late Oct": {
+      "Brazil Cup": {
+        "race_id": 4098,
+        "thumbnail_id": 4098,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4098_00.png",
+        "match": "exact"
+      },
+      "Cassiopeia Stakes": {
+        "race_id": 4100,
+        "thumbnail_id": 4100,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4100_00.png",
+        "match": "exact"
+      },
+      "Fuji Stakes": {
+        "race_id": 3058,
+        "thumbnail_id": 3058,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3058_00.png",
+        "match": "exact"
+      },
+      "Kikuka Sho": {
+        "race_id": 1015,
+        "thumbnail_id": 1015,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1015_00.png",
+        "match": "exact"
+      },
+      "Lumiere Autumn Dash": {
+        "race_id": 4101,
+        "thumbnail_id": 4101,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4101_00.png",
+        "match": "exact"
+      },
+      "Muromachi Stakes": {
+        "race_id": 4097,
+        "thumbnail_id": 4097,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4097_00.png",
+        "match": "exact"
+      },
+      "Shuka Sho": {
+        "race_id": 1014,
+        "thumbnail_id": 1014,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1014_00.png",
+        "match": "exact"
+      },
+      "Swan Stakes": {
+        "race_id": 2029,
+        "thumbnail_id": 2029,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2029_00.png",
+        "match": "exact"
+      },
+      "Tenno Sho (Autumn)": {
+        "race_id": 1016,
+        "thumbnail_id": 1016,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1016_00.png",
+        "match": "exact"
+      }
+    },
+    "Classic Year Early Nov": {
+      "Copa Republica Argentina": {
+        "race_id": 2031,
+        "thumbnail_id": 2031,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2031_00.png",
+        "match": "exact"
+      },
+      "Fukushima Kinen": {
+        "race_id": 3063,
+        "thumbnail_id": 3063,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3063_00.png",
+        "match": "exact"
+      },
+      "JBC Classic": {
+        "race_id": 1105,
+        "thumbnail_id": 1105,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1105_00.png",
+        "match": "exact"
+      },
+      "JBC Classic [2]": {
+        "race_id": 1105,
+        "thumbnail_id": 1105,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1105_00.png",
+        "match": "base_name_fallback",
+        "matched_name": "JBC Classic"
+      },
+      "JBC Classic [3]": {
+        "race_id": 1105,
+        "thumbnail_id": 1105,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1105_00.png",
+        "match": "base_name_fallback",
+        "matched_name": "JBC Classic"
+      },
+      "JBC Classic [4]": {
+        "race_id": 1105,
+        "thumbnail_id": 1105,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1105_00.png",
+        "match": "base_name_fallback",
+        "matched_name": "JBC Classic"
+      },
+      "JBC Ladies’ Classic": {
+        "race_id": 1103,
+        "thumbnail_id": 1103,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1103_00.png",
+        "match": "exact"
+      },
+      "JBC Ladies’ Classic [2]": {
+        "race_id": 1103,
+        "thumbnail_id": 1103,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1103_00.png",
+        "match": "base_name_fallback",
+        "matched_name": "JBC Ladies’ Classic"
+      },
+      "JBC Ladies’ Classic [3]": {
+        "race_id": 1103,
+        "thumbnail_id": 1103,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1103_00.png",
+        "match": "base_name_fallback",
+        "matched_name": "JBC Ladies’ Classic"
+      },
+      "JBC Ladies’ Classic [4]": {
+        "race_id": 1103,
+        "thumbnail_id": 1103,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1103_00.png",
+        "match": "base_name_fallback",
+        "matched_name": "JBC Ladies’ Classic"
+      },
+      "JBC Sprint": {
+        "race_id": 1104,
+        "thumbnail_id": 1104,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1104_00.png",
+        "match": "exact"
+      },
+      "JBC Sprint [2]": {
+        "race_id": 1104,
+        "thumbnail_id": 1104,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1104_00.png",
+        "match": "base_name_fallback",
+        "matched_name": "JBC Sprint"
+      },
+      "JBC Sprint [3]": {
+        "race_id": 1104,
+        "thumbnail_id": 1104,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1104_00.png",
+        "match": "base_name_fallback",
+        "matched_name": "JBC Sprint"
+      },
+      "JBC Sprint [4]": {
+        "race_id": 1104,
+        "thumbnail_id": 1104,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1104_00.png",
+        "match": "base_name_fallback",
+        "matched_name": "JBC Sprint"
+      },
+      "Miyako Stakes": {
+        "race_id": 3061,
+        "thumbnail_id": 3061,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3061_00.png",
+        "match": "exact"
+      },
+      "Musashino Stakes": {
+        "race_id": 3062,
+        "thumbnail_id": 3062,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3062_00.png",
+        "match": "exact"
+      },
+      "Oro Cup": {
+        "race_id": 4102,
+        "thumbnail_id": 4102,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4102_00.png",
+        "match": "exact"
+      },
+      "Queen Elizabeth II Cup": {
+        "race_id": 1017,
+        "thumbnail_id": 1017,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1017_00.png",
+        "match": "exact"
+      }
+    },
+    "Classic Year Late Nov": {
+      "Andromeda Stakes": {
+        "race_id": 4104,
+        "thumbnail_id": 4104,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4104_00.png",
+        "match": "exact"
+      },
+      "Autumn Leaf Stakes": {
+        "race_id": 4108,
+        "thumbnail_id": 4108,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4108_00.png",
+        "match": "exact"
+      },
+      "Capital Stakes": {
+        "race_id": 4107,
+        "thumbnail_id": 4107,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4107_00.png",
+        "match": "exact"
+      },
+      "Fukushima Minyu Cup": {
+        "race_id": 4106,
+        "thumbnail_id": 4106,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4106_00.png",
+        "match": "exact"
+      },
+      "Japan Cup": {
+        "race_id": 1019,
+        "thumbnail_id": 1019,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1019_00.png",
+        "match": "exact"
+      },
+      "Keihan Hai": {
+        "race_id": 3066,
+        "thumbnail_id": 3066,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3066_00.png",
+        "match": "exact"
+      },
+      "Mile Championship": {
+        "race_id": 1018,
+        "thumbnail_id": 1018,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1018_00.png",
+        "match": "exact"
+      },
+      "Shimotsuki Stakes": {
+        "race_id": 4105,
+        "thumbnail_id": 4105,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4105_00.png",
+        "match": "exact"
+      }
+    },
+    "Classic Year Early Dec": {
+      "Capella Stakes": {
+        "race_id": 3069,
+        "thumbnail_id": 3069,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3069_00.png",
+        "match": "exact"
+      },
+      "Challenge Cup": {
+        "race_id": 3067,
+        "thumbnail_id": 3067,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3067_00.png",
+        "match": "exact"
+      },
+      "Champions Cup": {
+        "race_id": 1020,
+        "thumbnail_id": 1020,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1020_00.png",
+        "match": "exact"
+      },
+      "Chunichi Shimbun Hai": {
+        "race_id": 3068,
+        "thumbnail_id": 3068,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3068_00.png",
+        "match": "exact"
+      },
+      "December Stakes": {
+        "race_id": 4113,
+        "thumbnail_id": 4113,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4113_00.png",
+        "match": "exact"
+      },
+      "Lapis Lazuli Stakes": {
+        "race_id": 4109,
+        "thumbnail_id": 4109,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4109_00.png",
+        "match": "exact"
+      },
+      "Rigel Stakes": {
+        "race_id": 4111,
+        "thumbnail_id": 4111,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4111_00.png",
+        "match": "exact"
+      },
+      "Shiwasu Stakes": {
+        "race_id": 4110,
+        "thumbnail_id": 4110,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4110_00.png",
+        "match": "exact"
+      },
+      "Stayers Stakes": {
+        "race_id": 2033,
+        "thumbnail_id": 2033,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2033_00.png",
+        "match": "exact"
+      },
+      "Tanzanite Stakes": {
+        "race_id": 4112,
+        "thumbnail_id": 4112,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4112_00.png",
+        "match": "exact"
+      },
+      "Turquoise Stakes": {
+        "race_id": 3070,
+        "thumbnail_id": 3070,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3070_00.png",
+        "match": "exact"
+      },
+      "Queen Sho": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      }
+    },
+    "Classic Year Late Dec": {
+      "Arima Kinen": {
+        "race_id": 1023,
+        "thumbnail_id": 1023,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1023_00.png",
+        "match": "exact"
+      },
+      "Betelgeuse Stakes": {
+        "race_id": 4116,
+        "thumbnail_id": 4116,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4116_00.png",
+        "match": "exact"
+      },
+      "Galaxy Stakes": {
+        "race_id": 4115,
+        "thumbnail_id": 4115,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4115_00.png",
+        "match": "exact"
+      },
+      "Hanshin Cup": {
+        "race_id": 2034,
+        "thumbnail_id": 2034,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2034_00.png",
+        "match": "exact"
+      },
+      "Tokyo Daishoten": {
+        "race_id": 1106,
+        "thumbnail_id": 1106,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1106_00.png",
+        "match": "exact"
+      }
+    },
+    "Senior Year Early Jan": {
+      "Aichi Hai": {
+        "race_id": 3005,
+        "thumbnail_id": 3005,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3005_00.png",
+        "match": "exact"
+      },
+      "Carbuncle Stakes": {
+        "race_id": 4010,
+        "thumbnail_id": 4010,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4010_00.png",
+        "match": "exact"
+      },
+      "January Stakes": {
+        "race_id": 4005,
+        "thumbnail_id": 4005,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4005_00.png",
+        "match": "exact"
+      },
+      "Kyoto Kimpai": {
+        "race_id": 3001,
+        "thumbnail_id": 3001,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3001_00.png",
+        "match": "exact"
+      },
+      "Manyo Stakes": {
+        "race_id": 4001,
+        "thumbnail_id": 4001,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4001_00.png",
+        "match": "exact"
+      },
+      "Nakayama Kimpai": {
+        "race_id": 3002,
+        "thumbnail_id": 3002,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3002_00.png",
+        "match": "exact"
+      },
+      "New Year Stakes": {
+        "race_id": 4006,
+        "thumbnail_id": 4006,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4006_00.png",
+        "match": "exact"
+      },
+      "Nikkei Shinshun Hai": {
+        "race_id": 2001,
+        "thumbnail_id": 2001,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2001_00.png",
+        "match": "exact"
+      },
+      "Pollux Stakes": {
+        "race_id": 4004,
+        "thumbnail_id": 4004,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4004_00.png",
+        "match": "exact"
+      },
+      "Yodo Tankyori Stakes": {
+        "race_id": 4003,
+        "thumbnail_id": 4003,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4003_00.png",
+        "match": "exact"
+      }
+    },
+    "Senior Year Late Jan": {
+      "American JCC": {
+        "race_id": 2003,
+        "thumbnail_id": 2003,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2003_00.png",
+        "match": "exact"
+      },
+      "Negishi Stakes": {
+        "race_id": 3008,
+        "thumbnail_id": 3008,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3008_00.png",
+        "match": "exact"
+      },
+      "Shirafuji Stakes": {
+        "race_id": 4011,
+        "thumbnail_id": 4011,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4011_00.png",
+        "match": "exact"
+      },
+      "Silk Road Stakes": {
+        "race_id": 3007,
+        "thumbnail_id": 3007,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3007_00.png",
+        "match": "exact"
+      },
+      "Subaru Stakes": {
+        "race_id": 4008,
+        "thumbnail_id": 4008,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4008_00.png",
+        "match": "exact"
+      },
+      "Tokai Stakes": {
+        "race_id": 2002,
+        "thumbnail_id": 2002,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2002_00.png",
+        "match": "exact"
+      },
+      "TCK Jo-O Hai": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      }
+    },
+    "Senior Year Early Feb": {
+      "Aldebaran Stakes": {
+        "race_id": 4016,
+        "thumbnail_id": 4016,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4016_00.png",
+        "match": "exact"
+      },
+      "Kyoto Kinen": {
+        "race_id": 2004,
+        "thumbnail_id": 2004,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2004_00.png",
+        "match": "exact"
+      },
+      "Rakuyo Stakes": {
+        "race_id": 4015,
+        "thumbnail_id": 4015,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4015_00.png",
+        "match": "exact"
+      },
+      "Tokyo Shimbun Hai": {
+        "race_id": 3010,
+        "thumbnail_id": 3010,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3010_00.png",
+        "match": "exact"
+      },
+      "Valentine Stakes": {
+        "race_id": 4017,
+        "thumbnail_id": 4017,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4017_00.png",
+        "match": "exact"
+      },
+      "Yamato Stakes": {
+        "race_id": 4013,
+        "thumbnail_id": 4013,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4013_00.png",
+        "match": "exact"
+      },
+      "Kawasaki Kinen": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      }
+    },
+    "Senior Year Late Feb": {
+      "Diamond Stakes": {
+        "race_id": 3014,
+        "thumbnail_id": 3014,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3014_00.png",
+        "match": "exact"
+      },
+      "February Stakes": {
+        "race_id": 1001,
+        "thumbnail_id": 1001,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1001_00.png",
+        "match": "exact"
+      },
+      "Hankyu Hai": {
+        "race_id": 3017,
+        "thumbnail_id": 3017,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3017_00.png",
+        "match": "exact"
+      },
+      "Kitakyushu Tankyori Stakes": {
+        "race_id": 4118,
+        "thumbnail_id": 4117,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4117_00.png",
+        "match": "exact"
+      },
+      "Kokura Daishoten": {
+        "race_id": 3015,
+        "thumbnail_id": 3015,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3015_00.png",
+        "match": "exact"
+      },
+      "Kyoto Umamusume Stakes": {
+        "race_id": 3013,
+        "thumbnail_id": 3013,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3013_00.png",
+        "match": "exact"
+      },
+      "Nakayama Kinen": {
+        "race_id": 2005,
+        "thumbnail_id": 2005,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2005_00.png",
+        "match": "exact"
+      },
+      "Sobu Stakes": {
+        "race_id": 4019,
+        "thumbnail_id": 4019,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4019_00.png",
+        "match": "exact"
+      }
+    },
+    "Senior Year Early Mar": {
+      "Kinko Sho": {
+        "race_id": 2007,
+        "thumbnail_id": 2007,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2007_00.png",
+        "match": "exact"
+      },
+      "Kochi Stakes": {
+        "race_id": 4026,
+        "thumbnail_id": 4026,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4026_00.png",
+        "match": "exact"
+      },
+      "Nakayama Umamusume Stakes": {
+        "race_id": 3020,
+        "thumbnail_id": 3020,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3020_00.png",
+        "match": "exact"
+      },
+      "Nigawa Stakes": {
+        "race_id": 4023,
+        "thumbnail_id": 4023,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4023_00.png",
+        "match": "exact"
+      },
+      "Ocean Stakes": {
+        "race_id": 3019,
+        "thumbnail_id": 3019,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3019_00.png",
+        "match": "exact"
+      },
+      "Osakajo Stakes": {
+        "race_id": 4021,
+        "thumbnail_id": 4021,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4021_00.png",
+        "match": "exact"
+      },
+      "Polaris Stakes": {
+        "race_id": 4022,
+        "thumbnail_id": 4022,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4022_00.png",
+        "match": "exact"
+      },
+      "Empress Hai": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      }
+    },
+    "Senior Year Late Mar": {
+      "Chiba Stakes": {
+        "race_id": 4028,
+        "thumbnail_id": 4028,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4028_00.png",
+        "match": "exact"
+      },
+      "Hanshin Daishoten": {
+        "race_id": 2009,
+        "thumbnail_id": 2009,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2009_00.png",
+        "match": "exact"
+      },
+      "March Stakes": {
+        "race_id": 3024,
+        "thumbnail_id": 3024,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3024_00.png",
+        "match": "exact"
+      },
+      "Nikkei Sho": {
+        "race_id": 2011,
+        "thumbnail_id": 2011,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2011_00.png",
+        "match": "exact"
+      },
+      "Osaka Hai": {
+        "race_id": 1003,
+        "thumbnail_id": 1003,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1003_00.png",
+        "match": "exact"
+      },
+      "Rokko Stakes": {
+        "race_id": 4030,
+        "thumbnail_id": 4030,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4030_00.png",
+        "match": "exact"
+      },
+      "Takamatsunomiya Kinen": {
+        "race_id": 1002,
+        "thumbnail_id": 1002,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1002_00.png",
+        "match": "exact"
+      },
+      "Diolite Kinen": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      }
+    },
+    "Senior Year Early Apr": {
+      "Antares Stakes": {
+        "race_id": 3026,
+        "thumbnail_id": 3026,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3026_00.png",
+        "match": "exact"
+      },
+      "Azumakofuji Stakes": {
+        "race_id": 4119,
+        "thumbnail_id": 4118,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4118_00.png",
+        "match": "exact"
+      },
+      "Coral Stakes": {
+        "race_id": 4031,
+        "thumbnail_id": 4031,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4031_00.png",
+        "match": "exact"
+      },
+      "Fukushima Mimpo Hai": {
+        "race_id": 4038,
+        "thumbnail_id": 4038,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4038_00.png",
+        "match": "exact"
+      },
+      "Hanshin Umamusume Stakes": {
+        "race_id": 2012,
+        "thumbnail_id": 2012,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2012_00.png",
+        "match": "exact"
+      },
+      "Keiyo Stakes": {
+        "race_id": 4036,
+        "thumbnail_id": 4036,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4036_00.png",
+        "match": "exact"
+      },
+      "Lord Derby Challenge Trophy": {
+        "race_id": 3025,
+        "thumbnail_id": 3025,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3025_00.png",
+        "match": "exact"
+      },
+      "Shunrai Stakes": {
+        "race_id": 4037,
+        "thumbnail_id": 4037,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4037_00.png",
+        "match": "exact"
+      },
+      "Marine Cup": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      }
+    },
+    "Senior Year Late Apr": {
+      "Fukushima Umamusume Stakes": {
+        "race_id": 3027,
+        "thumbnail_id": 3027,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3027_00.png",
+        "match": "exact"
+      },
+      "Milers Cup": {
+        "race_id": 2014,
+        "thumbnail_id": 2014,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2014_00.png",
+        "match": "exact"
+      },
+      "Oasis Stakes": {
+        "race_id": 4040,
+        "thumbnail_id": 4040,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4040_00.png",
+        "match": "exact"
+      },
+      "Tenno Sho (Spring)": {
+        "race_id": 1006,
+        "thumbnail_id": 1006,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1006_00.png",
+        "match": "exact"
+      },
+      "Tennozan Stakes": {
+        "race_id": 4041,
+        "thumbnail_id": 4041,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4041_00.png",
+        "match": "exact"
+      },
+      "Tokyo Sprint": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      }
+    },
+    "Senior Year Early May": {
+      "Brilliant Stakes": {
+        "race_id": 4048,
+        "thumbnail_id": 4048,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4048_00.png",
+        "match": "exact"
+      },
+      "Keio Hai Spring Cup": {
+        "race_id": 2018,
+        "thumbnail_id": 2018,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2018_00.png",
+        "match": "exact"
+      },
+      "Kurama Stakes": {
+        "race_id": 4047,
+        "thumbnail_id": 4047,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4047_00.png",
+        "match": "exact"
+      },
+      "Metropolitan Stakes": {
+        "race_id": 4046,
+        "thumbnail_id": 4046,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4046_00.png",
+        "match": "exact"
+      },
+      "Miyakooji Stakes": {
+        "race_id": 4049,
+        "thumbnail_id": 4049,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4049_00.png",
+        "match": "exact"
+      },
+      "Niigata Daishoten": {
+        "race_id": 3028,
+        "thumbnail_id": 3028,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3028_00.png",
+        "match": "exact"
+      },
+      "Ritto Stakes": {
+        "race_id": 4051,
+        "thumbnail_id": 4051,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4051_00.png",
+        "match": "exact"
+      },
+      "Tanigawadake Stakes": {
+        "race_id": 4044,
+        "thumbnail_id": 4044,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4044_00.png",
+        "match": "exact"
+      },
+      "Victoria Mile": {
+        "race_id": 1008,
+        "thumbnail_id": 1008,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1008_00.png",
+        "match": "exact"
+      },
+      "Kashiwa Kinen": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      }
+    },
+    "Senior Year Late May": {
+      "Azuchijo Stakes": {
+        "race_id": 4058,
+        "thumbnail_id": 4058,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4058_00.png",
+        "match": "exact"
+      },
+      "Heian Stakes": {
+        "race_id": 3029,
+        "thumbnail_id": 3029,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3029_00.png",
+        "match": "exact"
+      },
+      "Idaten Stakes": {
+        "race_id": 4055,
+        "thumbnail_id": 4055,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4055_00.png",
+        "match": "exact"
+      },
+      "Keyaki Stakes": {
+        "race_id": 4057,
+        "thumbnail_id": 4057,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4057_00.png",
+        "match": "exact"
+      },
+      "May Stakes": {
+        "race_id": 4053,
+        "thumbnail_id": 4053,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4053_00.png",
+        "match": "exact"
+      },
+      "Meguro Kinen": {
+        "race_id": 2019,
+        "thumbnail_id": 2019,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2019_00.png",
+        "match": "exact"
+      }
+    },
+    "Senior Year Early Jun": {
+      "Epsom Cup": {
+        "race_id": 3032,
+        "thumbnail_id": 3032,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3032_00.png",
+        "match": "exact"
+      },
+      "Mermaid Stakes": {
+        "race_id": 3031,
+        "thumbnail_id": 3031,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3031_00.png",
+        "match": "exact"
+      },
+      "Naruo Kinen": {
+        "race_id": 3030,
+        "thumbnail_id": 3030,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3030_00.png",
+        "match": "exact"
+      },
+      "Sleipnir Stakes": {
+        "race_id": 4120,
+        "thumbnail_id": 4119,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4119_00.png",
+        "match": "exact"
+      },
+      "Tempozan Stakes": {
+        "race_id": 4060,
+        "thumbnail_id": 4060,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4060_00.png",
+        "match": "exact"
+      },
+      "Yasuda Kinen": {
+        "race_id": 1011,
+        "thumbnail_id": 1011,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1011_00.png",
+        "match": "exact"
+      }
+    },
+    "Senior Year Late Jun": {
+      "Akhalteke Stakes": {
+        "race_id": 4059,
+        "thumbnail_id": 4059,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4059_00.png",
+        "match": "exact"
+      },
+      "Hakodate Sprint Stakes": {
+        "race_id": 3034,
+        "thumbnail_id": 3034,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3034_00.png",
+        "match": "exact"
+      },
+      "Onuma Stakes": {
+        "race_id": 4062,
+        "thumbnail_id": 4062,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4062_00.png",
+        "match": "exact"
+      },
+      "Paradise Stakes": {
+        "race_id": 4063,
+        "thumbnail_id": 4063,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4063_00.png",
+        "match": "exact"
+      },
+      "Sannomiya Stakes": {
+        "race_id": 4121,
+        "thumbnail_id": 4120,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4120_00.png",
+        "match": "exact"
+      },
+      "Takarazuka Kinen": {
+        "race_id": 1012,
+        "thumbnail_id": 1012,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1012_00.png",
+        "match": "exact"
+      },
+      "Yonago Stakes": {
+        "race_id": 4061,
+        "thumbnail_id": 4061,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4061_00.png",
+        "match": "exact"
+      },
+      "Teio Sho": {
+        "race_id": 1101,
+        "thumbnail_id": 1101,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1101_00.png",
+        "match": "exact"
+      }
+    },
+    "Senior Year Early Jul": {
+      "CBC Sho": {
+        "race_id": 3035,
+        "thumbnail_id": 3035,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3035_00.png",
+        "match": "exact"
+      },
+      "Hakodate Kinen": {
+        "race_id": 3039,
+        "thumbnail_id": 3039,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3039_00.png",
+        "match": "exact"
+      },
+      "Marine Stakes": {
+        "race_id": 4065,
+        "thumbnail_id": 4065,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4065_00.png",
+        "match": "exact"
+      },
+      "Meitetsu Hai": {
+        "race_id": 4066,
+        "thumbnail_id": 4066,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4066_00.png",
+        "match": "exact"
+      },
+      "Procyon Stakes": {
+        "race_id": 3037,
+        "thumbnail_id": 3037,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3037_00.png",
+        "match": "exact"
+      },
+      "Tanabata Sho": {
+        "race_id": 3038,
+        "thumbnail_id": 3038,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3038_00.png",
+        "match": "exact"
+      },
+      "Tomoe Sho": {
+        "race_id": 4064,
+        "thumbnail_id": 4064,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4064_00.png",
+        "match": "exact"
+      },
+      "Sparking Lady Cup": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      }
+    },
+    "Senior Year Late Jul": {
+      "Chukyo Kinen": {
+        "race_id": 3040,
+        "thumbnail_id": 3040,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3040_00.png",
+        "match": "exact"
+      },
+      "Fukushima TV Open": {
+        "race_id": 4069,
+        "thumbnail_id": 4069,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4069_00.png",
+        "match": "exact"
+      },
+      "Ibis Summer Dash": {
+        "race_id": 3042,
+        "thumbnail_id": 3042,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3042_00.png",
+        "match": "exact"
+      },
+      "Mercury Cup": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      },
+      "Queen Stakes": {
+        "race_id": 3043,
+        "thumbnail_id": 3043,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3043_00.png",
+        "match": "exact"
+      }
+    },
+    "Senior Year Early Aug": {
+      "Aso Stakes": {
+        "race_id": 4073,
+        "thumbnail_id": 4073,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4073_00.png",
+        "match": "exact"
+      },
+      "Elm Stakes": {
+        "race_id": 3047,
+        "thumbnail_id": 3047,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3047_00.png",
+        "match": "exact"
+      },
+      "Kanetsu Stakes": {
+        "race_id": 4122,
+        "thumbnail_id": 4121,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4121_00.png",
+        "match": "exact"
+      },
+      "Kokura Kinen": {
+        "race_id": 3044,
+        "thumbnail_id": 3044,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3044_00.png",
+        "match": "exact"
+      },
+      "Sapporo Nikkei Open": {
+        "race_id": 4071,
+        "thumbnail_id": 4071,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4071_00.png",
+        "match": "exact"
+      },
+      "Sekiya Kinen": {
+        "race_id": 3046,
+        "thumbnail_id": 3046,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3046_00.png",
+        "match": "exact"
+      },
+      "UHB Sho": {
+        "race_id": 4072,
+        "thumbnail_id": 4072,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4072_00.png",
+        "match": "exact"
+      }
+    },
+    "Senior Year Late Aug": {
+      "BSN Sho": {
+        "race_id": 4079,
+        "thumbnail_id": 4079,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4079_00.png",
+        "match": "exact"
+      },
+      "Keeneland Cup": {
+        "race_id": 3050,
+        "thumbnail_id": 3050,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3050_00.png",
+        "match": "exact"
+      },
+      "Kitakyushu Kinen": {
+        "race_id": 3048,
+        "thumbnail_id": 3048,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3048_00.png",
+        "match": "exact"
+      },
+      "Kokura Nikkei Open": {
+        "race_id": 4080,
+        "thumbnail_id": 4080,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4080_00.png",
+        "match": "exact"
+      },
+      "NST Sho": {
+        "race_id": 4076,
+        "thumbnail_id": 4076,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4076_00.png",
+        "match": "exact"
+      },
+      "Sapporo Kinen": {
+        "race_id": 2020,
+        "thumbnail_id": 2020,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2020_00.png",
+        "match": "exact"
+      },
+      "Toki Stakes": {
+        "race_id": 4081,
+        "thumbnail_id": 4081,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4081_00.png",
+        "match": "exact"
+      },
+      "Cluster Cup": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      }
+    },
+    "Senior Year Early Sep": {
+      "Centaur Stakes": {
+        "race_id": 2021,
+        "thumbnail_id": 2021,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2021_00.png",
+        "match": "exact"
+      },
+      "Enif Stakes": {
+        "race_id": 4084,
+        "thumbnail_id": 4084,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4084_00.png",
+        "match": "exact"
+      },
+      "Keisei Hai Autumn Handicap": {
+        "race_id": 3055,
+        "thumbnail_id": 3055,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3055_00.png",
+        "match": "exact"
+      },
+      "Niigata Kinen": {
+        "race_id": 3053,
+        "thumbnail_id": 3053,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3053_00.png",
+        "match": "exact"
+      },
+      "Radio Nippon Sho": {
+        "race_id": 4086,
+        "thumbnail_id": 4086,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4086_00.png",
+        "match": "exact"
+      },
+      "Tancho Stakes": {
+        "race_id": 4082,
+        "thumbnail_id": 4082,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4082_00.png",
+        "match": "exact"
+      },
+      "Prix Foy": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      }
+    },
+    "Senior Year Late Sep": {
+      "All Comers": {
+        "race_id": 2025,
+        "thumbnail_id": 2025,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2025_00.png",
+        "match": "exact"
+      },
+      "Nagatsuki Stakes": {
+        "race_id": 4123,
+        "thumbnail_id": 4122,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4122_00.png",
+        "match": "exact"
+      },
+      "Port Island Stakes": {
+        "race_id": 4090,
+        "thumbnail_id": 4090,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4090_00.png",
+        "match": "exact"
+      },
+      "Sirius Stakes": {
+        "race_id": 3056,
+        "thumbnail_id": 3056,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3056_00.png",
+        "match": "exact"
+      },
+      "Sprinters Stakes": {
+        "race_id": 1013,
+        "thumbnail_id": 1013,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1013_00.png",
+        "match": "exact"
+      },
+      "Sazanka TV Hai": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      }
+    },
+    "Senior Year Early Oct": {
+      "Fuchu Umamusume Stakes": {
+        "race_id": 2028,
+        "thumbnail_id": 2028,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2028_00.png",
+        "match": "exact"
+      },
+      "Green Channel Cup": {
+        "race_id": 4092,
+        "thumbnail_id": 4092,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4092_00.png",
+        "match": "exact"
+      },
+      "Kyoto Daishoten": {
+        "race_id": 2027,
+        "thumbnail_id": 2027,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2027_00.png",
+        "match": "exact"
+      },
+      "Mainichi Okan": {
+        "race_id": 2026,
+        "thumbnail_id": 2026,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2026_00.png",
+        "match": "exact"
+      },
+      "October Stakes": {
+        "race_id": 4094,
+        "thumbnail_id": 4094,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4094_00.png",
+        "match": "exact"
+      },
+      "Opal Stakes": {
+        "race_id": 4091,
+        "thumbnail_id": 4091,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4091_00.png",
+        "match": "exact"
+      },
+      "Shinetsu Stakes": {
+        "race_id": 4095,
+        "thumbnail_id": 4095,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4095_00.png",
+        "match": "exact"
+      },
+      "Uzumasa Stakes": {
+        "race_id": 4124,
+        "thumbnail_id": 4123,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4123_00.png",
+        "match": "exact"
+      },
+      "Ladies' Prelude": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      },
+      "Mile Championship Nambu Hai": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      },
+      "Tokyo Hai": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      }
+    },
+    "Senior Year Late Oct": {
+      "Brazil Cup": {
+        "race_id": 4098,
+        "thumbnail_id": 4098,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4098_00.png",
+        "match": "exact"
+      },
+      "Cassiopeia Stakes": {
+        "race_id": 4100,
+        "thumbnail_id": 4100,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4100_00.png",
+        "match": "exact"
+      },
+      "Fuji Stakes": {
+        "race_id": 3058,
+        "thumbnail_id": 3058,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3058_00.png",
+        "match": "exact"
+      },
+      "Lumiere Autumn Dash": {
+        "race_id": 4101,
+        "thumbnail_id": 4101,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4101_00.png",
+        "match": "exact"
+      },
+      "Muromachi Stakes": {
+        "race_id": 4097,
+        "thumbnail_id": 4097,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4097_00.png",
+        "match": "exact"
+      },
+      "Swan Stakes": {
+        "race_id": 2029,
+        "thumbnail_id": 2029,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2029_00.png",
+        "match": "exact"
+      },
+      "Tenno Sho (Autumn)": {
+        "race_id": 1016,
+        "thumbnail_id": 1016,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1016_00.png",
+        "match": "exact"
+      }
+    },
+    "Senior Year Early Nov": {
+      "Copa Republica Argentina": {
+        "race_id": 2031,
+        "thumbnail_id": 2031,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2031_00.png",
+        "match": "exact"
+      },
+      "Fukushima Kinen": {
+        "race_id": 3063,
+        "thumbnail_id": 3063,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3063_00.png",
+        "match": "exact"
+      },
+      "JBC Classic": {
+        "race_id": 1105,
+        "thumbnail_id": 1105,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1105_00.png",
+        "match": "exact"
+      },
+      "JBC Classic [2]": {
+        "race_id": 1105,
+        "thumbnail_id": 1105,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1105_00.png",
+        "match": "base_name_fallback",
+        "matched_name": "JBC Classic"
+      },
+      "JBC Classic [3]": {
+        "race_id": 1105,
+        "thumbnail_id": 1105,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1105_00.png",
+        "match": "base_name_fallback",
+        "matched_name": "JBC Classic"
+      },
+      "JBC Classic [4]": {
+        "race_id": 1105,
+        "thumbnail_id": 1105,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1105_00.png",
+        "match": "base_name_fallback",
+        "matched_name": "JBC Classic"
+      },
+      "JBC Ladies’ Classic": {
+        "race_id": 1103,
+        "thumbnail_id": 1103,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1103_00.png",
+        "match": "exact"
+      },
+      "JBC Ladies’ Classic [2]": {
+        "race_id": 1103,
+        "thumbnail_id": 1103,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1103_00.png",
+        "match": "base_name_fallback",
+        "matched_name": "JBC Ladies’ Classic"
+      },
+      "JBC Ladies’ Classic [3]": {
+        "race_id": 1103,
+        "thumbnail_id": 1103,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1103_00.png",
+        "match": "base_name_fallback",
+        "matched_name": "JBC Ladies’ Classic"
+      },
+      "JBC Ladies’ Classic [4]": {
+        "race_id": 1103,
+        "thumbnail_id": 1103,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1103_00.png",
+        "match": "base_name_fallback",
+        "matched_name": "JBC Ladies’ Classic"
+      },
+      "JBC Sprint": {
+        "race_id": 1104,
+        "thumbnail_id": 1104,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1104_00.png",
+        "match": "exact"
+      },
+      "JBC Sprint [2]": {
+        "race_id": 1104,
+        "thumbnail_id": 1104,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1104_00.png",
+        "match": "base_name_fallback",
+        "matched_name": "JBC Sprint"
+      },
+      "JBC Sprint [3]": {
+        "race_id": 1104,
+        "thumbnail_id": 1104,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1104_00.png",
+        "match": "base_name_fallback",
+        "matched_name": "JBC Sprint"
+      },
+      "JBC Sprint [4]": {
+        "race_id": 1104,
+        "thumbnail_id": 1104,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1104_00.png",
+        "match": "base_name_fallback",
+        "matched_name": "JBC Sprint"
+      },
+      "Miyako Stakes": {
+        "race_id": 3061,
+        "thumbnail_id": 3061,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3061_00.png",
+        "match": "exact"
+      },
+      "Musashino Stakes": {
+        "race_id": 3062,
+        "thumbnail_id": 3062,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3062_00.png",
+        "match": "exact"
+      },
+      "Oro Cup": {
+        "race_id": 4102,
+        "thumbnail_id": 4102,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4102_00.png",
+        "match": "exact"
+      },
+      "Queen Elizabeth II Cup": {
+        "race_id": 1017,
+        "thumbnail_id": 1017,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1017_00.png",
+        "match": "exact"
+      }
+    },
+    "Senior Year Late Nov": {
+      "Andromeda Stakes": {
+        "race_id": 4104,
+        "thumbnail_id": 4104,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4104_00.png",
+        "match": "exact"
+      },
+      "Autumn Leaf Stakes": {
+        "race_id": 4108,
+        "thumbnail_id": 4108,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4108_00.png",
+        "match": "exact"
+      },
+      "Capital Stakes": {
+        "race_id": 4107,
+        "thumbnail_id": 4107,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4107_00.png",
+        "match": "exact"
+      },
+      "Fukushima Minyu Cup": {
+        "race_id": 4106,
+        "thumbnail_id": 4106,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4106_00.png",
+        "match": "exact"
+      },
+      "Japan Cup": {
+        "race_id": 1019,
+        "thumbnail_id": 1019,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1019_00.png",
+        "match": "exact"
+      },
+      "Keihan Hai": {
+        "race_id": 3066,
+        "thumbnail_id": 3066,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3066_00.png",
+        "match": "exact"
+      },
+      "Mile Championship": {
+        "race_id": 1018,
+        "thumbnail_id": 1018,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1018_00.png",
+        "match": "exact"
+      },
+      "Shimotsuki Stakes": {
+        "race_id": 4105,
+        "thumbnail_id": 4105,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4105_00.png",
+        "match": "exact"
+      }
+    },
+    "Senior Year Early Dec": {
+      "Capella Stakes": {
+        "race_id": 3069,
+        "thumbnail_id": 3069,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3069_00.png",
+        "match": "exact"
+      },
+      "Challenge Cup": {
+        "race_id": 3067,
+        "thumbnail_id": 3067,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3067_00.png",
+        "match": "exact"
+      },
+      "Champions Cup": {
+        "race_id": 1020,
+        "thumbnail_id": 1020,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1020_00.png",
+        "match": "exact"
+      },
+      "Chunichi Shimbun Hai": {
+        "race_id": 3068,
+        "thumbnail_id": 3068,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3068_00.png",
+        "match": "exact"
+      },
+      "December Stakes": {
+        "race_id": 4113,
+        "thumbnail_id": 4113,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4113_00.png",
+        "match": "exact"
+      },
+      "Lapis Lazuli Stakes": {
+        "race_id": 4109,
+        "thumbnail_id": 4109,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4109_00.png",
+        "match": "exact"
+      },
+      "Rigel Stakes": {
+        "race_id": 4111,
+        "thumbnail_id": 4111,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4111_00.png",
+        "match": "exact"
+      },
+      "Shiwasu Stakes": {
+        "race_id": 4110,
+        "thumbnail_id": 4110,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4110_00.png",
+        "match": "exact"
+      },
+      "Stayers Stakes": {
+        "race_id": 2033,
+        "thumbnail_id": 2033,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2033_00.png",
+        "match": "exact"
+      },
+      "Tanzanite Stakes": {
+        "race_id": 4112,
+        "thumbnail_id": 4112,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4112_00.png",
+        "match": "exact"
+      },
+      "Turquoise Stakes": {
+        "race_id": 3070,
+        "thumbnail_id": 3070,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3070_00.png",
+        "match": "exact"
+      },
+      "Queen Sho": {
+        "race_id": null,
+        "thumbnail_id": null,
+        "thumbnail_path": null,
+        "match": "unmapped"
+      }
+    },
+    "Senior Year Late Dec": {
+      "Arima Kinen": {
+        "race_id": 1023,
+        "thumbnail_id": 1023,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1023_00.png",
+        "match": "exact"
+      },
+      "Betelgeuse Stakes": {
+        "race_id": 4116,
+        "thumbnail_id": 4116,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4116_00.png",
+        "match": "exact"
+      },
+      "Galaxy Stakes": {
+        "race_id": 4115,
+        "thumbnail_id": 4115,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_4115_00.png",
+        "match": "exact"
+      },
+      "Hanshin Cup": {
+        "race_id": 2034,
+        "thumbnail_id": 2034,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2034_00.png",
+        "match": "exact"
+      },
+      "Tokyo Daishoten": {
+        "race_id": 1106,
+        "thumbnail_id": 1106,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1106_00.png",
+        "match": "exact"
+      }
+    }
+  },
+  "unmapped": [
+    {
+      "turn": "Junior Year Late Dec",
+      "race": "Zen-Nippon Junior Yushun"
+    },
+    {
+      "turn": "Classic Year Early Apr",
+      "race": "Marine Cup"
+    },
+    {
+      "turn": "Classic Year Early Jun",
+      "race": "Kanto Oaks"
+    },
+    {
+      "turn": "Classic Year Early Jul",
+      "race": "Sparking Lady Cup"
+    },
+    {
+      "turn": "Classic Year Late Jul",
+      "race": "Mercury Cup"
+    },
+    {
+      "turn": "Classic Year Late Aug",
+      "race": "Cluster Cup"
+    },
+    {
+      "turn": "Classic Year Early Sep",
+      "race": "Prix Niel"
+    },
+    {
+      "turn": "Classic Year Late Sep",
+      "race": "Sazanka TV Hai"
+    },
+    {
+      "turn": "Classic Year Early Oct",
+      "race": "Ladies' Prelude"
+    },
+    {
+      "turn": "Classic Year Early Oct",
+      "race": "Mile Championship Nambu Hai"
+    },
+    {
+      "turn": "Classic Year Early Oct",
+      "race": "Tokyo Hai"
+    },
+    {
+      "turn": "Classic Year Early Dec",
+      "race": "Queen Sho"
+    },
+    {
+      "turn": "Senior Year Late Jan",
+      "race": "TCK Jo-O Hai"
+    },
+    {
+      "turn": "Senior Year Early Feb",
+      "race": "Kawasaki Kinen"
+    },
+    {
+      "turn": "Senior Year Early Mar",
+      "race": "Empress Hai"
+    },
+    {
+      "turn": "Senior Year Late Mar",
+      "race": "Diolite Kinen"
+    },
+    {
+      "turn": "Senior Year Early Apr",
+      "race": "Marine Cup"
+    },
+    {
+      "turn": "Senior Year Late Apr",
+      "race": "Tokyo Sprint"
+    },
+    {
+      "turn": "Senior Year Early May",
+      "race": "Kashiwa Kinen"
+    },
+    {
+      "turn": "Senior Year Early Jul",
+      "race": "Sparking Lady Cup"
+    },
+    {
+      "turn": "Senior Year Late Jul",
+      "race": "Mercury Cup"
+    },
+    {
+      "turn": "Senior Year Late Aug",
+      "race": "Cluster Cup"
+    },
+    {
+      "turn": "Senior Year Early Sep",
+      "race": "Prix Foy"
+    },
+    {
+      "turn": "Senior Year Late Sep",
+      "race": "Sazanka TV Hai"
+    },
+    {
+      "turn": "Senior Year Early Oct",
+      "race": "Ladies' Prelude"
+    },
+    {
+      "turn": "Senior Year Early Oct",
+      "race": "Mile Championship Nambu Hai"
+    },
+    {
+      "turn": "Senior Year Early Oct",
+      "race": "Tokyo Hai"
+    },
+    {
+      "turn": "Senior Year Early Dec",
+      "race": "Queen Sho"
+    }
+  ]
+}

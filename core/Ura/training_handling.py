@@ -71,7 +71,7 @@ def go_to_training():
         time.sleep(0.5)
     return success
 
-def check_training(go_back=True, current_stats=None):
+def check_training(go_back=True, year=None, current_stats=None):
     """Check training results using fixed coordinates, collecting support counts,
     bond levels and hint presence in one hover pass before computing failure rates.
     
@@ -82,9 +82,10 @@ def check_training(go_back=True, current_stats=None):
     """
     log_debug(f"Checking training options...")
     
-    # Load stat caps from config for early filtering
-    training_config = config.get("training", {})
-    stat_caps = training_config.get("stat_caps", config.get("stat_caps", {}))
+    from core.Ura.logic import are_all_stats_capped, get_effective_stat_cap
+    bypass_stat_caps = are_all_stats_capped(current_stats)
+    if bypass_stat_caps:
+        log_info("All tracked stats are at or above cap; evaluating all training options normally")
     
     # Fixed coordinates for each training type
     training_coords = {
@@ -99,11 +100,11 @@ def check_training(go_back=True, current_stats=None):
 
     for key, coords in training_coords.items():
         # Early stat cap check - skip analysis if stat is already at/above cap
-        if current_stats:
-            current_stat_value = current_stats.get(key, 0)
-            stat_cap = stat_caps.get(key, 1200)  # Default cap is 1200 (very high = no cap)
+        if current_stats and not bypass_stat_caps:
+            current_stat_value = int(current_stats.get(key, 0))
+            stat_cap, cap_label = get_effective_stat_cap(key, current_stats, year=year)
             if current_stat_value >= stat_cap:
-                log_info(f"[{key.upper()}] SKIPPED - stat {current_stat_value} >= cap {stat_cap}")
+                log_info(f"[{key.upper()}] SKIPPED - stat {current_stat_value} >= {cap_label} cap {stat_cap}")
                 skipped_stats.append(key)
                 # Add placeholder result with score 0 so it won't be selected
                 results[key] = {
@@ -533,7 +534,7 @@ def check_failure(screenshot, train_type):
     log_debug(f" No valid failure rate found for {train_type.upper()}, returning 100% (safe fallback)")
     return (100, 0.0)  # 100% failure rate when detection completely fails (prevents choosing unknown training)
 
-def choose_best_training(training_results, config, current_stats):
+def choose_best_training(training_results, config, current_stats, year=None):
     """
     Choose the best training option based on scoring algorithm.
     
@@ -624,15 +625,18 @@ def choose_best_training(training_results, config, current_stats):
     log_debug(f" Training options after failure filter: {list(safe_options.keys())}")
     
     # Filter by stat caps BEFORE other filtering
-    from core.Ura.logic import filter_by_stat_caps
+    from core.Ura.logic import filter_by_stat_caps, are_all_stats_capped
     
     # Safety check for current_stats
     if not current_stats:
         log_debug(f" No current stats available, skipping stat cap filtering")
         capped_options = safe_options
+    elif are_all_stats_capped(current_stats):
+        log_debug(f" All tracked stats are capped, bypassing stat cap filtering")
+        capped_options = safe_options
     else:
         log_debug(f" Applying stat cap filtering with current stats: {current_stats}")
-        capped_options = filter_by_stat_caps(safe_options, current_stats)
+        capped_options = filter_by_stat_caps(safe_options, current_stats, year=year)
     
     if not capped_options:
         log_debug(f" All training options filtered out by stat caps")
@@ -728,7 +732,7 @@ def calculate_training_score(support_detail, hint_found, training_type):
     return round(score, 2)
 
 
-def check_training_api(current_stats=None):
+def check_training_api(year=None, current_stats=None):
     """
     Fetch training data from the API and convert it to the same result format
     as check_training() so it can be used as a drop-in replacement.
@@ -752,8 +756,10 @@ def check_training_api(current_stats=None):
         log_debug("[API] Training data empty")
         return None
 
-    training_config = config.get("training", {})
-    stat_caps = training_config.get("stat_caps", config.get("stat_caps", {}))
+    from core.Ura.logic import are_all_stats_capped, get_effective_stat_cap
+    bypass_stat_caps = are_all_stats_capped(current_stats)
+    if bypass_stat_caps:
+        log_info("[API] All tracked stats are at or above cap; evaluating all training options normally")
 
     results = {}
     log_info("--- Training (API) ---")
@@ -764,11 +770,11 @@ def check_training_api(current_stats=None):
             log_debug(f"[API] Skipping unknown training name: {key}")
             continue
 
-        if current_stats:
-            current_val = current_stats.get(key, 0)
-            cap_val = stat_caps.get(key, 1200)
+        if current_stats and not bypass_stat_caps:
+            current_val = int(current_stats.get(key, 0))
+            cap_val, cap_label = get_effective_stat_cap(key, current_stats, year=year)
             if current_val >= cap_val:
-                log_info(f"[{key.upper()}] SKIPPED - stat {current_val} >= cap {cap_val}")
+                log_info(f"[{key.upper()}] SKIPPED - stat {current_val} >= {cap_label} cap {cap_val}")
                 results[key] = {
                     "support": {},
                     "support_detail": {},

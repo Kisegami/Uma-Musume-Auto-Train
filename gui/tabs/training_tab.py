@@ -269,29 +269,76 @@ class TrainingTab(QScrollArea):
         
         # ==================== Stat Caps Section ====================
         caps_group = QGroupBox("Stat Caps")
-        caps_layout = QHBoxLayout(caps_group)
-        caps_layout.setSpacing(8)
-        
+        caps_group_layout = QVBoxLayout(caps_group)
+        caps_group_layout.setSpacing(8)
+
+        self.soft_cap_enabled = QCheckBox("Enable Soft Cap")
+        self.soft_cap_enabled.stateChanged.connect(self._on_soft_cap_toggle)
+        caps_group_layout.addWidget(self.soft_cap_enabled)
+
+        soft_cap_hint = QLabel("Soft cap is applied first. Once every tracked stat reaches its soft cap, training switches back to hard caps.")
+        soft_cap_hint.setWordWrap(True)
+        soft_cap_hint.setStyleSheet(f"color: {COLORS['text_muted']};")
+        caps_group_layout.addWidget(soft_cap_hint)
+
+        self.soft_cap_widget = QWidget()
+        soft_caps_layout = QVBoxLayout(self.soft_cap_widget)
+        soft_caps_layout.setContentsMargins(18, 0, 0, 0)
+        soft_caps_layout.setSpacing(6)
+        soft_caps_layout.addWidget(QLabel("Soft Caps"))
+
+        soft_caps_row = QHBoxLayout()
+        soft_caps_row.setSpacing(8)
+        self.soft_cap_spins = {}
+        for stat_key, label in stats:
+            stat_widget = QWidget()
+            stat_layout = QVBoxLayout(stat_widget)
+            stat_layout.setContentsMargins(0, 0, 0, 0)
+            stat_layout.setSpacing(4)
+
+            lbl = QLabel(label)
+            lbl.setAlignment(Qt.AlignCenter)
+            lbl.setStyleSheet(f"color: {stat_colors[stat_key]}; font-weight: bold;")
+            stat_layout.addWidget(lbl)
+
+            spin = NoScrollSpinBox()
+            spin.setRange(0, 2000)
+            spin.setSingleStep(50)
+            spin.valueChanged.connect(self._save_training)
+            stat_layout.addWidget(spin)
+            self.soft_cap_spins[stat_key] = spin
+
+            soft_caps_row.addWidget(stat_widget)
+        soft_caps_layout.addLayout(soft_caps_row)
+        caps_group_layout.addWidget(self.soft_cap_widget)
+
+        hard_caps_label = QLabel("Hard Caps")
+        hard_caps_label.setStyleSheet(f"color: {COLORS['text_muted']}; font-weight: bold;")
+        caps_group_layout.addWidget(hard_caps_label)
+
+        hard_caps_row = QHBoxLayout()
+        hard_caps_row.setSpacing(8)
         self.cap_spins = {}
         for stat_key, label in stats:
             stat_widget = QWidget()
             stat_layout = QVBoxLayout(stat_widget)
             stat_layout.setContentsMargins(0, 0, 0, 0)
             stat_layout.setSpacing(4)
-            
+
             lbl = QLabel(label)
             lbl.setAlignment(Qt.AlignCenter)
             lbl.setStyleSheet(f"color: {stat_colors[stat_key]}; font-weight: bold;")
             stat_layout.addWidget(lbl)
-            
+
             spin = NoScrollSpinBox()
             spin.setRange(0, 2000)
             spin.setSingleStep(50)
             spin.valueChanged.connect(self._save_training)
             stat_layout.addWidget(spin)
             self.cap_spins[stat_key] = spin
-            
-            caps_layout.addWidget(stat_widget)
+
+            hard_caps_row.addWidget(stat_widget)
+        caps_group_layout.addLayout(hard_caps_row)
         
         layout.addWidget(caps_group)
         
@@ -473,6 +520,10 @@ class TrainingTab(QScrollArea):
         
         # Update gambling settings visibility
         self.gambling_settings_widget.setVisible(self.gambling_train.isChecked())
+
+        self.soft_cap_enabled.blockSignals(True)
+        self.soft_cap_enabled.setChecked(training.get("soft_cap_enabled", False))
+        self.soft_cap_enabled.blockSignals(False)
         
         spirit_burst_stats = training.get("spirit_burst_enabled_stats", [])
         for stat, cb in self.spirit_burst_vars.items():
@@ -499,6 +550,14 @@ class TrainingTab(QScrollArea):
             spin.blockSignals(True)
             spin.setValue(stat_caps.get(stat, 600))
             spin.blockSignals(False)
+
+        soft_stat_caps = training.get("soft_stat_caps", {})
+        for stat, spin in self.soft_cap_spins.items():
+            spin.blockSignals(True)
+            spin.setValue(soft_stat_caps.get(stat, stat_caps.get(stat, 600)))
+            spin.blockSignals(False)
+
+        self.soft_cap_widget.setVisible(self.soft_cap_enabled.isChecked())
         
         # Load training score from JSON file
         self._load_training_score_config()
@@ -515,6 +574,14 @@ class TrainingTab(QScrollArea):
         mode = config.get("mode", "ura")
         self.unity_widget.setVisible(mode == "unity")
         self._update_unity_score_visibility()
+
+    def _get_training_score_filename(self, mode):
+        """Return the training score config file for the active mode."""
+        if mode == "unity":
+            return "training_score_unity.json"
+        if mode == "trackblazer":
+            return "training_score_trackblazer.json"
+        return "training_score.json"
     
     def _on_priority_changed(self, order):
         """Handle priority order change"""
@@ -524,6 +591,12 @@ class TrainingTab(QScrollArea):
     def _on_gambling_train_toggle(self):
         """Handle gambling train checkbox toggle"""
         self.gambling_settings_widget.setVisible(self.gambling_train.isChecked())
+        if not getattr(self, '_loading', False):
+            self._save_training()
+
+    def _on_soft_cap_toggle(self):
+        """Handle soft cap checkbox toggle"""
+        self.soft_cap_widget.setVisible(self.soft_cap_enabled.isChecked())
         if not getattr(self, '_loading', False):
             self._save_training()
     
@@ -572,6 +645,8 @@ class TrainingTab(QScrollArea):
         config["training"]["min_score"] = {stat: spin.value() for stat, spin in self.score_spins.items()}
         
         # Stat caps
+        config["training"]["soft_cap_enabled"] = self.soft_cap_enabled.isChecked()
+        config["training"]["soft_stat_caps"] = {stat: spin.value() for stat, spin in self.soft_cap_spins.items()}
         config["training"]["stat_caps"] = {stat: spin.value() for stat, spin in self.cap_spins.items()}
         
         # Actually save to file
@@ -584,7 +659,7 @@ class TrainingTab(QScrollArea):
         
         config = self.main_window.get_config()
         mode = config.get("mode", "ura")
-        filename = "training_score_unity.json" if mode == "unity" else "training_score.json"
+        filename = self._get_training_score_filename(mode)
         
         try:
             if os.path.exists(filename):
@@ -645,7 +720,7 @@ class TrainingTab(QScrollArea):
         
         config = self.main_window.get_config()
         mode = config.get("mode", "ura")
-        filename = "training_score_unity.json" if mode == "unity" else "training_score.json"
+        filename = self._get_training_score_filename(mode)
         
         # Build scoring_rules with proper nested structure
         scoring_rules = {
