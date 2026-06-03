@@ -6,7 +6,7 @@
  
 
 An automated training bot for Uma Musume: Pretty Derby that works with **Android emulators** using ADB (Android Debug Bridge). This aim for fully automate gameplay for busy players.
-Right now **UMAT** support 2 senario: **URA Finales** and **Unity Cup**
+Right now **UMAT** support 3 senario: **URA Finales**, **Unity Cup** and **Trackblazer (through API Mode)**
 ![Hi](Docs/App.png)
 ## Highlighted Features
 - **Easy to setup and config:** Using automated setup and really simple but efficient config for your training 
