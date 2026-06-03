@@ -152,7 +152,7 @@ class MainWindow(QMainWindow):
         sidebar_layout.addSpacing(8)
         
         # App title in sidebar
-        title_label = QLabel("UMAT v0.2")
+        title_label = QLabel("UMAT v0.3")
         title_label.setObjectName("title")
         title_label.setAlignment(Qt.AlignCenter)
         title_label.setStyleSheet("font-size: 16px;")
@@ -432,7 +432,9 @@ class MainWindow(QMainWindow):
         if hasattr(self, 'bot_controller'):
             self.add_log("BotController exists, calling start_bot()", "info")
             try:
-                self.bot_controller.start_bot()
+                started = self.bot_controller.start_bot()
+                if not started:
+                    return
                 self.bot_running = True
                 # Update UI
                 self.start_btn.setText("  Stop Bot")

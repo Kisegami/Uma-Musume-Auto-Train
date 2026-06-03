@@ -133,10 +133,36 @@ def get_device_info():
         log_error("Error getting device info: " + str(e))
         return False
 
+def check_trackblazer_api_requirement():
+    """Require API mode and a reachable KUC service for Trackblazer."""
+    if mode != "trackblazer":
+        return True
+
+    api_config = config.get("api", {})
+    if not api_config.get("enabled", False):
+        log_error("Trackblazer startup blocked: API Mode is disabled. Trackblazer requires KUC and API Mode.")
+        return False
+
+    from utils.integrations.umat_api import check_kuc_connection
+
+    connected, detail = check_kuc_connection(
+        base_url=api_config.get("base_url", "http://127.0.0.1:8123"),
+        timeout=api_config.get("timeout", 2),
+    )
+    if not connected:
+        log_error(f"Trackblazer startup blocked: {detail}")
+        return False
+
+    log_info(detail)
+    return True
+
 def main():
     log_info(f"Uma Auto - {mode_name} Version!")
     log_info("=" * 40)
     log_info(f"Mode: {mode.upper()}")
+
+    if not check_trackblazer_api_requirement():
+        return
     
     # Check ADB connection
     if not check_adb_connection():

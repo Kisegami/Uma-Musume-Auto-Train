@@ -55,6 +55,15 @@ class MainTab(QScrollArea):
         self.mode_combo.currentTextChanged.connect(self._on_mode_change)
         mode_row.addWidget(self.mode_combo)
         settings_layout.addLayout(mode_row)
+
+        self.trackblazer_warning = QLabel(
+            "Trackblazer mode only works with KUC and API Mode turned on."
+        )
+        self.trackblazer_warning.setWordWrap(True)
+        self.trackblazer_warning.setStyleSheet(
+            f"color: {COLORS['accent_orange']}; font-size: 12px;"
+        )
+        settings_layout.addWidget(self.trackblazer_warning)
         
         # Unity Team row (only visible when Unity mode selected)
         self.unity_team_row = QWidget()
@@ -206,6 +215,7 @@ class MainTab(QScrollArea):
         # Set Unity Team visibility based on mode and update scenario logo
         is_unity = (mode == "unity")
         self.unity_team_row.setVisible(is_unity)
+        self.trackblazer_warning.setVisible(mode == "trackblazer")
         self._update_scenario_logo(mode)
         
         # Emulator
@@ -253,6 +263,7 @@ class MainTab(QScrollArea):
         # Toggle Unity Team visibility and update scenario logo
         is_unity = (mode == "unity")
         self.unity_team_row.setVisible(is_unity)
+        self.trackblazer_warning.setVisible(mode == "trackblazer")
         self._update_scenario_logo(mode)
         
         # Update Unity fields visibility and reload training scores for new mode

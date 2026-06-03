@@ -261,10 +261,31 @@ class BotController:
     def start_bot(self):
         """Start the bot automation"""
         if self.bot_running:
-            return
+            return False
+
+        cfg = self.main_window.get_config()
+        if cfg.get("mode", "ura") == "trackblazer":
+            api_config = cfg.get("api", {})
+            if not api_config.get("enabled", False):
+                self.main_window.add_log(
+                    "Trackblazer startup blocked: API Mode is disabled. Trackblazer requires KUC and API Mode.",
+                    "error",
+                )
+                return False
+
+            from utils.integrations.umat_api import check_kuc_connection
+
+            connected, detail = check_kuc_connection(
+                base_url=api_config.get("base_url", "http://127.0.0.1:8123"),
+                timeout=api_config.get("timeout", 2),
+            )
+            if not connected:
+                self.main_window.add_log(f"Trackblazer startup blocked: {detail}", "error")
+                return False
+            self.main_window.add_log(detail, "info")
 
         if not self.prepare_emulator_connection():
-            return
+            return False
 
         if self.main_window.get_config().get("input_action_debug_log", False):
             reset_input_trace_log()
@@ -280,6 +301,7 @@ class BotController:
         # Start log monitoring thread
         self.log_monitor_thread = threading.Thread(target=self.monitor_bot_logs, daemon=True)
         self.log_monitor_thread.start()
+        return True
     
     def stop_bot(self):
         """Stop the bot automation"""
