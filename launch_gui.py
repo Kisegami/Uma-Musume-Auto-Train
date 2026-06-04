@@ -91,6 +91,7 @@ def check_all_configs():
         "config.json": "config.example.json",
         "training_score.json": "training_score.example.json",
         "training_score_unity.json": "training_score_unity.example.json",
+        "training_score_trackblazer.json": "training_score_trackblazer.example.json",
         "event_priority.json": "event_priority.example.json",
     }
     
@@ -107,6 +108,7 @@ def check_all_configs():
         else:
             results["ok"] += 1
     
+    results["total"] = len(config_files)
     return results
 
 
@@ -149,7 +151,7 @@ def main():
             print(f"[OK] Updated {config_results['updated']} configuration file(s) with missing keys")
         if config_results["errors"]:
             print(f"[WARN] {config_results['errors']} error(s) during config check")
-        if config_results["ok"] == 4:
+        if config_results["ok"] == config_results["total"]:
             print("[OK] All configuration files OK")
     except Exception as e:
         log_warning(f"Could not check configuration files: {e}")
