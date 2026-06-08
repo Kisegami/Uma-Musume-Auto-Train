@@ -1127,28 +1127,20 @@ def plan_training_item_usage(state, config, chosen_training, chosen_training_res
     return actions
 
 
-def _select_race_bonus_item(inventory_by_name, reserve_count, is_ts_climax_race, force_use=False):
+def _select_race_bonus_item(inventory_by_name, reserve_count, is_ts_climax_race):
     artisan_count = int(inventory_by_name.get(_normalize_text("Artisan Cleat Hammer"), {}).get("count", 0))
     master_count = int(inventory_by_name.get(_normalize_text("Master Cleat Hammer"), {}).get("count", 0))
-    if artisan_count + master_count <= 0:
+    total_hammer_count = artisan_count + master_count
+    if total_hammer_count <= 0:
         return None
-
-    if force_use:
-        return "Master Cleat Hammer" if master_count > 0 else "Artisan Cleat Hammer"
 
     if is_ts_climax_race:
         return "Master Cleat Hammer" if master_count > 0 else "Artisan Cleat Hammer"
 
-    if reserve_count <= 0:
-        return "Master Cleat Hammer" if master_count > 0 else "Artisan Cleat Hammer"
-
-    reserve_total = reserve_count
-    excess_total = max(0, artisan_count + master_count - reserve_total)
-    if excess_total <= 0:
+    if total_hammer_count <= reserve_count:
         return None
-    if master_count > reserve_total:
-        return "Master Cleat Hammer"
-    return "Artisan Cleat Hammer" if artisan_count > 0 else None
+
+    return "Artisan Cleat Hammer" if artisan_count > 0 else "Master Cleat Hammer"
 
 
 def plan_race_item_usage(
@@ -1166,7 +1158,6 @@ def plan_race_item_usage(
         state["inventory_by_name"],
         reserve_count=_get_ts_climax_hammer_reserve_count(settings),
         is_ts_climax_race=is_ts_climax_race,
-        force_use=bool(is_custom_race and custom_race_use_hammer),
     )
     if race_bonus_item_id:
         reason = "use_custom_race_hammer" if is_custom_race and custom_race_use_hammer else "use_race_bonus"
