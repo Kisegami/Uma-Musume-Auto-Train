@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 from utils.core.log import log_info, log_warning, log_error, log_debug, log_success
 """
 Restart Career functionality for Uma Musume Emulator Auto Train.
@@ -17,6 +17,7 @@ SUPPORTS_DIR = os.path.join(PROJECT_ROOT, "template", "supports")
 os.makedirs(SUPPORTS_DIR, exist_ok=True)
 RESTART_BACK_BUTTON_CENTER = (123, 1764)
 RESTART_CAREER_HOME_REGION = (540, 1442, 522, 297)
+RESTART_FULL_SCREEN_REGION = (0, 0, 1080, 1920)
 
 from utils.vision.recognizer import match_template
 from utils.capture.screenshot import take_screenshot
@@ -35,8 +36,11 @@ _restart_state = {
 
 
 def restart_match_template(screenshot, template_path: str, confidence: float = 0.8, region=None):
-    if region is None and template_path.replace("\\", "/") == "assets/buttons/Career_Home.png":
-        region = RESTART_CAREER_HOME_REGION
+    if region is None:
+        if template_path.replace("\\", "/") == "assets/buttons/Career_Home.png":
+            region = RESTART_CAREER_HOME_REGION
+        else:
+            region = RESTART_FULL_SCREEN_REGION
     return match_template(
         screenshot,
         template_path,
@@ -46,8 +50,11 @@ def restart_match_template(screenshot, template_path: str, confidence: float = 0
 
 
 def restart_wait_for_image(template_path: str, timeout: int = 10, confidence: float = 0.8, region=None, check_interval: float = 0.5):
-    if region is None and template_path.replace("\\", "/") == "assets/buttons/Career_Home.png":
-        region = RESTART_CAREER_HOME_REGION
+    if region is None:
+        if template_path.replace("\\", "/") == "assets/buttons/Career_Home.png":
+            region = RESTART_CAREER_HOME_REGION
+        else:
+            region = RESTART_FULL_SCREEN_REGION
     return wait_for_image(
         template_path,
         timeout=timeout,
@@ -551,7 +558,7 @@ def restore_tp() -> bool:
         log_warning("Failed to tap OK button")
         return False
     
-    time.sleep(2)
+    time.sleep(0.5)
     
     # Step 5: Tap Close button
     if not restart_click_image_button("assets/buttons/close.png", "close button", max_attempts=10):
@@ -762,25 +769,83 @@ def start_career() -> bool:
             return False
         
         # Step 2: Tap Next button twice
-        for i in range(2):
-            next_pos = restart_wait_for_image("assets/buttons/next_btn.png", timeout=10, confidence=0.8)
-            if next_pos:
-                tap(next_pos[0], next_pos[1])
-                time.sleep(1)
-            else:
-                return False
-        
-        # Step 3: Tap Next button
+        # Tap 1: Scenario Select
         next_pos = restart_wait_for_image("assets/buttons/next_btn.png", timeout=10, confidence=0.8)
+        if next_pos:
+            tap(next_pos[0], next_pos[1])
+
+            # Wait for event popup for up to 10.0 seconds
+            start_time = time.time()
+            while time.time() - start_time < 10.0:
+                screenshot = take_screenshot()
+
+                confirm_pos = match_template(screenshot, "assets/buttons/confirm.png", confidence=0.7, region=RESTART_FULL_SCREEN_REGION)
+                if confirm_pos:
+                    x, y, w, h = confirm_pos[0]
+                    log_info("Event popup detected (confirm). Tapping confirm...")
+                    tap(x + w//2, y + h//2)
+                    break
+
+                ok_pos = match_template(screenshot, "assets/buttons/ok_btn.png", confidence=0.7, region=RESTART_FULL_SCREEN_REGION)
+                if ok_pos:
+                    x, y, w, h = ok_pos[0]
+                    log_info("Event popup detected (OK). Tapping OK...")
+                    tap(x + w//2, y + h//2)
+                    break
+
+                close_pos = match_template(screenshot, "assets/buttons/close.png", confidence=0.7, region=RESTART_FULL_SCREEN_REGION)
+                if close_pos:
+                    x, y, w, h = close_pos[0]
+                    log_info("Event popup detected (Close). Tapping close...")
+                    tap(x + w//2, y + h//2)
+                    break
+
+                if time.time() - start_time > 1.2:
+                    next_btn_visible = match_template(screenshot, "assets/buttons/next_btn.png", confidence=0.8)
+                    if next_btn_visible:
+                        log_info("Next screen detected without event popup. Proceeding.")
+                        break
+
+                time.sleep(0.2)
+        else:
+            return False
+
+        # Tap 2: Character Select
+        next_pos = restart_wait_for_image("assets/buttons/next_btn.png", timeout=30, confidence=0.8)
         if next_pos:
             tap(next_pos[0], next_pos[1])
             time.sleep(1)
         else:
             return False
         
+        # Step 3: Tap Next button
+        auto_select_pos = restart_wait_for_image("assets/buttons/auto_select.png", timeout=5, confidence=0.8)
+        if auto_select_pos:
+            log_info("Auto-Select button detected on Legacy Select screen. Tapping it...")
+            tap(auto_select_pos[0], auto_select_pos[1])
+            time.sleep(3)
+
+        # Tap Next button with retry loop
+        for attempt in range(3):
+            next_pos = restart_wait_for_image("assets/buttons/next_btn.png", timeout=5, confidence=0.8)
+            if next_pos:
+                log_info(f"Tapping Legacy Select Next button (attempt {attempt+1}/3)...")
+                tap(next_pos[0], next_pos[1])
+                time.sleep(3)
+
+                # Check if we transitioned (auto_select should NOT be visible anymore)
+                if not restart_wait_for_image("assets/buttons/auto_select.png", timeout=1, confidence=0.8):
+                    log_info("Successfully transitioned past Legacy Select screen.")
+                    break
+            else:
+                # If next_btn is not visible, check if we already transitioned
+                if not restart_wait_for_image("assets/buttons/auto_select.png", timeout=1, confidence=0.8):
+                    break
+                return False
+
         # Step 4: Tap Friend Support Choose
         log_info(f"Friend Support...")
-        friend_support_pos = restart_wait_for_image("assets/buttons/Friend_support_choose.png", timeout=10, confidence=0.8)
+        friend_support_pos = restart_wait_for_image("assets/buttons/Friend_support_choose.png", timeout=30, confidence=0.8)
         if friend_support_pos:
             tap(friend_support_pos[0], friend_support_pos[1])
             time.sleep(1)
@@ -933,13 +998,7 @@ def complete_career(current_restart_count: int, max_restart_times: int,
     
     # Extract fans and skill points first
     screenshot = take_screenshot()
-    restart_config = load_restart_config()
-    ignore_end_skill_purchase = restart_config.get("ignore_end_skill_purchase", False)
-    if ignore_end_skill_purchase:
-        skill_points = 0
-        log_info("End career skill purchase ignored by config")
-    else:
-        skill_points = extract_skill_points(screenshot)
+    skill_points = extract_skill_points(screenshot)
     
     # Handle notification and fan merging
     run_fans, total_fans_acquired = notify_run_completion(
@@ -959,7 +1018,7 @@ def complete_career(current_restart_count: int, max_restart_times: int,
         return False, current_restart_count, total_fans_acquired
     
     # Execute skill purchase workflow (if skill points available)
-    if not ignore_end_skill_purchase and skill_points > 0:
+    if skill_points > 0:
         execute_skill_purchase_workflow(skill_points)
     
     # Complete the career
