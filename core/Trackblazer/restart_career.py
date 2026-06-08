@@ -819,29 +819,15 @@ def start_career() -> bool:
             return False
         
         # Step 3: Tap Next button
-        auto_select_pos = restart_wait_for_image("assets/buttons/auto_select.png", timeout=5, confidence=0.8)
-        if auto_select_pos:
-            log_info("Auto-Select button detected on Legacy Select screen. Tapping it...")
-            tap(auto_select_pos[0], auto_select_pos[1])
-            time.sleep(3)
-
-        # Tap Next button with retry loop
-        for attempt in range(3):
-            next_pos = restart_wait_for_image("assets/buttons/next_btn.png", timeout=5, confidence=0.8)
-            if next_pos:
-                log_info(f"Tapping Legacy Select Next button (attempt {attempt+1}/3)...")
-                tap(next_pos[0], next_pos[1])
-                time.sleep(3)
-
-                # Check if we transitioned (auto_select should NOT be visible anymore)
-                if not restart_wait_for_image("assets/buttons/auto_select.png", timeout=1, confidence=0.8):
-                    log_info("Successfully transitioned past Legacy Select screen.")
-                    break
-            else:
-                # If next_btn is not visible, check if we already transitioned
-                if not restart_wait_for_image("assets/buttons/auto_select.png", timeout=1, confidence=0.8):
-                    break
-                return False
+        log_info("[Step 3/13] Tapping Next button...")
+        next_pos = restart_wait_for_image("assets/buttons/next_btn.png", timeout=10, confidence=0.8)
+        if next_pos:
+            tap(next_pos[0], next_pos[1])
+            log_info("[Step 3/13] ✓ Next button tapped")
+            time.sleep(1)
+        else:
+            log_error("[Step 3/13] ✗ Next button not found")
+            return False
 
         # Step 4: Tap Friend Support Choose
         log_info(f"Friend Support...")

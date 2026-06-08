@@ -811,16 +811,58 @@ def start_career() -> bool:
             return False
         
         # Step 2: Tap Next button twice
-        log_info("[Step 2/13] Tapping Next button twice...")
-        for i in range(2):
-            next_pos = restart_wait_for_image("assets/buttons/next_btn.png", timeout=10, confidence=0.8)
-            if next_pos:
-                tap(next_pos[0], next_pos[1])
-                log_info(f"[Step 2/13] ✓ Next button tap {i+1}/2 successful")
-                time.sleep(1)
-            else:
-                log_error(f"[Step 2/13] ✗ Next button not found on tap {i+1}/2")
-                return False
+        # Tap 1: Scenario Select
+        log_info("[Step 2/13] Tapping Scenario Select Next button...")
+        next_pos = restart_wait_for_image("assets/buttons/next_btn.png", timeout=10, confidence=0.8)
+        if next_pos:
+            tap(next_pos[0], next_pos[1])
+
+            # Wait for event popup for up to 10.0 seconds
+            start_time = time.time()
+            while time.time() - start_time < 10.0:
+                screenshot = take_screenshot()
+
+                confirm_pos = match_template(screenshot, "assets/buttons/confirm.png", confidence=0.7, region=RESTART_FULL_SCREEN_REGION)
+                if confirm_pos:
+                    x, y, w, h = confirm_pos[0]
+                    log_info("Event popup detected (confirm). Tapping confirm...")
+                    tap(x + w//2, y + h//2)
+                    break
+
+                ok_pos = match_template(screenshot, "assets/buttons/ok_btn.png", confidence=0.7, region=RESTART_FULL_SCREEN_REGION)
+                if ok_pos:
+                    x, y, w, h = ok_pos[0]
+                    log_info("Event popup detected (OK). Tapping OK...")
+                    tap(x + w//2, y + h//2)
+                    break
+
+                close_pos = match_template(screenshot, "assets/buttons/close.png", confidence=0.7, region=RESTART_FULL_SCREEN_REGION)
+                if close_pos:
+                    x, y, w, h = close_pos[0]
+                    log_info("Event popup detected (Close). Tapping close...")
+                    tap(x + w//2, y + h//2)
+                    break
+
+                if time.time() - start_time > 1.2:
+                    next_btn_visible = match_template(screenshot, "assets/buttons/next_btn.png", confidence=0.8)
+                    if next_btn_visible:
+                        log_info("Next screen detected without event popup. Proceeding.")
+                        break
+
+                time.sleep(0.2)
+        else:
+            log_error("[Step 2/13] Scenario Select Next button not found")
+            return False
+
+        # Tap 2: Character Select
+        next_pos = restart_wait_for_image("assets/buttons/next_btn.png", timeout=10, confidence=0.8)
+        if next_pos:
+            tap(next_pos[0], next_pos[1])
+            log_info("[Step 2/13] Character Select Next button tapped")
+            time.sleep(1)
+        else:
+            log_error("[Step 2/13] Character Select Next button not found")
+            return False
         
         # Step 3: Tap Next button
         log_info("[Step 3/13] Tapping Next button...")
