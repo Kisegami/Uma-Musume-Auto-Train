@@ -51,7 +51,7 @@ class StatusPanel(QFrame):
         
         # Year takes 2 columns for more space
         self.year_val = self._add_info_item(info_grid, "Year", "Unknown Year", 0, 0, colspan=2)
-        self.energy_val = self._add_info_item(info_grid, "Energy", "100%", 0, 2)
+        self.energy_val = self._add_info_item(info_grid, "Energy", "Unknown", 0, 2)
         self.mood_val = self._add_info_item(info_grid, "Mood", "GREAT", 0, 3)
         
         # Initialize mood with pink color for GREAT
@@ -109,7 +109,7 @@ class StatusPanel(QFrame):
     def update_status(self, year, energy, turn, mood, goal_met, stats):
         """Update all values"""
         self.year_val.setText(str(year))
-        self.energy_val.setText(f"{energy}%")
+        self.energy_val.setText(self._format_energy(energy))
         
         # Update mood with color
         mood_upper = mood.upper()
@@ -121,11 +121,28 @@ class StatusPanel(QFrame):
             for key, val in stats.items():
                 if key in self.stat_bars:
                     self.stat_bars[key].setValue(int(val))
+
+    @staticmethod
+    def _format_energy(energy):
+        """Format OCR percentage or API current/max energy for display."""
+        if isinstance(energy, dict):
+            current = energy.get("current")
+            maximum = energy.get("max")
+            if current is not None and maximum is not None:
+                return f"{current}/{maximum}"
+
+        if isinstance(energy, str):
+            return energy.strip() or "Unknown"
+
+        if energy is None:
+            return "Unknown"
+
+        return f"{energy}%"
     
     def update_from_bot_data(self, status):
         """Update from bot controller data format (compatibility method)"""
         year = status.get('year', 'Unknown Year')
-        energy = status.get('energy', 0)
+        energy = status.get('energy')
         turn = status.get('turn', 'Unknown')
         mood = status.get('mood', 'Unknown')
         goal_met = status.get('goal_met', False)

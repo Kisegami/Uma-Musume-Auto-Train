@@ -331,7 +331,6 @@ def normalize_item_state(status_data, training_results=None):
 
     energy_current = int(energy.get("current", 0))
     energy_max = int(energy.get("max", 0))
-    energy_pct = (energy_current / energy_max * 100.0) if energy_max > 0 else 0.0
     mood_name = str(mood.get("name", "UNKNOWN")).upper()
     mood_value = mood.get("value")
     if not isinstance(mood_value, int):
@@ -352,7 +351,6 @@ def normalize_item_state(status_data, training_results=None):
         },
         "energy_current": energy_current,
         "energy_max": energy_max,
-        "energy_pct": round(energy_pct, 1),
         "mood_name": mood_name,
         "mood_value": mood_value,
         "conditions": list(normalized_conditions),

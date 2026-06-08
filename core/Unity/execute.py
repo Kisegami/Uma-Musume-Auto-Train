@@ -53,6 +53,20 @@ from core.Unity.races_handling import (
 from utils.core.config_loader import load_main_config
 config = load_main_config()
 DEBUG_MODE = config.get("debug_mode", False)
+
+
+def _format_energy(energy, api_status=None, include_max=False):
+    if api_status:
+        if include_max:
+            return f"{energy}/{api_status.get('energy_max', 0)}"
+        return str(energy)
+    return f"{energy:.1f}%"
+
+
+def _format_energy_threshold(threshold, api_status=None):
+    return str(threshold) if api_status else f"{threshold}%"
+
+
 racing_config = config.get("racing", {})
 RETRY_RACE = racing_config.get("retry_race", True)
 _skip_infirmary_check_once = False
@@ -671,7 +685,7 @@ def career_lobby(timeout=None):
             mood = api_status["mood"]
             year = api_status["year"]
             current_stats = api_status["stats"]
-            energy_percentage = api_status["energy_pct"]
+            energy_percentage = api_status["energy_current"]
             # API doesn't provide goal_name, criteria, dating — use OCR for those
             if skip_goal_check:
                 goal_data = "Skipped"
@@ -767,7 +781,7 @@ def career_lobby(timeout=None):
         # Check for rest in June to save energy for summer (skip on Race Day)
         rest_in_june_enabled = training_config_section.get("rest_in_june", False)
         if rest_in_june_enabled and "Jun" in year and "Junior" not in year and energy_percentage <= 60 and not is_race_day_early:
-            log_info(f"Rest in June enabled - Energy <= 60%. Going to rest to save energy for summer.")
+            log_info(f"Rest in June enabled - Energy <= {_format_energy_threshold(60, api_status)}. Going to rest to save energy for summer.")
             do_rest()
             continue
         
@@ -786,7 +800,7 @@ def career_lobby(timeout=None):
         # Check dating availability (not in API, always template match)
         dating_available = check_dating_available(screenshot)
         
-        log_info(f"Energy: {energy_percentage:.1f}% (Minimum: {min_energy}%)")
+        log_info(f"Energy: {_format_energy(energy_percentage, api_status, include_max=True)} (Minimum: {_format_energy_threshold(min_energy, api_status)})")
         log_info(f"Current stats: {stats_str}")
         log_info(f"Dating Available: {dating_available}")
         
@@ -894,8 +908,8 @@ def career_lobby(timeout=None):
         if mood_index < minimum_mood:
             # Check if energy is too high (>90%) before doing recreation
             if energy_percentage > 90:
-                log_debug(f"Mood too low ({mood_index} < {minimum_mood}) but energy too high ({energy_percentage:.1f}% > 90%), skipping recreation")
-                log_info(f"Mood is low but energy is too high ({energy_percentage:.1f}% > 90%), skipping recreation")
+                log_debug(f"Mood too low ({mood_index} < {minimum_mood}) but energy too high ({_format_energy(energy_percentage, api_status)} > {_format_energy_threshold(90, api_status)}), skipping recreation")
+                log_info(f"Mood is low but energy is too high ({_format_energy(energy_percentage, api_status)} > {_format_energy_threshold(90, api_status)}), skipping recreation")
             else:
                 log_debug(f"Mood too low ({mood_index} < {minimum_mood}), checking for dating or recreation")
                 # Check if dating should be used instead of recreation
@@ -918,7 +932,7 @@ def career_lobby(timeout=None):
         
         # Check energy before proceeding with training
         if energy_percentage < min_energy:
-            log_warning(f"Energy too low ({energy_percentage:.1f}% < {min_energy}%), skipping training and going to rest")
+            log_warning(f"Energy too low ({_format_energy(energy_percentage, api_status)} < {_format_energy_threshold(min_energy, api_status)}), skipping training and going to rest")
             if should_use_dating_for_rest(screenshot):
                 log_info(f"Using dating instead of rest")
                 if not do_dating():
@@ -1162,7 +1176,7 @@ def career_lobby(timeout=None):
                         
                         # No race available - check energy to decide next action
                         if energy_percentage >= 50:
-                            log_info(f"Energy is {energy_percentage:.1f}% (>= 50%). Using relaxed scoring to train.")
+                            log_info(f"Energy is {_format_energy(energy_percentage, api_status)} (>= {_format_energy_threshold(50, api_status)}). Using relaxed scoring to train.")
                             relaxed_config = dict(training_config)
                             relaxed_config['min_score'] = {
                                 "spd": 0.0,
@@ -1194,7 +1208,7 @@ def career_lobby(timeout=None):
                                 else:
                                     do_rest()
                         else:
-                            log_info(f"Energy is {energy_percentage:.1f}% (< 50%). Going to rest.")
+                            log_info(f"Energy is {_format_energy(energy_percentage, api_status)} (< {_format_energy_threshold(50, api_status)}). Going to rest.")
                             if _on_training_screen:
                                 tap_on_image("assets/buttons/back_btn.png", min_search=5)
                                 time.sleep(0.5)

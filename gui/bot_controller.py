@@ -41,7 +41,7 @@ class BotController:
         # Bot status data
         self.current_status = {
             'year': 'Unknown Year',
-            'energy': 0.0,
+            'energy': None,
             'turn': 'Unknown',
             'mood': 'Unknown',
             'goal_met': False,
@@ -534,9 +534,9 @@ class BotController:
                 self.update_status('year', year)
             
             # Extract energy information
-            energy_match = re.search(r'Energy:\s*([\d.]+)%', output)
+            energy_match = re.search(r'Energy:\s*([\d.]+(?:/[\d.]+|%))', output)
             if energy_match:
-                energy = float(energy_match.group(1))
+                energy = energy_match.group(1)
                 self.update_status('energy', energy)
             
             # Extract turn information

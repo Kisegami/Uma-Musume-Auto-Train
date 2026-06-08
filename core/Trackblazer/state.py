@@ -705,7 +705,8 @@ def check_status_api():
     Fetch full game status via API in one call.
 
     Returns dict with Ura-compatible keys:
-        year, mood, stats{spd,sta,pwr,guts,wit}, energy_pct, skill_points
+        year, mood, stats{spd,sta,pwr,guts,wit}, energy_current, energy_max,
+        skill_points
     Or None if API is unavailable.
     """
     data = _get_status_cached()
@@ -718,8 +719,6 @@ def check_status_api():
         mood = data.get("mood", {})
         energy_max = energy.get("max", 100)
         energy_current = energy.get("current", 0)
-        energy_pct = (energy_current / energy_max * 100.0) if energy_max > 0 else 0.0
-
         api_year = data.get("year", "Unknown Year")
         if "Year 4" in api_year:
             api_year = "TS Climax"
@@ -734,10 +733,11 @@ def check_status_api():
                 "guts": stats.get("guts", 0),
                 "wit": stats.get("wit", 0),
             },
-            "energy_pct": round(energy_pct, 1),
+            "energy_current": energy_current,
+            "energy_max": energy_max,
             "skill_points": data.get("current_skill_points", 0),
         }
-        log_debug(f"[API] Status: year={result['year']} mood={result['mood']} energy={result['energy_pct']}% sp={result['skill_points']}")
+        log_debug(f"[API] Status: year={result['year']} mood={result['mood']} energy={result['energy_current']}/{result['energy_max']} sp={result['skill_points']}")
         return result
     except Exception as e:
         log_debug(f"[API] Failed to parse status response: {e}")
@@ -769,7 +769,7 @@ def check_energy_api():
     status = check_status_api()
     if status is None:
         return None
-    return status.get("energy_pct")
+    return status.get("energy_current")
 
 
 def check_skill_points_api():
