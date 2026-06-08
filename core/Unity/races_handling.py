@@ -45,7 +45,7 @@ except Exception:
 GRADE_OFFSET = (-118, -115, 93, 69)  # x, y, width, height
 OCR_OFFSET = (-37, -120, 580, 69)  # x, y, width, height
 CUSTOM_RACE_TEMPLATE_REGION = (0, 1000, 369, 543)
-CUSTOM_RACE_TEMPLATE_CONFIDENCE = 0.7
+CUSTOM_RACE_TEMPLATE_CONFIDENCE = 0.6
 
 def is_racing_available(year):
     """Check if racing is available based on the current year/month"""
