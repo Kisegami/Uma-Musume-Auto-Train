@@ -238,8 +238,16 @@ def career_ui_check():
         tap(back_btn[0], back_btn[1])
         time.sleep(1)
         return career_ui_check()
+
+    # 3. Check for a lobby popup that must be cancelled before the lobby is visible
+    cancel_lobby = locate_on_screen("assets/buttons/cancel_lobby.png", confidence=0.8)
+    if cancel_lobby:
+        log_info("Found Cancel lobby button, tapping...")
+        tap(cancel_lobby[0], cancel_lobby[1])
+        time.sleep(1)
+        return career_ui_check()
         
-    # 3. Check tazuna_hint, event_choice_1, unity_cup, or complete_career (Career Lobby / end of run)
+    # 4. Check tazuna_hint, event_choice_1, unity_cup, or complete_career (Career Lobby / end of run)
     if locate_on_screen("assets/ui/tazuna_hint.png", confidence=0.95) or \
        locate_on_screen("assets/icons/event_choice_1.png", confidence=0.8) or \
        locate_on_screen("assets/unity/unity_cup.png", confidence=0.8) or \
@@ -251,11 +259,11 @@ def career_ui_check():
             raise RuntimeError("Bot stopped by career_lobby — do not restart.")
         return True
         
-    # 4. Check connection error
+    # 5. Check connection error
     if locate_on_screen("assets/ui/connection_error.png", confidence=0.8):
         return reconnect()
         
-    # 5. Check view results
+    # 6. Check view results
     if locate_on_screen("assets/buttons/view_results.png", confidence=0.8):
         continue_race()
         log_info("Race finished. Waiting 5 seconds before career UI check...")

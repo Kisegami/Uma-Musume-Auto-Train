@@ -921,6 +921,14 @@ def plan_friendship_purchases(state, config):
     }]
 
 
+def plan_turn_item_purchases(state, template_data, config):
+    """Build one budget-aware purchase plan using the turn's training data."""
+    purchase_actions = plan_friendship_purchases(state, config)
+    planned_state = apply_purchase_plan(state, purchase_actions)
+    purchase_actions.extend(plan_item_purchases(planned_state, template_data, config))
+    return purchase_actions
+
+
 def apply_purchase_plan(state, purchase_actions):
     updated = deepcopy(state)
     for action in purchase_actions:

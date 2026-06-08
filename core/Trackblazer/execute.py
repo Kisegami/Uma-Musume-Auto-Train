@@ -33,17 +33,14 @@ from core.Trackblazer.state import (
 )
 
 from core.Trackblazer.items import (
-    apply_purchase_plan,
     apply_usage_plan,
     format_action_plan,
     load_item_settings,
     load_item_template,
     normalize_item_state,
     plan_immediate_item_usage,
-    plan_item_purchases,
     plan_race_item_usage,
-    plan_friendship_purchases,
-    plan_training_level_purchases,
+    plan_turn_item_purchases,
     plan_training_item_usage,
     training_item_use_requires_refresh,
 )
@@ -771,6 +768,7 @@ def career_lobby(timeout=None):
         planned_race_usage = []
         executed_race_usage = []
         planned_training_usage = []
+        prechecked_training_results = None
         if _API_MODE:
             api_status = check_status_api()
             if api_status is None:
@@ -852,9 +850,16 @@ def career_lobby(timeout=None):
 
         if _API_MODE and raw_api_status:
             _log_api_item_snapshot(raw_api_status)
-            base_item_state = normalize_item_state(raw_api_status)
+            if not is_pre_debut_year(year) and not is_race_day and not is_ura_finale_race:
+                prechecked_training_results = check_training_api(year=year, current_stats=current_stats)
+                if prechecked_training_results is None:
+                    log_error("API mode is enabled but failed to get training data from /training before item purchase")
+                    raise RuntimeError("API mode is enabled but /training API is not responding. Check API connection or set api.enabled to false in config.json.")
+                log_info("[API] Training data checked before item purchase")
+
+            base_item_state = normalize_item_state(raw_api_status, prechecked_training_results)
             if not is_pre_debut_year(year):
-                planned_purchase_actions = plan_item_purchases(base_item_state, item_template, config)
+                planned_purchase_actions = plan_turn_item_purchases(base_item_state, item_template, config)
                 _log_item_plan("Planned purchases", planned_purchase_actions)
                 executed_purchase_actions = execute_item_purchase_plan(planned_purchase_actions, config)
                 if executed_purchase_actions:
@@ -863,7 +868,7 @@ def career_lobby(timeout=None):
                     refreshed_status = get_status_api_raw() or {}
                     if refreshed_status:
                         raw_api_status = refreshed_status
-                        base_item_state = normalize_item_state(raw_api_status)
+                        base_item_state = normalize_item_state(raw_api_status, prechecked_training_results)
                 elif planned_purchase_actions:
                     log_warning("[Items] Planned purchases were not executed successfully")
 
@@ -881,7 +886,7 @@ def career_lobby(timeout=None):
                     refreshed_status = get_status_api_raw() or {}
                     if refreshed_status:
                         raw_api_status = refreshed_status
-                        base_item_state = normalize_item_state(raw_api_status)
+                        base_item_state = normalize_item_state(raw_api_status, prechecked_training_results)
                         year, mood, current_stats, energy_percentage = _refresh_decision_state_from_raw_status(
                             raw_api_status,
                             year,
@@ -890,6 +895,7 @@ def career_lobby(timeout=None):
                             energy_percentage,
                         )
                         mood_index = MOOD_LIST.index(mood) if mood in MOOD_LIST else 0
+                    prechecked_training_results = None
                 elif planned_immediate_usage:
                     log_warning("[Items] Planned immediate-use items were not executed successfully")
 
@@ -1042,7 +1048,9 @@ def career_lobby(timeout=None):
             
         _on_training_screen = False
         if _API_MODE:
-            results_training = check_training_api(year=year, current_stats=current_stats)
+            results_training = prechecked_training_results
+            if results_training is None:
+                results_training = check_training_api(year=year, current_stats=current_stats)
             if results_training is None:
                 log_error("API mode is enabled but failed to get training data from /training")
                 raise RuntimeError("API mode is enabled but /training API is not responding. Check API connection or set api.enabled to false in config.json.")
@@ -1128,38 +1136,6 @@ def career_lobby(timeout=None):
                 planned_training_usage = []
 
             _log_item_plan("Training items", planned_training_usage)
-            if not is_pre_debut_year(year):
-                combined_training_purchase_actions = []
-                if planned_training_usage or energy_percentage >= min_energy:
-                    planned_training_purchase_actions = plan_training_level_purchases(item_state_for_training, config)
-                    friendship_purchase_actions = plan_friendship_purchases(item_state_for_training, config)
-                    _log_item_plan("Training-level purchases", planned_training_purchase_actions)
-                    _log_item_plan("Friendship purchases", friendship_purchase_actions)
-                    combined_training_purchase_actions = (
-                        planned_training_purchase_actions + friendship_purchase_actions
-                    )
-                    executed_training_purchase_actions = execute_item_purchase_plan(combined_training_purchase_actions, config)
-                    if executed_training_purchase_actions:
-                        _log_item_plan("Executed post-training purchases", executed_training_purchase_actions)
-                        invalidate_status_cache()
-                        refreshed_status = get_status_api_raw() or {}
-                        if refreshed_status:
-                            raw_api_status = refreshed_status
-                            item_state_for_training = normalize_item_state(raw_api_status, results_training)
-                            planned_training_usage = plan_training_item_usage(
-                                item_state_for_training,
-                                config,
-                                training_candidate,
-                                chosen_training_result,
-                                would_be_rejected,
-                            )
-                            if energy_percentage < min_energy and not any(
-                                action.get("reason") == "use_good_luck_charm" for action in planned_training_usage
-                            ):
-                                planned_training_usage = []
-                            _log_item_plan("Training items (post-purchase)", planned_training_usage)
-                elif combined_training_purchase_actions:
-                    log_warning("[Items] Planned post-training purchases were not executed successfully")
 
             training_item_iteration = 0
             while planned_training_usage and training_item_iteration < 5:
