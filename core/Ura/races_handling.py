@@ -11,6 +11,7 @@ from utils.capture.debug import save_debug_screenshot
 from utils.vision.template_matching import wait_for_image, deduplicated_matches
 from utils.core.log import log_debug, log_info, log_warning, log_error, log_success
 from utils.core.config_loader import load_main_config
+from utils.core.custom_race import get_custom_race_name
 from core.Ura.state import check_skill_points_cap, check_current_year
 from core.Ura.ocr import extract_text
 import os
@@ -1067,8 +1068,8 @@ def do_custom_race(year_override=None):
         if year not in custom_races:
             return False
         
-        custom_race = custom_races[year]
-        if not custom_race or custom_race.strip() == "":
+        custom_race = get_custom_race_name(custom_races[year])
+        if not custom_race:
             return False
         
         log_info(f"Custom Race - Custom race found for {year}: {custom_race}")
