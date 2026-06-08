@@ -22,7 +22,7 @@ RESTART_FULL_SCREEN_REGION = (0, 0, 1080, 1920)
 from utils.vision.recognizer import match_template
 from utils.capture.screenshot import take_screenshot
 from utils.inputs.input import tap
-from core.Trackblazer.skill_auto_purchase import click_image_button
+from core.Trackblazer.skill_auto_purchase import click_image_button, enter_skill_screen
 from core.Trackblazer.ocr import extract_text, extract_number
 from utils.core.config_loader import load_main_config
 from utils.constants.trackblazer import RESTART_COMPLETE_SPAM_TARGET
@@ -191,10 +191,9 @@ def execute_skill_purchase_workflow(available_points: int):
             raise RuntimeError("API mode is enabled but /skills API is not responding. Check API connection or set api.enabled to false in config.json.")
         log_info(f"[API] Got {len(all_available_skills)} end-career skills from API (skipping OCR scan)")
     else:
-        if not restart_click_image_button("assets/buttons/end_skill.png", "end skill button", max_attempts=5):
+        if not enter_skill_screen(end_career=True):
             log_info(f"Failed to tap end skill button")
             return
-        time.sleep(2)
         scan_result = scan_all_skills_with_scroll(confidence=0.9, brightness_threshold=150, max_scrolls=20)
         all_available_skills = scan_result.get('all_skills', [])
     
@@ -252,11 +251,10 @@ def execute_skill_purchase_workflow(available_points: int):
                 # OCR mode is already inside the end-skill screen after scanning.
                 # Only API mode needs to open the screen before purchasing.
                 if api_mode:
-                    if not restart_click_image_button("assets/buttons/end_skill.png", "end skill button", max_attempts=5):
+                    if not enter_skill_screen(end_career=True):
                         log_info(f"Failed to tap end skill button")
                         return_to_complete_career_screen()
                         return
-                    time.sleep(2)
                 execute_skill_purchases(affordable_skills, end_career=True, reset_to_top=not api_mode)
     
     # Return to complete career screen

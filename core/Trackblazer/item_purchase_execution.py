@@ -3,6 +3,7 @@ from collections import Counter, defaultdict, deque
 
 from core.Trackblazer.items import load_item_settings, load_item_catalog
 from core.Trackblazer.ocr import extract_text
+from utils.capture.debug import save_debug_bundle
 from utils.capture.screenshot import take_screenshot
 from utils.core.log import log_debug, log_info, log_warning
 from utils.inputs.input import tap, perform_swipe, wait_and_tap
@@ -168,6 +169,7 @@ def _open_shop_if_needed():
 
     if not _tap_button_if_visible(ITEMS_SHOP_TEMPLATE, "items shop button"):
         log_warning("[Items] Failed to open item shop from lobby")
+        save_debug_bundle("trackblazer_item_shop_open_failed", "Item shop button was not found in the lobby")
         return False
 
     if wait_for_image(
@@ -180,6 +182,7 @@ def _open_shop_if_needed():
         return True
 
     log_warning("[Items] Item shop did not open after tapping lobby button")
+    save_debug_bundle("trackblazer_item_shop_open_failed", "Item shop did not open after tapping the lobby button")
     return False
 
 

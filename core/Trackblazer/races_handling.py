@@ -7,7 +7,7 @@ from PIL import ImageStat
 from utils.vision.recognizer import best_match_template, locate_on_screen, match_template, locate_all_on_screen, max_match_confidence
 from utils.inputs.input import tap, triple_click, long_press, tap_on_image, swipe
 from utils.capture.screenshot import take_screenshot
-from utils.capture.debug import save_debug_screenshot
+from utils.capture.debug import save_debug_bundle, save_debug_screenshot
 from utils.vision.template_matching import wait_for_image, deduplicated_matches
 from utils.core.log import log_debug, log_info, log_warning, log_error, log_success
 from utils.core.config_loader import load_main_config
@@ -763,7 +763,7 @@ def after_race():
         time.sleep(0.5)
 
     # Wait for first next button with polling (200ms interval, tap between checks).
-    # If next is found, give close a short 3s grace period to appear first.
+    # If next is found, give close a short 1s grace period to appear first.
     log_debug(f"Waiting for first next button...")
     next_btn = None
     max_attempts = 150  # 30 seconds timeout (150 * 200ms)
@@ -776,7 +776,7 @@ def after_race():
         if next_matches:
             log_info(f"After Race - Found first next button (attempt {attempt + 1})")
             close_tapped = False
-            for _ in range(15):  # 3 seconds at 200ms interval
+            for _ in range(5):  # 1 second at 200ms interval
                 close_matches = match_template(take_screenshot(), "assets/buttons/close.png", confidence=0.7)
                 if close_matches:
                     x, y, w, h = close_matches[0]
@@ -851,41 +851,38 @@ def after_race():
     
     log_info(f"After Race - Post-race actions complete")
 
-def enter_race_selection_screen():
+def enter_race_selection_screen(max_attempts=3):
     """Helper function to enter race selection screen - eliminates duplicate code"""
     log_info(f"Race Select - Entering race selection screen...")
-    
-    # Tap races button
-    if not tap_on_image("assets/buttons/races_btn.png", min_search=10):
-        log_warning(f"Race Select - Failed to find races button")
-        return False
-    
-    time.sleep(0.5)
-    
-    # Try to tap OK button if it appears (optional)
-    ok_clicked = tap_on_image("assets/buttons/ok_btn.png", confidence=0.5, min_search=2)
-    if ok_clicked:
-        log_debug(f"OK button found and clicked")
-        time.sleep(0.5)  # Wait for race list to load
-    else:
-        log_debug(f"OK button not found, proceeding without it")
-        time.sleep(0.5)  # Shorter wait since no OK button
-        # Try to tap OK button if it appears (optional)
-    ok_clicked = tap_on_image("assets/buttons/ok_btn.png", confidence=0.5, min_search=2)
-    if ok_clicked:
-        log_debug(f"OK button found and clicked")
-    else:
-        log_debug(f"OK button not found, proceeding without it")
-    
-    # Wait for race button to appear, indicating the race list is loaded
-    log_debug(f"Waiting for race button to appear (race list loading)...")
-    race_btn = wait_for_image("assets/buttons/race_btn.png", timeout=10)
-    if not race_btn:
-        log_debug(f"Race button not found after 10 seconds, race list may not have loaded")
-        return False
-    
-    log_info(f"Race Select - Race list loaded, ready for selection")
-    return True
+
+    for attempt in range(1, max_attempts + 1):
+        if wait_for_image("assets/buttons/back_btn.png", timeout=1, confidence=0.8, check_interval=0.2):
+            log_info("Race Select - Entry confirmed by Back button")
+            return True
+
+        log_info(f"Race Select - Entry attempt {attempt}/{max_attempts}")
+        if not tap_on_image("assets/buttons/races_btn.png", min_search=10):
+            log_warning(f"Race Select - Failed to find races button on attempt {attempt}/{max_attempts}")
+            continue
+
+        time.sleep(0.5)
+        for _ in range(2):
+            if tap_on_image("assets/buttons/ok_btn.png", confidence=0.5, min_search=2):
+                log_debug("OK button found and clicked")
+            time.sleep(0.5)
+
+        if wait_for_image("assets/buttons/back_btn.png", timeout=5, confidence=0.8, check_interval=0.2):
+            log_info("Race Select - Entry confirmed by Back button")
+            return True
+
+        log_warning(f"Race Select - Back button not visible after entry attempt {attempt}/{max_attempts}")
+
+    log_warning("Race Select - Failed to confirm race selection screen after retries")
+    save_debug_bundle(
+        "trackblazer_race_selection_open_failed",
+        "Race selection Back button was not visible after repeated entry attempts",
+    )
+    return False
 
 def check_and_select_maiden_race():
     """Helper function to check for and select maiden races - eliminates duplicate code"""

@@ -3,6 +3,7 @@ from collections import Counter
 
 from core.Trackblazer.items import load_item_catalog
 from core.Trackblazer.ocr import extract_text
+from utils.capture.debug import save_debug_bundle
 from utils.capture.screenshot import take_screenshot
 from utils.core.log import log_debug, log_info, log_warning
 from utils.inputs.input import tap, perform_swipe, wait_and_tap
@@ -37,7 +38,7 @@ WAIT_AFTER_OPEN_INVENTORY = 0.3
 WAIT_AFTER_ITEM_TAP = 0.2
 WAIT_AFTER_BUTTON_TAP = 0.3
 WAIT_AFTER_CONFIRM_USE = 0.3
-WAIT_AFTER_USE_2 = 0.3
+WAIT_AFTER_USE_2 = 0.9
 WAIT_AFTER_CLOSE = 0.3
 OPEN_INVENTORY_TIMEOUT = 3.0
 OPEN_INVENTORY_CHECK_INTERVAL = 0.1
@@ -178,6 +179,7 @@ def _open_inventory_if_needed():
         threshold=OPEN_INVENTORY_BUTTON_THRESHOLD,
     ):
         log_warning("[Items] Failed to open item inventory from lobby")
+        save_debug_bundle("trackblazer_item_inventory_open_failed", "Item inventory button was not found in the lobby")
         return False
 
     if wait_for_image(
@@ -190,6 +192,7 @@ def _open_inventory_if_needed():
         return True
 
     log_warning("[Items] Item inventory did not open after tapping lobby button")
+    save_debug_bundle("trackblazer_item_inventory_open_failed", "Item inventory did not open after tapping the lobby button")
     return False
 
 

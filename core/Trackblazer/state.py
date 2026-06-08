@@ -6,7 +6,7 @@ from PIL import Image, ImageEnhance
 from utils.capture.screenshot import capture_region, enhanced_screenshot, enhanced_screenshot_for_failure, enhanced_screenshot_for_year, take_screenshot
 from core.Trackblazer.ocr import extract_text, extract_number
 from utils.vision.recognizer import match_template, max_match_confidence
-from core.Trackblazer.skill_auto_purchase import execute_skill_purchases, click_image_button, extract_skill_points
+from core.Trackblazer.skill_auto_purchase import execute_skill_purchases, click_image_button, enter_skill_screen, extract_skill_points
 from core.Trackblazer.skill_recognizer import scan_all_skills_with_scroll, get_skills_api
 from core.Trackblazer.skill_purchase_optimizer import load_skill_config, create_purchase_plan, filter_affordable_skills
 
@@ -263,11 +263,10 @@ def _execute_auto_skill_purchase(screenshot=None, *, force=False, reason="skill 
         available_points = current_skill_points
         log_info(f"[API] Got {len(all_skills)} skills from API (skipping OCR scan)")
     else:
-        entered = click_image_button("assets/buttons/skills_btn.png", "skills button", max_attempts=5)
+        entered = enter_skill_screen()
         if not entered:
             log_error(f"Could not find/open skills screen")
             return False
-        time.sleep(1.0)
 
         scan_result = scan_all_skills_with_scroll()
         if 'error' in scan_result:
@@ -312,11 +311,10 @@ def _execute_auto_skill_purchase(screenshot=None, *, force=False, reason="skill 
         return False
 
     if _api_on:
-        entered = click_image_button("assets/buttons/skills_btn.png", "skills button", max_attempts=5)
+        entered = enter_skill_screen()
         if not entered:
             log_error(f"Could not find/open skills screen")
             return False
-        time.sleep(1.0)
 
     exec_result = execute_skill_purchases(final_plan, reset_to_top=not _api_on)
     if not exec_result.get('success'):

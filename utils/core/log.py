@@ -1,7 +1,9 @@
 import os
 import sys
 import logging
+from collections import deque
 from datetime import datetime
+from threading import Lock
 from utils.core.config_loader import load_main_config
 
 # Load DEBUG_MODE once; fallback to False on error
@@ -15,6 +17,27 @@ logger.setLevel(logging.DEBUG if DEBUG_MODE else logging.INFO)
 # Prevent duplicate messages by disabling propagation to root logger
 logger.propagate = False
 
+_recent_log_lines = deque(maxlen=1000)
+_recent_log_lock = Lock()
+
+
+class _RecentLogHandler(logging.Handler):
+    """Keep timestamped log lines available for diagnostic bundles."""
+
+    def emit(self, record):
+        try:
+            timestamp = datetime.fromtimestamp(record.created).astimezone().isoformat(timespec="milliseconds")
+            message_lines = record.getMessage().splitlines() or [""]
+            with _recent_log_lock:
+                for line in message_lines:
+                    _recent_log_lines.append({
+                        "timestamp": timestamp,
+                        "level": record.levelname,
+                        "message": line,
+                    })
+        except Exception:
+            self.handleError(record)
+
 # Create console handler if not already exists
 if not logger.handlers:
     console_handler = logging.StreamHandler(sys.stdout)
@@ -25,6 +48,20 @@ if not logger.handlers:
     console_handler.setFormatter(formatter)
     
     logger.addHandler(console_handler)
+
+if not any(isinstance(handler, _RecentLogHandler) for handler in logger.handlers):
+    recent_log_handler = _RecentLogHandler()
+    recent_log_handler.setLevel(logging.DEBUG if DEBUG_MODE else logging.INFO)
+    logger.addHandler(recent_log_handler)
+
+
+def get_recent_log_lines(limit=100):
+    """Return a copy of the latest timestamped log lines."""
+    safe_limit = max(0, int(limit))
+    with _recent_log_lock:
+        if safe_limit == 0:
+            return []
+        return [dict(entry) for entry in list(_recent_log_lines)[-safe_limit:]]
 
 def safe_encode_message(message):
     """Safely encode message to handle Unicode errors"""

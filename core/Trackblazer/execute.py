@@ -700,12 +700,21 @@ def career_lobby(timeout=None):
         _freeze_same_since = None
         log_debug(f"Confirmed in career lobby")
         _watchdog_reset_restart_count_if_stable()
-        time.sleep(1.0)
+        time.sleep(1.5)
         # Take a fresh screenshot after confirming lobby to ensure stable UI state
         log_debug(f"Taking fresh screenshot after lobby confirmation...")
         screenshot = take_screenshot()
 
-        # A close button can appear after the Tazuna hint confirms the lobby.
+        # Lobby popups can appear after the Tazuna hint confirms the lobby.
+        cancel_matches = match_template(screenshot, "assets/buttons/cancel_lobby.png", confidence=0.8)
+        if cancel_matches:
+            x, y, w, h = cancel_matches[0]
+            center = (x + w//2, y + h//2)
+            log_info(f"Cancel button appeared after lobby confirmation, clicking it.")
+            tap(center[0], center[1])
+            time.sleep(LOBBY_PRE_TURN_TAP_DELAY)
+            continue
+
         close_matches = match_template(screenshot, "assets/buttons/close.png", confidence=0.8)
         if close_matches:
             x, y, w, h = close_matches[0]
