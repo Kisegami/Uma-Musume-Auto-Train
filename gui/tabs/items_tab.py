@@ -465,16 +465,21 @@ class ItemsTab(QScrollArea):
         self.training_buff_period_rainbow_override_threshold.setFixedWidth(58)
         self.training_buff_period_rainbow_override_threshold.valueChanged.connect(self._save_items_config)
         buff_layout.addWidget(self.training_buff_period_rainbow_override_threshold, 5, 1)
+        self.training_buff_late_senior_rainbow_requirement_one = QCheckBox(
+            "After Senior Summer and during TS Climax, reduce all training rainbow requirements to 1"
+        )
+        self.training_buff_late_senior_rainbow_requirement_one.stateChanged.connect(self._save_items_config)
+        buff_layout.addWidget(self.training_buff_late_senior_rainbow_requirement_one, 6, 0, 1, 2)
         self.training_buff_highest_rainbow_override_enabled = QCheckBox(
             "Use highest value megaphone when rainbows are at least:"
         )
         self.training_buff_highest_rainbow_override_enabled.stateChanged.connect(self._save_items_config)
-        buff_layout.addWidget(self.training_buff_highest_rainbow_override_enabled, 6, 0)
+        buff_layout.addWidget(self.training_buff_highest_rainbow_override_enabled, 7, 0)
         self.training_buff_highest_rainbow_override_threshold = QSpinBox()
         self.training_buff_highest_rainbow_override_threshold.setRange(0, 6)
         self.training_buff_highest_rainbow_override_threshold.setFixedWidth(58)
         self.training_buff_highest_rainbow_override_threshold.valueChanged.connect(self._save_items_config)
-        buff_layout.addWidget(self.training_buff_highest_rainbow_override_threshold, 6, 1)
+        buff_layout.addWidget(self.training_buff_highest_rainbow_override_threshold, 7, 1)
         layout.addWidget(buff_group)
 
         level_group = QGroupBox("Training Level Items")
@@ -657,6 +662,7 @@ class ItemsTab(QScrollArea):
         items_config["training_buff_period"] = items_config["training_buff_periods"][0]
         items_config["training_buff_period_rainbow_override_enabled"] = self.training_buff_period_rainbow_override_enabled.isChecked()
         items_config["training_buff_period_rainbow_override_threshold"] = self.training_buff_period_rainbow_override_threshold.value()
+        items_config["training_buff_late_senior_rainbow_requirement_one"] = self.training_buff_late_senior_rainbow_requirement_one.isChecked()
         items_config["training_buff_highest_rainbow_override_enabled"] = self.training_buff_highest_rainbow_override_enabled.isChecked()
         items_config["training_buff_highest_rainbow_override_threshold"] = self.training_buff_highest_rainbow_override_threshold.value()
         items_config["enable_training_level_items"] = self.enable_training_level_items.isChecked()
@@ -732,6 +738,9 @@ class ItemsTab(QScrollArea):
         )
         self.training_buff_period_rainbow_override_threshold.setValue(
             int(items_config.get("training_buff_period_rainbow_override_threshold", 2))
+        )
+        self.training_buff_late_senior_rainbow_requirement_one.setChecked(
+            bool(items_config.get("training_buff_late_senior_rainbow_requirement_one", False))
         )
         self.training_buff_highest_rainbow_override_enabled.setChecked(
             bool(items_config.get("training_buff_highest_rainbow_override_enabled", False))

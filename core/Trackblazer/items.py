@@ -47,6 +47,7 @@ DEFAULT_ITEM_SETTINGS = {
     "training_buff_periods": ["any_time"],
     "training_buff_period_rainbow_override_enabled": False,
     "training_buff_period_rainbow_override_threshold": 2,
+    "training_buff_late_senior_rainbow_requirement_one": False,
     "training_buff_highest_rainbow_override_enabled": False,
     "training_buff_highest_rainbow_override_threshold": 3,
     "enable_training_level_items": False,
@@ -410,6 +411,12 @@ def _count_rainbow_supports(training_type, training_result):
 
 
 def _get_training_buff_rainbow_threshold(settings, training_type, year):
+    if (
+        bool(settings.get("training_buff_late_senior_rainbow_requirement_one", False))
+        and _is_after_senior_summer_or_ts_climax(year)
+    ):
+        return 1
+
     period_key = "summer" if _is_summer_period(year) else "normal"
     thresholds = settings.get("training_buff_rainbow_thresholds", {})
     period_thresholds = thresholds.get(period_key, {}) if isinstance(thresholds, dict) else {}
