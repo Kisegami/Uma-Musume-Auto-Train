@@ -16,6 +16,7 @@ ITEM_PICK_TEMPLATE = "assets/trackblazer/item_pick.png"
 CONFIRM_TEMPLATE = "assets/buttons/confirm.png"
 CLOSE_TEMPLATE = "assets/buttons/close.png"
 BACK_TEMPLATE = "assets/buttons/back_btn.png"
+LOBBY_TEMPLATE = "assets/ui/tazuna_hint.png"
 
 BUTTON_THRESHOLD = 0.80
 ITEM_PICK_THRESHOLD = 0.80
@@ -41,6 +42,9 @@ WAIT_AFTER_BACK = 0.3
 OPEN_SHOP_TIMEOUT = 3.0
 OPEN_SHOP_CHECK_INTERVAL = 0.1
 SHOP_SETTLE_AFTER_OPEN = 0.5
+LOBBY_CONFIRM_TIMEOUT = 3.0
+LOBBY_CONFIRM_CHECK_INTERVAL = 0.2
+SHOP_EXIT_MAX_ATTEMPTS = 3
 
 
 def _locate_template_fullscreen(template_path, threshold):
@@ -183,6 +187,7 @@ def _open_shop_if_needed():
 
     log_warning("[Items] Item shop did not open after tapping lobby button")
     save_debug_bundle("trackblazer_item_shop_open_failed", "Item shop did not open after tapping the lobby button")
+    _close_shop_after_purchase(confirm_used=False)
     return False
 
 
@@ -209,11 +214,38 @@ def _close_shop_after_purchase(confirm_used):
         else:
             log_warning("[Items] Close button not found after confirm")
 
-    if _tap_button_if_visible(BACK_TEMPLATE, "back button", attempts=10):
-        time.sleep(WAIT_AFTER_BACK)
-        return
+    for attempt in range(1, SHOP_EXIT_MAX_ATTEMPTS + 1):
+        if wait_for_image(
+            LOBBY_TEMPLATE,
+            timeout=LOBBY_CONFIRM_CHECK_INTERVAL,
+            confidence=0.9,
+            check_interval=LOBBY_CONFIRM_CHECK_INTERVAL,
+        ):
+            log_debug("[Items] Lobby already visible while exiting shop")
+            return True
 
-    log_warning("[Items] Back button not found while exiting shop")
+        if not _tap_button_if_visible(BACK_TEMPLATE, "back button", attempts=10):
+            log_warning(f"[Items] Back button not found while exiting shop ({attempt}/{SHOP_EXIT_MAX_ATTEMPTS})")
+            continue
+
+        time.sleep(WAIT_AFTER_BACK)
+        if wait_for_image(
+            LOBBY_TEMPLATE,
+            timeout=LOBBY_CONFIRM_TIMEOUT,
+            confidence=0.9,
+            check_interval=LOBBY_CONFIRM_CHECK_INTERVAL,
+        ):
+            log_info("[Items] Confirmed lobby after exiting shop")
+            return True
+
+        log_warning(f"[Items] Lobby not confirmed after shop Back tap ({attempt}/{SHOP_EXIT_MAX_ATTEMPTS})")
+
+    log_warning("[Items] Failed to return to lobby after exiting shop")
+    save_debug_bundle(
+        "trackblazer_item_shop_exit_failed",
+        "Career lobby was not confirmed after repeated shop Back taps",
+    )
+    return False
 
 
 def execute_item_purchase_plan(purchase_actions, config):

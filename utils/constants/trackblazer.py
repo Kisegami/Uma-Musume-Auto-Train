@@ -69,7 +69,7 @@ TRACKBLAZER_TEMPLATE_REGIONS = {
     "assets/buttons/skip_btn.png": (890, 1715, 180, 172),
     "assets/buttons/strategy_change.png": (702, 1038, 299, 147),
     "assets/buttons/training_btn.png": (388, 1501, 298, 59),
-    "assets/buttons/try_again.png": (507, 1259, 537, 222),
+    "assets/buttons/try_again.png": (543, 1681, 492, 183),
     "assets/buttons/view_results.png": (199, 1672, 353, 207),
     "assets/icons/clock.png": (225, 1035, 210, 211),
     "assets/icons/end.png": (640, 950, 440, 140),
@@ -85,6 +85,7 @@ TRACKBLAZER_TEMPLATE_REGIONS = {
     "assets/trackblazer/item_use_2.png": (533, 1695, 498, 159),
     "assets/trackblazer/items_inventory.png": (741, 1092, 175, 250),
     "assets/trackblazer/items_shop.png": (421, 1586, 587, 226),
+    "assets/trackblazer/mant_clock.png": (69, 1687, 477, 165),
     "assets/trackblazer/race_ts_climax.png": (362, 1504, 241, 162),
     "assets/ui/tazuna_hint.png": (902, 231, 156, 170),
 }

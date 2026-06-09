@@ -45,6 +45,40 @@ GRADE_OFFSET = (-118, -115, 93, 69)  # x, y, width, height
 OCR_OFFSET = (1, -129, 513, 48)  # x, y, width, height
 CUSTOM_RACE_TEMPLATE_REGION = (0, 1000, 369, 543)
 CUSTOM_RACE_TEMPLATE_CONFIDENCE = 0.6
+MANT_CLOCK_TEMPLATE = "assets/trackblazer/mant_clock.png"
+TRY_AGAIN_TEMPLATE = "assets/buttons/try_again.png"
+VIEW_RESULTS_TEMPLATE = "assets/buttons/view_results.png"
+
+
+def _get_mant_clock_retry_settings():
+    """Return whether completed races should be replayed and the per-race limit."""
+    try:
+        racing = _load_config().get("racing", {})
+        enabled = bool(racing.get("use_clock_to_retry_race", False))
+        max_retries = max(0, int(racing.get("max_clock_per_race", 1)))
+        return enabled, max_retries
+    except (TypeError, ValueError):
+        return False, 0
+
+
+def _restart_race_with_mant_clock(clock_location):
+    """Tap the completed-race MANT clock and start the race again."""
+    log_info("After Race - Using MANT clock to retry race")
+    tap(clock_location[0], clock_location[1])
+    time.sleep(0.5)
+
+    try_again = wait_for_image(TRY_AGAIN_TEMPLATE, timeout=10, confidence=0.8, check_interval=0.2)
+    if not try_again:
+        log_warning("After Race - Try Again button not found after tapping MANT clock")
+        return False
+    tap(try_again[0], try_again[1])
+
+    if not wait_for_image(VIEW_RESULTS_TEMPLATE, timeout=20, confidence=0.8, check_interval=0.2):
+        log_warning("After Race - View Results button not found after MANT clock retry")
+        return False
+
+    race_prep()
+    return True
 
 def is_racing_available(year):
     """Check if racing is available based on the current year/month"""
@@ -759,6 +793,21 @@ def handle_race_retry_if_failed():
 def after_race():
     """Handle post-race actions"""
     log_info(f"After Race - Handling post-race actions...")
+    use_mant_clock, max_clock_per_race = _get_mant_clock_retry_settings()
+    clocks_used = 0
+
+    while True:
+        if _handle_after_race_once(use_mant_clock, clocks_used, max_clock_per_race):
+            clocks_used += 1
+            log_info(f"After Race - MANT clock retry {clocks_used}/{max_clock_per_race} started")
+            continue
+        break
+
+    log_info(f"After Race - Post-race actions complete")
+
+
+def _handle_after_race_once(use_mant_clock, clocks_used, max_clock_per_race):
+    """Handle one completed race. Return True when a MANT clock replay starts."""
 
     # Trackblazer may show close before next, but don't block on it.
     log_debug(f"Checking for close button before next-button handling...")
@@ -821,9 +870,19 @@ def after_race():
     # Wait for second next button with polling and spam tap until it appears
     log_debug(f"Waiting for second next button (spam tapping)...")
     next2_btn = None
+    mant_clock_attempted = False
     
     for attempt in range(max_attempts):
         screenshot = take_screenshot()
+
+        if use_mant_clock and clocks_used < max_clock_per_race and not mant_clock_attempted:
+            mant_clock_matches = match_template(screenshot, MANT_CLOCK_TEMPLATE, confidence=0.8)
+            if mant_clock_matches:
+                mant_clock_attempted = True
+                x, y, w, h = mant_clock_matches[0]
+                if _restart_race_with_mant_clock((x + w//2, y + h//2)):
+                    return True
+                log_warning("After Race - MANT clock retry failed; continuing normally")
         
         # Check for second next button
         next2_matches = match_template(screenshot, "assets/buttons/next2_btn.png", confidence=0.7)
@@ -855,8 +914,7 @@ def after_race():
     
     if not next2_btn:
         log_warning(f"After Race - Second next button not found after {max_attempts} attempts")
-    
-    log_info(f"After Race - Post-race actions complete")
+    return False
 
 def enter_race_selection_screen(max_attempts=3):
     """Helper function to enter race selection screen - eliminates duplicate code"""
