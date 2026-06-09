@@ -172,7 +172,13 @@ def click_skill_up_button(x, y):
         log_error(f"Error clicking button: {e}")
         return False
 
-def click_image_button(image_path, description="button", max_attempts=10, wait_between_attempts=0.5):
+def click_image_button(
+    image_path,
+    description="button",
+    max_attempts=10,
+    wait_between_attempts=0.5,
+    tap_offset=(0, 0),
+):
     """
     Find and click a button by image template matching with retry attempts.
     
@@ -181,6 +187,7 @@ def click_image_button(image_path, description="button", max_attempts=10, wait_b
         description: Description for logging
         max_attempts: Maximum number of attempts to find the button
         wait_between_attempts: Seconds to wait between attempts
+        tap_offset: Pixel offset applied to the detected button center
     
     Returns:
         bool: True if button was found and clicked, False otherwise
@@ -193,7 +200,9 @@ def click_image_button(image_path, description="button", max_attempts=10, wait_b
                 location = locate_on_screen(image_path, confidence=0.8)
 
                 if location:
-                    success = click_skill_up_button(location[0], location[1])
+                    tap_x = location[0] + tap_offset[0]
+                    tap_y = location[1] + tap_offset[1]
+                    success = click_skill_up_button(tap_x, tap_y)
                     if success:
                         log_info(f"{description} clicked successfully (attempt {attempt + 1}")
                         return True
@@ -229,7 +238,8 @@ def enter_skill_screen(end_career=False, max_attempts=3):
 
     for attempt in range(1, max_attempts + 1):
         log_info(f"Skill Screen - Entry attempt {attempt}/{max_attempts}")
-        if not click_image_button(skill_button, "skills button", max_attempts=5):
+        tap_offset = (0, -10) if not end_career else (0, 0)
+        if not click_image_button(skill_button, "skills button", max_attempts=5, tap_offset=tap_offset):
             continue
 
         if wait_for_image("assets/buttons/back_btn.png", timeout=3, confidence=0.8, check_interval=0.2):

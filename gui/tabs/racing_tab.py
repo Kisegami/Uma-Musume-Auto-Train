@@ -122,11 +122,6 @@ class RacingTab(QScrollArea):
         self.stop_on_race_fail.setVisible(True)
         settings_layout.addWidget(self.stop_on_race_fail)
 
-        # Replay every completed Trackblazer race using the MANT clock.
-        self.use_clock_to_retry_race = QCheckBox("Use MANT Clock to retry every race")
-        self.use_clock_to_retry_race.stateChanged.connect(self._on_mant_clock_retry_changed)
-        settings_layout.addWidget(self.use_clock_to_retry_race)
-
         self.max_clock_widget = QWidget()
         max_clock_layout = QHBoxLayout(self.max_clock_widget)
         max_clock_layout.setContentsMargins(18, 0, 0, 0)
@@ -213,12 +208,13 @@ class RacingTab(QScrollArea):
             self.buy_clock_carats.setChecked(False)
         else:
             self.stop_on_race_fail.setChecked(False)
+        self._update_max_clock_visibility()
         self._save_racing()
 
-    def _on_mant_clock_retry_changed(self, state):
-        """Toggle the completed-race MANT clock retry limit."""
-        self.max_clock_widget.setVisible(state == Qt.CheckState.Checked.value)
-        self._save_racing()
+    def _update_max_clock_visibility(self):
+        """Show the per-race clock limit only for enabled Trackblazer retries."""
+        is_trackblazer = self.main_window.get_config().get("mode") == "trackblazer"
+        self.max_clock_widget.setVisible(is_trackblazer and self.retry_race.isChecked())
     
     def _load_custom_race_templates(self):
         """Load available custom race templates"""
@@ -279,14 +275,11 @@ class RacingTab(QScrollArea):
         self.stop_on_race_fail.setVisible(not self.retry_race.isChecked())
         self.stop_on_race_fail.blockSignals(False)
 
-        # Completed-race MANT clock retry
-        self.use_clock_to_retry_race.blockSignals(True)
-        self.use_clock_to_retry_race.setChecked(racing.get("use_clock_to_retry_race", False))
-        self.use_clock_to_retry_race.blockSignals(False)
+        # Trackblazer completed-race clock retry limit
         self.max_clock_per_race.blockSignals(True)
         self.max_clock_per_race.setValue(racing.get("max_clock_per_race", 1))
         self.max_clock_per_race.blockSignals(False)
-        self.max_clock_widget.setVisible(self.use_clock_to_retry_race.isChecked())
+        self._update_max_clock_visibility()
         
         # Custom race
         self.do_custom_race.blockSignals(True)
@@ -328,7 +321,6 @@ class RacingTab(QScrollArea):
         config["racing"]["retry_race"] = self.retry_race.isChecked()
         config["racing"]["buy_clock_carats"] = self.buy_clock_carats.isChecked()
         config["racing"]["stop_on_race_fail"] = self.stop_on_race_fail.isChecked()
-        config["racing"]["use_clock_to_retry_race"] = self.use_clock_to_retry_race.isChecked()
         config["racing"]["max_clock_per_race"] = self.max_clock_per_race.value()
         config["racing"]["do_custom_race"] = self.do_custom_race.isChecked()
         config["racing"]["custom_race_file"] = f"template/races/{self.custom_file_combo.currentText()}"

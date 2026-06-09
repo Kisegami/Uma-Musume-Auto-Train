@@ -381,7 +381,6 @@ class MainWindow(QMainWindow):
                 "strategy": "FRONT",
                 "retry_race": True,
                 "stop_on_race_fail": True,
-                "use_clock_to_retry_race": False,
                 "max_clock_per_race": 1,
                 "custom_race_search_method": "ocr",
             },

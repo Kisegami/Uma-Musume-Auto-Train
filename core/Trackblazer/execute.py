@@ -69,6 +69,24 @@ DEBUG_MODE = config.get("debug_mode", False)
 RETRY_RACE = racing_config_section.get("retry_race", config.get("retry_race", True))
 _skip_infirmary_check_once = False
 LOBBY_PRE_TURN_TAP_DELAY = 0.5
+ACTION_LOBBY_DEPARTURE_TIMEOUT = 15.0
+ACTION_LOBBY_DEPARTURE_CHECK_INTERVAL = 0.2
+_pending_action_lobby_departure = None
+_pending_action_lobby_departure_started_at = None
+
+
+def _arm_action_lobby_departure(action_name):
+    """Prevent the current lobby frame from being mistaken for the next turn."""
+    global _pending_action_lobby_departure, _pending_action_lobby_departure_started_at
+    _pending_action_lobby_departure = action_name
+    _pending_action_lobby_departure_started_at = time.time()
+    log_debug(f"Waiting for lobby to disappear after {action_name}")
+
+
+def _clear_action_lobby_departure():
+    global _pending_action_lobby_departure, _pending_action_lobby_departure_started_at
+    _pending_action_lobby_departure = None
+    _pending_action_lobby_departure_started_at = None
 
 
 def _load_item_runtime_data():
@@ -387,6 +405,7 @@ def do_rest():
         log_info(f"Clicking rest button at {rest_btn}")
         from utils.inputs.input import tap
         tap(rest_btn[0], rest_btn[1])
+        _arm_action_lobby_departure("rest")
         log_debug(f"Clicked rest button")
         log_info(f"Rest button clicked")
     elif rest_summer_btn:
@@ -394,12 +413,12 @@ def do_rest():
         log_info(f"Clicking summer rest button at {rest_summer_btn}")
         from utils.inputs.input import tap
         tap(rest_summer_btn[0], rest_summer_btn[1])
+        _arm_action_lobby_departure("summer rest")
         log_debug(f"Clicked summer rest button")
         log_info(f"Summer rest button clicked")
     else:
         log_debug(f"No rest button found in lobby")
         log_warning(f"No rest button found in lobby")
-    time.sleep(3)
 
 def do_recreation():
     """Perform recreation action"""
@@ -410,10 +429,12 @@ def do_recreation():
     if recreation_btn:
         log_debug(f"Found recreation button at {recreation_btn}")
         tap(recreation_btn[0], recreation_btn[1])
+        _arm_action_lobby_departure("recreation")
         log_debug(f"Clicked recreation button")
     elif recreation_summer_btn:
         log_debug(f"Found summer recreation button at {recreation_summer_btn}")
         tap(recreation_summer_btn[0], recreation_summer_btn[1])
+        _arm_action_lobby_departure("summer recreation")
         log_debug(f"Clicked summer recreation button")
     else:
         log_debug(f"No recreation button found")
@@ -424,6 +445,8 @@ def career_lobby(timeout=None):
         timeout: Optional timeout in seconds. If set, the loop exits after
                  this duration instead of running forever. Used by ui_check().
     """
+    global _pending_action_lobby_departure, _pending_action_lobby_departure_started_at
+
     # Use existing config loaded at module level
     MINIMUM_MOOD = training_config_section.get("minimum_mood", config.get("minimum_mood", "GREAT"))
     # Track last day we attempted a custom race but failed, to avoid re-checking within same day
@@ -511,6 +534,26 @@ def career_lobby(timeout=None):
         ]
         batch_results = match_templates_batch(screenshot, lobby_template_specs)
         # ──────────────────────────────────────────────────────────────
+
+        # Rest/recreation starts asynchronously. Ignore the old lobby frame until
+        # Tazuna disappears, otherwise API status and item actions can run while
+        # the turn-result animation is still loading.
+        if _pending_action_lobby_departure:
+            if batch_results["assets/ui/tazuna_hint.png"]:
+                departure_wait = time.time() - _pending_action_lobby_departure_started_at
+                if departure_wait < ACTION_LOBBY_DEPARTURE_TIMEOUT:
+                    time.sleep(ACTION_LOBBY_DEPARTURE_CHECK_INTERVAL)
+                    continue
+
+                log_warning(
+                    f"Lobby did not disappear within {ACTION_LOBBY_DEPARTURE_TIMEOUT:.0f}s "
+                    f"after {_pending_action_lobby_departure}; assuming the tap did not register"
+                )
+                _clear_action_lobby_departure()
+                continue
+
+            log_debug(f"Lobby disappeared after {_pending_action_lobby_departure}; waiting for next lobby")
+            _clear_action_lobby_departure()
 
         # 1. Check for career restart (highest priority)
         log_debug(f"Quick check for Complete Career screen...")

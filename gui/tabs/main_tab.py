@@ -272,6 +272,8 @@ class MainTab(QScrollArea):
             self.main_window.training_page._load_training_score_config()
         if hasattr(self.main_window, '_update_mode_dependent_navigation'):
             self.main_window._update_mode_dependent_navigation()
+        if hasattr(self.main_window, 'racing_page'):
+            self.main_window.racing_page.load_config()
         if hasattr(self.main_window, 'event_page'):
             self.main_window.event_page.sync_scenario_with_mode()
     

@@ -16,6 +16,7 @@ ITEM_USE_TEMPLATE = "assets/buttons/skill_up.png"
 ITEM_CONFIRM_USE_TEMPLATE = "assets/trackblazer/item_confirm_use.png"
 ITEM_USE_2_TEMPLATE = "assets/trackblazer/item_use_2.png"
 CLOSE_TEMPLATE = "assets/buttons/close.png"
+LOBBY_TEMPLATE = "assets/ui/tazuna_hint.png"
 
 ITEM_USE_THRESHOLD = 0.80
 ITEM_USE_DEDUP_DISTANCE = 30
@@ -44,6 +45,9 @@ OPEN_INVENTORY_TIMEOUT = 3.0
 OPEN_INVENTORY_CHECK_INTERVAL = 0.1
 CLEAR_INVENTORY_SETTLE_AFTER_OPEN = 0.5
 CLOSE_BUTTON_TIMEOUT = 10.0
+LOBBY_CONFIRM_TIMEOUT = 3.0
+LOBBY_CONFIRM_CHECK_INTERVAL = 0.2
+INVENTORY_EXIT_MAX_ATTEMPTS = 3
 
 
 def _locate_template_fullscreen(template_path, threshold):
@@ -196,6 +200,42 @@ def _open_inventory_if_needed():
     return False
 
 
+def _close_inventory_and_confirm_lobby():
+    # Item use can leave a result dialog over the inventory, with Close on both layers.
+    for attempt in range(1, INVENTORY_EXIT_MAX_ATTEMPTS + 1):
+        if wait_for_image(
+            LOBBY_TEMPLATE,
+            timeout=LOBBY_CONFIRM_CHECK_INTERVAL,
+            confidence=0.9,
+            check_interval=LOBBY_CONFIRM_CHECK_INTERVAL,
+        ):
+            log_debug("[Items] Lobby already visible while exiting inventory")
+            return True
+
+        if not _tap_button_if_visible(CLOSE_TEMPLATE, "close button", attempts=15):
+            log_warning(f"[Items] Close button not found while exiting inventory ({attempt}/{INVENTORY_EXIT_MAX_ATTEMPTS})")
+            continue
+
+        time.sleep(WAIT_AFTER_CLOSE)
+        if wait_for_image(
+            LOBBY_TEMPLATE,
+            timeout=LOBBY_CONFIRM_TIMEOUT,
+            confidence=0.9,
+            check_interval=LOBBY_CONFIRM_CHECK_INTERVAL,
+        ):
+            log_info("[Items] Confirmed lobby after exiting inventory")
+            return True
+
+        log_warning(f"[Items] Lobby not confirmed after inventory Close tap ({attempt}/{INVENTORY_EXIT_MAX_ATTEMPTS})")
+
+    log_warning("[Items] Failed to return to lobby after exiting inventory")
+    save_debug_bundle(
+        "trackblazer_item_inventory_exit_failed",
+        "Career lobby was not confirmed after repeated inventory Close taps",
+    )
+    return False
+
+
 def _swipe_inventory_once():
     time.sleep(USE_WAIT_BEFORE_SWIPE)
     result = perform_swipe(
@@ -263,26 +303,22 @@ def execute_item_usage_plan(usage_actions):
 
     if sum(selected_counts.values()) <= 0:
         log_info("[Items] No usable targets were found in inventory scan")
-        _tap_button_if_visible(CLOSE_TEMPLATE, "close button", attempts=10)
+        _close_inventory_and_confirm_lobby()
         return []
 
     if not _tap_button_if_visible(ITEM_CONFIRM_USE_TEMPLATE, "item confirm use button", attempts=15):
         log_warning("[Items] Confirm-use button not found after selecting items")
-        _tap_button_if_visible(CLOSE_TEMPLATE, "close button", attempts=10)
+        _close_inventory_and_confirm_lobby()
         return []
 
     time.sleep(WAIT_AFTER_CONFIRM_USE)
     if not _tap_button_if_visible(ITEM_USE_2_TEMPLATE, "item use 2 button", attempts=15):
         log_warning("[Items] item_use_2 button not found after confirm-use")
-        _tap_button_if_visible(CLOSE_TEMPLATE, "close button", attempts=10)
+        _close_inventory_and_confirm_lobby()
         return []
 
     time.sleep(WAIT_AFTER_USE_2)
-    if not _tap_button_if_visible(CLOSE_TEMPLATE, "close button", attempts=15):
-        log_warning("[Items] Close button not found after item use")
-        return []
-
-    time.sleep(WAIT_AFTER_CLOSE)
+    _close_inventory_and_confirm_lobby()
 
     for normalized_name, quantity in selected_counts.items():
         action = action_lookup.get(normalized_name)

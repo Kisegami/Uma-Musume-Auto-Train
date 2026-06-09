@@ -48,35 +48,60 @@ CUSTOM_RACE_TEMPLATE_CONFIDENCE = 0.6
 MANT_CLOCK_TEMPLATE = "assets/trackblazer/mant_clock.png"
 TRY_AGAIN_TEMPLATE = "assets/buttons/try_again.png"
 VIEW_RESULTS_TEMPLATE = "assets/buttons/view_results.png"
+MANT_CLOCK_ENABLED_MIN_BRIGHTNESS = 180.0
 
 
 def _get_mant_clock_retry_settings():
     """Return whether completed races should be replayed and the per-race limit."""
     try:
         racing = _load_config().get("racing", {})
-        enabled = bool(racing.get("use_clock_to_retry_race", False))
+        enabled = bool(racing.get("retry_race", True))
         max_retries = max(0, int(racing.get("max_clock_per_race", 1)))
         return enabled, max_retries
     except (TypeError, ValueError):
         return False, 0
 
 
+def _is_mant_clock_enabled(screenshot, clock_match):
+    """Reject the greyed-out MANT clock button using its average brightness."""
+    x, y, w, h = (int(value) for value in clock_match)
+    clock_crop = screenshot.crop((x, y, x + w, y + h)).convert("L")
+    brightness = ImageStat.Stat(clock_crop).mean[0]
+    enabled = brightness >= MANT_CLOCK_ENABLED_MIN_BRIGHTNESS
+    log_info(
+        f"After Race - MANT clock brightness={brightness:.1f} "
+        f"(required={MANT_CLOCK_ENABLED_MIN_BRIGHTNESS:.1f}, "
+        f"{'enabled' if enabled else 'greyed out'})"
+    )
+    return enabled
+
+
 def _restart_race_with_mant_clock(clock_location):
     """Tap the completed-race MANT clock and start the race again."""
-    log_info("After Race - Using MANT clock to retry race")
+    log_info(f"After Race - Using MANT clock to retry race at {clock_location}")
     tap(clock_location[0], clock_location[1])
     time.sleep(0.5)
 
     try_again = wait_for_image(TRY_AGAIN_TEMPLATE, timeout=10, confidence=0.8, check_interval=0.2)
     if not try_again:
         log_warning("After Race - Try Again button not found after tapping MANT clock")
+        save_debug_bundle(
+            "trackblazer_mant_clock_try_again_missing",
+            f"Try Again was not found after tapping MANT clock at {clock_location}",
+        )
         return False
+    log_info(f"After Race - Found Try Again at {try_again}, tapping it")
     tap(try_again[0], try_again[1])
 
     if not wait_for_image(VIEW_RESULTS_TEMPLATE, timeout=20, confidence=0.8, check_interval=0.2):
         log_warning("After Race - View Results button not found after MANT clock retry")
+        save_debug_bundle(
+            "trackblazer_mant_clock_view_results_missing",
+            f"View Results was not found after tapping Try Again at {try_again}",
+        )
         return False
 
+    log_info("After Race - View Results appeared after MANT clock retry")
     race_prep()
     return True
 
@@ -822,6 +847,7 @@ def _handle_after_race_once(use_mant_clock, clocks_used, max_clock_per_race):
     # If next is found, give close a short 1s grace period to appear first.
     log_debug(f"Waiting for first next button...")
     next_btn = None
+    mant_clock_attempted = False
     max_attempts = 150  # 30 seconds timeout (150 * 200ms)
     
     for attempt in range(max_attempts):
@@ -846,8 +872,66 @@ def _handle_after_race_once(use_mant_clock, clocks_used, max_clock_per_race):
             if close_tapped:
                 continue
 
-            x, y, w, h = next_matches[0]
+            current_screenshot = screenshot
+            if use_mant_clock and clocks_used < max_clock_per_race and not mant_clock_attempted:
+                mant_clock_matches = []
+                mant_clock_greyed_out = False
+                for clock_attempt in range(5):
+                    current_screenshot = take_screenshot()
+                    mant_clock_matches = match_template(current_screenshot, MANT_CLOCK_TEMPLATE, confidence=0.8)
+                    if mant_clock_matches:
+                        if _is_mant_clock_enabled(current_screenshot, mant_clock_matches[0]):
+                            break
+                        log_info("After Race - Ignoring greyed-out MANT clock and continuing normally")
+                        mant_clock_matches = []
+                        mant_clock_greyed_out = True
+                        mant_clock_attempted = True
+                        break
+                    if clock_attempt < 4:
+                        time.sleep(0.2)
+
+                mant_clock_attempted = True
+                if mant_clock_matches:
+                    x, y, w, h = mant_clock_matches[0]
+                    clock_location = (x + w//2, y + h//2)
+                    log_info(
+                        f"After Race - Found MANT clock before first Next at {clock_location} "
+                        f"({clocks_used + 1}/{max_clock_per_race})"
+                    )
+                    if _restart_race_with_mant_clock(clock_location):
+                        return True
+                    log_warning("After Race - MANT clock retry failed; continuing with first Next")
+                    save_debug_bundle(
+                        "trackblazer_mant_clock_retry_failed",
+                        "MANT clock was detected before first Next, but the retry flow failed",
+                        screenshot=current_screenshot,
+                    )
+                    current_screenshot = take_screenshot()
+                elif not mant_clock_greyed_out:
+                    confidence = max_match_confidence(current_screenshot, MANT_CLOCK_TEMPLATE)
+                    log_debug(
+                        f"After Race - First Next found but MANT clock not detected "
+                        f"(confidence={confidence:.3f}, required=0.800)"
+                    )
+                    save_debug_bundle(
+                        "trackblazer_mant_clock_not_found_before_first_next",
+                        (
+                            "Race retry is enabled, but MANT clock was not detected before First Next "
+                            f"(confidence={confidence:.3f}, required=0.800)"
+                        ),
+                        screenshot=current_screenshot,
+                    )
+
+            current_next_matches = match_template(
+                current_screenshot, "assets/buttons/next_btn.png", confidence=0.7
+            )
+            if not current_next_matches:
+                log_debug("After Race - First Next disappeared while checking for MANT clock; rescanning")
+                continue
+
+            x, y, w, h = current_next_matches[0]
             next_btn = (x + w//2, y + h//2)
+            log_info(f"After Race - Tapping first Next at {next_btn}")
             tap(next_btn[0], next_btn[1])
             break
         
@@ -870,19 +954,9 @@ def _handle_after_race_once(use_mant_clock, clocks_used, max_clock_per_race):
     # Wait for second next button with polling and spam tap until it appears
     log_debug(f"Waiting for second next button (spam tapping)...")
     next2_btn = None
-    mant_clock_attempted = False
     
     for attempt in range(max_attempts):
         screenshot = take_screenshot()
-
-        if use_mant_clock and clocks_used < max_clock_per_race and not mant_clock_attempted:
-            mant_clock_matches = match_template(screenshot, MANT_CLOCK_TEMPLATE, confidence=0.8)
-            if mant_clock_matches:
-                mant_clock_attempted = True
-                x, y, w, h = mant_clock_matches[0]
-                if _restart_race_with_mant_clock((x + w//2, y + h//2)):
-                    return True
-                log_warning("After Race - MANT clock retry failed; continuing normally")
         
         # Check for second next button
         next2_matches = match_template(screenshot, "assets/buttons/next2_btn.png", confidence=0.7)

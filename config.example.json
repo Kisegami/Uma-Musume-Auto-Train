@@ -71,7 +71,6 @@
     "retry_race": true,
     "buy_clock_carats": false,
     "stop_on_race_fail": true,
-    "use_clock_to_retry_race": false,
     "max_clock_per_race": 1,
     "allowed_grades": [
       "G1",
