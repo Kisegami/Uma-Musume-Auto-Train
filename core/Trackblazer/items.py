@@ -17,7 +17,7 @@ STAT_NAME_TO_KEY = {
 NEGATIVE_CONDITIONS = [
     "Night Owl",
     "Slacker",
-    "Dry Skin",
+    "Skin Outbreak",
     "Slow Metabolism",
     "Migraine",
     "Practice Poor",
@@ -91,7 +91,8 @@ def _normalize_condition_name(value):
         "fast learner": "fast learner",
         "night owl": "night owl",
         "slacker": "slacker",
-        "dry skin": "dry skin",
+        "dry skin": "skin outbreak",
+        "skin outbreak": "skin outbreak",
         "slow metabolism": "slow metabolism",
         "migraine": "migraine",
         "practice poor": "practice poor",

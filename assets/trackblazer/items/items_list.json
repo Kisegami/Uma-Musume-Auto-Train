@@ -298,9 +298,9 @@
     "name": "Rich Hand Cream",
     "Group": "Condition",
     "Effect Type": "Negative Condition Cure",
-    "Value": "Dry Skin",
+    "Value": "Skin Outbreak",
     "price": 15,
-    "effect": "Heal Dry Skin"
+    "effect": "Heal Skin Outbreak"
   },
   {
     "id": 4104,

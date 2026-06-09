@@ -417,7 +417,7 @@
       "id": 4103,
       "name": "Rich Hand Cream",
       "price": 15,
-      "effect": "Heal Dry Skin",
+      "effect": "Heal Skin Outbreak",
       "icon": "scenario_free_item_icon_04103.png",
       "row": 6,
       "column": 1,
