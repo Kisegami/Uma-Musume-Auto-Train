@@ -389,7 +389,8 @@ class MainWindow(QMainWindow):
                 "skill_point_cap": 400,
                 "skill_purchase": "auto",
                 "enable_skill_point_check": True,
-                "pre_custom_race_skill_check": False
+                "pre_custom_race_skill_check": False,
+                "pre_custom_race_skill_cap": 400
             },
             "restart_career": {
                 "restart_enabled": False,

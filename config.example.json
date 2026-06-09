@@ -92,7 +92,8 @@
     "skill_purchase": "auto",
     "skill_file": "template/skills/skills.json",
     "enable_skill_point_check": true,
-    "pre_custom_race_skill_check": false
+    "pre_custom_race_skill_check": false,
+    "pre_custom_race_skill_cap": 400
   },
   "items": {
     "item_purchase_file": "template/items/default.json",

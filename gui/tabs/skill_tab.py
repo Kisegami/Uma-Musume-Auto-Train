@@ -70,15 +70,31 @@ class SkillTab(QScrollArea):
 
         # Pre-custom-race skill check
         self.pre_custom_race_skill_check = QCheckBox("Check and purchase skills before custom race (API only)")
-        self.pre_custom_race_skill_check.stateChanged.connect(self._save_skill)
+        self.pre_custom_race_skill_check.stateChanged.connect(self._toggle_pre_custom_race_settings)
         settings_layout.addWidget(self.pre_custom_race_skill_check, 2, 0, 1, 2)
 
+        self.pre_custom_race_settings_widget = QWidget()
+        pre_custom_race_layout = QVBoxLayout(self.pre_custom_race_settings_widget)
+        pre_custom_race_layout.setContentsMargins(20, 0, 0, 0)
+        pre_custom_race_layout.setSpacing(6)
+
+        pre_custom_race_cap_layout = QHBoxLayout()
+        pre_custom_race_cap_layout.setContentsMargins(0, 0, 0, 0)
+        pre_custom_race_cap_layout.addWidget(QLabel("Custom Race Skill Cap:"))
+        self.pre_custom_race_skill_cap_spin = QSpinBox()
+        self.pre_custom_race_skill_cap_spin.setRange(0, 9999)
+        self.pre_custom_race_skill_cap_spin.valueChanged.connect(self._save_skill)
+        pre_custom_race_cap_layout.addWidget(self.pre_custom_race_skill_cap_spin)
+        pre_custom_race_cap_layout.addStretch()
+        pre_custom_race_layout.addLayout(pre_custom_race_cap_layout)
+
         pre_custom_race_note = QLabel(
-            "Runs from the lobby before a scheduled custom race, even when skill points are below the cap."
+            "UMAT only buy skill before custom race if skill points is higher than the cap to save time"
         )
         pre_custom_race_note.setWordWrap(True)
         pre_custom_race_note.setStyleSheet(f"color: {COLORS['text_muted']}; font-size: 11px;")
-        settings_layout.addWidget(pre_custom_race_note, 3, 0, 1, 2)
+        pre_custom_race_layout.addWidget(pre_custom_race_note)
+        settings_layout.addWidget(self.pre_custom_race_settings_widget, 3, 0, 1, 2)
         
         skill_layout.addWidget(self.settings_widget)
         
@@ -254,6 +270,11 @@ class SkillTab(QScrollArea):
             self.purchase_combo.currentText() == 'auto'
         )
         self._save_skill()
+
+    def _toggle_pre_custom_race_settings(self):
+        """Toggle custom-race skill cap settings visibility."""
+        self.pre_custom_race_settings_widget.setVisible(self.pre_custom_race_skill_check.isChecked())
+        self._save_skill()
     
     def load_config(self):
         """Load config values"""
@@ -281,6 +302,10 @@ class SkillTab(QScrollArea):
         self.pre_custom_race_skill_check.blockSignals(True)
         self.pre_custom_race_skill_check.setChecked(skills.get("pre_custom_race_skill_check", False))
         self.pre_custom_race_skill_check.blockSignals(False)
+
+        self.pre_custom_race_skill_cap_spin.blockSignals(True)
+        self.pre_custom_race_skill_cap_spin.setValue(skills.get("pre_custom_race_skill_cap", 400))
+        self.pre_custom_race_skill_cap_spin.blockSignals(False)
         
         # Skill file
         skill_file = skills.get("skill_file", "skills.json")
@@ -294,6 +319,7 @@ class SkillTab(QScrollArea):
         enabled = self.enable_skill_check.isChecked()
         self.settings_widget.setVisible(enabled)
         self.auto_widget.setVisible(enabled and self.purchase_combo.currentText() == 'auto')
+        self.pre_custom_race_settings_widget.setVisible(self.pre_custom_race_skill_check.isChecked())
         
         # End skill file
         self.ignore_end_skill_purchase_check.blockSignals(True)
@@ -324,6 +350,7 @@ class SkillTab(QScrollArea):
         config["skills"]["swipe_time_offset"] = self.swipe_offset_spin.value()
         config["skills"]["skill_purchase"] = self.purchase_combo.currentText()
         config["skills"]["pre_custom_race_skill_check"] = self.pre_custom_race_skill_check.isChecked()
+        config["skills"]["pre_custom_race_skill_cap"] = self.pre_custom_race_skill_cap_spin.value()
         config["skills"]["skill_file"] = f"template/skills/{self.skill_dropdown.currentText()}"
         
         self.main_window.save_config()

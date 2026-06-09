@@ -212,12 +212,13 @@ def check_skill_points(screenshot=None):
     return result
 
 
-def _execute_auto_skill_purchase(screenshot=None, *, force=False, reason="skill point cap"):
+def _execute_auto_skill_purchase(
+    screenshot=None, *, force=False, reason="skill point cap", require_api=False, skill_point_cap_override=None
+):
     """Execute automatic skill purchases from the lobby.
 
-    When `force` is True, skip the skill-point-cap gate. This is used for
-    pre-custom-race planning in API mode where the full skill list is already
-    available from the lobby.
+    When `force` is True, skip the skill-point-cap gate. `require_api` keeps
+    API-only flows separate from whether their configured cap is enforced.
     """
     try:
         config = load_main_config()
@@ -237,11 +238,15 @@ def _execute_auto_skill_purchase(screenshot=None, *, force=False, reason="skill 
     except ImportError:
         _api_on = False
 
-    if force and not _api_on:
+    if (force or require_api) and not _api_on:
         log_debug(f"Skipping automatic skill purchase for {reason}: API mode is required")
         return False
 
-    skill_point_cap = skills_config.get("skill_point_cap", config.get("skill_point_cap", 9999))
+    skill_point_cap = (
+        skill_point_cap_override
+        if skill_point_cap_override is not None
+        else skills_config.get("skill_point_cap", config.get("skill_point_cap", 9999))
+    )
     current_skill_points = check_skill_points_api() if _api_on else check_skill_points(screenshot)
     if current_skill_points is None:
         if _api_on:
@@ -334,8 +339,7 @@ def check_and_purchase_skills_before_custom_race(screenshot=None):
     """Purchase planned skills from the lobby before a scheduled custom race.
 
     This flow is API-only because the /skills endpoint exposes the full skill
-    list without opening the skill screen first, which also lets it bypass the
-    normal skill-point-cap gate.
+    list without opening the skill screen first.
     """
     try:
         config = load_main_config()
@@ -347,7 +351,13 @@ def check_and_purchase_skills_before_custom_race(screenshot=None):
     if not skills_config.get("pre_custom_race_skill_check", False):
         return False
 
-    return _execute_auto_skill_purchase(screenshot=screenshot, force=True, reason="before custom race")
+    custom_race_cap = skills_config.get("pre_custom_race_skill_cap", 400)
+    return _execute_auto_skill_purchase(
+        screenshot=screenshot,
+        reason="before custom race",
+        require_api=True,
+        skill_point_cap_override=custom_race_cap,
+    )
 
 def check_skill_points_cap(screenshot=None):
     """Check skill points and handle cap logic (same as PC version)"""
