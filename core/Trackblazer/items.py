@@ -779,28 +779,13 @@ def plan_item_purchases(state, template_data, config):
             _build_auto_buy_candidates(state, settings, template_limits, config)
         )
     ]
-    candidate_specs = []
-    if state.get("year") == "TS Climax":
-        for auto_candidate in auto_candidates:
-            if auto_candidate["reason"] in {
-                "auto_buy_ts_climax_master_active",
-                "auto_buy_ts_climax_hammer_active",
-                "auto_buy_ts_climax_glowstick_active",
-            }:
-                candidate_specs.append(auto_candidate)
+    candidate_specs = list(auto_candidates)
 
     for entry in template_data.get("items_priority", []):
         catalog_item = get_item_by_id(int(entry.get("id", 0)))
         if not catalog_item:
             continue
         candidate_specs.append({"item_name": catalog_item["name"], "desired_quantity": max(1, int(entry.get("item_limit", 1))), "reason": "priority"})
-
-    existing_candidate_names = {_normalize_text(spec["item_name"]) for spec in candidate_specs}
-    for auto_candidate in auto_candidates:
-        if _normalize_text(auto_candidate["item_name"]) in existing_candidate_names:
-            continue
-        candidate_specs.append(auto_candidate)
-        existing_candidate_names.add(_normalize_text(auto_candidate["item_name"]))
 
     stop_after_unaffordable = settings.get("budget_strategy", "save_priority") == "save_priority"
 
@@ -830,8 +815,6 @@ def plan_item_purchases(state, template_data, config):
                 break
             price = int(shop_entry.get("price", 0))
             if price > remaining_coin:
-                if stop_after_unaffordable and spec["reason"] == "priority":
-                    return purchase_actions
                 continue
 
             purchase_actions.append({
