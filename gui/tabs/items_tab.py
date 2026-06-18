@@ -288,7 +288,19 @@ class ItemsTab(QScrollArea):
         self.auto_buy_mood.stateChanged.connect(self._save_items_config)
         layout.addWidget(self.auto_buy_mood)
 
-        info = QLabel("The bot calculates the exact +1 / +2 mood combination it needs, then uses it immediately.")
+        self.use_mood_items_to_reach_great = HoverPreviewCheckBox(
+            "Always use mood items to reach Great",
+            self.preview_popup,
+            lambda: "Mood items",
+            lambda: _get_catalog_items_by_effect_type("Mood"),
+        )
+        self.use_mood_items_to_reach_great.stateChanged.connect(self._save_items_config)
+        layout.addWidget(self.use_mood_items_to_reach_great)
+
+        info = QLabel(
+            "The bot calculates the exact +1 / +2 mood combination it needs, then uses it immediately. "
+            "When the Great option is enabled, mood items in the shop or inventory target Great even if minimum mood is lower."
+        )
         info.setWordWrap(True)
         layout.addWidget(info)
         return group
@@ -639,6 +651,7 @@ class ItemsTab(QScrollArea):
         items_config["shop_swipe_time_offset"] = self.shop_swipe_offset_spin.value()
         items_config["save_energy_recovery_for_summer"] = self.save_energy_recovery_for_summer.isChecked()
         items_config["auto_buy_mood_items"] = self.auto_buy_mood.isChecked()
+        items_config["use_mood_items_to_reach_great"] = self.use_mood_items_to_reach_great.isChecked()
         items_config["auto_buy_negative_cure_items"] = self.auto_buy_negative_cure.isChecked()
         items_config["auto_buy_negative_cure_conditions"] = [
             name for name, checkbox in self.condition_checkboxes.items() if checkbox.isChecked()
@@ -704,6 +717,7 @@ class ItemsTab(QScrollArea):
 
         self.save_energy_recovery_for_summer.setChecked(bool(items_config.get("save_energy_recovery_for_summer", False)))
         self.auto_buy_mood.setChecked(bool(items_config.get("auto_buy_mood_items", False)))
+        self.use_mood_items_to_reach_great.setChecked(bool(items_config.get("use_mood_items_to_reach_great", False)))
         self.auto_buy_negative_cure.setChecked(bool(items_config.get("auto_buy_negative_cure_items", False)))
 
         selected_conditions = set(items_config.get("auto_buy_negative_cure_conditions", NEGATIVE_CONDITIONS))

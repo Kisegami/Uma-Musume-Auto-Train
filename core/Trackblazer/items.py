@@ -29,6 +29,7 @@ DEFAULT_ITEM_SETTINGS = {
     "purchase_max_swipes": 10,
     "shop_swipe_time_offset": 0,
     "auto_buy_mood_items": False,
+    "use_mood_items_to_reach_great": False,
     "save_energy_recovery_for_summer": False,
     "auto_buy_negative_cure_items": False,
     "auto_buy_negative_cure_conditions": list(NEGATIVE_CONDITIONS),
@@ -375,6 +376,13 @@ def get_minimum_mood_value(training_config):
     return MOOD_LIST.index("GREAT")
 
 
+def get_mood_item_target_value(config, settings):
+    minimum_mood_value = get_minimum_mood_value(config.get("training", {}))
+    if settings.get("use_mood_items_to_reach_great"):
+        return max(minimum_mood_value, MOOD_LIST.index("GREAT"))
+    return minimum_mood_value
+
+
 def _is_single_buff_period_allowed(setting, year):
     if setting == "any_time":
         return True
@@ -615,8 +623,8 @@ def _build_auto_buy_candidates(state, settings, template_limits, config):
     inventory_by_name = state["inventory_by_name"]
     condition_lookup = state["condition_lookup"]
 
-    mood_gap = max(0, get_minimum_mood_value(config.get("training", {})) - state["mood_value"])
-    if settings.get("auto_buy_mood_items") and mood_gap > 0:
+    mood_gap = max(0, get_mood_item_target_value(config, settings) - state["mood_value"])
+    if (settings.get("auto_buy_mood_items") or settings.get("use_mood_items_to_reach_great")) and mood_gap > 0:
         current_mood_items = []
         for item_name, item_data in inventory_by_name.items():
             catalog_item = get_item_by_name(item_name)
@@ -770,6 +778,7 @@ def plan_item_purchases(state, template_data, config):
     settings = load_item_settings(config)
     template_limits = _priority_limits(template_data)
     planned_counts = {}
+    planned_shop_entries = set()
     purchase_actions = []
     remaining_coin = int(state["shop_coin"])
 
@@ -808,9 +817,16 @@ def plan_item_purchases(state, template_data, config):
             continue
 
         affordable_for_candidate = False
-        available_shop_entries = _available_shop_entries(state["shop_items"], item_name)
+        available_shop_entries = []
+        for shop_entry in _available_shop_entries(state["shop_items"], item_name):
+            shop_item_id = int(shop_entry.get("shop_item_id", 0))
+            shop_entry_key = ("shop_item_id", shop_item_id) if shop_item_id else ("entry", id(shop_entry))
+            if shop_entry_key not in planned_shop_entries:
+                available_shop_entries.append(shop_entry)
         saw_shop_entry = bool(available_shop_entries)
         for shop_entry in available_shop_entries:
+            shop_item_id = int(shop_entry.get("shop_item_id", 0))
+            shop_entry_key = ("shop_item_id", shop_item_id) if shop_item_id else ("entry", id(shop_entry))
             if not _can_buy_more(catalog_item["item_id"], template_limits, inventory_count, planned_counts.get(_normalize_text(item_name), 0), desired_quantity, state):
                 break
             price = int(shop_entry.get("price", 0))
@@ -818,13 +834,14 @@ def plan_item_purchases(state, template_data, config):
                 continue
 
             purchase_actions.append({
-                "shop_item_id": int(shop_entry.get("shop_item_id", 0)),
+                "shop_item_id": shop_item_id,
                 "item_name": catalog_item["name"],
                 "price": price,
                 "reason": spec["reason"],
             })
             remaining_coin -= price
             planned_counts[_normalize_text(item_name)] = planned_counts.get(_normalize_text(item_name), 0) + 1
+            planned_shop_entries.add(shop_entry_key)
             affordable_for_candidate = True
 
         if stop_after_unaffordable and spec["reason"] == "priority" and saw_shop_entry and not affordable_for_candidate:
@@ -927,6 +944,12 @@ def apply_purchase_plan(state, purchase_actions):
         normalized_name = _normalize_text(action["item_name"])
         inventory_item = updated["inventory_by_name"].setdefault(normalized_name, {"item_name": action["item_name"], "count": 0})
         inventory_item["count"] += 1
+        shop_item_id = int(action.get("shop_item_id", 0))
+        if shop_item_id:
+            for shop_item in updated.get("shop_items", []):
+                if int(shop_item.get("shop_item_id", 0)) == shop_item_id:
+                    shop_item["sold_out"] = True
+                    break
     return updated
 
 
@@ -943,7 +966,7 @@ def _append_usage(actions, item_name, quantity, reason):
 def plan_immediate_item_usage(state, config, is_race_turn=False):
     settings = load_item_settings(config)
     actions = []
-    minimum_mood_value = get_minimum_mood_value(config.get("training", {}))
+    mood_item_target_value = get_mood_item_target_value(config, settings)
     inventory_by_name = state["inventory_by_name"]
     condition_lookup = state["condition_lookup"]
     remaining_negative_conditions = {
@@ -968,7 +991,7 @@ def plan_immediate_item_usage(state, config, is_race_turn=False):
         for item_name, quantity in _find_best_energy_combo(inventory_by_name, missing_energy).items():
             _append_usage(actions, item_name, quantity, "use_energy_recovery")
 
-    mood_gap = max(0, minimum_mood_value - int(state["mood_value"]))
+    mood_gap = max(0, mood_item_target_value - int(state["mood_value"]))
     if mood_gap > 0:
         mood_inventory = []
         for item_name, inventory_item in inventory_by_name.items():

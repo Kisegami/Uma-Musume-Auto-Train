@@ -101,6 +101,7 @@
     "purchase_max_swipes": 10,
     "shop_swipe_time_offset": 0,
     "save_energy_recovery_for_summer": false,
+    "use_mood_items_to_reach_great": false,
     "training_buff_rainbow_thresholds": {
       "normal": {
         "spd": 2,
