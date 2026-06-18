@@ -6,7 +6,12 @@ from PIL import Image, ImageEnhance
 from utils.capture.screenshot import capture_region, enhanced_screenshot, enhanced_screenshot_for_failure, enhanced_screenshot_for_year, take_screenshot
 from core.Unity.ocr import extract_text, extract_number
 from utils.vision.recognizer import match_template, max_match_confidence
-from core.Unity.skill_auto_purchase import execute_skill_purchases, click_image_button, extract_skill_points
+from core.Unity.skill_auto_purchase import (
+    click_image_button,
+    dismiss_skill_result_dialog,
+    execute_skill_purchases,
+    extract_skill_points,
+)
 from core.Unity.skill_recognizer import scan_all_skills_with_scroll, get_skills_api
 from core.Unity.skill_purchase_optimizer import load_skill_config, create_purchase_plan, filter_affordable_skills
 
@@ -424,6 +429,7 @@ def _execute_auto_skill_purchase(
     if not exec_result.get('success'):
         log_warning(f"Automated purchase completed with issues: {exec_result.get('error', 'unknown error')}")
 
+    dismiss_skill_result_dialog(timeout_seconds=4)
     back = click_image_button("assets/buttons/back_btn.png", "back button", max_attempts=5)
     if not back:
         log_warning(f"Could not find back button after purchases; ensure you return to lobby manually")

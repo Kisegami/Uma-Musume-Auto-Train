@@ -6,10 +6,15 @@ from core.Ura.skill_purchase_optimizer import fuzzy_match_skill_name
 from utils.core.log import log_debug, log_info, log_warning, log_error
 from utils.core.config_loader import load_main_config
 from utils.vision.recognizer import locate_on_screen
+from utils.vision.template_matching import wait_for_image
 
 # Load config and check debug mode
 _config = load_main_config()
 DEBUG_MODE = _config.get("debug_mode", False)
+
+BACK_BUTTON_TEMPLATE = "assets/buttons/back_btn.png"
+CLOSE_BUTTON_TEMPLATE = "assets/buttons/close.png"
+SKILLS_LEARNED_CLOSE_FALLBACK = (540, 1250)
 
 
 # Global cache for skill points to avoid re-detection
@@ -170,7 +175,13 @@ def click_skill_up_button(x, y):
         log_error(f"Error clicking button: {e}")
         return False
 
-def click_image_button(image_path, description="button", max_attempts=10, wait_between_attempts=0.5):
+def click_image_button(
+    image_path,
+    description="button",
+    max_attempts=10,
+    wait_between_attempts=0.5,
+    timeout_seconds=None,
+):
     """
     Find and click a button by image template matching with retry attempts.
     
@@ -179,42 +190,93 @@ def click_image_button(image_path, description="button", max_attempts=10, wait_b
         description: Description for logging
         max_attempts: Maximum number of attempts to find the button
         wait_between_attempts: Seconds to wait between attempts
+        timeout_seconds: Optional elapsed-time limit. When set, keep retrying until
+            the timeout expires instead of stopping after max_attempts.
     
     Returns:
         bool: True if button was found and clicked, False otherwise
     """
     try:
-        log_debug(f"Looking for {description} (max {max_attempts} attempts)")
+        if timeout_seconds is None:
+            log_debug(f"Looking for {description} (max {max_attempts} attempts)")
+        else:
+            log_debug(f"Looking for {description} (timeout {timeout_seconds}s)")
         
-        for attempt in range(max_attempts):
+        start_time = time.time()
+        attempt = 0
+        while True:
+            attempt += 1
             try:
                 location = locate_on_screen(image_path, confidence=0.8)
 
                 if location:
                     success = click_skill_up_button(location[0], location[1])
                     if success:
-                        log_info(f"{description} clicked successfully (attempt {attempt + 1}")
+                        log_info(f"{description} clicked successfully (attempt {attempt})")
                         return True
                     else:
-                        log_error(f"Failed to click {description} (attempt {attempt + 1}")
+                        log_error(f"Failed to click {description} (attempt {attempt})")
                 else:
-                    log_debug(f"{description} not found (attempt {attempt + 1}/{max_attempts})")
+                    if timeout_seconds is None:
+                        log_debug(f"{description} not found (attempt {attempt}/{max_attempts})")
+                    else:
+                        elapsed = time.time() - start_time
+                        log_debug(f"{description} not found (attempt {attempt}, {elapsed:.1f}/{timeout_seconds}s)")
                 
-                # Wait before next attempt (except on last attempt)
-                if attempt < max_attempts - 1:
-                    time.sleep(wait_between_attempts)
+                if timeout_seconds is None:
+                    should_continue = attempt < max_attempts
+                else:
+                    should_continue = time.time() - start_time < timeout_seconds
+
+                if not should_continue:
+                    break
+
+                time.sleep(wait_between_attempts)
                     
             except Exception as e:
-                log_warning(f"Error in attempt {attempt + 1}: {e}")
-                if attempt < max_attempts - 1:
-                    time.sleep(wait_between_attempts)
+                log_warning(f"Error in attempt {attempt}: {e}")
+                if timeout_seconds is None:
+                    should_continue = attempt < max_attempts
+                else:
+                    should_continue = time.time() - start_time < timeout_seconds
+
+                if not should_continue:
+                    break
+
+                time.sleep(wait_between_attempts)
         
-        log_error(f"{description} not found after {max_attempts} attempts")
+        if timeout_seconds is None:
+            log_error(f"{description} not found after {max_attempts} attempts")
+        else:
+            log_error(f"{description} not found after {timeout_seconds}s")
         return False
             
     except Exception as e:
         log_error(f"Error finding {description}: {e}")
         return False
+
+
+def dismiss_skill_result_dialog(timeout_seconds=12):
+    """Dismiss the post-purchase result dialog and wait for the skill screen."""
+    start_time = time.time()
+    attempt = 0
+    while time.time() - start_time < timeout_seconds:
+        attempt += 1
+        if wait_for_image(BACK_BUTTON_TEMPLATE, timeout=0.2, confidence=0.8, check_interval=0.1):
+            return True
+
+        close_location = locate_on_screen(CLOSE_BUTTON_TEMPLATE, confidence=0.75)
+        if close_location:
+            log_debug(f"Dismissing skill result dialog with Close button (attempt {attempt})")
+            tap(close_location[0], close_location[1])
+        else:
+            log_debug(f"Close button template not visible; tapping result-dialog fallback (attempt {attempt})")
+            tap(SKILLS_LEARNED_CLOSE_FALLBACK[0], SKILLS_LEARNED_CLOSE_FALLBACK[1])
+
+        time.sleep(0.8)
+
+    return wait_for_image(BACK_BUTTON_TEMPLATE, timeout=1.0, confidence=0.8, check_interval=0.2)
+
 
 def fast_swipe_to_top(end_career=False):
     """
@@ -394,12 +456,19 @@ def execute_skill_purchases(purchase_plan, max_scrolls=30, end_career=False, res
                     log_debug(f"Waiting for learning to complete")
                     time.sleep(1)  # Reduced wait time
                     
-                    # Step 5: Click close button (wait before it appears)
+                    # Step 5: Click close button (it can appear late on slow connections)
                     log_debug(f"Waiting for close button to appear")
-                    time.sleep(0.5)  # Reduced wait time
-                    close_success = click_image_button("assets/buttons/close.png", "close button", max_attempts=10)
-                    if close_success:
+                    close_success = click_image_button(
+                        CLOSE_BUTTON_TEMPLATE,
+                        "close button",
+                        wait_between_attempts=0.5,
+                        timeout_seconds=30,
+                    )
+                    dismissed = dismiss_skill_result_dialog()
+                    if close_success and dismissed:
                         log_info(f"Skill purchase sequence completed successfully")
+                    elif dismissed:
+                        log_info(f"Skill purchase sequence completed; result dialog dismissed by fallback")
                     else:
                         log_warning(f"Close button not found - manual intervention may be needed")
                 else:
