@@ -656,13 +656,18 @@ def _build_auto_buy_candidates(state, settings, template_limits, config):
 
     if settings.get("auto_buy_negative_cure_items"):
         enabled_conditions = {_normalize_condition_name(name) for name in settings.get("auto_buy_negative_cure_conditions", [])}
+        active_negative_conditions = _negative_condition_set(condition_lookup)
         owned_cures = set()
         for item_name in inventory_by_name:
             catalog_item = get_item_by_name(item_name)
             if catalog_item and catalog_item["effect_type"] == "Negative Condition Cure":
                 owned_cures.add(catalog_item["target_condition"])
         planned_conditions = set()
-        for condition_name in enabled_conditions:
+        for condition_name in active_negative_conditions:
+            if len(active_negative_conditions) != 1:
+                continue
+            if condition_name not in enabled_conditions:
+                continue
             if condition_name not in condition_lookup or condition_name in owned_cures or condition_name in planned_conditions:
                 continue
             for shop_item in state["shop_items"]:
@@ -963,16 +968,51 @@ def _append_usage(actions, item_name, quantity, reason):
     })
 
 
+def _negative_condition_set(condition_lookup):
+    negative_conditions = {_normalize_condition_name(value) for value in NEGATIVE_CONDITIONS}
+    return {
+        condition_name for condition_name in condition_lookup
+        if condition_name in negative_conditions
+    }
+
+
+def _plan_negative_condition_cures(actions, inventory_by_name, remaining_negative_conditions):
+    miracle_cure_available = False
+    specific_cure_actions = []
+    for item_name, inventory_item in sorted(inventory_by_name.items()):
+        if int(inventory_item.get("count", 0)) <= 0:
+            continue
+        catalog_item = get_item_by_name(item_name)
+        if not catalog_item or catalog_item["effect_type"] != "Negative Condition Cure":
+            continue
+        if catalog_item["name"] == "Miracle Cure":
+            miracle_cure_available = True
+            continue
+        if catalog_item["target_condition"] in remaining_negative_conditions:
+            specific_cure_actions.append(catalog_item)
+
+    if miracle_cure_available and len(remaining_negative_conditions) > 1:
+        _append_usage(actions, "Miracle Cure", 1, "use_negative_condition_cure")
+        remaining_negative_conditions.clear()
+        return
+
+    for catalog_item in specific_cure_actions:
+        if catalog_item["target_condition"] in remaining_negative_conditions:
+            _append_usage(actions, catalog_item["name"], 1, "use_negative_condition_cure")
+            remaining_negative_conditions.discard(catalog_item["target_condition"])
+
+    if miracle_cure_available and remaining_negative_conditions:
+        _append_usage(actions, "Miracle Cure", 1, "use_negative_condition_cure")
+        remaining_negative_conditions.clear()
+
+
 def plan_immediate_item_usage(state, config, is_race_turn=False):
     settings = load_item_settings(config)
     actions = []
     mood_item_target_value = get_mood_item_target_value(config, settings)
     inventory_by_name = state["inventory_by_name"]
     condition_lookup = state["condition_lookup"]
-    remaining_negative_conditions = {
-        condition_name for condition_name in condition_lookup
-        if condition_name in {_normalize_condition_name(value) for value in NEGATIVE_CONDITIONS}
-    }
+    remaining_negative_conditions = _negative_condition_set(condition_lookup)
 
     for item_name, inventory_item in sorted(inventory_by_name.items()):
         catalog_item = get_item_by_name(item_name)
@@ -1007,16 +1047,12 @@ def plan_immediate_item_usage(state, config, is_race_turn=False):
         for item_name, quantity in _find_best_mood_combo_from_items(mood_inventory, mood_gap).items():
             _append_usage(actions, item_name, quantity, "use_mood_items")
 
+    _plan_negative_condition_cures(actions, inventory_by_name, remaining_negative_conditions)
+
     for item_name, inventory_item in sorted(inventory_by_name.items()):
         catalog_item = get_item_by_name(item_name)
         if not catalog_item:
             continue
-        if catalog_item["effect_type"] == "Negative Condition Cure" and catalog_item["name"] != "Miracle Cure" and catalog_item["target_condition"] in remaining_negative_conditions:
-            _append_usage(actions, catalog_item["name"], 1, "use_negative_condition_cure")
-            remaining_negative_conditions.discard(catalog_item["target_condition"])
-        if catalog_item["name"] == "Miracle Cure" and remaining_negative_conditions:
-            _append_usage(actions, catalog_item["name"], 1, "use_negative_condition_cure")
-            remaining_negative_conditions.clear()
         if catalog_item["effect_type"] == "Positive Condition" and catalog_item["target_condition"] not in condition_lookup:
             _append_usage(actions, catalog_item["name"], 1, "use_positive_condition_item")
         if catalog_item["name"] == "Grilled Carrots":
