@@ -1090,7 +1090,7 @@ def plan_training_item_usage(state, config, chosen_training, chosen_training_res
 
     training_buff_item = None
     if training_is_accepted and buff_allowed:
-        prefer_highest = _is_summer_period(state["year"])
+        prefer_highest = _is_summer_period(state["year"]) or _is_after_senior_summer_or_ts_climax(state["year"])
         if bool(settings.get("training_buff_highest_rainbow_override_enabled", False)):
             highest_threshold = int(settings.get("training_buff_highest_rainbow_override_threshold", 3))
             prefer_highest = prefer_highest or rainbow_count >= highest_threshold
