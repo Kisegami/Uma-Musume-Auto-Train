@@ -494,7 +494,7 @@ def _expand_inventory_items(inventory_by_name, effect_type=None):
     return expanded
 
 
-def _find_best_energy_combo(inventory_by_name, missing_energy):
+def _find_best_energy_combo(inventory_by_name, missing_energy, allow_overfill=False):
     if missing_energy <= 0:
         return {}
 
@@ -503,9 +503,11 @@ def _find_best_energy_combo(inventory_by_name, missing_energy):
     for r in range(1, len(candidates) + 1):
         for combo in itertools.combinations(range(len(candidates)), r):
             total = sum(int(candidates[idx]["value"]) for idx in combo)
-            if total > missing_energy:
+            if total > missing_energy and not allow_overfill:
                 continue
-            score = (missing_energy - total, r, -total)
+            overfill = max(0, total - missing_energy)
+            underfill = max(0, missing_energy - total)
+            score = (1 if overfill else 0, overfill or underfill, r, -total)
             if best is None or score < best[0]:
                 counts = {}
                 for idx in combo:
@@ -1027,8 +1029,11 @@ def plan_immediate_item_usage(state, config, is_race_turn=False):
             _append_usage(actions, catalog_item["name"], inventory_item["count"], "use_energy_cap")
 
     if not is_race_turn and not _should_hold_energy_recovery_for_summer(settings, state.get("year")):
-        missing_energy = max(0, int(state["energy_max"]) - int(state["energy_current"]))
-        for item_name, quantity in _find_best_energy_combo(inventory_by_name, missing_energy).items():
+        energy_current = int(state["energy_current"])
+        missing_energy = max(0, int(state["energy_max"]) - energy_current)
+        min_energy = int(config.get("training", {}).get("min_energy", config.get("min_energy", 30)))
+        allow_overfill = energy_current < max(min_energy, 50)
+        for item_name, quantity in _find_best_energy_combo(inventory_by_name, missing_energy, allow_overfill=allow_overfill).items():
             _append_usage(actions, item_name, quantity, "use_energy_recovery")
 
     mood_gap = max(0, mood_item_target_value - int(state["mood_value"]))
