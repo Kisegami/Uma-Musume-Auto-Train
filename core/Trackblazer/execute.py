@@ -1152,13 +1152,25 @@ def career_lobby(timeout=None):
         
         # Use new scoring algorithm to choose best training (with stat cap filtering)
         log_debug(f"Choosing best training with stat cap filtering. Current stats: {current_stats}")
-        best_training = choose_best_training(results_training, training_config, current_stats, year=year)
+        item_state_for_training = normalize_item_state(raw_api_status, results_training) if _API_MODE and raw_api_status else None
+        best_training = choose_best_training(
+            results_training,
+            training_config,
+            current_stats,
+            year=year,
+            item_state=item_state_for_training,
+        )
         relaxed_training_config = _build_relaxed_training_config(training_config)
-        relaxed_training_candidate = choose_best_training(results_training, relaxed_training_config, current_stats, year=year)
+        relaxed_training_candidate = choose_best_training(
+            results_training,
+            relaxed_training_config,
+            current_stats,
+            year=year,
+            item_state=item_state_for_training,
+        )
         charm_bypass_active = False
 
         if _API_MODE and raw_api_status:
-            item_state_for_training = normalize_item_state(raw_api_status, results_training)
             training_candidate = best_training or relaxed_training_candidate
             chosen_training_result = results_training.get(training_candidate) if training_candidate else None
             would_be_rejected = bool(chosen_training_result) and (
@@ -1203,10 +1215,22 @@ def career_lobby(timeout=None):
                     log_warning("[Items] Failed to refresh training data after using training items")
                     break
 
-                best_training = choose_best_training(results_training, training_config, current_stats, year=year)
-                relaxed_training_candidate = choose_best_training(results_training, relaxed_training_config, current_stats, year=year)
                 item_state_for_training = normalize_item_state(raw_api_status, results_training)
                 item_state_for_training = apply_usage_plan(item_state_for_training, executed_training_usage)
+                best_training = choose_best_training(
+                    results_training,
+                    training_config,
+                    current_stats,
+                    year=year,
+                    item_state=item_state_for_training,
+                )
+                relaxed_training_candidate = choose_best_training(
+                    results_training,
+                    relaxed_training_config,
+                    current_stats,
+                    year=year,
+                    item_state=item_state_for_training,
+                )
                 training_candidate = best_training or relaxed_training_candidate
                 chosen_training_result = results_training.get(training_candidate) if training_candidate else None
                 would_be_rejected = bool(chosen_training_result) and (
@@ -1277,7 +1301,13 @@ def career_lobby(timeout=None):
                             "guts": 0.0,
                             "wit": 0.0
                         }
-                        fallback_training = choose_best_training(results_training, relaxed_config, current_stats, year=year)
+                        fallback_training = choose_best_training(
+                            results_training,
+                            relaxed_config,
+                            current_stats,
+                            year=year,
+                            item_state=item_state_for_training,
+                        )
                         if fallback_training:
                             log_info(f"Proceeding with training ({fallback_training.upper()}) despite poor options (relaxed selection)")
                             if not _on_training_screen:
@@ -1307,7 +1337,13 @@ def career_lobby(timeout=None):
                             "guts": 0.0,
                             "wit": 0.0
                         }
-                        fallback_training = choose_best_training(results_training, relaxed_config, current_stats, year=year)
+                        fallback_training = choose_best_training(
+                            results_training,
+                            relaxed_config,
+                            current_stats,
+                            year=year,
+                            item_state=item_state_for_training,
+                        )
                         if fallback_training:
                             log_info(f"Proceeding with training ({fallback_training.upper()}) due to no races")
                             if not _on_training_screen:
@@ -1370,7 +1406,13 @@ def career_lobby(timeout=None):
                                 "guts": 0.0,
                                 "wit": 0.0
                             }
-                            relaxed_training = choose_best_training(results_training, relaxed_config, current_stats, year=year)
+                            relaxed_training = choose_best_training(
+                                results_training,
+                                relaxed_config,
+                                current_stats,
+                                year=year,
+                                item_state=item_state_for_training,
+                            )
                             if relaxed_training:
                                 log_info(f"Proceeding with training ({relaxed_training.upper()}) using relaxed scoring")
                                 if not _on_training_screen:

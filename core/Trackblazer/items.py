@@ -1105,6 +1105,16 @@ def _select_specialized_buff(inventory_by_name, training_type, active_effect_key
     return best_item
 
 
+def has_usable_specialized_buff(state, training_type):
+    if not state or not training_type:
+        return False
+    return _select_specialized_buff(
+        state.get("inventory_by_name", {}),
+        training_type,
+        state.get("active_effect_keys", set()),
+    ) is not None
+
+
 def training_item_use_requires_refresh(actions):
     refresh_reasons = {
         "use_training_buff",

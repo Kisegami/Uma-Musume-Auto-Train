@@ -534,7 +534,18 @@ def check_failure(screenshot, train_type):
     log_debug(f" No valid failure rate found for {train_type.upper()}, returning 100% (safe fallback)")
     return (100, 0.0)  # 100% failure rate when detection completely fails (prevents choosing unknown training)
 
-def choose_best_training(training_results, config, current_stats, year=None):
+def _has_usable_specialized_buff(item_state, training_type):
+    if not item_state:
+        return False
+    try:
+        from core.Trackblazer.items import has_usable_specialized_buff
+        return has_usable_specialized_buff(item_state, training_type)
+    except Exception as exc:
+        log_debug(f" Could not check specialized buff inventory for {training_type.upper()}: {exc}")
+        return False
+
+
+def choose_best_training(training_results, config, current_stats, year=None, item_state=None):
     """
     Choose the best training option based on scoring algorithm.
     
@@ -655,11 +666,12 @@ def choose_best_training(training_results, config, current_stats, year=None):
         log_debug(f" No training options meet minimum score requirements")
         return None
     
-    # Sort by score first (desc), use priority as tiebreaker only
+    # Sort by score first (desc), then usable specialized buff inventory, then configured priority.
     def sort_key(item):
         k, v = item
         priority_index = priority_stat.index(k) if k in priority_stat else len(priority_stat)
-        return (-v.get('score', 0), priority_index)
+        specialized_buff_priority = 0 if _has_usable_specialized_buff(item_state, k) else 1
+        return (-v.get('score', 0), specialized_buff_priority, priority_index)
     
     sorted_options = sorted(valid_options.items(), key=sort_key)
     best_training = sorted_options[0][0]
