@@ -1151,6 +1151,354 @@
     {
       "name": "Mile Race Enthusiast",
       "id": "1200031"
+    },
+    {
+      "name": "All Set",
+      "id": "202192"
+    },
+    {
+      "name": "Kawasaki Racecourse ◎",
+      "id": "202201"
+    },
+    {
+      "name": "Kawasaki Racecourse ○",
+      "id": "202202"
+    },
+    {
+      "name": "Kawasaki Racecourse ×",
+      "id": "202203"
+    },
+    {
+      "name": "Funabashi Racecourse ◎",
+      "id": "202211"
+    },
+    {
+      "name": "Funabashi Racecourse ○",
+      "id": "202212"
+    },
+    {
+      "name": "Funabashi Racecourse ×",
+      "id": "202213"
+    },
+    {
+      "name": "Morioka Racecourse ◎",
+      "id": "202221"
+    },
+    {
+      "name": "Morioka Racecourse ○",
+      "id": "202222"
+    },
+    {
+      "name": "Morioka Racecourse ×",
+      "id": "202223"
+    },
+    {
+      "name": "Night Races ◎",
+      "id": "202231"
+    },
+    {
+      "name": "Night Races ○",
+      "id": "202232"
+    },
+    {
+      "name": "Night Races ×",
+      "id": "202233"
+    },
+    {
+      "name": "Sharp Turns ◎",
+      "id": "202241"
+    },
+    {
+      "name": "Sharp Turns ○",
+      "id": "202242"
+    },
+    {
+      "name": "Sharp Turns ×",
+      "id": "202243"
+    },
+    {
+      "name": "Collaborative Graded Races ◎",
+      "id": "202251"
+    },
+    {
+      "name": "Collaborative Graded Races ○",
+      "id": "202252"
+    },
+    {
+      "name": "Collaborative Graded Races ×",
+      "id": "202253"
+    },
+    {
+      "name": "Sunny Sign",
+      "id": "202262"
+    },
+    {
+      "name": "Comeback",
+      "id": "202272"
+    },
+    {
+      "name": "Full Tilt",
+      "id": "202282"
+    },
+    {
+      "name": "Rational",
+      "id": "202292"
+    },
+    {
+      "name": "Down in the Dirt ○",
+      "id": "202302"
+    },
+    {
+      "name": "Down in the Dirt ×",
+      "id": "202303"
+    },
+    {
+      "name": "Got the Spirit!",
+      "id": "202312"
+    },
+    {
+      "name": "Rapid Gain",
+      "id": "202322"
+    },
+    {
+      "name": "Solid Steps",
+      "id": "202332"
+    },
+    {
+      "name": "Muddy ◎",
+      "id": "202342"
+    },
+    {
+      "name": "Muddy ○",
+      "id": "202343"
+    },
+    {
+      "name": "Muddy ×",
+      "id": "202344"
+    },
+    {
+      "name": "Dust Cloud",
+      "id": "202352"
+    },
+    {
+      "name": "Oppression",
+      "id": "202362"
+    },
+    {
+      "name": "On the Attack",
+      "id": "202372"
+    },
+    {
+      "name": "On the Way to Our Dream",
+      "id": "210072"
+    },
+    {
+      "name": "Breakin' Out",
+      "id": "202382"
+    },
+    {
+      "name": "Mad Dash",
+      "id": "202392"
+    },
+    {
+      "name": "Leap Forward",
+      "id": "202402"
+    },
+    {
+      "name": "Aspire",
+      "id": "202412"
+    },
+    {
+      "name": "Scramble",
+      "id": "202422"
+    },
+    {
+      "name": "Steady Gait",
+      "id": "202432"
+    },
+    {
+      "name": "Risk-Taker",
+      "id": "202442"
+    },
+    {
+      "name": "Eyes on the Goal",
+      "id": "210082"
+    },
+    {
+      "name": "Racing Spirit: Speed",
+      "id": "210091"
+    },
+    {
+      "name": "Racing Spirit: Stamina",
+      "id": "210101"
+    },
+    {
+      "name": "Racing Spirit: Power",
+      "id": "210111"
+    },
+    {
+      "name": "Racing Spirit: Guts",
+      "id": "210121"
+    },
+    {
+      "name": "Racing Spirit: Wit",
+      "id": "210131"
+    },
+    {
+      "name": "Racing Spirit: Mood",
+      "id": "210141"
+    },
+    {
+      "name": "Sprint Race Enthusiast",
+      "id": "1200041"
+    },
+    {
+      "name": "Dirt Race Enthusiast",
+      "id": "1200051"
+    },
+    {
+      "name": "Pedal to the Metal",
+      "id": "202452"
+    },
+    {
+      "name": "Firm Resolve",
+      "id": "202462"
+    },
+    {
+      "name": "Latch On",
+      "id": "202472"
+    },
+    {
+      "name": "My True Strength",
+      "id": "202482"
+    },
+    {
+      "name": "Sharp Steps",
+      "id": "202492"
+    },
+    {
+      "name": "No Looking Back",
+      "id": "202502"
+    },
+    {
+      "name": "Gonna Be Ur #1 FRFR",
+      "id": "202511"
+    },
+    {
+      "name": "Carnival Bonus",
+      "id": "1000013"
+    },
+    {
+      "name": "Break the Mold",
+      "id": "202522"
+    },
+    {
+      "name": "Graceful Gait",
+      "id": "202532"
+    },
+    {
+      "name": "Sun's Blessing",
+      "id": "210262"
+    },
+    {
+      "name": "Sea's Blessing",
+      "id": "210272"
+    },
+    {
+      "name": "Earth's Blessing",
+      "id": "210282"
+    },
+    {
+      "name": "Pressure",
+      "id": "202542"
+    },
+    {
+      "name": "High Speed",
+      "id": "202552"
+    },
+    {
+      "name": "Locked On",
+      "id": "202562"
+    },
+    {
+      "name": "Undistracted",
+      "id": "202582"
+    },
+    {
+      "name": "Hurry Up!",
+      "id": "202592"
+    },
+    {
+      "name": "Ignition",
+      "id": "202602"
+    },
+    {
+      "name": "Unrestrained Passion",
+      "id": "202612"
+    },
+    {
+      "name": "Start the Charge",
+      "id": "202622"
+    },
+    {
+      "name": "First Step",
+      "id": "202642"
+    },
+    {
+      "name": "Energetic Hero",
+      "id": "1300011"
+    },
+    {
+      "name": "Sunny Hero",
+      "id": "1300021"
+    },
+    {
+      "name": "Rainy Hero",
+      "id": "1300031"
+    },
+    {
+      "name": "Inner Hero",
+      "id": "1300041"
+    },
+    {
+      "name": "Outer Hero",
+      "id": "1300051"
+    },
+    {
+      "name": "Friendly Hero",
+      "id": "1300061"
+    },
+    {
+      "name": "Dashing Hero",
+      "id": "1300071"
+    },
+    {
+      "name": "Confident",
+      "id": "202652"
+    },
+    {
+      "name": "Rising Heat",
+      "id": "202662"
+    },
+    {
+      "name": "Carnival Bonus",
+      "id": "1000014"
+    },
+    {
+      "name": "Beating Heart",
+      "id": "202672"
+    },
+    {
+      "name": "Pop Off!",
+      "id": "202682"
+    },
+    {
+      "name": "Goin' First",
+      "id": "202692"
+    },
+    {
+      "name": "Adventurer",
+      "id": "202702"
     }
   ],
   "Rare": [
@@ -1756,6 +2104,290 @@
       "name": "Refraction Arc",
       "id": "201113",
       "other_version": "Medium Corners"
+    },
+    {
+      "name": "Heart All Set",
+      "id": "202191",
+      "other_version": "All Set"
+    },
+    {
+      "name": "Chance of Victory",
+      "id": "202261",
+      "other_version": "Sunny Sign"
+    },
+    {
+      "name": "Can't Keep Me Down",
+      "id": "202271",
+      "other_version": "Comeback"
+    },
+    {
+      "name": "Full Speed!",
+      "id": "202281",
+      "other_version": "Full Tilt"
+    },
+    {
+      "name": "Crystal Clear",
+      "id": "202291",
+      "other_version": "Rational"
+    },
+    {
+      "name": "Dancer in the Dirt",
+      "id": "202301",
+      "other_version": "Down in the Dirt"
+    },
+    {
+      "name": "Be the Center!",
+      "id": "202311",
+      "other_version": "Got the Spirit!"
+    },
+    {
+      "name": "Run Like Crazy!",
+      "id": "202321",
+      "other_version": "Rapid Gain"
+    },
+    {
+      "name": "Strong Steps",
+      "id": "202331",
+      "other_version": "Solid Steps"
+    },
+    {
+      "name": "Maestro of the Mud",
+      "id": "202341",
+      "other_version": "Muddy"
+    },
+    {
+      "name": "Dust Cloud Idol",
+      "id": "202351",
+      "other_version": "Dust Cloud"
+    },
+    {
+      "name": "Catch 'Em Off Guard",
+      "id": "202361",
+      "other_version": "Oppression"
+    },
+    {
+      "name": "Unstoppable",
+      "id": "202371",
+      "other_version": "On the Attack"
+    },
+    {
+      "name": "I Wanna Win with You",
+      "id": "210071",
+      "other_version": "On the Way to Our Dream"
+    },
+    {
+      "name": "Breakin' Ahead",
+      "id": "202381",
+      "other_version": "Breakin' Out"
+    },
+    {
+      "name": "Givin' It 1000%",
+      "id": "202391",
+      "other_version": "Mad Dash"
+    },
+    {
+      "name": "Shocking Flash",
+      "id": "200963",
+      "other_version": "Sprint Straightaways"
+    },
+    {
+      "name": "Flash Forward",
+      "id": "202401",
+      "other_version": "Leap Forward"
+    },
+    {
+      "name": "Perfect Spot!",
+      "id": "201652",
+      "other_version": "Slipstream"
+    },
+    {
+      "name": "Ambitious Breeze",
+      "id": "202411",
+      "other_version": "Aspire"
+    },
+    {
+      "name": "Claw Forward",
+      "id": "202421",
+      "other_version": "Scramble"
+    },
+    {
+      "name": "Solid Strike",
+      "id": "202431",
+      "other_version": "Steady Gait"
+    },
+    {
+      "name": "Risk-Maker",
+      "id": "202441",
+      "other_version": "Risk-Taker"
+    },
+    {
+      "name": "Sharp Streak",
+      "id": "201383",
+      "other_version": "Late Surger Straightaways"
+    },
+    {
+      "name": "Past My Limits",
+      "id": "210081",
+      "other_version": "Eyes on the Goal"
+    },
+    {
+      "name": "Top Gear",
+      "id": "202451",
+      "other_version": "Pedal to the Metal"
+    },
+    {
+      "name": "Can't Even Catch My Shadow",
+      "id": "202461",
+      "other_version": "Firm Resolve"
+    },
+    {
+      "name": "Hot Pursuit",
+      "id": "202471",
+      "other_version": "Latch On"
+    },
+    {
+      "name": "Beast Mode",
+      "id": "202481",
+      "other_version": "My True Strength"
+    },
+    {
+      "name": "Razor-Sharp Steps",
+      "id": "202491",
+      "other_version": "Sharp Steps"
+    },
+    {
+      "name": "Reckless Charge",
+      "id": "202501",
+      "other_version": "No Looking Back"
+    },
+    {
+      "name": "Crescent Gale",
+      "id": "201253",
+      "other_version": "Front Runner Corners"
+    },
+    {
+      "name": "Sharp Arc",
+      "id": "201393",
+      "other_version": "Late Surger Corners"
+    },
+    {
+      "name": "Master of Declines",
+      "id": "202171",
+      "other_version": "Downhill Speedster"
+    },
+    {
+      "name": "Beautiful Form",
+      "id": "202521",
+      "other_version": "Break the Mold"
+    },
+    {
+      "name": "Superb Gait",
+      "id": "202531",
+      "other_version": "Graceful Gait"
+    },
+    {
+      "name": "Wisdom of the Sun",
+      "id": "210261",
+      "other_version": "Sun's Blessing"
+    },
+    {
+      "name": "Wisdom of the Sea",
+      "id": "210271",
+      "other_version": "Sea's Blessing"
+    },
+    {
+      "name": "Wisdom of the Earth",
+      "id": "210281",
+      "other_version": "Earth's Blessing"
+    },
+    {
+      "name": "Vying for the Throne",
+      "id": "202541",
+      "other_version": "Pressure"
+    },
+    {
+      "name": "Miracle for My Future",
+      "id": "202571"
+    },
+    {
+      "name": "Divine Speed",
+      "id": "202551",
+      "other_version": "High Speed"
+    },
+    {
+      "name": "Sure Shot",
+      "id": "202561",
+      "other_version": "Locked On"
+    },
+    {
+      "name": "Light-Footed as a Hare",
+      "id": "202581",
+      "other_version": "Undistracted"
+    },
+    {
+      "name": "In One Fell Swoop",
+      "id": "202591",
+      "other_version": "Hurry Up!"
+    },
+    {
+      "name": "Luminescence",
+      "id": "202601",
+      "other_version": "Ignition"
+    },
+    {
+      "name": "Solid Preparation",
+      "id": "201602",
+      "other_version": "Groundwork"
+    },
+    {
+      "name": "A Journey in a Step",
+      "id": "202641",
+      "other_version": "First Step"
+    },
+    {
+      "name": "Part the Clouds",
+      "id": "202651",
+      "other_version": "Confident"
+    },
+    {
+      "name": "Rising Pulse",
+      "id": "202661",
+      "other_version": "Rising Heat"
+    },
+    {
+      "name": "Crescent Gust",
+      "id": "201043",
+      "other_version": "Mile Corners"
+    },
+    {
+      "name": "Summer Gust",
+      "id": "200184",
+      "other_version": "Summer Runner"
+    },
+    {
+      "name": "High Voltage",
+      "id": "202671",
+      "other_version": "Beating Heart"
+    },
+    {
+      "name": "Send It! ☆",
+      "id": "202681",
+      "other_version": "Pop Off!"
+    },
+    {
+      "name": "Rampaging Passion",
+      "id": "202621",
+      "other_version": "Start the Charge"
+    },
+    {
+      "name": "Before Anyone!",
+      "id": "202691",
+      "other_version": "Goin' First"
+    },
+    {
+      "name": "Singularity",
+      "id": "202701",
+      "other_version": "Adventurer"
     }
   ],
   "Unique": [
@@ -2186,6 +2818,1302 @@
     {
       "name": "Indomitable",
       "id": "300141"
+    },
+    {
+      "name": "564 Escapades",
+      "id": "110071"
+    },
+    {
+      "name": "Your Smile Sparkles as the Waves",
+      "id": "120131"
+    },
+    {
+      "name": "Red-Hot Discipline!",
+      "id": "100531"
+    },
+    {
+      "name": "Luck Runs My Way",
+      "id": "100981"
+    },
+    {
+      "name": "α-star*",
+      "id": "110461"
+    },
+    {
+      "name": "Ticket to Your Dreams!",
+      "id": "110351"
+    },
+    {
+      "name": "Hephaestus",
+      "id": "110501"
+    },
+    {
+      "name": "Snow Bright, Snow Flight",
+      "id": "100291"
+    },
+    {
+      "name": "I'm Possible!",
+      "id": "100421"
+    },
+    {
+      "name": "THE MOE AAAA Thanks for My Life",
+      "id": "110191"
+    },
+    {
+      "name": "Spooky, Scary, Happy",
+      "id": "110581"
+    },
+    {
+      "name": "Silent Letter",
+      "id": "100871"
+    },
+    {
+      "name": "Sunny Breeze",
+      "id": "100781"
+    },
+    {
+      "name": "Lightning Flare",
+      "id": "110211"
+    },
+    {
+      "name": "Firelight",
+      "id": "110341"
+    },
+    {
+      "name": "Laugh at the Odds",
+      "id": "100491"
+    },
+    {
+      "name": "Never Say Never",
+      "id": "101001"
+    },
+    {
+      "name": "Into High Gear!",
+      "id": "110081"
+    },
+    {
+      "name": "Queen's Lumination",
+      "id": "110091"
+    },
+    {
+      "name": "Raise My Soul's Blade!",
+      "id": "100471"
+    },
+    {
+      "name": "Free From the Ashes",
+      "id": "110161"
+    },
+    {
+      "name": "Rain Cloud Bolt",
+      "id": "110671"
+    },
+    {
+      "name": "Bring on the Banquet!",
+      "id": "110681"
+    },
+    {
+      "name": "Shine On, Tomakomai! ☆",
+      "id": "100991"
+    },
+    {
+      "name": "Hands in the Air Like Ya Don't Care!",
+      "id": "100651"
+    },
+    {
+      "name": "A Warm Cup for You",
+      "id": "110271"
+    },
+    {
+      "name": "Fresh☆Parlor",
+      "id": "110311"
+    },
+    {
+      "name": "Ding Dong, Boo!",
+      "id": "100431"
+    },
+    {
+      "name": "Engines LIT!",
+      "id": "10661"
+    },
+    {
+      "name": "Lyrical Journey",
+      "id": "100571"
+    },
+    {
+      "name": "Turbo BLAST!",
+      "id": "100661"
+    },
+    {
+      "name": "Gluttonous Ruler",
+      "id": "100101111"
+    },
+    {
+      "name": "Accelerating to My Dreams!",
+      "id": "100101211"
+    },
+    {
+      "name": "Sunshine 'n' Spirit!",
+      "id": "100102111"
+    },
+    {
+      "name": "Ruler of Summer",
+      "id": "100102211"
+    },
+    {
+      "name": "Overwhelming Advance",
+      "id": "100103111"
+    },
+    {
+      "name": "Gutsiest in Japan",
+      "id": "100103211"
+    },
+    {
+      "name": "Fully Focused",
+      "id": "100201111"
+    },
+    {
+      "name": "Otherworldly Front-Runner",
+      "id": "100201211"
+    },
+    {
+      "name": "Talented Technique",
+      "id": "100301111"
+    },
+    {
+      "name": "Teio Step",
+      "id": "100301211"
+    },
+    {
+      "name": "Racing Prodigy",
+      "id": "100302111"
+    },
+    {
+      "name": "To the Ends of the Earth",
+      "id": "100302211"
+    },
+    {
+      "name": "Let's Floor It, Baby!",
+      "id": "100401111"
+    },
+    {
+      "name": "Revved Up Red-Hot",
+      "id": "100401211"
+    },
+    {
+      "name": "You Can't Handle Me ☆",
+      "id": "100402111"
+    },
+    {
+      "name": "Queen of the Stage",
+      "id": "100402211"
+    },
+    {
+      "name": "Dazzling Star",
+      "id": "100501111"
+    },
+    {
+      "name": "Entertainer",
+      "id": "100501211"
+    },
+    {
+      "name": "Stunning Trick",
+      "id": "100502111"
+    },
+    {
+      "name": "Glittering Star",
+      "id": "100502211"
+    },
+    {
+      "name": "Kasamatsu's Bottomless Pit",
+      "id": "100601111"
+    },
+    {
+      "name": "Cornered by the Beast",
+      "id": "100601211"
+    },
+    {
+      "name": "Full Belly, Full Energy",
+      "id": "100602111"
+    },
+    {
+      "name": "Holiday Miracle",
+      "id": "100602211"
+    },
+    {
+      "name": "Her Lordship Seeth All",
+      "id": "100701111"
+    },
+    {
+      "name": "It's All Goin' Downhill from Here!",
+      "id": "100701211"
+    },
+    {
+      "name": "Golshi's Out-of-Body Experience",
+      "id": "100702111"
+    },
+    {
+      "name": "Have Some Squid, Kid!",
+      "id": "100702211"
+    },
+    {
+      "name": "A Swig of Strength",
+      "id": "100801111"
+    },
+    {
+      "name": "Feet of Fury",
+      "id": "100801211"
+    },
+    {
+      "name": "Cuttin' Through!",
+      "id": "100802111"
+    },
+    {
+      "name": "Kick It into Top Gear!",
+      "id": "100802211"
+    },
+    {
+      "name": "Perfectly Tuned",
+      "id": "100901111"
+    },
+    {
+      "name": "First Place Is MINE!",
+      "id": "100901211"
+    },
+    {
+      "name": "Rough Queen",
+      "id": "100902111"
+    },
+    {
+      "name": "Door to My Dream",
+      "id": "100902211"
+    },
+    {
+      "name": "Shootin' Straight Ahead!",
+      "id": "101001111"
+    },
+    {
+      "name": "Frontier Spirit",
+      "id": "101001211"
+    },
+    {
+      "name": "Takin' Y'all on a Wild Ride!",
+      "id": "101002111"
+    },
+    {
+      "name": "May the Best Uma Win!",
+      "id": "101002211"
+    },
+    {
+      "name": "Yamato Nadeshiko",
+      "id": "101101111"
+    },
+    {
+      "name": "Indomitable Spirit",
+      "id": "101101211"
+    },
+    {
+      "name": "Comforting Heal",
+      "id": "101102111"
+    },
+    {
+      "name": "The Magic of Courage",
+      "id": "101102211"
+    },
+    {
+      "name": "Cry of Victory",
+      "id": "101201111"
+    },
+    {
+      "name": "Pororoca Roar",
+      "id": "101201211"
+    },
+    {
+      "name": "As Befits a Mejiro",
+      "id": "101301111"
+    },
+    {
+      "name": "Top-Class Composure",
+      "id": "101301211"
+    },
+    {
+      "name": "Rigorous Rest",
+      "id": "101302111"
+    },
+    {
+      "name": "Above the Cloudline",
+      "id": "101302211"
+    },
+    {
+      "name": "Classy Summer",
+      "id": "101303111"
+    },
+    {
+      "name": "An Earnest Breather",
+      "id": "101303211"
+    },
+    {
+      "name": "Eyes of the Condor",
+      "id": "101401111"
+    },
+    {
+      "name": "Performing Perfecto!",
+      "id": "101401211"
+    },
+    {
+      "name": "Heroic Flurry",
+      "id": "101402111"
+    },
+    {
+      "name": "Rising Condor",
+      "id": "101402211"
+    },
+    {
+      "name": "Entrance of the Centurial Overlord!",
+      "id": "101501111"
+    },
+    {
+      "name": "The Leading Actor",
+      "id": "101501211"
+    },
+    {
+      "name": "Maestro of the Waltz",
+      "id": "101502111"
+    },
+    {
+      "name": "Never a Beat Late!",
+      "id": "101502211"
+    },
+    {
+      "name": "Decisive Strike",
+      "id": "101601111"
+    },
+    {
+      "name": "In the Wolf's Maw",
+      "id": "101601211"
+    },
+    {
+      "name": "Blazing Wolf",
+      "id": "101602111"
+    },
+    {
+      "name": "Ravenous Beast",
+      "id": "101602211"
+    },
+    {
+      "name": "Eyes of an Emperor",
+      "id": "101701111"
+    },
+    {
+      "name": "Unquestioned Might",
+      "id": "101701211"
+    },
+    {
+      "name": "Unwavering Expression",
+      "id": "101702111"
+    },
+    {
+      "name": "Autumn Grace",
+      "id": "101702211"
+    },
+    {
+      "name": "As the Empress Wills",
+      "id": "101801111"
+    },
+    {
+      "name": "Untouchable Beauty",
+      "id": "101801211"
+    },
+    {
+      "name": "Dignified Empress",
+      "id": "101802111"
+    },
+    {
+      "name": "Moonlight Sommelier",
+      "id": "101802211"
+    },
+    {
+      "name": "Ultimate Uma Simp",
+      "id": "101901111"
+    },
+    {
+      "name": "Best View of Anyone!",
+      "id": "101901211"
+    },
+    {
+      "name": "Run Like the Fic's Due Tomorrow!",
+      "id": "101902111"
+    },
+    {
+      "name": "Back for More Moe!",
+      "id": "101902211"
+    },
+    {
+      "name": "Quick Reel",
+      "id": "102001111"
+    },
+    {
+      "name": "Breakaway Scheme",
+      "id": "102001211"
+    },
+    {
+      "name": "Run If You Can ♪",
+      "id": "102002111"
+    },
+    {
+      "name": "Record Runner",
+      "id": "102002211"
+    },
+    {
+      "name": "Gone in a Flash",
+      "id": "102101111"
+    },
+    {
+      "name": "Paradise Tail",
+      "id": "102101211"
+    },
+    {
+      "name": "A Prayer for Our Predecessors",
+      "id": "102102111"
+    },
+    {
+      "name": "C'mon, Let's Do This!",
+      "id": "102102211"
+    },
+    {
+      "name": "Royal Star",
+      "id": "102201111"
+    },
+    {
+      "name": "Heavenly Descent",
+      "id": "102201211"
+    },
+    {
+      "name": "Emboldening Memories",
+      "id": "102202111"
+    },
+    {
+      "name": "Spear of Morrígan",
+      "id": "102202211"
+    },
+    {
+      "name": "All According to Plan",
+      "id": "102301111"
+    },
+    {
+      "name": "Strategic Cooldown",
+      "id": "102301211"
+    },
+    {
+      "name": "Very Important Positioning",
+      "id": "102302111"
+    },
+    {
+      "name": "Speedy Santa",
+      "id": "102302211"
+    },
+    {
+      "name": "You copy?",
+      "id": "102401111"
+    },
+    {
+      "name": "I copy!",
+      "id": "102401211"
+    },
+    {
+      "name": "Soft White Whisper",
+      "id": "102402111"
+    },
+    {
+      "name": "Barrel Roll!",
+      "id": "102402211"
+    },
+    {
+      "name": "Coffee Break",
+      "id": "102501111"
+    },
+    {
+      "name": "Don't Leave Me...",
+      "id": "102501211"
+    },
+    {
+      "name": "Overclock",
+      "id": "102601111"
+    },
+    {
+      "name": "Overcome Any Strife",
+      "id": "102601211"
+    },
+    {
+      "name": "Malfunction Mitigation",
+      "id": "102602111"
+    },
+    {
+      "name": "Perfect Boost",
+      "id": "102602211"
+    },
+    {
+      "name": "Let Those Muscles SING!",
+      "id": "102701111"
+    },
+    {
+      "name": "Bulk Up & Away!",
+      "id": "102701211"
+    },
+    {
+      "name": "Helping Grant Your Dream",
+      "id": "102702111"
+    },
+    {
+      "name": "Give You a Taste of Glory",
+      "id": "102702211"
+    },
+    {
+      "name": "Full Tank!",
+      "id": "102801111"
+    },
+    {
+      "name": "Always Hungry for More!",
+      "id": "102801211"
+    },
+    {
+      "name": "Like They Do in the City!",
+      "id": "102901111"
+    },
+    {
+      "name": "Snow Gals Know Howta Sled!",
+      "id": "102901211"
+    },
+    {
+      "name": "Heroic Determination",
+      "id": "103001111"
+    },
+    {
+      "name": "Dark Assassin",
+      "id": "103001211"
+    },
+    {
+      "name": "I Can Do This!",
+      "id": "103002111"
+    },
+    {
+      "name": "Trick and Treat",
+      "id": "103002211"
+    },
+    {
+      "name": "Stubborn Sis",
+      "id": "103101111"
+    },
+    {
+      "name": "Wind God's Wrath",
+      "id": "103101211"
+    },
+    {
+      "name": "Perfect ♪ Order Up!",
+      "id": "103102111"
+    },
+    {
+      "name": "Slick Serving",
+      "id": "103102211"
+    },
+    {
+      "name": "Latent One",
+      "id": "103201111"
+    },
+    {
+      "name": "Efficient Rest Methodology",
+      "id": "103201211"
+    },
+    {
+      "name": "Quiet Promise",
+      "id": "103301111"
+    },
+    {
+      "name": "Self-Destructive Comet",
+      "id": "103301211"
+    },
+    {
+      "name": "Firefighter's Ascent",
+      "id": "103401111"
+    },
+    {
+      "name": "Expert on the Dirt",
+      "id": "103401211"
+    },
+    {
+      "name": "Fan Dance",
+      "id": "103402111"
+    },
+    {
+      "name": "Standout Step",
+      "id": "103402211"
+    },
+    {
+      "name": "Never Ever Give Up",
+      "id": "103501111"
+    },
+    {
+      "name": "Winning Road",
+      "id": "103501211"
+    },
+    {
+      "name": "Superpowered Engines!",
+      "id": "103502111"
+    },
+    {
+      "name": "I Can Fly!",
+      "id": "103502211"
+    },
+    {
+      "name": "Uplift",
+      "id": "103601111"
+    },
+    {
+      "name": "Lose Myself",
+      "id": "103601211"
+    },
+    {
+      "name": "Blinding Magia",
+      "id": "103701111"
+    },
+    {
+      "name": "On My Honor",
+      "id": "103701211"
+    },
+    {
+      "name": "Recipe for Victory",
+      "id": "103702111"
+    },
+    {
+      "name": "Dark Flash",
+      "id": "103702211"
+    },
+    {
+      "name": "#CuteChaos♪",
+      "id": "103801111"
+    },
+    {
+      "name": "#GotYouDownBad♪",
+      "id": "103801211"
+    },
+    {
+      "name": "#ThinkOfMe",
+      "id": "103802111"
+    },
+    {
+      "name": "#BeautifulSprint",
+      "id": "103802211"
+    },
+    {
+      "name": "Unstoppable Princess",
+      "id": "103901111"
+    },
+    {
+      "name": "Rising Road Rage",
+      "id": "103901211"
+    },
+    {
+      "name": "Pristine Foresight",
+      "id": "104001111"
+    },
+    {
+      "name": "Star of the Runway",
+      "id": "104001211"
+    },
+    {
+      "name": "Golden Formation",
+      "id": "104002111"
+    },
+    {
+      "name": "Geared to Strike",
+      "id": "104002211"
+    },
+    {
+      "name": "Bakushin SPRINT!",
+      "id": "104101111"
+    },
+    {
+      "name": "Bakushin LEAD!",
+      "id": "104101211"
+    },
+    {
+      "name": "The World Is My Oyster",
+      "id": "104201111"
+    },
+    {
+      "name": "Pearlescent Danceoff",
+      "id": "104201211"
+    },
+    {
+      "name": "Just Run Like Crazy!",
+      "id": "104301111"
+    },
+    {
+      "name": "Mischevious Maestro",
+      "id": "104301211"
+    },
+    {
+      "name": "After-School Magical Girl",
+      "id": "104401111"
+    },
+    {
+      "name": "Magic Charm",
+      "id": "104401211"
+    },
+    {
+      "name": "Sweet Trance",
+      "id": "104501111"
+    },
+    {
+      "name": "Motherly Maestro",
+      "id": "104501211"
+    },
+    {
+      "name": "Expert Caretaker",
+      "id": "104502111"
+    },
+    {
+      "name": "Mummy's Sweet Whispers",
+      "id": "104502211"
+    },
+    {
+      "name": "Umadol★Onstage!",
+      "id": "104601111"
+    },
+    {
+      "name": "Umadol ♪ Chart Topper!",
+      "id": "104601211"
+    },
+    {
+      "name": "Rising to Umadol Stardom!",
+      "id": "104602111"
+    },
+    {
+      "name": "Always Center Stage!",
+      "id": "104602211"
+    },
+    {
+      "name": "Halfway to Heroism",
+      "id": "104701111"
+    },
+    {
+      "name": "Shining Sword",
+      "id": "104701211"
+    },
+    {
+      "name": "Lezzgo!",
+      "id": "104801111"
+    },
+    {
+      "name": "Trendsetter",
+      "id": "104801211"
+    },
+    {
+      "name": "It's All or Nothing",
+      "id": "104901111"
+    },
+    {
+      "name": "Takin' Each Gamble",
+      "id": "104901211"
+    },
+    {
+      "name": "Cutting-Edge Senses",
+      "id": "105001111"
+    },
+    {
+      "name": "Heart of a Hunter",
+      "id": "105001211"
+    },
+    {
+      "name": "I'll Show You!",
+      "id": "105002111"
+    },
+    {
+      "name": "Bolt from the Brink",
+      "id": "105002211"
+    },
+    {
+      "name": "Petals in the Breeze",
+      "id": "105101111"
+    },
+    {
+      "name": "Blooming Resolve",
+      "id": "105101211"
+    },
+    {
+      "name": "I'll Keep Trying!",
+      "id": "105201111"
+    },
+    {
+      "name": "I Won't Lose!",
+      "id": "105201211"
+    },
+    {
+      "name": "Look, Look!",
+      "id": "105202111"
+    },
+    {
+      "name": "I'll Do My Very Best!",
+      "id": "105202211"
+    },
+    {
+      "name": "Peak Discipline",
+      "id": "105301111"
+    },
+    {
+      "name": "Ready for a Red-Hot Tech!",
+      "id": "105301211"
+    },
+    {
+      "name": "Lucky Sign!",
+      "id": "105601111"
+    },
+    {
+      "name": "Lucky Number Seven",
+      "id": "105601211"
+    },
+    {
+      "name": "Crazy Extra Mega Lucky!",
+      "id": "105602111"
+    },
+    {
+      "name": "Bring On the Luck!",
+      "id": "105602211"
+    },
+    {
+      "name": "Soaring Steps",
+      "id": "105701111"
+    },
+    {
+      "name": "Spring from the Earth",
+      "id": "105701211"
+    },
+    {
+      "name": "Right on the Dot",
+      "id": "105801111"
+    },
+    {
+      "name": "I-I'm Doing My Best!",
+      "id": "105801211"
+    },
+    {
+      "name": "For My Rival!",
+      "id": "105802111"
+    },
+    {
+      "name": "Soul Guide",
+      "id": "105802211"
+    },
+    {
+      "name": "Cold Look",
+      "id": "105901111"
+    },
+    {
+      "name": "Queen of Yodo",
+      "id": "105901211"
+    },
+    {
+      "name": "I Want to Explore More!",
+      "id": "105902111"
+    },
+    {
+      "name": "First Step from the Brink",
+      "id": "105902211"
+    },
+    {
+      "name": "Cynical Charm",
+      "id": "106001111"
+    },
+    {
+      "name": "Be the Lead!",
+      "id": "106001211"
+    },
+    {
+      "name": "Just Gotta Do What I Can",
+      "id": "106002111"
+    },
+    {
+      "name": "Keep the Cheers Comin'",
+      "id": "106002211"
+    },
+    {
+      "name": "Shocking Sweep",
+      "id": "106101111"
+    },
+    {
+      "name": "Kingly View",
+      "id": "106101211"
+    },
+    {
+      "name": "Ascend Glory",
+      "id": "106102111"
+    },
+    {
+      "name": "Sakura Blossoms in the Breeze",
+      "id": "106102211"
+    },
+    {
+      "name": "Goin' My Way!",
+      "id": "106201111"
+    },
+    {
+      "name": "Ei, Ei, Mun!",
+      "id": "106201211"
+    },
+    {
+      "name": "WILD, Amirite?",
+      "id": "106401111"
+    },
+    {
+      "name": "Breakaway on Lock",
+      "id": "106401211"
+    },
+    {
+      "name": "LOL I'm on FIRE!",
+      "id": "106501111"
+    },
+    {
+      "name": "DW I'm on It!",
+      "id": "106501211"
+    },
+    {
+      "name": "1000% Output!",
+      "id": "106601111"
+    },
+    {
+      "name": "Turbo's Leadin' the Charge!",
+      "id": "106601211"
+    },
+    {
+      "name": "Indestructable",
+      "id": "106701111"
+    },
+    {
+      "name": "Rondo to the Right",
+      "id": "106701211"
+    },
+    {
+      "name": "Beyond My Station",
+      "id": "106702111"
+    },
+    {
+      "name": "The Dawn Always Comes!",
+      "id": "106702211"
+    },
+    {
+      "name": "Get the Festival Going!",
+      "id": "106801111"
+    },
+    {
+      "name": "Bright Blast",
+      "id": "106801211"
+    },
+    {
+      "name": "Leap Ahead to the Future",
+      "id": "106802111"
+    },
+    {
+      "name": "Introducing the Victor!",
+      "id": "106802211"
+    },
+    {
+      "name": "Good Year for Sakura!",
+      "id": "106901111"
+    },
+    {
+      "name": "The Sakura Bloom Regally Today",
+      "id": "106901211"
+    },
+    {
+      "name": "Eternal Light",
+      "id": "107101111"
+    },
+    {
+      "name": "Give This Moment Everything",
+      "id": "107101211"
+    },
+    {
+      "name": "Growing Flame",
+      "id": "107201111"
+    },
+    {
+      "name": "Yaeno's Fighting Spirit",
+      "id": "107201211"
+    },
+    {
+      "name": "Ladylike Resolve",
+      "id": "107401111"
+    },
+    {
+      "name": "Immovable as a Mountain",
+      "id": "107401211"
+    },
+    {
+      "name": "Shearing Gust",
+      "id": "107801111"
+    },
+    {
+      "name": "As Nature Wills",
+      "id": "107801211"
+    },
+    {
+      "name": "Raise the Pitch",
+      "id": "108701111"
+    },
+    {
+      "name": "Leave a Footprint in Your Memory",
+      "id": "108701211"
+    },
+    {
+      "name": "Lucky Rickey!",
+      "id": "109801111"
+    },
+    {
+      "name": "Longmai Pulse",
+      "id": "109801211"
+    },
+    {
+      "name": "Thinkin' About Tomakomai Food",
+      "id": "109901111"
+    },
+    {
+      "name": "Be a Good Ambassador!",
+      "id": "109901211"
+    },
+    {
+      "name": "A Dose of Ambition",
+      "id": "110001111"
+    },
+    {
+      "name": "Divine on the Dirt",
+      "id": "110001211"
+    },
+    {
+      "name": "Ever Supreme",
+      "id": "100851"
+    },
+    {
+      "name": "Ever Graceful",
+      "id": "108501111"
+    },
+    {
+      "name": "Always the Most Brilliant",
+      "id": "108501211"
+    },
+    {
+      "name": "Mission: Triumph",
+      "id": "100831"
+    },
+    {
+      "name": "Simple and Sturdy",
+      "id": "108301111"
+    },
+    {
+      "name": "Imposing Innovation",
+      "id": "108301211"
+    },
+    {
+      "name": "Watch! Me! BLOOM!",
+      "id": "110691"
+    },
+    {
+      "name": "Danser le Présent",
+      "id": "110711"
+    },
+    {
+      "name": "Bloom Down the Branch",
+      "id": "106902111"
+    },
+    {
+      "name": "I Don't Wanna Lose!",
+      "id": "106902211"
+    },
+    {
+      "name": "Elegant Phosphorescence",
+      "id": "107102111"
+    },
+    {
+      "name": "Fleeting Afterglow",
+      "id": "107102211"
+    },
+    {
+      "name": "World in Bloom",
+      "id": "100761"
+    },
+    {
+      "name": "Open All the Buds",
+      "id": "107601111"
+    },
+    {
+      "name": "Blossom for Us!",
+      "id": "107601211"
+    },
+    {
+      "name": "Ad Astra",
+      "id": "101051"
+    },
+    {
+      "name": "Beyond the Stars with You",
+      "id": "110501111"
+    },
+    {
+      "name": "Cross the Sea of Stars",
+      "id": "110501211"
+    },
+    {
+      "name": "Cherry☆Scramble",
+      "id": "110411"
+    },
+    {
+      "name": "Tumbly Power Drive!",
+      "id": "110621"
+    },
+    {
+      "name": "Full Charge! BAKUSHIIIN!",
+      "id": "104102111"
+    },
+    {
+      "name": "Baku-speed! BakuSHIIIIN!",
+      "id": "104102211"
+    },
+    {
+      "name": "Positive Smile",
+      "id": "106202111"
+    },
+    {
+      "name": "Turning Things Right Around!",
+      "id": "106202211"
+    },
+    {
+      "name": "Bang! Miracle Shot ☆",
+      "id": "101061"
+    },
+    {
+      "name": "No Pressure, No Rush",
+      "id": "110601111"
+    },
+    {
+      "name": "Collect All the Little Miracles",
+      "id": "110601211"
+    },
+    {
+      "name": "Sublimated Thunder",
+      "id": "100841"
+    },
+    {
+      "name": "The Stormcaller of Destruction",
+      "id": "108401111"
+    },
+    {
+      "name": "Intoxicate the World",
+      "id": "108401211"
+    },
+    {
+      "name": "First Bite of the Feast!",
+      "id": "110121"
+    },
+    {
+      "name": "Flowering Dreams",
+      "id": "110511"
+    },
+    {
+      "name": "Engaging Engine!",
+      "id": "101202111"
+    },
+    {
+      "name": "Cake-Cuttin' Time!",
+      "id": "101202211"
+    },
+    {
+      "name": "Flower Girl's Blessing",
+      "id": "105102111"
+    },
+    {
+      "name": "Veil in the Spring Breeze",
+      "id": "105102211"
+    },
+    {
+      "name": "Magical☆Marvelous★World",
+      "id": "100551"
+    },
+    {
+      "name": "Marvelous ☆ Thrill",
+      "id": "105501111"
+    },
+    {
+      "name": "Make the World Marvelous ☆",
+      "id": "105501211"
+    },
+    {
+      "name": "Us Girlies Keep Winnin'! ♪",
+      "id": "110481"
+    },
+    {
+      "name": "Scorching Summer Tech!",
+      "id": "110531"
+    },
+    {
+      "name": "I Can Totes Shake 'Em!",
+      "id": "104802111"
+    },
+    {
+      "name": "I'm Literally the Best!",
+      "id": "104802211"
+    },
+    {
+      "name": "Red-Hot Transforma-Runner!",
+      "id": "105302111"
+    },
+    {
+      "name": "Ultimate Ultra-Sprint!",
+      "id": "105302211"
+    },
+    {
+      "name": "Sunrise Banner—Katsuragi Ace!",
+      "id": "101041"
+    },
+    {
+      "name": "Aced It!",
+      "id": "110401111"
+    },
+    {
+      "name": "Runnin' the Race Solo",
+      "id": "110401211"
+    },
+    {
+      "name": "Seirios",
+      "id": "100701"
+    },
+    {
+      "name": "Unyielding Aster",
+      "id": "107001111"
+    },
+    {
+      "name": "Arabesque of the Brightest Star",
+      "id": "107001211"
+    },
+    {
+      "name": "Ahead of the Horizon",
+      "id": "110021"
+    },
+    {
+      "name": "Summer Halation",
+      "id": "110321"
+    },
+    {
+      "name": "Ultramarine Getaway",
+      "id": "100202111"
+    },
+    {
+      "name": "Ráfaga Azul",
+      "id": "100202211"
+    },
+    {
+      "name": "Devil's Laplace",
+      "id": "103202111"
+    },
+    {
+      "name": "Blinding Luxon",
+      "id": "103202211"
     }
   ]
 }

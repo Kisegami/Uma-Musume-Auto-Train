@@ -183,18 +183,29 @@ def check_training(go_back=True, year=None, current_stats=None):
         spirit_training_extra_count = check_spirit_training_extra(screenshot, spirit_training_boxes, train_type=key)
         # Spirit burst - pass screenshot to avoid taking new one
         spirit_burst_count = check_spirit_burst(screenshot, train_type=key)
+        # Spirit burst EX - same detection region as normal burst, separate scoring
+        spirit_burst_ex_count = check_spirit_burst_ex(screenshot, train_type=key)
 
         # Adjust spirit_count to avoid double-counting: spirit_training_extra icons are already counted in spirit_count
         # Subtract them so we only count regular spirit training icons separately
         spirit_count_adjusted = max(0, spirit_count - spirit_training_extra_count)
 
         # Calculate score for this training type
-        score = calculate_training_score(detailed_support, hint_found, spirit_count_adjusted, spirit_burst_count, spirit_training_extra_count, key, year=year)
+        score = calculate_training_score(
+            detailed_support,
+            hint_found,
+            spirit_count_adjusted,
+            spirit_burst_count,
+            spirit_training_extra_count,
+            key,
+            year=year,
+            spirit_burst_ex_count=spirit_burst_ex_count,
+        )
 
         log_debug(
             f"Support counts: {support_counts} | hint_found={hint_found} | "
             f"spirit_count={spirit_count} (adjusted: {spirit_count_adjusted}) | spirit_training_extra_count={spirit_training_extra_count} | "
-            f"spirit_burst_count={spirit_burst_count} | score={score}"
+            f"spirit_burst_count={spirit_burst_count} | spirit_burst_ex_count={spirit_burst_ex_count} | score={score}"
         )
 
         log_debug(f"Checking failure rate for {key.upper()} training...")
@@ -206,6 +217,7 @@ def check_training(go_back=True, year=None, current_stats=None):
             "support_detail": detailed_support,
             "hint": bool(hint_found),
             "spirit_training_extra": spirit_training_extra_count,
+            "spirit_burst_ex": spirit_burst_ex_count,
             "total_support": total_support,
             "failure": failure_chance,
             "confidence": confidence,
@@ -235,6 +247,8 @@ def check_training(go_back=True, year=None, current_stats=None):
             extras.append(f"spirit:{spirit_count_adjusted}")
         if spirit_burst_count > 0:
             extras.append(f"burst:{spirit_burst_count}")
+        if spirit_burst_ex_count > 0:
+            extras.append(f"burst_ex:{spirit_burst_ex_count}")
         if spirit_training_extra_count > 0:
             extras.append(f"sp_extra:{spirit_training_extra_count}")
         extras_str = " " + " ".join(extras) if extras else ""
@@ -251,6 +265,7 @@ def check_training(go_back=True, year=None, current_stats=None):
                 hint_found=hint_found,
                 spirit_count=spirit_count_adjusted,
                 spirit_burst_count=spirit_burst_count,
+                spirit_burst_ex_count=spirit_burst_ex_count,
                 failure_chance=failure_chance,
                 confidence=confidence,
                 score=score,
@@ -512,6 +527,26 @@ def check_spirit_burst(
     )
 
 
+def check_spirit_burst_ex(
+    screenshot,
+    template_path: str = "assets/unity/spirit_burst_ex.png",
+    confidence: float = 0.8,
+    train_type: str = "",
+) -> int:
+    """
+    Detect number of Spirit Burst EX icons within the support card search region.
+
+    Uses SUPPORT_CARD_ICON_REGION and template matching with deduplication.
+    """
+    return _detect_unity_icon(
+        screenshot,
+        template_path=template_path,
+        debug_prefix="spirit_burst_ex",
+        confidence=confidence,
+        train_type=train_type,
+    )
+
+
 def check_spirit_training_extra(
     screenshot,
     spirit_training_boxes: list,
@@ -535,7 +570,10 @@ def check_spirit_training_extra(
     if not spirit_training_boxes:
         return 0
     
-    if not os.path.exists(template_path):
+    template_paths = [template_path, "assets/unity/burst_ex_ed.png"]
+    existing_templates = [path for path in template_paths if os.path.exists(path)]
+
+    if not existing_templates:
         log_debug(f"Burst_ed template not found: {template_path}")
         return 0
     
@@ -574,11 +612,13 @@ def check_spirit_training_extra(
         
         log_debug(f" Checking burst_ed for spirit training at ({center_x}, {center_y}) in region {region_cv}")
         
-        # Check for burst_ed.png in this region
-        matches = match_template(screenshot, template_path, confidence, region_cv)
-        if matches:
-            count += 1
-            log_debug(f"  Found burst_ed.png below spirit training at ({center_x}, {center_y})")
+        # Check for either burst_ed.png or burst_ex_ed.png in this region.
+        for current_template in existing_templates:
+            matches = match_template(screenshot, current_template, confidence, region_cv)
+            if matches:
+                count += 1
+                log_debug(f"  Found {os.path.basename(current_template)} below spirit training at ({center_x}, {center_y})")
+                break
     
     log_debug(f" Spirit training extra (after burst) count: {count}")
     return count
@@ -591,6 +631,7 @@ def _save_training_debug_overlay(
     hint_found: bool,
     spirit_count: int,
     spirit_burst_count: int,
+    spirit_burst_ex_count: int,
     failure_chance: int,
     confidence: float,
     score: float,
@@ -642,6 +683,7 @@ def _save_training_debug_overlay(
             f"Hint: {hint_found}",
             f"Spirit: {spirit_count}",
             f"Burst: {spirit_burst_count}",
+            f"Burst EX: {spirit_burst_ex_count}",
         ]
         # Try a larger font for readability
         try:
@@ -687,6 +729,15 @@ def _save_training_debug_overlay(
                 draw.rectangle([x, y, x + w, y + h], outline="orange", width=2)
         except Exception as e:
             log_debug(f"Failed to draw spirit burst boxes in overlay: {e}")
+
+        # Spirit burst EX icon boxes
+        try:
+            spirit_burst_ex_tpl = "assets/unity/spirit_burst_ex.png"
+            spirit_burst_ex_matches = match_template(screenshot, spirit_burst_ex_tpl, 0.8, region_cv)
+            for (x, y, w, h) in spirit_burst_ex_matches or []:
+                draw.rectangle([x, y, x + w, y + h], outline="red", width=2)
+        except Exception as e:
+            log_debug(f"Failed to draw spirit burst EX boxes in overlay: {e}")
 
         fname = f"debug_training_{training_type.lower()}.png"
         img.save(fname)
@@ -962,7 +1013,16 @@ def choose_best_training(training_results, config, current_stats, year=None):
     log_debug(f" Best training selected: {best_training} (score: {sorted_options[0][1].get('score', 0):.2f})")
     return best_training
 
-def calculate_training_score(support_detail, hint_found, spirit_count, spirit_burst_count, spirit_training_extra_count, training_type, year=None):
+def calculate_training_score(
+    support_detail,
+    hint_found,
+    spirit_count,
+    spirit_burst_count,
+    spirit_training_extra_count,
+    training_type,
+    year=None,
+    spirit_burst_ex_count=0,
+):
     """
     Calculate training score based on support cards, bond levels, and hints.
     
@@ -974,6 +1034,7 @@ def calculate_training_score(support_detail, hint_found, spirit_count, spirit_bu
         spirit_training_extra_count: Number of spirit training icons after burst
         training_type: The type of training being evaluated
         year (str, optional): Current year to adjust scoring (e.g., "Finale Underway")
+        spirit_burst_ex_count: Number of spirit burst EX icons
     
     Returns:
         float: Calculated score for the training
@@ -1002,18 +1063,22 @@ def calculate_training_score(support_detail, hint_found, spirit_count, spirit_bu
             # keep key typo consistent with training_score_unity.json
             "spririt_training": {"points": 0.5},
             "spirit_burst": {"points": 1.0},
+            "spirit_burst_ex": {"points": 1.0},
         }
     
-    # Load main config to check spirit_burst_enabled_stats
+    # Load main config to check spirit_burst enabled stats
     spirit_burst_enabled_stats = None
+    spirit_burst_ex_enabled_stats = None
     try:
         main_config = load_main_config()
         training_config = main_config.get('training', {})
         spirit_burst_enabled_stats = training_config.get('spirit_burst_enabled_stats', None)
+        spirit_burst_ex_enabled_stats = training_config.get('spirit_burst_ex_enabled_stats', None)
     except (FileNotFoundError, json.JSONDecodeError, KeyError) as e:
-        log_debug(f"Could not load main config for spirit_burst_enabled_stats: {e}")
+        log_debug(f"Could not load main config for spirit burst enabled stats: {e}")
         # If config not found, allow all stats (default behavior)
         spirit_burst_enabled_stats = None
+        spirit_burst_ex_enabled_stats = None
     
     score = 0.0
     
@@ -1079,6 +1144,20 @@ def calculate_training_score(support_detail, hint_found, spirit_count, spirit_bu
             burst_points = scoring_rules.get("spirit_burst", {}).get("points", 1.0)
             score += burst_points * spirit_burst_count
         # If training_type is not in enabled_stats, spirit burst score is 0 (do nothing)
+
+    # Add spirit burst EX bonus per icon found (only if training_type is in enabled stats)
+    if spirit_burst_ex_count and spirit_burst_ex_count > 0:
+        # If spirit_burst_ex_enabled_stats is None or empty, allow all stats (default behavior)
+        # Otherwise, only add points if training_type is in the enabled list
+        if spirit_burst_ex_enabled_stats is None or len(spirit_burst_ex_enabled_stats) == 0:
+            # Default: allow all stats
+            burst_ex_points = scoring_rules.get("spirit_burst_ex", {}).get("points", 1.0)
+            score += burst_ex_points * spirit_burst_ex_count
+        elif training_type in spirit_burst_ex_enabled_stats:
+            # Only add points if this training type is enabled
+            burst_ex_points = scoring_rules.get("spirit_burst_ex", {}).get("points", 1.0)
+            score += burst_ex_points * spirit_burst_ex_count
+        # If training_type is not in enabled_stats, spirit burst EX score is 0 (do nothing)
     
     return round(score, 2)
 
@@ -1139,6 +1218,7 @@ def check_training_api(year=None, current_stats=None):
                     "support_detail": {},
                     "hint": False,
                     "spirit_training_extra": 0,
+                    "spirit_burst_ex": 0,
                     "total_support": 0,
                     "failure": 100,
                     "confidence": 1.0,
@@ -1155,6 +1235,7 @@ def check_training_api(year=None, current_stats=None):
         spirit_count = spirit_data.get("spirit_count", 0)
         spirit_training_extra = spirit_data.get("spirit_training_extra_count", 0)
         spirit_burst = spirit_data.get("spirit_burst_count", 0)
+        spirit_burst_ex = spirit_data.get("spirit_burst_ex_count", 0)
 
         # Build support_counts and support_detail from API support_cards
         support_counts = {}
@@ -1188,7 +1269,7 @@ def check_training_api(year=None, current_stats=None):
         score = calculate_training_score(
             detailed_support, hint_found,
             spirit_count_adjusted, spirit_burst, spirit_training_extra,
-            key, year=year
+            key, year=year, spirit_burst_ex_count=spirit_burst_ex
         )
 
         results[key] = {
@@ -1196,6 +1277,7 @@ def check_training_api(year=None, current_stats=None):
             "support_detail": detailed_support,
             "hint": bool(hint_found),
             "spirit_training_extra": spirit_training_extra,
+            "spirit_burst_ex": spirit_burst_ex,
             "total_support": total_support,
             "failure": failure,
             "confidence": 1.0,  # API data is always high-confidence
@@ -1224,6 +1306,8 @@ def check_training_api(year=None, current_stats=None):
             extras.append(f"spirit:{spirit_count_adjusted}")
         if spirit_burst > 0:
             extras.append(f"burst:{spirit_burst}")
+        if spirit_burst_ex > 0:
+            extras.append(f"burst_ex:{spirit_burst_ex}")
         if spirit_training_extra > 0:
             extras.append(f"sp_extra:{spirit_training_extra}")
         extras_str = " " + " ".join(extras) if extras else ""

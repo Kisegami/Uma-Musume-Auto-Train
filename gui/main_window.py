@@ -382,6 +382,8 @@ class MainWindow(QMainWindow):
                 "retry_race": True,
                 "stop_on_race_fail": True,
                 "max_clock_per_race": 1,
+                "unity_use_clock_retry": False,
+                "unity_opponent_select_method": "equal_rank",
                 "custom_race_search_method": "ocr",
             },
             "events": {"uma_event_file": "All", "support_card_template": "", "scenario_event_selection": "Current Mode"},

@@ -28,6 +28,10 @@
       "description": "Spirit burst",
       "points": 1.0
     },
+    "spirit_burst_ex": {
+      "description": "Spirit Burst Extreme",
+      "points": 1.0
+    },
     "spirit_training_extra": {
       "description": "Spirit training after burst (Set this lower if you priortize gaining burst)",
       "points": 0.2

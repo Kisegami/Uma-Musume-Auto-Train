@@ -133,15 +133,17 @@ def get_device_info():
         log_error("Error getting device info: " + str(e))
         return False
 
-def check_trackblazer_api_requirement():
-    """Require API mode and a reachable KUC service for Trackblazer."""
-    if mode != "trackblazer":
-        return True
-
+def check_api_requirement():
+    """Validate API mode requirements before automation starts."""
     api_config = config.get("api", {})
-    if not api_config.get("enabled", False):
+    api_enabled = api_config.get("enabled", False)
+
+    if mode == "trackblazer" and not api_enabled:
         log_error("Trackblazer startup blocked: API Mode is disabled. Trackblazer requires KUC and API Mode.")
         return False
+
+    if not api_enabled:
+        return True
 
     from utils.integrations.umat_api import check_kuc_connection
 
@@ -150,7 +152,7 @@ def check_trackblazer_api_requirement():
         timeout=api_config.get("timeout", 2),
     )
     if not connected:
-        log_error(f"Trackblazer startup blocked: {detail}")
+        log_error(f"API startup blocked: {detail}")
         return False
 
     log_info(detail)
@@ -161,7 +163,7 @@ def main():
     log_info("=" * 40)
     log_info(f"Mode: {mode.upper()}")
 
-    if not check_trackblazer_api_requirement():
+    if not check_api_requirement():
         return
     
     # Check ADB connection

@@ -134,6 +134,29 @@ class RacingTab(QScrollArea):
         settings_layout.addWidget(self.max_clock_widget)
         
         layout.addWidget(settings_group)
+
+        # ==================== Unity Race Section ====================
+        self.unity_race_group = QGroupBox("Unity Race Setting")
+        unity_layout = QVBoxLayout(self.unity_race_group)
+        unity_layout.setSpacing(12)
+
+        self.unity_use_clock_retry = QCheckBox("Use clock to retry Unity Race")
+        self.unity_use_clock_retry.stateChanged.connect(self._save_racing)
+        unity_layout.addWidget(self.unity_use_clock_retry)
+
+        unity_method_widget = QWidget()
+        unity_method_layout = QHBoxLayout(unity_method_widget)
+        unity_method_layout.setContentsMargins(0, 0, 0, 0)
+        unity_method_layout.addWidget(QLabel("Opponent Select Method:"))
+        self.unity_opponent_method_combo = QComboBox()
+        self.unity_opponent_method_combo.addItem("Pick equal rank Opponent", "equal_rank")
+        self.unity_opponent_method_combo.addItem("Pick highest rank Opponent", "highest_rank")
+        self.unity_opponent_method_combo.currentIndexChanged.connect(self._save_racing)
+        unity_method_layout.addWidget(self.unity_opponent_method_combo)
+        unity_method_layout.addStretch()
+        unity_layout.addWidget(unity_method_widget)
+
+        layout.addWidget(self.unity_race_group)
         
         # ==================== Custom Race Section ====================
         custom_group = QGroupBox("Custom Race Settings")
@@ -215,6 +238,11 @@ class RacingTab(QScrollArea):
         """Show the per-race clock limit only for enabled Trackblazer retries."""
         is_trackblazer = self.main_window.get_config().get("mode") == "trackblazer"
         self.max_clock_widget.setVisible(is_trackblazer and self.retry_race.isChecked())
+
+    def _update_unity_race_visibility(self):
+        """Show Unity-race-only settings only in Unity Cup mode."""
+        is_unity = self.main_window.get_config().get("mode") == "unity"
+        self.unity_race_group.setVisible(is_unity)
     
     def _load_custom_race_templates(self):
         """Load available custom race templates"""
@@ -280,6 +308,18 @@ class RacingTab(QScrollArea):
         self.max_clock_per_race.setValue(racing.get("max_clock_per_race", 1))
         self.max_clock_per_race.blockSignals(False)
         self._update_max_clock_visibility()
+
+        # Unity race settings
+        self.unity_use_clock_retry.blockSignals(True)
+        self.unity_use_clock_retry.setChecked(racing.get("unity_use_clock_retry", False))
+        self.unity_use_clock_retry.blockSignals(False)
+
+        self.unity_opponent_method_combo.blockSignals(True)
+        unity_method = racing.get("unity_opponent_select_method", "equal_rank")
+        idx = self.unity_opponent_method_combo.findData(unity_method)
+        self.unity_opponent_method_combo.setCurrentIndex(idx if idx >= 0 else 0)
+        self.unity_opponent_method_combo.blockSignals(False)
+        self._update_unity_race_visibility()
         
         # Custom race
         self.do_custom_race.blockSignals(True)
@@ -322,6 +362,8 @@ class RacingTab(QScrollArea):
         config["racing"]["buy_clock_carats"] = self.buy_clock_carats.isChecked()
         config["racing"]["stop_on_race_fail"] = self.stop_on_race_fail.isChecked()
         config["racing"]["max_clock_per_race"] = self.max_clock_per_race.value()
+        config["racing"]["unity_use_clock_retry"] = self.unity_use_clock_retry.isChecked()
+        config["racing"]["unity_opponent_select_method"] = self.unity_opponent_method_combo.currentData() or "equal_rank"
         config["racing"]["do_custom_race"] = self.do_custom_race.isChecked()
         config["racing"]["custom_race_file"] = f"template/races/{self.custom_file_combo.currentText()}"
         config["racing"]["custom_race_search_method"] = self.custom_race_method_combo.currentData() or "ocr"

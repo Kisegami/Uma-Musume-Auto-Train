@@ -44,6 +44,11 @@
       "sta",
       "pwr"
     ],
+    "spirit_burst_ex_enabled_stats": [
+      "spd",
+      "sta",
+      "pwr"
+    ],
     "soft_cap_enabled": false,
     "soft_stat_caps": {
       "spd": 1100,
@@ -83,6 +88,8 @@
       "Medium",
       "Long"
     ],
+    "unity_use_clock_retry": false,
+    "unity_opponent_select_method": "equal_rank",
     "do_custom_race": true,
     "custom_race_file": "template/races/custom_races.json",
     "custom_race_search_method": "template_matching"
