@@ -10008,5 +10008,796 @@
       "Bottom Option": "Early Start hint +1\r\nMr. C.B. bond +5"
     },
     "CardSlug": "10078-mr-cb"
+  },
+  {
+    "EventName": "(❯) Lesson One: Party Hearty",
+    "EventOptions": {
+      "": "Speed +7\r\nPower +7\r\nTaiki Shuttle bond +5"
+    },
+    "CardSlug": "30053-taiki-shuttle"
+  },
+  {
+    "EventName": "(❯❯) Lesson Two: The Show Must Go On",
+    "EventOptions": {
+      "Top Option": "Randomly either\r\nPower +15\r\nMile Corners ○ hint +2\r\nTaiki Shuttle bond +5\r\nor\r\nor\r\nPower +10\r\nEvent chain ended"
+    },
+    "CardSlug": "30053-taiki-shuttle"
+  },
+  {
+    "EventName": "(❯❯) Lesson Two: The Show Must Go On",
+    "EventOptions": {
+      "Bottom Option": "Speed +10\r\nTaiki Shuttle bond +5"
+    },
+    "CardSlug": "30053-taiki-shuttle"
+  },
+  {
+    "EventName": "(❯❯❯) Lesson Three: Live in the Moment",
+    "EventOptions": {
+      "": "Speed +10\r\nPower +10\r\nGuts +10\r\nMile Maven hint +1\r\nTaiki Shuttle bond +5"
+    },
+    "CardSlug": "30053-taiki-shuttle"
+  },
+  {
+    "EventName": "Yes! Let's Hug ☆",
+    "EventOptions": {
+      "Top Option": "Speed +10\r\nTaiki Shuttle bond +5"
+    },
+    "CardSlug": "30053-taiki-shuttle"
+  },
+  {
+    "EventName": "Yes! Let's Hug ☆",
+    "EventOptions": {
+      "Bottom Option": "Speed +5\r\nPower +5\r\nTaiki Shuttle bond +5"
+    },
+    "CardSlug": "30053-taiki-shuttle"
+  },
+  {
+    "EventName": "Yeehaw! Party Tonight ☆",
+    "EventOptions": {
+      "Top Option": "Energy -10\r\nSpeed +5\r\nPower +10\r\nTaiki Shuttle bond +5"
+    },
+    "CardSlug": "30053-taiki-shuttle"
+  },
+  {
+    "EventName": "Yeehaw! Party Tonight ☆",
+    "EventOptions": {
+      "Bottom Option": "Prepared to Pass hint +1\r\nTaiki Shuttle bond +5"
+    },
+    "CardSlug": "30053-taiki-shuttle"
+  },
+  {
+    "EventName": "(❯) \"I Just Can't Quit Food\" —Oguri Cap",
+    "EventOptions": {
+      "Top Option": "Oguri Cap bond +15"
+    },
+    "CardSlug": "20048-oguri-cap"
+  },
+  {
+    "EventName": "(❯) \"I Just Can't Quit Food\" —Oguri Cap",
+    "EventOptions": {
+      "Bottom Option": "(random) Energy -10\r\nGuts +15\r\nOguri Cap bond +5"
+    },
+    "CardSlug": "20048-oguri-cap"
+  },
+  {
+    "EventName": "(❯❯) \"Happiness? Don't Mind If I Do\" —Oguri Cap",
+    "EventOptions": {
+      "": "Power +7\r\nGuts +7\r\nSkill points +10\r\nWet Conditions ○ hint +1\r\nOguri Cap bond +5"
+    },
+    "CardSlug": "20048-oguri-cap"
+  },
+  {
+    "EventName": "How Should I Respond?",
+    "EventOptions": {
+      "Top Option": "Energy +5\r\nPower +5\r\nOguri Cap bond +5"
+    },
+    "CardSlug": "20048-oguri-cap"
+  },
+  {
+    "EventName": "How Should I Respond?",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nGuts +15\r\nOguri Cap bond +5"
+    },
+    "CardSlug": "20048-oguri-cap"
+  },
+  {
+    "EventName": "Conquering the Crowds",
+    "EventOptions": {
+      "Top Option": "Power +5\r\nSkill points +15\r\nOguri Cap bond +5"
+    },
+    "CardSlug": "20048-oguri-cap"
+  },
+  {
+    "EventName": "Conquering the Crowds",
+    "EventOptions": {
+      "Bottom Option": "Nakayama Racecourse ○ hint +1\r\nOguri Cap bond +5"
+    },
+    "CardSlug": "20048-oguri-cap"
+  },
+  {
+    "EventName": "#Studenting (Symboli Rudolf)",
+    "EventOptions": {
+      "": "Energy +12\r\nWit +34\r\nFighting Spirit hint +1\r\nHeirs to the Throne bond +5"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "The Monarch's Pride (Tokai Teio)",
+    "EventOptions": {
+      "": "Energy +12\r\nMood +1\r\nSpeed +23\r\nPrudent Positioning hint +1\r\nHeirs to the Throne bond +5"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "A Leisurely Stroll for Two (Tsurumaru Tsuyoshi)",
+    "EventOptions": {
+      "": "Energy +36\r\nSkill points +17\r\nFull Throttle hint +1\r\nHeirs to the Throne bond +5"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "I Wanna Be Just Like Prez!",
+    "EventOptions": {
+      "": "Energy +24\r\nSpeed +11\r\nWit +28\r\nSkill points +17\r\nNakayama Racecourse ○ hint +1\r\nHeal Night Owl\r\nHeal Slacker\r\nHeirs to the Throne bond +5"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "I Want to Be Just Like President Rudolf!",
+    "EventOptions": {
+      "": "Energy +24\r\nMood +1\r\nSpeed +17\r\nWit +34\r\nSkill points +23\r\nRefraction Arc hint +1\r\nGet Pure Passion: Heirs to the Throne status\r\nHeirs to the Throne bond +5"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "My Way, Or...",
+    "EventOptions": {
+      "Top Option": "Mood +1\r\nSkill points +17\r\nTokai Teio bond +5"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "My Way, Or...",
+    "EventOptions": {
+      "Bottom Option": "Guts +17\r\nTokai Teio bond +5"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "My Weapon",
+    "EventOptions": {
+      "Top Option": "Mood +1\r\nGuts +11\r\nTokai Teio bond +5"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "My Weapon",
+    "EventOptions": {
+      "Bottom Option": "Pace Chaser Straightaways ○ hint +1\r\nTokai Teio bond +5"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "The Emperor's Encouragement",
+    "EventOptions": {
+      "Top Option": "Speed +11\r\nSymboli Rudolf bond +5"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "The Emperor's Encouragement",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nSkill points +34\r\nSymboli Rudolf bond +5"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "The Student Council President's Thoughtfulness",
+    "EventOptions": {
+      "Top Option": "Rainy Days ○ hint +1\r\nSymboli Rudolf bond +5"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "The Student Council President's Thoughtfulness",
+    "EventOptions": {
+      "Bottom Option": "Stamina +17\r\nSymboli Rudolf bond +5"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "Preparing to the MAX!",
+    "EventOptions": {
+      "Top Option": "Energy +12\r\nMood +1\r\nTsurumaru Tsuyoshi bond +5"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "Preparing to the MAX!",
+    "EventOptions": {
+      "Bottom Option": "Speed +17\r\nTsurumaru Tsuyoshi bond +5"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "Helping Out to the MAX!",
+    "EventOptions": {
+      "Top Option": "Fighter hint +1\r\nTsurumaru Tsuyoshi bond +5"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "Helping Out to the MAX!",
+    "EventOptions": {
+      "Bottom Option": "Guts +17\r\nTsurumaru Tsuyoshi bond +5"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "Emulation Is the Sincerest Form of Flattery",
+    "EventOptions": {
+      "": "Speed +5\r\nWit +17\r\nSkill points +5\r\nGet Pure Passion: Heirs to the Throne status\r\nHeirs to the Throne bond +5\r\nCan start dating"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "The Bright Future Ahead",
+    "EventOptions": {
+      "Top Option": "Wit +17\r\nHeirs to the Throne bond +5"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "The Bright Future Ahead",
+    "EventOptions": {
+      "Bottom Option": "Speed +17\r\nHeirs to the Throne bond +5"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "Diamonds in the Rough",
+    "EventOptions": {
+      "": "Wit +17\r\nHeirs to the Throne bond +5"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "We'll Get Stronger, Together",
+    "EventOptions": {
+      "Top Option": "Wit +4\r\nHeirs to the Throne bond +5\r\n※ has Pure Passion: Heirs to the Throne\r\nWit +4\r\nSkill points +4\r\nHeirs to the Throne bond +5"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "We'll Get Stronger, Together",
+    "EventOptions": {
+      "Middle Option": "Speed +4\r\nHeirs to the Throne bond +5\r\n※ has Pure Passion: Heirs to the Throne\r\nSpeed +4\r\nSkill points +4\r\nHeirs to the Throne bond +5"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "We'll Get Stronger, Together",
+    "EventOptions": {
+      "Bottom Option": "Skill points +4\r\nHeirs to the Throne bond +5\r\n※ has Pure Passion: Heirs to the Throne\r\nEnergy +3\r\nSkill points +4\r\nHeirs to the Throne bond +5"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "The Heroic Trio Running Side by Side",
+    "EventOptions": {
+      "": "Speed +23\r\nWit +23\r\nSkill points +23"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "With Our Powers Combined",
+    "EventOptions": {
+      "": "Speed +17\r\nWit +17\r\nSkill points +17"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "Dreaming the Same Dream",
+    "EventOptions": {
+      "": "Speed +11\r\nWit +23\r\nSkill points +11\r\nMedium Corners ○ hint +1\r\nHeirs to the Throne bond +5"
+    },
+    "CardSlug": "30067-the-thrones-assemblage"
+  },
+  {
+    "EventName": "(❯) I'm Gonna Buckle Down 'n' Work Hard!",
+    "EventOptions": {
+      "": "All stats +3\r\nSpecial Week bond +5"
+    },
+    "CardSlug": "30105-special-week"
+  },
+  {
+    "EventName": "(❯❯) I'm Gonna Run with Everyone!",
+    "EventOptions": {
+      "Top Option": "Speed +10\r\nFeature Act hint +2\r\nSpecial Week bond +5"
+    },
+    "CardSlug": "30105-special-week"
+  },
+  {
+    "EventName": "(❯❯) I'm Gonna Run with Everyone!",
+    "EventOptions": {
+      "Bottom Option": "Stamina +10\r\nStraightaway Recovery hint +2\r\nSpecial Week bond +5"
+    },
+    "CardSlug": "30105-special-week"
+  },
+  {
+    "EventName": "(❯❯❯) I'm Gonna Visit Home!",
+    "EventOptions": {
+      "": "Energy -10\r\nAll stats +7\r\nOverwhelming Pressure hint +1\r\nSpecial Week bond +7"
+    },
+    "CardSlug": "30105-special-week"
+  },
+  {
+    "EventName": "Watch Where You're Going!",
+    "EventOptions": {
+      "Top Option": "Extra Tank hint +1\r\nSpecial Week bond +5"
+    },
+    "CardSlug": "30105-special-week"
+  },
+  {
+    "EventName": "Watch Where You're Going!",
+    "EventOptions": {
+      "Bottom Option": "Guts +15\r\nSpecial Week bond +5"
+    },
+    "CardSlug": "30105-special-week"
+  },
+  {
+    "EventName": "So Many Options!",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nMood +1\r\nSpecial Week bond +5"
+    },
+    "CardSlug": "30105-special-week"
+  },
+  {
+    "EventName": "So Many Options!",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nStamina +15\r\nSkill points +15\r\nSpecial Week bond +5"
+    },
+    "CardSlug": "30105-special-week"
+  },
+  {
+    "EventName": "(❯) My Source of Admiration",
+    "EventOptions": {
+      "": "Mood +1\r\nPower +10\r\nFearless hint +1\r\nAir Groove bond +5"
+    },
+    "CardSlug": "30106-air-groove"
+  },
+  {
+    "EventName": "(❯❯) You Make Me Who I Am",
+    "EventOptions": {
+      "Top Option": "Power +7\r\nWit +7\r\nTake the Chance hint +1\r\nAir Groove bond +5"
+    },
+    "CardSlug": "30106-air-groove"
+  },
+  {
+    "EventName": "(❯❯) You Make Me Who I Am",
+    "EventOptions": {
+      "Bottom Option": "Skill points +10\r\nUpdrafters hint +1\r\nAir Groove bond +5"
+    },
+    "CardSlug": "30106-air-groove"
+  },
+  {
+    "EventName": "(❯❯❯) Dynamic Duo",
+    "EventOptions": {
+      "": "Power +10\r\nWit +10\r\nLie in Wait hint +1\r\nAir Groove bond +5"
+    },
+    "CardSlug": "30106-air-groove"
+  },
+  {
+    "EventName": "Strict but Gracious",
+    "EventOptions": {
+      "Top Option": "Go with the Flow hint +1\r\nAir Groove bond +5"
+    },
+    "CardSlug": "30106-air-groove"
+  },
+  {
+    "EventName": "Strict but Gracious",
+    "EventOptions": {
+      "Bottom Option": "Energy +10\r\nWit +10\r\nAir Groove bond +5"
+    },
+    "CardSlug": "30106-air-groove"
+  },
+  {
+    "EventName": "Agile but Strong",
+    "EventOptions": {
+      "Top Option": "Power +15\r\nAir Groove bond +5"
+    },
+    "CardSlug": "30106-air-groove"
+  },
+  {
+    "EventName": "Agile but Strong",
+    "EventOptions": {
+      "Bottom Option": "Speed +10\r\nStamina +5\r\nAir Groove bond +5"
+    },
+    "CardSlug": "30106-air-groove"
+  },
+  {
+    "EventName": "(❯) Where My Courage Comes From",
+    "EventOptions": {
+      "": "Guts +15\r\nEl Condor Pasa bond +5"
+    },
+    "CardSlug": "30102-el-condor-pasa"
+  },
+  {
+    "EventName": "(❯❯) A Mask with Many Faces",
+    "EventOptions": {
+      "Top Option": "Randomly either\r\nMood +1\r\nSkill points +30\r\nEl Condor Pasa bond +5\r\nor\r\nor\r\nEnergy -10\r\nSkill points +5"
+    },
+    "CardSlug": "30102-el-condor-pasa"
+  },
+  {
+    "EventName": "(❯❯) A Mask with Many Faces",
+    "EventOptions": {
+      "Bottom Option": "Speed +7\r\nPower +7\r\nGuts +7\r\nEl Condor Pasa bond +5"
+    },
+    "CardSlug": "30102-el-condor-pasa"
+  },
+  {
+    "EventName": "(❯❯❯) With All the Courage I Have",
+    "EventOptions": {
+      "": "Randomly either\r\nSpeed +5\r\nGuts +15\r\nSkill points +30\r\nSpeed Star hint +3\r\nEl Condor Pasa bond +5\r\nor\r\nor\r\nSpeed +5\r\nGuts +15\r\nSkill points +30\r\nSpeed Star hint +1\r\nEl Condor Pasa bond +5"
+    },
+    "CardSlug": "30102-el-condor-pasa"
+  },
+  {
+    "EventName": "Blazing Fire!",
+    "EventOptions": {
+      "Top Option": "Stamina +10\r\nEl Condor Pasa bond +5"
+    },
+    "CardSlug": "30102-el-condor-pasa"
+  },
+  {
+    "EventName": "Blazing Fire!",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nPower +20\r\nEl Condor Pasa bond +5"
+    },
+    "CardSlug": "30102-el-condor-pasa"
+  },
+  {
+    "EventName": "Secret Notebook!",
+    "EventOptions": {
+      "Top Option": "Power +10\r\nEl Condor Pasa bond +5"
+    },
+    "CardSlug": "30102-el-condor-pasa"
+  },
+  {
+    "EventName": "Secret Notebook!",
+    "EventOptions": {
+      "Bottom Option": "Sunny Days ○ hint +1\r\nEl Condor Pasa bond +5"
+    },
+    "CardSlug": "30102-el-condor-pasa"
+  },
+  {
+    "EventName": "(❯) I'm Just Embarrassed",
+    "EventOptions": {
+      "": "Randomly either\r\nSkill points +25\r\nRamp Up hint +1\r\nMatikanetannhauser bond +5\r\nor\r\nor\r\nSkill points +15\r\nMatikanetannhauser bond +5"
+    },
+    "CardSlug": "30103-matikanetannhauser"
+  },
+  {
+    "EventName": "(❯❯) I Just Need Practice",
+    "EventOptions": {
+      "": "Randomly either\r\nSkill points +25\r\nFlustered Late Surgers hint +1\r\nMatikanetannhauser bond +5\r\nor\r\nor\r\nSkill points +15\r\nMatikanetannhauser bond +5"
+    },
+    "CardSlug": "30103-matikanetannhauser"
+  },
+  {
+    "EventName": "(❯❯❯) Just Another Way to Show Love",
+    "EventOptions": {
+      "": "Randomly either\r\nSpeed +7\r\nStamina +7\r\nPower +7\r\nGuts +7\r\nIt's On! hint +3\r\nMatikanetannhauser bond +10\r\nor\r\nor\r\nSpeed +7\r\nPower +7\r\nIt's On! hint +2\r\nMatikanetannhauser bond +5\r\nor\r\nor\r\nEnergy +10\r\nIt's On! hint +1\r\nMatikanetannhauser bond +5"
+    },
+    "CardSlug": "30103-matikanetannhauser"
+  },
+  {
+    "EventName": "Just Your Typical Hard Work!",
+    "EventOptions": {
+      "Top Option": "Speed +10\r\nMatikanetannhauser bond +5"
+    },
+    "CardSlug": "30103-matikanetannhauser"
+  },
+  {
+    "EventName": "Just Your Typical Hard Work!",
+    "EventOptions": {
+      "Bottom Option": "Power +10\r\nMatikanetannhauser bond +5"
+    },
+    "CardSlug": "30103-matikanetannhauser"
+  },
+  {
+    "EventName": "Just A Typical Accident?!",
+    "EventOptions": {
+      "Top Option": "Stamina +5\r\nGuts +10\r\nMatikanetannhauser bond +5"
+    },
+    "CardSlug": "30103-matikanetannhauser"
+  },
+  {
+    "EventName": "Just A Typical Accident?!",
+    "EventOptions": {
+      "Bottom Option": "Subdued Front Runners hint +1\r\nMatikanetannhauser bond +5"
+    },
+    "CardSlug": "30103-matikanetannhauser"
+  },
+  {
+    "EventName": "(❯) A Half-Remembered Book",
+    "EventOptions": {
+      "": "Stamina +10\r\nWit +10\r\nStudious hint +1\r\nZenno Rob Roy bond +5"
+    },
+    "CardSlug": "30104-zenno-rob-roy"
+  },
+  {
+    "EventName": "(❯❯) Cooking Up a Rainbow",
+    "EventOptions": {
+      "": "Stamina +10\r\nSkill points +10\r\nTactical Tweak hint +1\r\nZenno Rob Roy bond +5"
+    },
+    "CardSlug": "30104-zenno-rob-roy"
+  },
+  {
+    "EventName": "(❯❯❯) Hobbies Bring Us Together",
+    "EventOptions": {
+      "": "Stamina +10\r\nClairvoyance hint +1\r\nZenno Rob Roy bond +5"
+    },
+    "CardSlug": "30104-zenno-rob-roy"
+  },
+  {
+    "EventName": "Book-lover Quirks",
+    "EventOptions": {
+      "Top Option": "Speed +5\r\nWit +5\r\nZenno Rob Roy bond +5"
+    },
+    "CardSlug": "30104-zenno-rob-roy"
+  },
+  {
+    "EventName": "Book-lover Quirks",
+    "EventOptions": {
+      "Bottom Option": "Energy +10\r\nPower +5\r\nZenno Rob Roy bond +5"
+    },
+    "CardSlug": "30104-zenno-rob-roy"
+  },
+  {
+    "EventName": "A Tale Entrusted",
+    "EventOptions": {
+      "Top Option": "Stamina +10\r\nWit +10\r\nZenno Rob Roy bond +5"
+    },
+    "CardSlug": "30104-zenno-rob-roy"
+  },
+  {
+    "EventName": "A Tale Entrusted",
+    "EventOptions": {
+      "Bottom Option": "Medium Straightaways ○ hint +1\r\nZenno Rob Roy bond +5"
+    },
+    "CardSlug": "30104-zenno-rob-roy"
+  },
+  {
+    "EventName": "(❯) With Passion and Joy!",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nSpeed +5\r\nPower +5\r\nEl Condor Pasa bond +5"
+    },
+    "CardSlug": "20033-el-condor-pasa"
+  },
+  {
+    "EventName": "(❯) With Passion and Joy!",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nSpeed +15\r\nPower +10\r\nEl Condor Pasa bond +5"
+    },
+    "CardSlug": "20033-el-condor-pasa"
+  },
+  {
+    "EventName": "(❯❯) Muddy Heroes",
+    "EventOptions": {
+      "": "Energy -10\r\nSpeed +15\r\nPower +15\r\nPace Chaser Corners ○ hint +1\r\nEl Condor Pasa bond +7"
+    },
+    "CardSlug": "20033-el-condor-pasa"
+  },
+  {
+    "EventName": "Blazing Fire!",
+    "EventOptions": {
+      "Top Option": "Stamina +10\r\nEl Condor Pasa bond +5"
+    },
+    "CardSlug": "20033-el-condor-pasa"
+  },
+  {
+    "EventName": "Blazing Fire!",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nPower +20\r\nEl Condor Pasa bond +5"
+    },
+    "CardSlug": "20033-el-condor-pasa"
+  },
+  {
+    "EventName": "Secret Notebook!",
+    "EventOptions": {
+      "Top Option": "Power +10\r\nEl Condor Pasa bond +5"
+    },
+    "CardSlug": "20033-el-condor-pasa"
+  },
+  {
+    "EventName": "Secret Notebook!",
+    "EventOptions": {
+      "Bottom Option": "Sunny Days ○ hint +1\r\nEl Condor Pasa bond +5"
+    },
+    "CardSlug": "20033-el-condor-pasa"
+  },
+  {
+    "EventName": "(❯) I Can Do It Myself",
+    "EventOptions": {
+      "": "Skill points +30\r\nGold City bond +5"
+    },
+    "CardSlug": "20049-gold-city"
+  },
+  {
+    "EventName": "(❯❯) Relying On Others",
+    "EventOptions": {
+      "Top Option": "Speed +10\r\nSkill points +10\r\nStraightaway Recovery hint +2\r\nGold City bond +5"
+    },
+    "CardSlug": "20049-gold-city"
+  },
+  {
+    "EventName": "(❯❯) Relying On Others",
+    "EventOptions": {
+      "Bottom Option": "Wit +10\r\nSkill points +10\r\nSnowy Days ○ hint +2\r\nGold City bond +5"
+    },
+    "CardSlug": "20049-gold-city"
+  },
+  {
+    "EventName": "08:36 / Crap, I Overslept",
+    "EventOptions": {
+      "Top Option": "Mood -1\r\nSkill points +45\r\nGold City bond +5"
+    },
+    "CardSlug": "20049-gold-city"
+  },
+  {
+    "EventName": "08:36 / Crap, I Overslept",
+    "EventOptions": {
+      "Bottom Option": "Energy +10\r\nWit +5\r\nGold City bond +5"
+    },
+    "CardSlug": "20049-gold-city"
+  },
+  {
+    "EventName": "13:12 / Lunch Break, Gotta Get Myself Together",
+    "EventOptions": {
+      "Top Option": "Skill points +30\r\nGold City bond +5"
+    },
+    "CardSlug": "20049-gold-city"
+  },
+  {
+    "EventName": "13:12 / Lunch Break, Gotta Get Myself Together",
+    "EventOptions": {
+      "Bottom Option": "A Small Breather hint +1\r\nGold City bond +5"
+    },
+    "CardSlug": "20049-gold-city"
+  },
+  {
+    "EventName": "Preparing to the MAX!",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nMood +1\r\nTsurumaru Tsuyoshi bond +5"
+    },
+    "CardSlug": "10081-tsurumaru-tsuyoshi"
+  },
+  {
+    "EventName": "Preparing to the MAX!",
+    "EventOptions": {
+      "Bottom Option": "Speed +15\r\nTsurumaru Tsuyoshi bond +5"
+    },
+    "CardSlug": "10081-tsurumaru-tsuyoshi"
+  },
+  {
+    "EventName": "Helping Out to the MAX!",
+    "EventOptions": {
+      "Top Option": "Fighter hint +1\r\nTsurumaru Tsuyoshi bond +5"
+    },
+    "CardSlug": "10081-tsurumaru-tsuyoshi"
+  },
+  {
+    "EventName": "Helping Out to the MAX!",
+    "EventOptions": {
+      "Bottom Option": "Guts +15\r\nTsurumaru Tsuyoshi bond +5"
+    },
+    "CardSlug": "10081-tsurumaru-tsuyoshi"
+  },
+  {
+    "EventName": "(❯) A Seaside Resort, Love is in the Air",
+    "EventOptions": {
+      "": "Randomly either\r\nSpeed +10\r\nor\r\nor\r\nSpeed +15\r\nWit +5\r\nMaruzensky bond +15"
+    },
+    "CardSlug": "30107-maruzensky"
+  },
+  {
+    "EventName": "(❯❯) Thrilling Memories Still in My Heart",
+    "EventOptions": {
+      "": "Randomly either\r\nSpeed +10\r\nor\r\nor\r\nSpeed +15\r\nPower +5\r\nFocus hint +1\r\nMaruzensky bond +15"
+    },
+    "CardSlug": "30107-maruzensky"
+  },
+  {
+    "EventName": "(❯❯❯) Shine On Forever",
+    "EventOptions": {
+      "": "Speed +30\r\nWit +10\r\nTop Runner hint +1"
+    },
+    "CardSlug": "30107-maruzensky"
+  },
+  {
+    "EventName": "For an Adorable Younger Student",
+    "EventOptions": {
+      "Top Option": "Early Lead hint +1\r\nMaruzensky bond +5"
+    },
+    "CardSlug": "30107-maruzensky"
+  },
+  {
+    "EventName": "For an Adorable Younger Student",
+    "EventOptions": {
+      "Bottom Option": "Energy +5\r\nSpeed +10\r\nMaruzensky bond +5"
+    },
+    "CardSlug": "30107-maruzensky"
+  },
+  {
+    "EventName": "Drive Destination",
+    "EventOptions": {
+      "Top Option": "Speed +5\r\nMood +1\r\nMaruzensky bond +5"
+    },
+    "CardSlug": "30107-maruzensky"
+  },
+  {
+    "EventName": "Drive Destination",
+    "EventOptions": {
+      "Bottom Option": "Wit +5\r\nMood +1\r\nMaruzensky bond +5"
+    },
+    "CardSlug": "30107-maruzensky"
+  },
+  {
+    "EventName": "(❯) All In",
+    "EventOptions": {
+      "": "Wit +10\r\nSkill points +20\r\nNakayama Festa bond +5"
+    },
+    "CardSlug": "30108-nakayama-festa"
+  },
+  {
+    "EventName": "(❯❯) Eat 'Em and Weep",
+    "EventOptions": {
+      "Top Option": "Nakayama Festa bond +10\r\n※ Will affect the outcome of the 3rd event"
+    },
+    "CardSlug": "30108-nakayama-festa"
+  },
+  {
+    "EventName": "(❯❯) Eat 'Em and Weep",
+    "EventOptions": {
+      "Bottom Option": "Nakayama Festa bond +10\r\n※ Will affect the outcome of the 3rd event"
+    },
+    "CardSlug": "30108-nakayama-festa"
+  },
+  {
+    "EventName": "(❯❯❯) Upping the Ante",
+    "EventOptions": {
+      "": "Randomly either\r\n※ Can only happen if you chose the 1st option during the 2nd event\r\nSpeed +20\r\nStamina +20\r\nWit +20\r\nSkill points +30\r\nNothing Ventured hint +3\r\nNakayama Festa bond +5\r\nor\r\nor\r\n※ Can only happen if you chose the 2nd option during the 2nd event\r\nSpeed +10\r\nWit +10\r\nSkill points +20\r\nNothing Ventured hint +1\r\nNakayama Festa bond +5\r\nor\r\nor\r\nSkill points +10\r\nRisky Business hint +1"
+    },
+    "CardSlug": "30108-nakayama-festa"
+  },
+  {
+    "EventName": "Sundown Showdown",
+    "EventOptions": {
+      "Top Option": "Energy +15\r\nNakayama Festa bond +5"
+    },
+    "CardSlug": "30108-nakayama-festa"
+  },
+  {
+    "EventName": "Sundown Showdown",
+    "EventOptions": {
+      "Bottom Option": "Guts +15\r\nNakayama Festa bond +5"
+    },
+    "CardSlug": "30108-nakayama-festa"
+  },
+  {
+    "EventName": "Sundown Solo Supper",
+    "EventOptions": {
+      "Top Option": "Nakayama Racecourse ○ hint +1\r\nNakayama Festa bond +5"
+    },
+    "CardSlug": "30108-nakayama-festa"
+  },
+  {
+    "EventName": "Sundown Solo Supper",
+    "EventOptions": {
+      "Bottom Option": "Hanshin Racecourse ○ hint +1\r\nNakayama Festa bond +5"
+    },
+    "CardSlug": "30108-nakayama-festa"
   }
 ]
