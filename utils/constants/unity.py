@@ -62,7 +62,7 @@ UNITY_TEMPLATE_REGIONS = {
     "assets/buttons/recreation_btn.png": (395, 1663, 292, 142),
     "assets/buttons/rest_btn.png": (19, 1372, 313, 236),
     "assets/buttons/rest_summer_btn.png": (22, 1375, 308, 211),
-    "assets/buttons/skills_btn.png": (190, 1602, 248, 138),
+    "assets/buttons/skills_btn.png": (54, 1465, 987, 243),
     "assets/buttons/skip_btn.png": (890, 1715, 180, 172),
     "assets/buttons/training_btn.png": (348, 1461, 378, 139),
     "assets/buttons/try_again.png": (507, 1259, 537, 222),
@@ -84,6 +84,8 @@ UNITY_TEMPLATE_REGIONS = {
     "assets/unity/select_opponent.png": (314, 1520, 466, 236),
     "assets/unity/unity_cup.png": (422, 121, 230, 154),
     "assets/unity/unity_race.png": (422, 1499, 230, 150),
+    "assets/unity/unity_race_next.png": (540, 1680, 460, 190),
+    "assets/unity/unity_retry.png": (70, 1680, 470, 190),
     "assets/unity/zenith_race_btn.png": (365, 1327, 342, 273),
 }
 

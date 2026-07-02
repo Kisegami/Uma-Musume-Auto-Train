@@ -20,6 +20,7 @@ _api_config = _config.get("api", {})
 API_ENABLED = _api_config.get("enabled", False)
 API_BASE_URL = _api_config.get("base_url", "http://localhost:8123").rstrip("/")
 API_TIMEOUT = _api_config.get("timeout", 2)  # seconds
+MIN_KUC_VERSION = "0.3"
 
 
 # ── Internal helpers ──────────────────────────────────────────────────────────
@@ -80,9 +81,40 @@ def is_api_enabled() -> bool:
     return API_ENABLED
 
 
-def check_kuc_connection(base_url: str | None = None, timeout: float | None = None) -> tuple[bool, str]:
+def _parse_version(version: object) -> tuple[int, ...] | None:
+    """Parse simple dotted version strings such as 0.3 or 1.2.0."""
+    if version is None:
+        return None
+
+    parts = str(version).strip().split(".")
+    parsed = []
+    for part in parts:
+        if not part.isdigit():
+            return None
+        parsed.append(int(part))
+
+    return tuple(parsed) if parsed else None
+
+
+def _version_at_least(version: object, minimum: str) -> bool:
+    parsed_version = _parse_version(version)
+    parsed_minimum = _parse_version(minimum)
+    if parsed_version is None or parsed_minimum is None:
+        return False
+
+    size = max(len(parsed_version), len(parsed_minimum))
+    normalized_version = parsed_version + (0,) * (size - len(parsed_version))
+    normalized_minimum = parsed_minimum + (0,) * (size - len(parsed_minimum))
+    return normalized_version >= normalized_minimum
+
+
+def check_kuc_connection(
+    base_url: str | None = None,
+    timeout: float | None = None,
+    minimum_version: str = MIN_KUC_VERSION,
+) -> tuple[bool, str]:
     """
-    Check whether KUC is reachable through its /status endpoint.
+    Check whether KUC is reachable and new enough through its /status endpoint.
 
     A waiting response is accepted because it confirms KUC is running even
     when no active career packet data is available yet.
@@ -107,15 +139,21 @@ def check_kuc_connection(base_url: str | None = None, timeout: float | None = No
     if not isinstance(data, dict):
         return False, f"KUC returned an invalid /status payload from {url}"
 
+    version = data.get("version")
+    if not _version_at_least(version, minimum_version):
+        if version is None:
+            return False, f"KUC /status payload is missing version. Please update KUC to {minimum_version} or newer."
+        return False, f"KUC version {version} is not supported. Please update KUC to {minimum_version} or newer."
+
     if data.get("status") == "waiting":
-        return True, f"KUC is connected at {url} and waiting for game data"
+        return True, f"KUC {version} is connected at {url} and waiting for game data"
 
     required_keys = ("year", "stats", "energy", "mood", "current_skill_points")
     missing = [key for key in required_keys if key not in data]
     if missing:
         return False, f"KUC /status payload is missing keys: {', '.join(missing)}"
 
-    return True, f"KUC is connected at {url}"
+    return True, f"KUC {version} is connected at {url}"
 
 
 def is_api_available() -> bool:

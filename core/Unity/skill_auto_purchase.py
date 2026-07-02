@@ -3,6 +3,7 @@ from core.Unity.skill_recognizer import take_screenshot, recognize_skill_up_loca
 from utils.inputs.input import tap, tap_on_image
 from utils.inputs.skill_swipe import swipe_skill_list_down_slow
 from core.Unity.skill_purchase_optimizer import fuzzy_match_skill_name
+from utils.capture.debug import save_debug_bundle
 from utils.core.log import log_debug, log_info, log_warning, log_error
 from utils.core.config_loader import load_main_config
 from utils.vision.recognizer import locate_on_screen
@@ -180,6 +181,7 @@ def click_image_button(
     description="button",
     max_attempts=10,
     wait_between_attempts=0.5,
+    tap_offset=(0, 0),
     timeout_seconds=None,
 ):
     """
@@ -210,7 +212,9 @@ def click_image_button(
                 location = locate_on_screen(image_path, confidence=0.8)
 
                 if location:
-                    success = click_skill_up_button(location[0], location[1])
+                    tap_x = location[0] + tap_offset[0]
+                    tap_y = location[1] + tap_offset[1]
+                    success = click_skill_up_button(tap_x, tap_y)
                     if success:
                         log_info(f"{description} clicked successfully (attempt {attempt})")
                         return True
@@ -278,6 +282,34 @@ def dismiss_skill_result_dialog(timeout_seconds=12):
     return wait_for_image(BACK_BUTTON_TEMPLATE, timeout=1.0, confidence=0.8, check_interval=0.2)
 
 
+def enter_skill_screen(end_career=False, max_attempts=3):
+    """Open the skill screen and confirm entry by detecting its Back button."""
+    skill_button = "assets/buttons/end_skill.png" if end_career else "assets/buttons/skills_btn.png"
+
+    if not end_career and locate_on_screen("assets/buttons/back_btn.png", confidence=0.8):
+        log_debug("Skill screen already open")
+        return True
+
+    for attempt in range(1, max_attempts + 1):
+        log_info(f"Skill Screen - Entry attempt {attempt}/{max_attempts}")
+        tap_offset = (0, -10) if not end_career else (0, 0)
+        if not click_image_button(skill_button, "skills button", max_attempts=5, tap_offset=tap_offset):
+            continue
+
+        if wait_for_image("assets/buttons/back_btn.png", timeout=3, confidence=0.8, check_interval=0.2):
+            log_info("Skill Screen - Entry confirmed")
+            return True
+
+        log_warning(f"Skill Screen - Back button not visible after entry attempt {attempt}/{max_attempts}")
+
+    log_error("Skill Screen - Failed to confirm entry after retries")
+    save_debug_bundle(
+        "unity_skill_screen_open_failed",
+        "Skill screen Back button was not visible after repeated entry attempts",
+    )
+    return False
+
+
 def fast_swipe_to_top(end_career=False):
     """
     Navigate to top of skill list by tapping back button and then skills button again.
@@ -302,12 +334,7 @@ def fast_swipe_to_top(end_career=False):
     
     # Step 3: Tap skills button again to return to top of list
     # Use end_skill.png in end-career mode, otherwise use skills_btn.png
-    skill_button = "assets/buttons/end_skill.png" if end_career else "assets/buttons/skills_btn.png"
-    log_debug(f"Tapping skills button to return to top of list ({skill_button})...")
-    if tap_on_image(skill_button, confidence=0.8, min_search=10):
-        log_debug(f"Skills button clicked")
-        time.sleep(1.0)  # Wait for skill list to load
-    else:
+    if not enter_skill_screen(end_career=end_career):
         log_error(f"Skills button not found after back button")
         return
     

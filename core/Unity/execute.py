@@ -69,6 +69,7 @@ def _format_energy_threshold(threshold, api_status=None):
 
 racing_config = config.get("racing", {})
 RETRY_RACE = racing_config.get("retry_race", True)
+LOBBY_CONFIRMATION_SETTLE_DELAY = 1.0
 _skip_infirmary_check_once = False
 
 
@@ -636,12 +637,34 @@ def career_lobby(timeout=None):
         _freeze_same_since = None
         log_debug(f"Confirmed in career lobby")
         _watchdog_reset_restart_count_if_stable()
-        time.sleep(0.2)
+        time.sleep(LOBBY_CONFIRMATION_SETTLE_DELAY)
         # Take a fresh screenshot after confirming lobby to ensure stable UI state
         log_debug(f"Taking fresh screenshot after lobby confirmation...")
         screenshot = take_screenshot()
 
-        # ── Invalidate API status cache for new turn ──────────────────────
+        # Lobby popups can appear after the Tazuna hint confirms the lobby.
+        post_lobby_popup_specs = [
+            ("assets/buttons/ok_btn.png", 0.8, None),
+            ("assets/buttons/cancel_lobby.png", 0.8, (295, 1285, 481, 185)),
+            ("assets/buttons/close.png", 0.8, (59, 1153, 472, 186)),
+            ("assets/buttons/next_btn.png", 0.8, None),
+        ]
+        post_lobby_popup_results = match_templates_batch(screenshot, post_lobby_popup_specs)
+        handled_post_lobby_popup = False
+        for popup_template, _, _ in post_lobby_popup_specs:
+            popup_matches = post_lobby_popup_results[popup_template]
+            if popup_matches:
+                x, y, w, h = popup_matches[0]
+                center = (x + w//2, y + h//2)
+                log_info(f"{popup_template} appeared after lobby confirmation, clicking it.")
+                tap(center[0], center[1])
+                handled_post_lobby_popup = True
+                break
+        if handled_post_lobby_popup:
+            time.sleep(LOBBY_CONFIRMATION_SETTLE_DELAY)
+            continue
+
+        # Invalidate API status cache for new turn.
         invalidate_status_cache()
 
         # Check if there is debuff status

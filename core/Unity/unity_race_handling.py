@@ -16,7 +16,7 @@ TEAM_RANK_REGION = (0, 48, 270, 201)
 OPPONENT_RANK_REGION = (3, 217, 387, 1465)
 
 # Rank order (higher first)
-RANK_ORDER = ["S", "A", "B", "C", "D", "E", "G"]
+RANK_ORDER = ["S", "A", "B", "C", "D", "E", "F", "G"]
 RANK_INDEX = {r: i for i, r in enumerate(RANK_ORDER)}
 
 TEAM_TEMPLATES = {
@@ -31,6 +31,7 @@ TEAM_TEMPLATES = {
 }
 
 OPPONENT_TEMPLATES = {
+    "S": "assets/unity/opponent_s.png",
     "A": "assets/unity/opponent_a.png",
     "B": "assets/unity/opponent_b.png",
     "C": "assets/unity/opponent_c.png",
@@ -41,9 +42,15 @@ OPPONENT_TEMPLATES = {
 }
 
 UNITY_RETRY_TEMPLATE = "assets/unity/unity_retry.png"
+UNITY_RESULT_NEXT_TEMPLATE = "assets/unity/unity_race_next.png"
 UNITY_RETRY_BRIGHTNESS_THRESHOLD = 180
 UNITY_OPPONENT_EQUAL_RANK = "equal_rank"
 UNITY_OPPONENT_HIGHEST_RANK = "highest_rank"
+UNITY_OPPONENT_RESCAN_DELAY = 3.0
+ZENITH_RACE_TEMPLATES = (
+    "assets/unity/zenith_race_btn.png",
+    "assets/unity/zenith_race_btn_2.png",
+)
 
 
 def _get_unity_race_settings():
@@ -70,6 +77,16 @@ def _detect_ranks(region: Tuple[int, int, int, int], templates: dict, screenshot
         for (x, y, w, h) in filtered:
             results.append((rank, (x, y, w, h)))
     return results
+
+
+def _duplicated_rank_names(ranks: List[Tuple[str, Tuple[int, int, int, int]]]) -> List[str]:
+    seen = set()
+    duplicates = []
+    for rank, _ in ranks:
+        if rank in seen and rank not in duplicates:
+            duplicates.append(rank)
+        seen.add(rank)
+    return duplicates
 
 
 def _pick_best_opponent(team_rank: str, opponents: List[Tuple[str, Tuple[int, int, int, int]]]) -> Optional[Tuple[str, Tuple[int, int, int, int]]]:
@@ -99,6 +116,14 @@ def _pick_top_opponent(opponents: List[Tuple[str, Tuple[int, int, int, int]]]) -
 def _center_of_bbox(bbox: Tuple[int, int, int, int]) -> Tuple[int, int]:
     x, y, w, h = bbox
     return x + w // 2, y + h // 2
+
+
+def _find_first_template_match(screenshot, template_paths, confidence: float = 0.8):
+    for template_path in template_paths:
+        matches = match_template(screenshot, template_path, confidence=confidence)
+        if matches:
+            return matches[0]
+    return None
 
 
 def _double_tap(x: int, y: int):
@@ -189,6 +214,24 @@ def _is_unity_retry_enabled(screenshot, bbox, threshold: int = UNITY_RETRY_BRIGH
     return enabled
 
 
+def _tap_unity_result_next(screenshot, retry_bbox=None) -> None:
+    """Tap the green Unity result Next button on the retry decision screen."""
+    next_matches = match_template(screenshot, UNITY_RESULT_NEXT_TEMPLATE, confidence=0.8)
+    if next_matches:
+        x, y, w, h = next_matches[0]
+        _double_tap(x + w // 2, y + h // 2)
+        return
+
+    if retry_bbox:
+        x, y, w, h = retry_bbox
+        next_x = x + w + (screenshot.width - (x + w)) // 2
+        next_y = y + h // 2
+    else:
+        next_x = int(screenshot.width * 0.71)
+        next_y = int(screenshot.height * 0.93)
+    tap(int(next_x), int(next_y))
+
+
 def _wait_retry_or_next(use_clock_retry: bool, timeout: float = 20, confidence: float = 0.8) -> str:
     """Wait for the retry decision screen.
 
@@ -198,6 +241,7 @@ def _wait_retry_or_next(use_clock_retry: bool, timeout: float = 20, confidence: 
         "missing" on timeout.
     """
     start = time.time()
+    logged_retry_not_used = False
     while time.time() - start < timeout:
         screenshot = take_screenshot()
 
@@ -210,7 +254,11 @@ def _wait_retry_or_next(use_clock_retry: bool, timeout: float = 20, confidence: 
                 log_info("[UnityRace] Clock retry is enabled by config and available; retrying Unity race.")
                 _double_tap(x + w // 2, y + h // 2)
                 return "retry"
-            log_info("[UnityRace] Clock retry not used; continuing results.")
+            if not logged_retry_not_used:
+                log_info("[UnityRace] Clock retry not used; tapping Unity result Next.")
+                logged_retry_not_used = True
+            _tap_unity_result_next(screenshot, retry_bbox)
+            return "next"
 
         next_matches = match_template(screenshot, "assets/buttons/next_btn.png", confidence=confidence)
         if next_matches:
@@ -218,7 +266,6 @@ def _wait_retry_or_next(use_clock_retry: bool, timeout: float = 20, confidence: 
             _double_tap(x + w // 2, y + h // 2)
             return "next"
 
-        tap(540, 960)
         time.sleep(0.2)
 
     log_warning("[UnityRace] Neither Unity retry nor next button appeared within timeout.")
@@ -238,8 +285,7 @@ def _select_unity_opponent_or_zenith(opponent_select_method: str) -> bool:
         screenshot = take_screenshot()
         select_matches = match_template(screenshot, "assets/unity/select_opponent.png", confidence=0.8)
         select_opponent = select_matches[0] if select_matches else None
-        zenith_matches = match_template(screenshot, "assets/unity/zenith_race_btn.png", confidence=0.8)
-        zenith_btn = zenith_matches[0] if zenith_matches else None
+        zenith_btn = _find_first_template_match(screenshot, ZENITH_RACE_TEMPLATES, confidence=0.8)
 
         if select_opponent or zenith_btn:
             break
@@ -254,6 +300,16 @@ def _select_unity_opponent_or_zenith(opponent_select_method: str) -> bool:
         log_info("[UnityRace] Select Opponent screen detected.")
         opponent_ranks = _detect_ranks(OPPONENT_RANK_REGION, OPPONENT_TEMPLATES, screenshot)
         log_info(f"[UnityRace] Opponent ranks detected: {[r for r, _ in opponent_ranks]}")
+        duplicated_ranks = _duplicated_rank_names(opponent_ranks)
+        if duplicated_ranks:
+            log_info(
+                "[UnityRace] Duplicate opponent rank badges detected "
+                f"({duplicated_ranks}); waiting {UNITY_OPPONENT_RESCAN_DELAY:.0f}s for animation, then rescanning."
+            )
+            time.sleep(UNITY_OPPONENT_RESCAN_DELAY)
+            screenshot = take_screenshot()
+            opponent_ranks = _detect_ranks(OPPONENT_RANK_REGION, OPPONENT_TEMPLATES, screenshot)
+            log_info(f"[UnityRace] Opponent ranks after rescan: {[r for r, _ in opponent_ranks]}")
 
         if opponent_select_method == UNITY_OPPONENT_HIGHEST_RANK:
             chosen = _pick_top_opponent(opponent_ranks)
