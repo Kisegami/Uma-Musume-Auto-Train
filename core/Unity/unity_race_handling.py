@@ -1,10 +1,13 @@
 import time
 from typing import List, Tuple, Optional
 
-from utils.vision.recognizer import match_template, locate_on_screen, max_match_confidence
+from PIL import ImageStat
+
+from utils.vision.recognizer import match_template, max_match_confidence
 from utils.vision.template_matching import deduplicated_matches
 from utils.capture.screenshot import take_screenshot
-from utils.inputs.input import tap, wait_and_tap
+from utils.inputs.input import tap
+from utils.core.config_loader import load_main_config
 from utils.core.log import log_info, log_debug, log_warning
 
 
@@ -37,6 +40,22 @@ OPPONENT_TEMPLATES = {
     "G": "assets/unity/opponent_g.png",
 }
 
+UNITY_RETRY_TEMPLATE = "assets/unity/unity_retry.png"
+UNITY_RETRY_BRIGHTNESS_THRESHOLD = 180
+UNITY_OPPONENT_EQUAL_RANK = "equal_rank"
+UNITY_OPPONENT_HIGHEST_RANK = "highest_rank"
+
+
+def _get_unity_race_settings():
+    racing_config = load_main_config().get("racing", {})
+    return {
+        "use_clock_retry": racing_config.get("unity_use_clock_retry", False),
+        "opponent_select_method": racing_config.get(
+            "unity_opponent_select_method",
+            UNITY_OPPONENT_EQUAL_RANK,
+        ),
+    }
+
 
 def _detect_ranks(region: Tuple[int, int, int, int], templates: dict, screenshot) -> List[Tuple[str, Tuple[int, int, int, int]]]:
     """Return list of (rank, bbox) within a region using template matching."""
@@ -68,6 +87,13 @@ def _pick_best_opponent(team_rank: str, opponents: List[Tuple[str, Tuple[int, in
     candidates.sort()  # smallest index first (closest to team rank but not higher)
     best = candidates[0]
     return best[1], best[2]
+
+
+def _pick_top_opponent(opponents: List[Tuple[str, Tuple[int, int, int, int]]]) -> Optional[Tuple[str, Tuple[int, int, int, int]]]:
+    """Pick the visually topmost opponent, regardless of rank."""
+    if not opponents:
+        return None
+    return min(opponents, key=lambda item: item[1][1])
 
 
 def _center_of_bbox(bbox: Tuple[int, int, int, int]) -> Tuple[int, int]:
@@ -151,19 +177,55 @@ def _wait_for_stable_template(
     return False
 
 
-def unity_race_workflow():
-    """
-    Unity Race handling workflow.
-    Trigger: caller already detected Unity Cup in lobby and invoked this workflow.
-    """
-    log_info("[UnityRace] Starting Unity race workflow...")
+def _is_unity_retry_enabled(screenshot, bbox, threshold: int = UNITY_RETRY_BRIGHTNESS_THRESHOLD) -> bool:
+    x, y, w, h = bbox
+    roi = screenshot.crop((x, y, x + w, y + h)).convert("L")
+    brightness = float(ImageStat.Stat(roi).mean[0])
+    enabled = brightness >= threshold
+    log_info(
+        f"[UnityRace] Clock retry brightness: {brightness:.1f} "
+        f"({'enabled' if enabled else 'disabled'}, threshold={threshold})"
+    )
+    return enabled
 
-    # Tap Unity Race button first
-    if not _wait_and_double_tap("assets/unity/unity_race.png", timeout=8):
-        log_warning("[UnityRace] unity_race.png not found/clicked; aborting workflow.")
-        return False
 
-    # Step 1: Opponent selection or Zenith Race (polling with screenshot interval)
+def _wait_retry_or_next(use_clock_retry: bool, timeout: float = 20, confidence: float = 0.8) -> str:
+    """Wait for the retry decision screen.
+
+    Returns:
+        "retry" when a lit retry button was tapped,
+        "next" when the normal next button was tapped,
+        "missing" on timeout.
+    """
+    start = time.time()
+    while time.time() - start < timeout:
+        screenshot = take_screenshot()
+
+        retry_matches = match_template(screenshot, UNITY_RETRY_TEMPLATE, confidence=confidence)
+        if retry_matches:
+            retry_bbox = retry_matches[0]
+            retry_enabled = _is_unity_retry_enabled(screenshot, retry_bbox)
+            if use_clock_retry and retry_enabled:
+                x, y, w, h = retry_bbox
+                log_info("[UnityRace] Clock retry is enabled by config and available; retrying Unity race.")
+                _double_tap(x + w // 2, y + h // 2)
+                return "retry"
+            log_info("[UnityRace] Clock retry not used; continuing results.")
+
+        next_matches = match_template(screenshot, "assets/buttons/next_btn.png", confidence=confidence)
+        if next_matches:
+            x, y, w, h = next_matches[0]
+            _double_tap(x + w // 2, y + h // 2)
+            return "next"
+
+        tap(540, 960)
+        time.sleep(0.2)
+
+    log_warning("[UnityRace] Neither Unity retry nor next button appeared within timeout.")
+    return "missing"
+
+
+def _select_unity_opponent_or_zenith(opponent_select_method: str) -> bool:
     log_info("[UnityRace] Waiting for Select Opponent or Zenith Race button...")
     timeout = 20.0
     check_interval = 0.5
@@ -171,37 +233,37 @@ def unity_race_workflow():
     select_opponent = None
     zenith_btn = None
     screenshot = None
-    
+
     while time.time() - start_time < timeout:
         screenshot = take_screenshot()
         select_matches = match_template(screenshot, "assets/unity/select_opponent.png", confidence=0.8)
         select_opponent = select_matches[0] if select_matches else None
         zenith_matches = match_template(screenshot, "assets/unity/zenith_race_btn.png", confidence=0.8)
         zenith_btn = zenith_matches[0] if zenith_matches else None
-        
+
         if select_opponent or zenith_btn:
             break
-        
+
         time.sleep(check_interval)
-    
+
     if not select_opponent and not zenith_btn:
         log_warning("[UnityRace] Neither Select Opponent nor Zenith Race detected within timeout.")
-        screenshot = take_screenshot()  # Take one final screenshot for error handling
+        return False
 
     if select_opponent:
         log_info("[UnityRace] Select Opponent screen detected.")
-        # Team rank
-        team_ranks = _detect_ranks(TEAM_RANK_REGION, TEAM_TEMPLATES, screenshot)
-        team_rank = team_ranks[0][0] if team_ranks else None
-        log_info(f"[UnityRace] Team rank detected: {team_rank}")
-
-        # Opponent ranks
         opponent_ranks = _detect_ranks(OPPONENT_RANK_REGION, OPPONENT_TEMPLATES, screenshot)
         log_info(f"[UnityRace] Opponent ranks detected: {[r for r, _ in opponent_ranks]}")
 
-        chosen = None
-        if team_rank and opponent_ranks:
-            chosen = _pick_best_opponent(team_rank, opponent_ranks)
+        if opponent_select_method == UNITY_OPPONENT_HIGHEST_RANK:
+            chosen = _pick_top_opponent(opponent_ranks)
+            log_info("[UnityRace] Opponent select method: Pick highest rank Opponent")
+        else:
+            team_ranks = _detect_ranks(TEAM_RANK_REGION, TEAM_TEMPLATES, screenshot)
+            team_rank = team_ranks[0][0] if team_ranks else None
+            log_info(f"[UnityRace] Team rank detected: {team_rank}")
+            chosen = _pick_best_opponent(team_rank, opponent_ranks) if team_rank and opponent_ranks else None
+            log_info("[UnityRace] Opponent select method: Pick equal rank Opponent")
 
         if chosen:
             rank, bbox = chosen
@@ -209,68 +271,88 @@ def unity_race_workflow():
             log_info(f"[UnityRace] Choosing opponent rank {rank}")
             _double_tap(cx, cy)
         else:
-            log_warning("[UnityRace] No suitable opponent found (<= team rank).")
+            log_warning("[UnityRace] No suitable opponent found.")
 
-        # Tap the select/confirm button (use bbox directly)
         sx, sy, sw, sh = select_opponent
         _double_tap(sx + sw // 2, sy + sh // 2)
+        return True
 
-    elif zenith_btn:
-        log_info("[UnityRace] Zenith Race button detected, tapping.")
-        x, y, w, h = zenith_btn
-        _double_tap(x + w // 2, y + h // 2)
+    log_info("[UnityRace] Zenith Race button detected, tapping.")
+    x, y, w, h = zenith_btn
+    _double_tap(x + w // 2, y + h // 2)
+    return True
 
-    else:
-        log_warning("[UnityRace] Neither Select Opponent nor Zenith Race detected after tapping unity_race. Aborting.")
+
+def unity_race_workflow():
+    """
+    Unity Race handling workflow.
+    Trigger: caller already detected Unity Cup in lobby and invoked this workflow.
+    """
+    log_info("[UnityRace] Starting Unity race workflow...")
+    settings = _get_unity_race_settings()
+
+    # Tap Unity Race button first
+    if not _wait_and_double_tap("assets/unity/unity_race.png", timeout=8):
+        log_warning("[UnityRace] unity_race.png not found/clicked; aborting workflow.")
         return False
 
-    # Step 2: Begin Showdown -> See All Race -> Skip -> Next -> Next Unity -> Next
-    time.sleep(0.1)
-    screenshot = take_screenshot()
-
-    log_info("[UnityRace] Trying to begin showdown...")
-    time.sleep(0.6)  # Allow the post-selection transition animation to settle.
-    if not _wait_for_stable_template(
-        "assets/unity/begin_showdown.png",
-        timeout=20,
-        check_interval=0.25,
-        confidence=0.8,
-        stable_hits=2,
-    ):
-        log_warning("[UnityRace] begin_showdown.png did not stabilize; aborting workflow before results sequence.")
-        return False
-    if not _wait_and_double_tap("assets/unity/begin_showdown.png", timeout=20):
-        log_warning("[UnityRace] begin_showdown.png not found; aborting workflow before results sequence.")
-        return False
-
-    log_info("[UnityRace] Waiting for 'See All Race Results'...")
-    if not _wait_and_double_tap("assets/unity/see_all_race_btn.png", timeout=12, confidence=0.8):
-        log_warning("[UnityRace] Primary match for see_all_race_btn failed; retrying with lower confidence.")
-        if not _wait_and_double_tap("assets/unity/see_all_race_btn.png", timeout=10, confidence=0.72):
-            log_warning("[UnityRace] see_all_race_btn.png not found; aborting workflow.")
+    retry_count = 0
+    max_unity_retries = 10
+    while retry_count <= max_unity_retries:
+        if not _select_unity_opponent_or_zenith(settings["opponent_select_method"]):
             return False
 
-    log_info("[UnityRace] Skipping race...")
-    if not _wait_and_double_tap("assets/buttons/skip_btn.png", timeout=20):
-        log_warning("[UnityRace] skip_btn.png not found; aborting workflow.")
-        return False
+        time.sleep(0.1)
+        log_info("[UnityRace] Trying to begin showdown...")
+        time.sleep(0.6)  # Allow the post-selection transition animation to settle.
+        if not _wait_for_stable_template(
+            "assets/unity/begin_showdown.png",
+            timeout=20,
+            check_interval=0.25,
+            confidence=0.8,
+            stable_hits=2,
+        ):
+            log_warning("[UnityRace] begin_showdown.png did not stabilize; aborting workflow before results sequence.")
+            return False
+        if not _wait_and_double_tap("assets/unity/begin_showdown.png", timeout=20):
+            log_warning("[UnityRace] begin_showdown.png not found; aborting workflow before results sequence.")
+            return False
 
-    log_info("[UnityRace] Next...")
-    if not _wait_and_double_tap("assets/buttons/next_btn.png", timeout=20):
-        log_warning("[UnityRace] next_btn.png not found after skip; aborting workflow.")
-        return False
+        log_info("[UnityRace] Waiting for 'See All Race Results'...")
+        if not _wait_and_double_tap("assets/unity/see_all_race_btn.png", timeout=12, confidence=0.8):
+            log_warning("[UnityRace] Primary match for see_all_race_btn failed; retrying with lower confidence.")
+            if not _wait_and_double_tap("assets/unity/see_all_race_btn.png", timeout=10, confidence=0.72):
+                log_warning("[UnityRace] see_all_race_btn.png not found; aborting workflow.")
+                return False
 
-    log_info("[UnityRace] Next Unity...")
-    if not _wait_and_double_tap("assets/unity/next_unity.png", timeout=20):
-        log_warning("[UnityRace] next_unity.png not found; aborting workflow.")
-        return False
+        log_info("[UnityRace] Skipping race...")
+        if not _wait_and_double_tap("assets/buttons/skip_btn.png", timeout=20):
+            log_warning("[UnityRace] skip_btn.png not found; aborting workflow.")
+            return False
 
-    log_info("[UnityRace] Final Next...")
-    if not _wait_and_double_tap("assets/buttons/next_btn.png", timeout=20):
-        log_warning("[UnityRace] final next_btn.png not found; aborting workflow.")
-        return False
+        log_info("[UnityRace] Next...")
+        if not _wait_and_double_tap("assets/buttons/next_btn.png", timeout=20):
+            log_warning("[UnityRace] next_btn.png not found after skip; aborting workflow.")
+            return False
 
-    log_info("[UnityRace] Workflow completed.")
-    return True
+        log_info("[UnityRace] Retry decision / Next...")
+        retry_decision = _wait_retry_or_next(settings["use_clock_retry"], timeout=20)
+        if retry_decision == "retry":
+            retry_count += 1
+            log_info(f"[UnityRace] Restarting Unity race from opponent selection ({retry_count}/{max_unity_retries}).")
+            continue
+        if retry_decision == "missing":
+            return False
+
+        log_info("[UnityRace] Final Next...")
+        if not _wait_and_double_tap("assets/buttons/next_btn.png", timeout=20):
+            log_warning("[UnityRace] final next_btn.png not found; aborting workflow.")
+            return False
+
+        log_info("[UnityRace] Workflow completed.")
+        return True
+
+    log_warning("[UnityRace] Maximum Unity race clock retries reached; aborting workflow.")
+    return False
 
 

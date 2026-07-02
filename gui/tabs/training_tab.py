@@ -223,6 +223,23 @@ class TrainingTab(QScrollArea):
             spirit_row.addWidget(cb)
         spirit_row.addStretch()
         unity_layout.addLayout(spirit_row)
+
+        # Spirit Burst EX Enabled Stats (Unity mode only)
+        spirit_ex_label = QLabel("Spirit Burst EX Enabled Stats:")
+        spirit_ex_label.setStyleSheet(f"color: {COLORS['text_muted']}; font-weight: bold;")
+        unity_layout.addWidget(spirit_ex_label)
+
+        spirit_ex_row = QHBoxLayout()
+        spirit_ex_row.setSpacing(24)
+        self.spirit_burst_ex_vars = {}
+        for stat in ['spd', 'sta', 'pwr', 'guts', 'wit']:
+            cb = QCheckBox(stat.upper())
+            cb.setStyleSheet("QCheckBox { spacing: 8px; }")
+            cb.stateChanged.connect(self._save_training)
+            self.spirit_burst_ex_vars[stat] = cb
+            spirit_ex_row.addWidget(cb)
+        spirit_ex_row.addStretch()
+        unity_layout.addLayout(spirit_ex_row)
         
         settings_layout.addWidget(self.unity_widget, 10, 0, 1, 2)
         
@@ -410,14 +427,22 @@ class TrainingTab(QScrollArea):
         self.spirit_burst_spin.setDecimals(2)
         self.spirit_burst_spin.valueChanged.connect(self._on_training_score_change)
         self.score_section_layout.addWidget(self.spirit_burst_spin, 6, 1)
+
+        self.unity_score_label4 = QLabel("Spirit Burst Extreme:")
+        self.score_section_layout.addWidget(self.unity_score_label4, 7, 0)
+        self.spirit_burst_ex_spin = NoScrollDoubleSpinBox()
+        self.spirit_burst_ex_spin.setRange(0, 5)
+        self.spirit_burst_ex_spin.setDecimals(2)
+        self.spirit_burst_ex_spin.valueChanged.connect(self._on_training_score_change)
+        self.score_section_layout.addWidget(self.spirit_burst_ex_spin, 7, 1)
         
         self.unity_score_label3 = QLabel("Spirit Training Extra:")
-        self.score_section_layout.addWidget(self.unity_score_label3, 7, 0)
+        self.score_section_layout.addWidget(self.unity_score_label3, 8, 0)
         self.spirit_training_extra_spin = NoScrollDoubleSpinBox()
         self.spirit_training_extra_spin.setRange(0, 5)
         self.spirit_training_extra_spin.setDecimals(2)
         self.spirit_training_extra_spin.valueChanged.connect(self._on_training_score_change)
-        self.score_section_layout.addWidget(self.spirit_training_extra_spin, 7, 1)
+        self.score_section_layout.addWidget(self.spirit_training_extra_spin, 8, 1)
         
         self.score_section.hide()
         layout.addWidget(self.score_section)
@@ -447,6 +472,8 @@ class TrainingTab(QScrollArea):
         self.spirit_training_spin.setVisible(is_unity)
         self.unity_score_label2.setVisible(is_unity)
         self.spirit_burst_spin.setVisible(is_unity)
+        self.unity_score_label4.setVisible(is_unity)
+        self.spirit_burst_ex_spin.setVisible(is_unity)
         self.unity_score_label3.setVisible(is_unity)
         self.spirit_training_extra_spin.setVisible(is_unity)
     
@@ -529,6 +556,12 @@ class TrainingTab(QScrollArea):
         for stat, cb in self.spirit_burst_vars.items():
             cb.blockSignals(True)
             cb.setChecked(stat in spirit_burst_stats)
+            cb.blockSignals(False)
+
+        spirit_burst_ex_stats = training.get("spirit_burst_ex_enabled_stats", [])
+        for stat, cb in self.spirit_burst_ex_vars.items():
+            cb.blockSignals(True)
+            cb.setChecked(stat in spirit_burst_ex_stats)
             cb.blockSignals(False)
         
         # Min scores
@@ -640,6 +673,9 @@ class TrainingTab(QScrollArea):
         config["training"]["spirit_burst_enabled_stats"] = [
             stat for stat, cb in self.spirit_burst_vars.items() if cb.isChecked()
         ]
+        config["training"]["spirit_burst_ex_enabled_stats"] = [
+            stat for stat, cb in self.spirit_burst_ex_vars.items() if cb.isChecked()
+        ]
         
         # Min scores
         config["training"]["min_score"] = {stat: spin.value() for stat, spin in self.score_spins.items()}
@@ -708,6 +744,10 @@ class TrainingTab(QScrollArea):
         self.spirit_burst_spin.blockSignals(True)
         self.spirit_burst_spin.setValue(get_points("spirit_burst", 1.0))
         self.spirit_burst_spin.blockSignals(False)
+
+        self.spirit_burst_ex_spin.blockSignals(True)
+        self.spirit_burst_ex_spin.setValue(get_points("spirit_burst_ex", 1.0))
+        self.spirit_burst_ex_spin.blockSignals(False)
         
         self.spirit_training_extra_spin.blockSignals(True)
         self.spirit_training_extra_spin.setValue(get_points("spirit_training_extra", 0.2))
@@ -755,6 +795,10 @@ class TrainingTab(QScrollArea):
             scoring_rules["spirit_burst"] = {
                 "description": "Spirit burst",
                 "points": self.spirit_burst_spin.value()
+            }
+            scoring_rules["spirit_burst_ex"] = {
+                "description": "Spirit Burst Extreme",
+                "points": self.spirit_burst_ex_spin.value()
             }
             scoring_rules["spirit_training_extra"] = {
                 "description": "Spirit training after burst (Set this lower if you priortize gaining burst)",

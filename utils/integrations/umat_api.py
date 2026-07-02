@@ -147,7 +147,8 @@ def get_training() -> dict | None:
 
     Returns dict with key 'trainings' containing list of:
         {name, failure, hint_found, support_cards[{name,type,bond_level}],
-         spirit{spirit_count, spirit_training_extra_count, spirit_burst_count}}
+         spirit{spirit_count, spirit_training_extra_count, spirit_burst_count,
+                spirit_burst_ex_count}}
     Or None if unavailable.
     """
     return _api_get("/training")
