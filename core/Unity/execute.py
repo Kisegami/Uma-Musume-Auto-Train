@@ -20,7 +20,8 @@ from utils.vision.recognizer import locate_on_screen, locate_all_on_screen, is_i
 from utils.inputs.input import tap, triple_click, long_press, tap_on_image
 from utils.capture.screenshot import take_screenshot, enhanced_screenshot, capture_region
 from utils.constants.unity import (
-    MOOD_LIST, EVENT_REGION, RACE_CARD_REGION, SUPPORT_CARD_ICON_REGION
+    MOOD_LIST, EVENT_REGION, RACE_CARD_REGION, SUPPORT_CARD_ICON_REGION,
+    get_template_region,
 )
 
 # Import ADB state and logic modules
@@ -426,7 +427,7 @@ def career_lobby(timeout=None):
             ("assets/icons/event_choice_1.png", 0.7, (6, 450, 126, 1776)),
             ("assets/unity/unity_cup.png", 0.8, (422, 121, 230, 154)),
             ("assets/buttons/inspiration_btn.png", 0.5, (375, 1471, 297, 255)),
-            ("assets/buttons/cancel_lobby.png", 0.8, (295, 1285, 481, 185)),
+            ("assets/buttons/cancel_lobby.png", 0.8, get_template_region("assets/buttons/cancel_lobby.png")),
             ("assets/buttons/close.png", 0.8, (59, 1153, 472, 186)),
             ("assets/buttons/next_btn.png", 0.8, None),
             ("assets/ui/tazuna_hint.png", 0.9, (903, 248, 155, 150)),
@@ -645,7 +646,7 @@ def career_lobby(timeout=None):
         # Lobby popups can appear after the Tazuna hint confirms the lobby.
         post_lobby_popup_specs = [
             ("assets/buttons/ok_btn.png", 0.8, None),
-            ("assets/buttons/cancel_lobby.png", 0.8, (295, 1285, 481, 185)),
+            ("assets/buttons/cancel_lobby.png", 0.8, get_template_region("assets/buttons/cancel_lobby.png")),
             ("assets/buttons/close.png", 0.8, (59, 1153, 472, 186)),
             ("assets/buttons/next_btn.png", 0.8, None),
         ]

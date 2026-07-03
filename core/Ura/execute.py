@@ -20,7 +20,8 @@ from utils.vision.recognizer import locate_on_screen, locate_all_on_screen, is_i
 from utils.inputs.input import tap, triple_click, long_press, tap_on_image
 from utils.capture.screenshot import take_screenshot, enhanced_screenshot, capture_region
 from utils.constants.ura import (
-    MOOD_LIST, EVENT_REGION, RACE_CARD_REGION, SUPPORT_CARD_ICON_REGION
+    MOOD_LIST, EVENT_REGION, RACE_CARD_REGION, SUPPORT_CARD_ICON_REGION,
+    get_template_region,
 )
 
 # Import ADB state and logic modules
@@ -384,7 +385,7 @@ def career_lobby(timeout=None):
             ("assets/buttons/ok_btn.png", 0.8, None),
             ("assets/icons/event_choice_1.png", 0.7, (6, 450, 126, 1776)),
             ("assets/buttons/inspiration_btn.png", 0.5, None),
-            ("assets/buttons/cancel_lobby.png", 0.8, None),
+            ("assets/buttons/cancel_lobby.png", 0.8, get_template_region("assets/buttons/cancel_lobby.png")),
             ("assets/buttons/close.png", 0.8, None),
             ("assets/buttons/next_btn.png", 0.8, None),
             ("assets/ui/tazuna_hint.png", 0.9, None),
