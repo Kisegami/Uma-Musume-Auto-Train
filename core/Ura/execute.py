@@ -105,7 +105,7 @@ def should_skip_infirmary_check_for_current_turn():
 from utils.core.log import log_debug, log_info, log_warning, log_error, log_success
 from utils.vision.template_matching import deduplicated_matches, wait_for_image
 from utils.platform.device import reopen_and_resume_career
-from utils.vision.ui_check import career_ui_check
+from utils.vision.ui_check import career_ui_check, reconnect
 
 WATCHDOG_MAX_RESTARTS = 3
 WATCHDOG_RESTART_RESET_AFTER = 300
@@ -388,13 +388,25 @@ def career_lobby(timeout=None):
             ("assets/buttons/cancel_lobby.png", 0.8, get_template_region("assets/buttons/cancel_lobby.png")),
             ("assets/buttons/close.png", 0.8, None),
             ("assets/buttons/next_btn.png", 0.8, None),
+            ("assets/ui/connection_error.png", 0.8, None),
             ("assets/ui/tazuna_hint.png", 0.9, None),
             ("assets/buttons/back_btn.png", 0.8, None),
         ]
         batch_results = match_templates_batch(screenshot, lobby_template_specs)
         # ──────────────────────────────────────────────────────────────
 
-        # 1. Check for career restart (highest priority)
+        # 1. Check connection error
+        log_debug(f"Checking for connection error...")
+        connection_error_matches = batch_results["assets/ui/connection_error.png"]
+        if connection_error_matches:
+            _lobby_wait_start = None
+            _freeze_same_count = 0
+            _freeze_same_since = None
+            if not reconnect():
+                return False
+            continue
+
+        # 2. Check for career restart (highest priority)
         log_debug(f"Quick check for Complete Career screen...")
         try:
             complete_career_matches = batch_results["assets/buttons/complete_career.png"]
