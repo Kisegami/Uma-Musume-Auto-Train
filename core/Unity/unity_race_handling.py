@@ -44,6 +44,7 @@ OPPONENT_TEMPLATES = {
 UNITY_RETRY_TEMPLATE = "assets/unity/unity_retry.png"
 UNITY_RESULT_NEXT_TEMPLATE = "assets/unity/unity_race_next.png"
 UNITY_RETRY_BRIGHTNESS_THRESHOLD = 180
+UNITY_RESULT_BUTTON_DELAY = 2.0
 UNITY_OPPONENT_EQUAL_RANK = "equal_rank"
 UNITY_OPPONENT_HIGHEST_RANK = "highest_rank"
 UNITY_OPPONENT_RESCAN_DELAY = 3.0
@@ -131,6 +132,10 @@ def _double_tap(x: int, y: int):
     tap(x, y)
     time.sleep(0.1)
     tap(x, y)
+
+
+def _wait_between_unity_result_buttons():
+    time.sleep(UNITY_RESULT_BUTTON_DELAY)
 
 
 def _wait_and_double_tap(template_path: str, timeout: float, check_interval: float = 0.2, confidence: float = 0.8) -> bool:
@@ -381,16 +386,19 @@ def unity_race_workflow():
                 log_warning("[UnityRace] see_all_race_btn.png not found; aborting workflow.")
                 return False
 
+        _wait_between_unity_result_buttons()
         log_info("[UnityRace] Skipping race...")
         if not _wait_and_double_tap("assets/buttons/skip_btn.png", timeout=20):
             log_warning("[UnityRace] skip_btn.png not found; aborting workflow.")
             return False
 
+        _wait_between_unity_result_buttons()
         log_info("[UnityRace] Next...")
         if not _wait_and_double_tap("assets/buttons/next_btn.png", timeout=20):
             log_warning("[UnityRace] next_btn.png not found after skip; aborting workflow.")
             return False
 
+        _wait_between_unity_result_buttons()
         log_info("[UnityRace] Retry decision / Next...")
         retry_decision = _wait_retry_or_next(settings["use_clock_retry"], timeout=20)
         if retry_decision == "retry":
@@ -400,6 +408,7 @@ def unity_race_workflow():
         if retry_decision == "missing":
             return False
 
+        _wait_between_unity_result_buttons()
         log_info("[UnityRace] Final Next...")
         if not _wait_and_double_tap("assets/buttons/next_btn.png", timeout=20):
             log_warning("[UnityRace] final next_btn.png not found; aborting workflow.")
