@@ -3,6 +3,7 @@ from typing import List, Tuple, Optional
 
 from PIL import ImageStat
 
+from utils.capture.debug import save_debug_screenshot
 from utils.vision.recognizer import match_template, max_match_confidence
 from utils.vision.template_matching import deduplicated_matches
 from utils.capture.screenshot import take_screenshot
@@ -48,6 +49,7 @@ UNITY_RETRY_BRIGHTNESS_THRESHOLD = 180
 UNITY_RESULT_BUTTON_DELAY = 2.0
 UNITY_OPPONENT_EQUAL_RANK = "equal_rank"
 UNITY_OPPONENT_HIGHEST_RANK = "highest_rank"
+UNITY_OPPONENT_REQUIRED_RANKS = 3
 UNITY_OPPONENT_RESCAN_DELAY = 3.0
 ZENITH_RACE_TEMPLATES = (
     "assets/unity/zenith_race_btn.png",
@@ -173,9 +175,11 @@ def _wait_and_tap(template_path: str, timeout: float, check_interval: float = 0.
     start = time.time()
     region = None  # auto-resolved by recognizer
     best_score = 0.0
+    latest_screenshot = None
 
     while time.time() - start < timeout:
         screenshot = take_screenshot()
+        latest_screenshot = screenshot
         score = max_match_confidence(screenshot, template_path, region=region)
         if score > best_score:
             best_score = score
@@ -192,6 +196,8 @@ def _wait_and_tap(template_path: str, timeout: float, check_interval: float = 0.
         f"_wait_and_tap: {template_path} not found within timeout. "
         f"best_confidence={best_score:.3f}, threshold={confidence:.3f}, region={region}"
     )
+    debug_prefix = "unity_wait_and_tap_miss_" + template_path.rsplit("/", 1)[-1].rsplit("\\", 1)[-1].rsplit(".", 1)[0]
+    save_debug_screenshot(debug_prefix, latest_screenshot)
     return False
 
 
@@ -338,15 +344,30 @@ def _select_unity_opponent_or_zenith(opponent_select_method: str) -> bool:
         opponent_ranks = _detect_ranks(OPPONENT_RANK_REGION, OPPONENT_TEMPLATES, screenshot)
         log_info(f"[UnityRace] Opponent ranks detected: {[r for r, _ in opponent_ranks]}")
         duplicated_ranks = _duplicated_rank_names(opponent_ranks)
-        if duplicated_ranks:
+        if len(opponent_ranks) < UNITY_OPPONENT_REQUIRED_RANKS or duplicated_ranks:
+            rescan_reasons = []
+            if len(opponent_ranks) < UNITY_OPPONENT_REQUIRED_RANKS:
+                rescan_reasons.append(
+                    f"only {len(opponent_ranks)} of {UNITY_OPPONENT_REQUIRED_RANKS} opponent rank badges detected"
+                )
+            if duplicated_ranks:
+                rescan_reasons.append(f"duplicate rank badges detected ({duplicated_ranks})")
             log_info(
-                "[UnityRace] Duplicate opponent rank badges detected "
-                f"({duplicated_ranks}); waiting {UNITY_OPPONENT_RESCAN_DELAY:.0f}s for animation, then rescanning."
+                "[UnityRace] Opponent rank detection incomplete "
+                f"({'; '.join(rescan_reasons)}); waiting {UNITY_OPPONENT_RESCAN_DELAY:.0f}s, then rescanning."
             )
             time.sleep(UNITY_OPPONENT_RESCAN_DELAY)
             screenshot = take_screenshot()
             opponent_ranks = _detect_ranks(OPPONENT_RANK_REGION, OPPONENT_TEMPLATES, screenshot)
             log_info(f"[UnityRace] Opponent ranks after rescan: {[r for r, _ in opponent_ranks]}")
+
+        if len(opponent_ranks) < UNITY_OPPONENT_REQUIRED_RANKS:
+            log_warning(
+                "[UnityRace] Only found "
+                f"{len(opponent_ranks)} opponent rank badge(s); expected {UNITY_OPPONENT_REQUIRED_RANKS}. "
+                "Not continuing opponent selection."
+            )
+            return False
 
         if opponent_select_method == UNITY_OPPONENT_HIGHEST_RANK:
             chosen = _pick_top_opponent(opponent_ranks)
