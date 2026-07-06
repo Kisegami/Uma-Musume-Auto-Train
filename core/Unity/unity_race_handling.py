@@ -3,6 +3,7 @@ from typing import List, Tuple, Optional
 
 from PIL import ImageStat
 
+from utils.capture.debug import save_debug_screenshot
 from utils.vision.recognizer import match_template, max_match_confidence
 from utils.vision.template_matching import deduplicated_matches
 from utils.capture.screenshot import take_screenshot
@@ -42,11 +43,13 @@ OPPONENT_TEMPLATES = {
 }
 
 UNITY_RETRY_TEMPLATE = "assets/unity/unity_retry.png"
+UNITY_RACE_TRY_AGAIN_TEMPLATE = "assets/unity/unity_race_try_again.png"
 UNITY_RESULT_NEXT_TEMPLATE = "assets/unity/unity_race_next.png"
 UNITY_RETRY_BRIGHTNESS_THRESHOLD = 180
 UNITY_RESULT_BUTTON_DELAY = 2.0
 UNITY_OPPONENT_EQUAL_RANK = "equal_rank"
 UNITY_OPPONENT_HIGHEST_RANK = "highest_rank"
+UNITY_OPPONENT_REQUIRED_RANKS = 3
 UNITY_OPPONENT_RESCAN_DELAY = 3.0
 ZENITH_RACE_TEMPLATES = (
     "assets/unity/zenith_race_btn.png",
@@ -167,6 +170,37 @@ def _wait_and_double_tap(template_path: str, timeout: float, check_interval: flo
     return False
 
 
+def _wait_and_tap(template_path: str, timeout: float, check_interval: float = 0.2, confidence: float = 0.8) -> bool:
+    """Wait for template and tap its center once."""
+    start = time.time()
+    region = None  # auto-resolved by recognizer
+    best_score = 0.0
+    latest_screenshot = None
+
+    while time.time() - start < timeout:
+        screenshot = take_screenshot()
+        latest_screenshot = screenshot
+        score = max_match_confidence(screenshot, template_path, region=region)
+        if score > best_score:
+            best_score = score
+
+        matches = match_template(screenshot, template_path, confidence=confidence, region=region)
+        if matches:
+            x, y, w, h = matches[0]
+            tap(x + w // 2, y + h // 2)
+            return True
+
+        time.sleep(check_interval)
+
+    log_warning(
+        f"_wait_and_tap: {template_path} not found within timeout. "
+        f"best_confidence={best_score:.3f}, threshold={confidence:.3f}, region={region}"
+    )
+    debug_prefix = "unity_wait_and_tap_miss_" + template_path.rsplit("/", 1)[-1].rsplit("\\", 1)[-1].rsplit(".", 1)[0]
+    save_debug_screenshot(debug_prefix, latest_screenshot)
+    return False
+
+
 def _wait_for_stable_template(
     template_path: str,
     timeout: float,
@@ -258,6 +292,10 @@ def _wait_retry_or_next(use_clock_retry: bool, timeout: float = 20, confidence: 
                 x, y, w, h = retry_bbox
                 log_info("[UnityRace] Clock retry is enabled by config and available; retrying Unity race.")
                 _double_tap(x + w // 2, y + h // 2)
+                log_info("[UnityRace] Waiting for Unity Race Try Again confirmation...")
+                if not _wait_and_tap(UNITY_RACE_TRY_AGAIN_TEMPLATE, timeout=10, confidence=0.8):
+                    log_warning("[UnityRace] Unity Race Try Again button not found after clock retry tap.")
+                    return "missing"
                 return "retry"
             if not logged_retry_not_used:
                 log_info("[UnityRace] Clock retry not used; tapping Unity result Next.")
@@ -306,15 +344,30 @@ def _select_unity_opponent_or_zenith(opponent_select_method: str) -> bool:
         opponent_ranks = _detect_ranks(OPPONENT_RANK_REGION, OPPONENT_TEMPLATES, screenshot)
         log_info(f"[UnityRace] Opponent ranks detected: {[r for r, _ in opponent_ranks]}")
         duplicated_ranks = _duplicated_rank_names(opponent_ranks)
-        if duplicated_ranks:
+        if len(opponent_ranks) < UNITY_OPPONENT_REQUIRED_RANKS or duplicated_ranks:
+            rescan_reasons = []
+            if len(opponent_ranks) < UNITY_OPPONENT_REQUIRED_RANKS:
+                rescan_reasons.append(
+                    f"only {len(opponent_ranks)} of {UNITY_OPPONENT_REQUIRED_RANKS} opponent rank badges detected"
+                )
+            if duplicated_ranks:
+                rescan_reasons.append(f"duplicate rank badges detected ({duplicated_ranks})")
             log_info(
-                "[UnityRace] Duplicate opponent rank badges detected "
-                f"({duplicated_ranks}); waiting {UNITY_OPPONENT_RESCAN_DELAY:.0f}s for animation, then rescanning."
+                "[UnityRace] Opponent rank detection incomplete "
+                f"({'; '.join(rescan_reasons)}); waiting {UNITY_OPPONENT_RESCAN_DELAY:.0f}s, then rescanning."
             )
             time.sleep(UNITY_OPPONENT_RESCAN_DELAY)
             screenshot = take_screenshot()
             opponent_ranks = _detect_ranks(OPPONENT_RANK_REGION, OPPONENT_TEMPLATES, screenshot)
             log_info(f"[UnityRace] Opponent ranks after rescan: {[r for r, _ in opponent_ranks]}")
+
+        if len(opponent_ranks) < UNITY_OPPONENT_REQUIRED_RANKS:
+            log_warning(
+                "[UnityRace] Only found "
+                f"{len(opponent_ranks)} opponent rank badge(s); expected {UNITY_OPPONENT_REQUIRED_RANKS}. "
+                "Not continuing opponent selection."
+            )
+            return False
 
         if opponent_select_method == UNITY_OPPONENT_HIGHEST_RANK:
             chosen = _pick_top_opponent(opponent_ranks)

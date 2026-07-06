@@ -458,6 +458,7 @@ def race_day():
 def check_strategy_before_race(region=(660, 974, 378, 120), max_retries=2) -> bool:
     """Check and ensure strategy matches config before race."""
     log_debug(f"Checking strategy before race... (retries left: {max_retries})")
+    time.sleep(1)
     
     screenshot = None
     try:
