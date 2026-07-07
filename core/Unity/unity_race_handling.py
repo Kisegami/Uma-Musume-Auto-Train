@@ -47,6 +47,7 @@ UNITY_RACE_TRY_AGAIN_TEMPLATE = "assets/unity/unity_race_try_again.png"
 UNITY_RESULT_NEXT_TEMPLATE = "assets/unity/unity_race_next.png"
 UNITY_RETRY_BRIGHTNESS_THRESHOLD = 180
 UNITY_RESULT_BUTTON_DELAY = 2.0
+UNITY_RETRY_SCAN_AFTER_NEXT_DELAY = 0.5
 UNITY_OPPONENT_EQUAL_RANK = "equal_rank"
 UNITY_OPPONENT_HIGHEST_RANK = "highest_rank"
 UNITY_OPPONENT_REQUIRED_RANKS = 3
@@ -280,8 +281,18 @@ def _wait_retry_or_next(use_clock_retry: bool, timeout: float = 20, confidence: 
         "missing" on timeout.
     """
     start = time.time()
-    logged_retry_not_used = False
     while time.time() - start < timeout:
+        screenshot = take_screenshot()
+
+        unity_next_matches = match_template(screenshot, UNITY_RESULT_NEXT_TEMPLATE, confidence=confidence)
+        normal_next_matches = match_template(screenshot, "assets/buttons/next_btn.png", confidence=confidence)
+        next_matches = unity_next_matches or normal_next_matches
+        if not next_matches:
+            time.sleep(0.2)
+            continue
+
+        log_info("[UnityRace] Unity result Next detected; waiting before clock retry scan.")
+        time.sleep(UNITY_RETRY_SCAN_AFTER_NEXT_DELAY)
         screenshot = take_screenshot()
 
         retry_matches = match_template(screenshot, UNITY_RETRY_TEMPLATE, confidence=confidence)
@@ -297,13 +308,14 @@ def _wait_retry_or_next(use_clock_retry: bool, timeout: float = 20, confidence: 
                     log_warning("[UnityRace] Unity Race Try Again button not found after clock retry tap.")
                     return "missing"
                 return "retry"
-            if not logged_retry_not_used:
-                log_info("[UnityRace] Clock retry not used; tapping Unity result Next.")
-                logged_retry_not_used = True
+
+            log_info("[UnityRace] Clock retry not used; tapping Unity result Next.")
             _tap_unity_result_next(screenshot, retry_bbox)
             return "next"
 
-        next_matches = match_template(screenshot, "assets/buttons/next_btn.png", confidence=confidence)
+        next_matches = match_template(screenshot, UNITY_RESULT_NEXT_TEMPLATE, confidence=confidence)
+        if not next_matches:
+            next_matches = match_template(screenshot, "assets/buttons/next_btn.png", confidence=confidence)
         if next_matches:
             x, y, w, h = next_matches[0]
             _double_tap(x + w // 2, y + h // 2)
