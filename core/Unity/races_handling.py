@@ -835,8 +835,18 @@ def enter_race_selection_screen():
     log_info(f"Race Select - Entering race selection screen...")
     
     # Tap races button
-    if not tap_on_image("assets/buttons/races_btn.png", min_search=10):
-        log_warning(f"Race Select - Failed to find races button")
+    races_clicked = False
+    for attempt in range(1, 4):
+        log_info(f"Race Select - Races button scan attempt {attempt}/3")
+        if tap_on_image("assets/buttons/races_btn.png", min_search=10):
+            races_clicked = True
+            break
+        log_warning(f"Race Select - Failed to find races button on attempt {attempt}/3")
+        time.sleep(0.5)
+
+    if not races_clicked:
+        log_warning(f"Race Select - Failed to find races button after 3 attempts")
+        save_debug_screenshot("unity_races_button_not_found")
         return False
     
     time.sleep(0.5)
