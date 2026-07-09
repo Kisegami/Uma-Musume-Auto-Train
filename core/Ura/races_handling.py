@@ -457,11 +457,10 @@ def race_day():
 def check_strategy_before_race(region=(660, 974, 378, 120), max_retries=2) -> bool:
     """Check and ensure strategy matches config before race."""
     log_debug(f"Checking strategy before race... (retries left: {max_retries})")
+    time.sleep(1)
     
     screenshot = None
     try:
-        screenshot = take_screenshot()
-        
         templates = {
             "front": "assets/icons/front.png",
             "late": "assets/icons/late.png", 
@@ -469,31 +468,40 @@ def check_strategy_before_race(region=(660, 974, 378, 120), max_retries=2) -> bo
             "end": "assets/icons/end.png",
         }
         
-        # Find brightest strategy using existing project functions
+        # Retry only the template-matching scan to avoid transient missed detections.
         best_match = None
-        best_brightness = 0
-        
-        for name, path in templates.items():
-            try:
-                # Use existing match_template function
-                matches = match_template(screenshot, path, confidence=0.5, region=region)
-                if matches:
-                    # Get confidence for best match
-                    confidence = max_match_confidence(screenshot, path, region)
-                    if confidence:
-                        # Check brightness of the matched region
-                        x, y, w, h = matches[0]
-                        roi = screenshot.convert("L").crop((x, y, x + w, y + h))
-                        bright = float(ImageStat.Stat(roi).mean[0])
-                        
-                        if bright >= 160 and bright > best_brightness:
-                            best_match = (name, matches[0], confidence, bright)
-                            best_brightness = bright
-            except Exception:
-                continue
+        for template_attempt in range(1, 4):
+            screenshot = take_screenshot()
+            best_brightness = 0
+
+            for name, path in templates.items():
+                try:
+                    # Use existing match_template function
+                    matches = match_template(screenshot, path, confidence=0.5, region=region)
+                    if matches:
+                        # Get confidence for best match
+                        confidence = max_match_confidence(screenshot, path, region)
+                        if confidence:
+                            # Check brightness of the matched region
+                            x, y, w, h = matches[0]
+                            roi = screenshot.convert("L").crop((x, y, x + w, y + h))
+                            bright = float(ImageStat.Stat(roi).mean[0])
+                            
+                            if bright >= 160 and bright > best_brightness:
+                                best_match = (name, matches[0], confidence, bright)
+                                best_brightness = bright
+                except Exception:
+                    continue
+
+            if best_match:
+                break
+
+            if template_attempt < 3:
+                log_debug(f"No strategy template found, retrying ({template_attempt}/3)")
+                time.sleep(0.3)
         
         if not best_match:
-            log_debug(f"No strategy found with brightness >= 160")
+            log_debug(f"No strategy found with brightness >= 160 after 3 template matching attempts")
             save_debug_screenshot("ura_strategy_check_failed", screenshot)
             return False
         
@@ -624,6 +632,7 @@ def race_prep():
             x, y, w, h = view_result_matches[0]
             view_result_btn = (x + w//2, y + h//2)
             log_info(f"Race Prep - Found view results button (attempt {attempt + 1})")
+            time.sleep(1)
             break
         
         # Tap middle of screen between checks to advance UI
