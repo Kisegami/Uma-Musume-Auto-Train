@@ -19,6 +19,7 @@ os.makedirs(SUPPORTS_DIR, exist_ok=True)
 RESTART_BACK_BUTTON_CENTER = (123, 1764)
 RESTART_CAREER_HOME_REGION = (540, 1442, 522, 297)
 RESTART_FULL_SCREEN_REGION = (0, 0, 1080, 1920)
+RESTART_BOTTOM_HALF_REGION = (0, 960, 1080, 960)
 
 from utils.vision.recognizer import match_template
 from utils.capture.screenshot import take_screenshot
@@ -282,6 +283,101 @@ def return_to_complete_career_screen():
     return False
 
 
+def _tap_first_template_match(screenshot, template_path: str, description: str, confidence: float = 0.8, region=None) -> bool:
+    matches = restart_match_template(screenshot, template_path, confidence=confidence, region=region)
+    if not matches:
+        return False
+
+    x, y, w, h = matches[0]
+    center = (x + w // 2, y + h // 2)
+    tap(center[0], center[1])
+    log_info(f"{description} found and tapped at {center}")
+    return True
+
+
+def _wait_for_template_absent(template_path: str, timeout: float = 5.0, confidence: float = 0.8, region=None) -> bool:
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        screenshot = take_screenshot()
+        if not restart_match_template(screenshot, template_path, confidence=confidence, region=region):
+            return True
+        time.sleep(0.2)
+    return False
+
+
+def _tap_bottom_completion_button(screenshot) -> bool:
+    """Tap visible bottom-half Close/Next buttons during end-career navigation."""
+    bottom_buttons = [
+        ("assets/buttons/close.png", "bottom close button"),
+        ("assets/buttons/next_btn.png", "bottom next button"),
+        ("assets/buttons/next2_btn.png", "bottom next2 button"),
+    ]
+
+    for template_path, description in bottom_buttons:
+        if _tap_first_template_match(
+            screenshot,
+            template_path,
+            description,
+            confidence=0.8,
+            region=RESTART_BOTTOM_HALF_REGION,
+        ):
+            return True
+
+    return False
+
+
+def _wait_for_reroll_spark_sequence(timeout: int = 120) -> bool:
+    """Advance completion screens until reroll spark appears, then confirm and close."""
+    log_info("Waiting for reroll spark sequence...")
+    start_time = time.time()
+
+    while time.time() - start_time < timeout:
+        screenshot = take_screenshot()
+        reroll_spark_matches = restart_match_template(
+            screenshot,
+            "assets/buttons/reroll_spark.png",
+            confidence=0.8,
+        )
+        if reroll_spark_matches:
+            log_info("Reroll spark button detected")
+            break
+
+        if _tap_bottom_completion_button(screenshot):
+            time.sleep(0.25)
+            continue
+
+        time.sleep(0.2)
+    else:
+        log_warning("Reroll spark button not found during completion navigation")
+        return False
+
+    confirm_pos = restart_wait_for_image("assets/buttons/confirm.png", timeout=10, confidence=0.8)
+    if not confirm_pos:
+        log_warning("First confirm button not found after reroll spark")
+        return False
+    tap(confirm_pos[0], confirm_pos[1])
+    log_info("First reroll spark confirm tapped")
+    _wait_for_template_absent("assets/buttons/confirm.png", timeout=5, confidence=0.8)
+
+    confirm_pos = restart_wait_for_image("assets/buttons/confirm.png", timeout=10, confidence=0.8)
+    if not confirm_pos:
+        log_warning("Second confirm button not found after reroll spark")
+        return False
+    tap(confirm_pos[0], confirm_pos[1])
+    log_info("Second reroll spark confirm tapped")
+    time.sleep(0.5)
+
+    close_pos = restart_wait_for_image("assets/buttons/close.png", timeout=10, confidence=0.8)
+    if not close_pos:
+        log_warning("Close button not found after reroll spark confirms")
+        return False
+    tap(close_pos[0], close_pos[1])
+    log_info("Reroll spark close tapped")
+    time.sleep(0.5)
+
+    return True
+
+
 def finish_career_completion() -> bool:
     """Complete the career and navigate through completion screens"""
     log_info(f"=== Completing Career ===")
@@ -299,6 +395,9 @@ def finish_career_completion() -> bool:
 
     time.sleep(0.5)
 
+    if not _wait_for_reroll_spark_sequence():
+        return False
+
     # Some end-of-run screens are not stable enough for template clicks.
     # Keep tapping the known continue area until the start-career screen appears.
     start_time = time.time()
@@ -312,6 +411,7 @@ def finish_career_completion() -> bool:
             log_info(f"{ready_screen} detected - Career completion successful")
             return True
 
+        _tap_bottom_completion_button(screenshot)
         tap(RESTART_COMPLETE_SPAM_TARGET[0], RESTART_COMPLETE_SPAM_TARGET[1])
         time.sleep(0.08)
 
