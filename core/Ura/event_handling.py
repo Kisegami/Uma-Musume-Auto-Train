@@ -754,12 +754,12 @@ def search_events_fuzzy(event_name):
     return {}
 
 
-def get_event_name_api():
+def get_event_api():
     """
-    Get the current event name from the API instead of OCR.
+    Get the current event payload from the API instead of OCR.
 
     Returns:
-        str | None: Event name string, or None if API unavailable.
+        dict | None: Event payload, or None if API unavailable.
     """
     try:
         from utils.integrations.umat_api import get_events, is_api_enabled
@@ -780,7 +780,20 @@ def get_event_name_api():
     name = events[0].get("name", "")
     if name:
         log_debug(f"[API] Event name: {name}")
-        return name
+        return events[0]
+    return None
+
+
+def get_event_name_api():
+    """
+    Get the current event name from the API instead of OCR.
+
+    Returns:
+        str | None: Event name string, or None if API unavailable.
+    """
+    event_data = get_event_api()
+    if event_data:
+        return event_data.get("name", "")
     return None
 
 def handle_event_choice():
@@ -799,6 +812,7 @@ def handle_event_choice():
     
     try:
         time.sleep(0.5)
+        event_data = None
 
         # Re-validate that this is a choices event before OCR (avoid scanning non-choice dialogs)
         recheck_count, recheck_locations = wait_for_stable_event_choices()
@@ -815,7 +829,8 @@ def handle_event_choice():
 
         if _api_on:
             event_image = None
-            event_name = get_event_name_api()
+            event_data = get_event_api()
+            event_name = event_data.get("name", "") if event_data else ""
             if event_name:
                 log_info(f"[API] Event name from API: {event_name}")
             else:
@@ -852,7 +867,7 @@ def handle_event_choice():
         log_info(f"Event found: {event_name}")
 
         if _normalize_event_name_for_route(event_name) == HAPPY_MEEKS_CHALLENGE_EVENT:
-            return handle_happy_meeks_challenge(recheck_locations)
+            return handle_happy_meeks_challenge(recheck_locations, event_data=event_data)
 
         # Check custom event templates first (from config.json)
         custom_choice = search_custom_events(event_name)

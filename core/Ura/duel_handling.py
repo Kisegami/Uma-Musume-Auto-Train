@@ -78,6 +78,16 @@ def _load_duel_priority():
     return _normalize_duel_choices(training.get("duel_choices", DEFAULT_DUEL_CHOICES))
 
 
+def _prediction_from_api_select_icon(select_icon):
+    try:
+        prediction = int(select_icon)
+    except (TypeError, ValueError):
+        return DUEL_PREDICTION_WORST
+    if DUEL_PREDICTION_BEST <= prediction <= DUEL_PREDICTION_WORST:
+        return prediction
+    return DUEL_PREDICTION_WORST
+
+
 def find_happy_meeks_duel_training(screenshot, confidence=DUEL_TRAINING_ICON_THRESHOLD):
     """Find the Happy Meek's Duel icon on the current training hover screen."""
     match = best_match_template(
@@ -231,24 +241,39 @@ def _scan_duel_choices(choice_locations):
     return scanned_choices
 
 
-def handle_happy_meeks_challenge(choice_locations=None):
-    """Handle Happy Meek's Challenge! in Ura mode.
+def _scan_duel_choices_api(event_data):
+    choices = (event_data or {}).get("choices", [])
+    scanned_choices = []
 
-    This is the first routing point for the duel event. Detailed duel decision
-    logic should choose the highest prediction rank first (1 is best), then use
-    configured duel priority only as a tiebreaker.
+    for fallback_index, choice in enumerate(choices, start=1):
+        choice_name = choice.get("name", "")
+        stat = _stat_from_choice_name(choice_name)
+        position = choice.get("position", fallback_index)
+        try:
+            choice_number = int(position)
+        except (TypeError, ValueError):
+            choice_number = fallback_index
 
-    Returns:
-        tuple: (choice_number, success, choice_locations)
-    """
-    if not choice_locations:
-        log_warning("Happy Meek's Challenge! routed to duel handler, but no choices were visible")
-        return 1, False, []
+        prediction = _prediction_from_api_select_icon(choice.get("select_icon"))
+        scanned_choices.append({
+            "choice_number": choice_number,
+            "choice_name": choice_name,
+            "stat": stat,
+            "prediction": prediction,
+            "prediction_match": {
+                "prediction": prediction,
+                "confidence": 1.0,
+                "source": "api",
+                "select_icon": choice.get("select_icon"),
+            },
+            "api_choice": choice,
+        })
 
-    log_info("Happy Meek's Challenge! routed to Ura duel handler")
+    scanned_choices.sort(key=lambda item: item["choice_number"])
+    return scanned_choices
 
-    duel_priority = _load_duel_priority()
-    scanned_choices = _scan_duel_choices(choice_locations)
+
+def _select_duel_choice(scanned_choices, duel_priority):
     whitelisted_choices = [
         choice for choice in scanned_choices
         if choice.get("stat") in duel_priority
@@ -257,17 +282,20 @@ def handle_happy_meeks_challenge(choice_locations=None):
     for choice in scanned_choices:
         prediction_match = choice.get("prediction_match")
         confidence_text = ""
-        if prediction_match:
+        if prediction_match and prediction_match.get("confidence") is not None:
             confidence_text = f" confidence={prediction_match['confidence']:.3f}"
+        source_text = ""
+        if prediction_match and prediction_match.get("source"):
+            source_text = f" source={prediction_match['source']}"
         log_info(
             f"Duel choice {choice['choice_number']}: "
             f"name='{choice['choice_name']}', stat={choice['stat']}, "
-            f"prediction={choice['prediction']}{confidence_text}"
+            f"prediction={choice['prediction']}{confidence_text}{source_text}"
         )
 
     if not whitelisted_choices:
         log_warning("No whitelisted duel choices were detected; defaulting to first visible choice")
-        return 1, True, choice_locations
+        return 1
 
     selected = min(
         whitelisted_choices,
@@ -278,4 +306,33 @@ def handle_happy_meeks_challenge(choice_locations=None):
         f"{selected['choice_name']} "
         f"(prediction={selected['prediction']}, priority={duel_priority})"
     )
-    return selected["choice_number"], True, choice_locations
+    return selected["choice_number"]
+
+
+def handle_happy_meeks_challenge(choice_locations=None, event_data=None):
+    """Handle Happy Meek's Challenge! in Ura mode.
+
+    This is the first routing point for the duel event. Detailed duel decision
+    logic should choose the highest prediction rank first (1 is best), then use
+    configured duel priority only as a tiebreaker.
+
+    Returns:
+        tuple: (choice_number, success, choice_locations)
+    """
+    if not choice_locations and not event_data:
+        log_warning("Happy Meek's Challenge! routed to duel handler, but no choices were visible")
+        return 1, False, []
+
+    log_info("Happy Meek's Challenge! routed to Ura duel handler")
+
+    duel_priority = _load_duel_priority()
+    if event_data:
+        scanned_choices = _scan_duel_choices_api(event_data)
+        if scanned_choices:
+            selected_choice = _select_duel_choice(scanned_choices, duel_priority)
+            return selected_choice, True, choice_locations or []
+        log_warning("API duel event had no choices; falling back to visual duel scan")
+
+    scanned_choices = _scan_duel_choices(choice_locations)
+    selected_choice = _select_duel_choice(scanned_choices, duel_priority)
+    return selected_choice, True, choice_locations
