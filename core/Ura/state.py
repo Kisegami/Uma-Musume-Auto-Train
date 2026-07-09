@@ -751,8 +751,8 @@ def check_status_api():
     Fetch full game status via API in one call.
 
     Returns dict with Ura-compatible keys:
-        year, mood, stats{spd,sta,pwr,guts,wit}, energy_current, energy_max,
-        skill_points
+        year, mood, stats{spd,sta,pwr,guts,wit}, max_stats{spd,sta,pwr,guts,wit},
+        energy_current, energy_max, skill_points
     Or None if API is unavailable.
     """
     data = _get_status_cached()
@@ -761,6 +761,7 @@ def check_status_api():
 
     try:
         stats = data.get("stats", {})
+        max_stats = data.get("max_stats", {})
         energy = data.get("energy", {})
         mood = data.get("mood", {})
         energy_max = energy.get("max", 100)
@@ -768,6 +769,7 @@ def check_status_api():
         api_year = data.get("year", "Unknown Year")
         if "Year 4" in api_year:
             api_year = "Finale Underway"
+        max_stats_result = {stat: max_stats.get(stat, 0) for stat in ("spd", "sta", "pwr", "guts", "wit") if max_stats.get(stat, 0)}
 
         result = {
             "year": api_year,
@@ -779,6 +781,7 @@ def check_status_api():
                 "guts": stats.get("guts", 0),
                 "wit": stats.get("wit", 0),
             },
+            "max_stats": max_stats_result,
             "energy_current": energy_current,
             "energy_max": energy_max,
             "skill_points": data.get("current_skill_points", 0),

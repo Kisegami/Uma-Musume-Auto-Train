@@ -988,6 +988,10 @@ def career_lobby(timeout=None):
         stats_str = f"SPD: {current_stats.get('spd', 0)}, STA: {current_stats.get('sta', 0)}, PWR: {current_stats.get('pwr', 0)}, GUTS: {current_stats.get('guts', 0)}, WIT: {current_stats.get('wit', 0)}" if current_stats else "N/A"
         
         log_info(f"Current stats: {stats_str}")
+        if api_status and api_status.get("max_stats"):
+            max_stats = api_status["max_stats"]
+            max_stats_str = f"SPD: {max_stats.get('spd', 0)}, STA: {max_stats.get('sta', 0)}, PWR: {max_stats.get('pwr', 0)}, GUTS: {max_stats.get('guts', 0)}, WIT: {max_stats.get('wit', 0)}"
+            log_info(f"Max stats: {max_stats_str}")
         log_info(f"")
 
         # TRACKBLAZER BASE SCENARIO

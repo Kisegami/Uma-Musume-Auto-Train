@@ -51,7 +51,8 @@ class BotController:
                 'pwr': 0,
                 'guts': 0,
                 'wit': 0
-            }
+            },
+            'max_stats': {}
         }
         
         # Status update interval
@@ -566,6 +567,13 @@ class BotController:
                 stats = self.parse_stats_from_text(stats_text)
                 if stats:
                     self.update_status('stats', stats, partial=True)
+
+            max_stats_match = re.search(r'Max stats:\s*(.+)', output)
+            if max_stats_match:
+                max_stats_text = max_stats_match.group(1)
+                max_stats = self.parse_stats_from_text(max_stats_text)
+                if max_stats:
+                    self.update_status('max_stats', max_stats)
             
                     
         except Exception as e:
@@ -602,6 +610,8 @@ class BotController:
             else:
                 # Full update - replace all stats
                 self.current_status['stats'] = value
+        elif field == 'max_stats':
+            self.current_status['max_stats'] = value
         else:
             self.current_status[field] = value
         

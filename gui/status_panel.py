@@ -11,6 +11,14 @@ from PySide6.QtCore import Qt
 from .styles import COLORS
 
 
+STAT_KEYS = ("spd", "sta", "pwr", "guts", "wit")
+MODE_VISUAL_STAT_CAPS = {
+    "trackblazer": {"spd": 1400, "sta": 2100, "pwr": 1400, "guts": 1400, "wit": 1700},
+    "unity": {"spd": 1500, "sta": 1500, "pwr": 1500, "guts": 1500, "wit": 2000},
+    "ura": {"spd": 1600, "sta": 1600, "pwr": 1600, "guts": 1600, "wit": 1600},
+}
+
+
 class StatusPanel(QFrame):
     """Compact status panel"""
     
@@ -19,6 +27,7 @@ class StatusPanel(QFrame):
         self.main_window = main_window
         self.setObjectName("card")
         self.setMaximumHeight(200)
+        self._current_max_stats = {}
         
         self._create_ui()
     
@@ -75,7 +84,7 @@ class StatusPanel(QFrame):
             stats_grid.addWidget(lbl, i, 0)
             
             bar = QProgressBar()
-            bar.setRange(0, 1200)
+            bar.setRange(0, self._get_default_visual_cap(key))
             bar.setValue(0)
             bar.setTextVisible(True)
             bar.setFormat("%v")
@@ -88,6 +97,39 @@ class StatusPanel(QFrame):
             self.stat_bars[key] = bar
         
         layout.addLayout(stats_grid)
+
+    def _get_default_visual_cap(self, stat_key):
+        config = self.main_window.get_config() if hasattr(self.main_window, "get_config") else {}
+        mode = config.get("mode", "ura")
+        return MODE_VISUAL_STAT_CAPS.get(mode, MODE_VISUAL_STAT_CAPS["ura"]).get(stat_key, 1600)
+
+    def _normalize_max_stats(self, max_stats):
+        if not isinstance(max_stats, dict):
+            return {}
+
+        normalized = {}
+        for key in STAT_KEYS:
+            try:
+                value = int(max_stats.get(key, 0))
+            except (TypeError, ValueError):
+                continue
+            if value > 0:
+                normalized[key] = value
+        return normalized
+
+    def _update_stat_bar_ranges(self, max_stats=None):
+        normalized_max_stats = self._normalize_max_stats(max_stats)
+        if normalized_max_stats:
+            self._current_max_stats = normalized_max_stats
+        else:
+            config = self.main_window.get_config() if hasattr(self.main_window, "get_config") else {}
+            if not config.get("api", {}).get("enabled", False):
+                self._current_max_stats = {}
+
+        for key, bar in self.stat_bars.items():
+            visual_cap = self._current_max_stats.get(key) or self._get_default_visual_cap(key)
+            if bar.maximum() != visual_cap:
+                bar.setRange(0, visual_cap)
     
     def _add_info_item(self, grid, label, value, row, col, colspan=1):
         widget = QWidget()
@@ -106,8 +148,9 @@ class StatusPanel(QFrame):
         grid.addWidget(widget, row, col, 1, colspan)
         return val
     
-    def update_status(self, year, energy, turn, mood, goal_met, stats):
+    def update_status(self, year, energy, turn, mood, goal_met, stats, max_stats=None):
         """Update all values"""
+        self._update_stat_bar_ranges(max_stats)
         self.year_val.setText(str(year))
         self.energy_val.setText(self._format_energy(energy))
         
@@ -147,5 +190,6 @@ class StatusPanel(QFrame):
         mood = status.get('mood', 'Unknown')
         goal_met = status.get('goal_met', False)
         stats = status.get('stats', {})
+        max_stats = status.get('max_stats', {})
         
-        self.update_status(year, energy, turn, mood, goal_met, stats)
+        self.update_status(year, energy, turn, mood, goal_met, stats, max_stats=max_stats)

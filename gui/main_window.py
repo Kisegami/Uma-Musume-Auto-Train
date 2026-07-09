@@ -475,10 +475,10 @@ class MainWindow(QMainWindow):
         if hasattr(self, 'log_panel'):
             self.log_panel.update_bot_state(False)
     
-    def update_status(self, year, energy, turn, mood, goal_met, stats):
+    def update_status(self, year, energy, turn, mood, goal_met, stats, max_stats=None):
         """Update status panel"""
         if hasattr(self, 'status_panel'):
-            self.status_panel.update_status(year, energy, turn, mood, goal_met, stats)
+            self.status_panel.update_status(year, energy, turn, mood, goal_met, stats, max_stats=max_stats)
     
     def add_log(self, message, level="info"):
         """Add log message"""

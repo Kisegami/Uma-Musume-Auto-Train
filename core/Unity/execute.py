@@ -838,6 +838,10 @@ def career_lobby(timeout=None):
         
         log_info(f"Energy: {_format_energy(energy_percentage, api_status, include_max=True)} (Minimum: {_format_energy_threshold(min_energy, api_status)})")
         log_info(f"Current stats: {stats_str}")
+        if api_status and api_status.get("max_stats"):
+            max_stats = api_status["max_stats"]
+            max_stats_str = f"SPD: {max_stats.get('spd', 0)}, STA: {max_stats.get('sta', 0)}, PWR: {max_stats.get('pwr', 0)}, GUTS: {max_stats.get('guts', 0)}, WIT: {max_stats.get('wit', 0)}"
+            log_info(f"Max stats: {max_stats_str}")
         log_info(f"Dating Available: {dating_available}")
         
         # Check if goals criteria are NOT met AND it is not Pre-Debut
