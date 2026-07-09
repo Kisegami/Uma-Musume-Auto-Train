@@ -46,6 +46,8 @@ GRADE_OFFSET = (-118, -115, 93, 69)  # x, y, width, height
 OCR_OFFSET = (-37, -120, 580, 69)  # x, y, width, height
 CUSTOM_RACE_TEMPLATE_REGION = (0, 1000, 369, 543)
 CUSTOM_RACE_TEMPLATE_CONFIDENCE = 0.6
+STRATEGY_CHANGE_BUTTON_TEMPLATE = "assets/buttons/strategy_change.png"
+STRATEGY_CHANGE_BUTTON_BRIGHTNESS_THRESHOLD = 170
 
 def is_racing_available(year):
     """Check if racing is available based on the current year/month"""
@@ -533,7 +535,12 @@ def check_strategy_before_race(region=(660, 974, 378, 120), max_retries=2) -> bo
         
         log_info(f"Strategy Check - Mismatch, changing to {expected_strategy}")
         
-        if change_strategy_before_race(expected_strategy):
+        change_result = change_strategy_before_race(expected_strategy)
+        if change_result is None:
+            log_info("Strategy Check - Change button is disabled, skipping strategy change")
+            return True
+
+        if change_result:
             # Recheck after change with decremented retry count
             time.sleep(1)  # Wait for UI to settle
             strategy_changed = check_strategy_before_race(region, max_retries=max_retries - 1)
@@ -554,7 +561,25 @@ def check_strategy_before_race(region=(660, 974, 378, 120), max_retries=2) -> bo
             save_debug_screenshot("ura_strategy_check_failed", screenshot)
         return False
 
-def change_strategy_before_race(expected_strategy: str) -> bool:
+def _strategy_change_button_brightness(screenshot, button_center) -> float:
+    """Return average brightness for the matched Strategy Change button."""
+    matches = match_template(screenshot, STRATEGY_CHANGE_BUTTON_TEMPLATE, confidence=0.8)
+    if not matches:
+        return 0.0
+
+    center_x, center_y = button_center
+    x, y, w, h = min(
+        matches,
+        key=lambda match: (
+            (match[0] + match[2] // 2 - center_x) ** 2
+            + (match[1] + match[3] // 2 - center_y) ** 2
+        ),
+    )
+    roi = screenshot.convert("L").crop((x, y, x + w, y + h))
+    return float(ImageStat.Stat(roi).mean[0])
+
+
+def change_strategy_before_race(expected_strategy: str) -> bool | None:
     """Change strategy to the expected one before race."""
     log_debug(f"Changing strategy to: {expected_strategy}")
     
@@ -573,10 +598,19 @@ def change_strategy_before_race(expected_strategy: str) -> bool:
     try:
         # Step 1: Find and tap strategy_change.png
         log_debug(f"Looking for strategy change button...")
-        change_btn = wait_for_image("assets/buttons/strategy_change.png", timeout=10, confidence=0.8)
+        change_btn = wait_for_image(STRATEGY_CHANGE_BUTTON_TEMPLATE, timeout=10, confidence=0.8)
         if not change_btn:
             log_debug(f"Strategy change button not found")
             return False
+
+        screenshot = take_screenshot()
+        brightness = _strategy_change_button_brightness(screenshot, change_btn)
+        if brightness < STRATEGY_CHANGE_BUTTON_BRIGHTNESS_THRESHOLD:
+            log_info(
+                "Strategy change button is disabled "
+                f"(brightness={brightness:.1f}, threshold={STRATEGY_CHANGE_BUTTON_BRIGHTNESS_THRESHOLD}); skipping"
+            )
+            return None
         
         log_debug(f"Found strategy change button at {change_btn}")
         tap(change_btn[0], change_btn[1])

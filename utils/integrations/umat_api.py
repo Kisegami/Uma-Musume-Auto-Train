@@ -20,7 +20,7 @@ _api_config = _config.get("api", {})
 API_ENABLED = _api_config.get("enabled", False)
 API_BASE_URL = _api_config.get("base_url", "http://localhost:8123").rstrip("/")
 API_TIMEOUT = _api_config.get("timeout", 2)  # seconds
-MIN_KUC_VERSION = "0.3"
+MIN_KUC_VERSION = "0.35"
 
 
 # ── Internal helpers ──────────────────────────────────────────────────────────
