@@ -12,6 +12,7 @@ from utils.constants.ura import *
 from utils.core.log import log_debug, log_info, log_warning, log_error
 from utils.vision.template_matching import wait_for_image, deduplicated_matches
 from utils.core.config_loader import load_main_config
+from core.Ura.duel_handling import check_happy_meeks_duel_training
 
 # Load config for DEBUG_MODE
 config = load_main_config()
@@ -111,6 +112,8 @@ def check_training(go_back=True, year=None, current_stats=None):
                     "support": {},
                     "support_detail": {},
                     "hint": False,
+                    "duel": False,
+                    "duel_detail": {"available": False},
                     "total_support": 0,
                     "failure": 100,  # Set high to prevent selection
                     "confidence": 1.0,
@@ -169,10 +172,12 @@ def check_training(go_back=True, year=None, current_stats=None):
         # Hint - pass screenshot to avoid taking new one
         hint_found = check_hint(screenshot)  # ✅ Pass screenshot
 
-        # Calculate score for this training type
-        score = calculate_training_score(detailed_support, hint_found, key)
+        duel_found = check_happy_meeks_duel_training(screenshot)
 
-        log_debug(f"Support counts: {support_counts} | hint_found={hint_found} | score={score}")
+        # Calculate score for this training type
+        score = calculate_training_score(detailed_support, hint_found, key, duel_found=duel_found)
+
+        log_debug(f"Support counts: {support_counts} | hint_found={hint_found} | duel_found={duel_found} | score={score}")
 
         log_debug(f"Checking failure rate for {key.upper()} training...")
         # Pass screenshot to avoid taking new ones
@@ -182,6 +187,8 @@ def check_training(go_back=True, year=None, current_stats=None):
             "support": support_counts,
             "support_detail": detailed_support,
             "hint": bool(hint_found),
+            "duel": bool(duel_found),
+            "duel_detail": {"available": bool(duel_found)},
             "total_support": total_support,
             "failure": failure_chance,
             "confidence": confidence,
@@ -207,6 +214,7 @@ def check_training(go_back=True, year=None, current_stats=None):
             log_info(f"-")
         
         log_info(f"hint={hint_found}")
+        log_info(f"duel={duel_found}")
         log_info(f"Fail: {failure_chance}% - Confident: {confidence:.2f}")
         log_info(f"Score: {score}")
         
@@ -667,7 +675,7 @@ def choose_best_training(training_results, config, current_stats, year=None):
     log_debug(f" Best training selected: {best_training} (score: {sorted_options[0][1].get('score', 0):.2f})")
     return best_training
 
-def calculate_training_score(support_detail, hint_found, training_type):
+def calculate_training_score(support_detail, hint_found, training_type, duel_found=False):
     """
     Calculate training score based on support cards, bond levels, and hints.
     
@@ -675,6 +683,7 @@ def calculate_training_score(support_detail, hint_found, training_type):
         support_detail: Dictionary of support card details with bond levels
         hint_found: Boolean indicating if hint is present
         training_type: The type of training being evaluated
+        duel_found: Boolean indicating if Happy Meek's Duel is present
     
     Returns:
         float: Calculated score for the training
@@ -695,7 +704,8 @@ def calculate_training_score(support_detail, hint_found, training_type):
             "rainbow_support": {"points": 1.0},
             "not_rainbow_support_low": {"points": 0.7},
             "not_rainbow_support_high": {"points": 0.0},
-            "hint": {"points": 0.3}
+            "hint": {"points": 0.3},
+            "happy_meeks_duel": {"points": 1.0}
         }
     
     score = 0.0
@@ -728,8 +738,24 @@ def calculate_training_score(support_detail, hint_found, training_type):
     # Add hint bonus
     if hint_found:
         score += scoring_rules.get("hint", {}).get("points", 0.3)
+
+    if duel_found:
+        score += scoring_rules.get("happy_meeks_duel", {}).get("points", 1.0)
     
     return round(score, 2)
+
+
+def _parse_api_duel_info(training):
+    """Return (duel_found, duel_detail) from current or legacy API payloads."""
+    duel_info = training.get("duel")
+    legacy_duel_found = bool(training.get("duel_found", False))
+
+    if isinstance(duel_info, dict):
+        duel_found = legacy_duel_found or bool(duel_info.get("available", False))
+        return duel_found, duel_info
+
+    duel_found = legacy_duel_found or bool(duel_info)
+    return duel_found, {"available": duel_found}
 
 
 def check_training_api(year=None, current_stats=None):
@@ -779,6 +805,8 @@ def check_training_api(year=None, current_stats=None):
                     "support": {},
                     "support_detail": {},
                     "hint": False,
+                    "duel": False,
+                    "duel_detail": {"available": False},
                     "total_support": 0,
                     "failure": 100,
                     "confidence": 1.0,
@@ -789,6 +817,7 @@ def check_training_api(year=None, current_stats=None):
 
         failure = t.get("failure", 0)
         hint_found = t.get("hint_found", False)
+        duel_found, duel_detail = _parse_api_duel_info(t)
 
         support_counts = {}
         detailed_support = {}
@@ -806,12 +835,14 @@ def check_training_api(year=None, current_stats=None):
             detailed_support.setdefault(card_type, []).append(entry)
 
         total_support = sum(support_counts.values())
-        score = calculate_training_score(detailed_support, hint_found, key)
+        score = calculate_training_score(detailed_support, hint_found, key, duel_found=duel_found)
 
         results[key] = {
             "support": support_counts,
             "support_detail": detailed_support,
             "hint": bool(hint_found),
+            "duel": bool(duel_found),
+            "duel_detail": duel_detail,
             "total_support": total_support,
             "failure": failure,
             "confidence": 1.0,
@@ -833,6 +864,14 @@ def check_training_api(year=None, current_stats=None):
             support_str = "-"
 
         extras = " hint" if hint_found else ""
+        if duel_found:
+            level = duel_detail.get("level", 0) if isinstance(duel_detail, dict) else 0
+            partner = duel_detail.get("partner_name", "") if isinstance(duel_detail, dict) else ""
+            duel_text = f" duel(L{level}"
+            if partner:
+                duel_text += f" {partner}"
+            duel_text += ")"
+            extras += duel_text
         log_info(f"  {key.upper():>4}: Score={score:.1f} Fail={failure}%(API) | {support_str}{extras}")
 
     if not results:

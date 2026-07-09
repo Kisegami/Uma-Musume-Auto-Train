@@ -8,8 +8,9 @@ import numpy as np
 
 from utils.capture.screenshot import take_screenshot
 from utils.core.config_loader import load_main_config
-from utils.core.log import log_info, log_warning
+from utils.core.log import log_debug, log_info, log_warning
 from utils.ocr.ocr_utils import extract_text
+from utils.vision.recognizer import best_match_template
 
 
 HAPPY_MEEKS_CHALLENGE_EVENT = "Happy Meek's Challenge!"
@@ -33,6 +34,9 @@ DUEL_PREDICTION_TEMPLATES = {
     3: "assets/ura/duel_3.png",
     4: "assets/ura/duel_4.png",
 }
+DUEL_TRAINING_ICON_TEMPLATE = "assets/ura/duel_icon.png"
+DUEL_TRAINING_ICON_REGION = (816, 268, 126, 972)
+DUEL_TRAINING_ICON_THRESHOLD = 0.80
 
 
 def get_duel_choice_sort_key(choice_info, duel_priority):
@@ -72,6 +76,29 @@ def _load_duel_priority():
     config = load_main_config(os.path.join(_get_project_root(), "config.json"))
     training = config.get("training", {})
     return _normalize_duel_choices(training.get("duel_choices", DEFAULT_DUEL_CHOICES))
+
+
+def find_happy_meeks_duel_training(screenshot, confidence=DUEL_TRAINING_ICON_THRESHOLD):
+    """Find the Happy Meek's Duel icon on the current training hover screen."""
+    match = best_match_template(
+        screenshot,
+        DUEL_TRAINING_ICON_TEMPLATE,
+        confidence=confidence,
+        region=DUEL_TRAINING_ICON_REGION,
+    )
+    if match:
+        log_debug(
+            "Happy Meek's Duel training icon found: "
+            f"confidence={match['confidence']:.3f}, bbox={match['bbox']}"
+        )
+    else:
+        log_debug("Happy Meek's Duel training icon not found")
+    return match
+
+
+def check_happy_meeks_duel_training(screenshot, confidence=DUEL_TRAINING_ICON_THRESHOLD):
+    """Return True when the hovered training has a Happy Meek's Duel icon."""
+    return find_happy_meeks_duel_training(screenshot, confidence=confidence) is not None
 
 
 def _normalize_choice_name(choice_name):

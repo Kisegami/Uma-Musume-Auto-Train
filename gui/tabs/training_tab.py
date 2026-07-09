@@ -489,39 +489,47 @@ class TrainingTab(QScrollArea):
         self.friend_support_spin.setDecimals(2)
         self.friend_support_spin.valueChanged.connect(self._on_training_score_change)
         self.score_section_layout.addWidget(self.friend_support_spin, 4, 1)
+
+        self.happy_meeks_duel_label = QLabel("Happy Meek's Duel:")
+        self.score_section_layout.addWidget(self.happy_meeks_duel_label, 5, 0)
+        self.happy_meeks_duel_spin = NoScrollDoubleSpinBox()
+        self.happy_meeks_duel_spin.setRange(0, 5)
+        self.happy_meeks_duel_spin.setDecimals(2)
+        self.happy_meeks_duel_spin.valueChanged.connect(self._on_training_score_change)
+        self.score_section_layout.addWidget(self.happy_meeks_duel_spin, 5, 1)
         
         # Unity-specific training score fields (will be shown/hidden based on mode)
         self.unity_score_label1 = QLabel("Spirit Training:")
-        self.score_section_layout.addWidget(self.unity_score_label1, 5, 0)
+        self.score_section_layout.addWidget(self.unity_score_label1, 6, 0)
         self.spirit_training_spin = NoScrollDoubleSpinBox()
         self.spirit_training_spin.setRange(0, 5)
         self.spirit_training_spin.setDecimals(2)
         self.spirit_training_spin.valueChanged.connect(self._on_training_score_change)
-        self.score_section_layout.addWidget(self.spirit_training_spin, 5, 1)
+        self.score_section_layout.addWidget(self.spirit_training_spin, 6, 1)
         
         self.unity_score_label2 = QLabel("Spirit Burst:")
-        self.score_section_layout.addWidget(self.unity_score_label2, 6, 0)
+        self.score_section_layout.addWidget(self.unity_score_label2, 7, 0)
         self.spirit_burst_spin = NoScrollDoubleSpinBox()
         self.spirit_burst_spin.setRange(0, 5)
         self.spirit_burst_spin.setDecimals(2)
         self.spirit_burst_spin.valueChanged.connect(self._on_training_score_change)
-        self.score_section_layout.addWidget(self.spirit_burst_spin, 6, 1)
+        self.score_section_layout.addWidget(self.spirit_burst_spin, 7, 1)
 
         self.unity_score_label4 = QLabel("Spirit Burst Extreme:")
-        self.score_section_layout.addWidget(self.unity_score_label4, 7, 0)
+        self.score_section_layout.addWidget(self.unity_score_label4, 8, 0)
         self.spirit_burst_ex_spin = NoScrollDoubleSpinBox()
         self.spirit_burst_ex_spin.setRange(0, 5)
         self.spirit_burst_ex_spin.setDecimals(2)
         self.spirit_burst_ex_spin.valueChanged.connect(self._on_training_score_change)
-        self.score_section_layout.addWidget(self.spirit_burst_ex_spin, 7, 1)
+        self.score_section_layout.addWidget(self.spirit_burst_ex_spin, 8, 1)
         
         self.unity_score_label3 = QLabel("Spirit Training Extra:")
-        self.score_section_layout.addWidget(self.unity_score_label3, 8, 0)
+        self.score_section_layout.addWidget(self.unity_score_label3, 9, 0)
         self.spirit_training_extra_spin = NoScrollDoubleSpinBox()
         self.spirit_training_extra_spin.setRange(0, 5)
         self.spirit_training_extra_spin.setDecimals(2)
         self.spirit_training_extra_spin.valueChanged.connect(self._on_training_score_change)
-        self.score_section_layout.addWidget(self.spirit_training_extra_spin, 8, 1)
+        self.score_section_layout.addWidget(self.spirit_training_extra_spin, 9, 1)
         
         self.score_section.hide()
         layout.addWidget(self.score_section)
@@ -545,6 +553,10 @@ class TrainingTab(QScrollArea):
         config = self.main_window.get_config()
         mode = config.get("mode", "ura")
         is_unity = mode == "unity"
+        is_ura = mode == "ura"
+
+        self.happy_meeks_duel_label.setVisible(is_ura)
+        self.happy_meeks_duel_spin.setVisible(is_ura)
         
         # Unity-specific training score fields
         self.unity_score_label1.setVisible(is_unity)
@@ -877,6 +889,10 @@ class TrainingTab(QScrollArea):
         self.friend_support_spin.blockSignals(True)
         self.friend_support_spin.setValue(get_points("friend_support", 0.5))
         self.friend_support_spin.blockSignals(False)
+
+        self.happy_meeks_duel_spin.blockSignals(True)
+        self.happy_meeks_duel_spin.setValue(get_points("happy_meeks_duel", 1.0))
+        self.happy_meeks_duel_spin.blockSignals(False)
         
         # Load Unity-specific score settings (use spririt_training key for backward compat)
         self.spirit_training_spin.blockSignals(True)
@@ -927,6 +943,12 @@ class TrainingTab(QScrollArea):
                 "points": self.friend_support_spin.value()
             }
         }
+
+        if mode == "ura":
+            scoring_rules["happy_meeks_duel"] = {
+                "description": "Happy Meek's Duel icon present",
+                "points": self.happy_meeks_duel_spin.value()
+            }
         
         # Add Unity-specific settings for unity mode
         if mode == "unity":
