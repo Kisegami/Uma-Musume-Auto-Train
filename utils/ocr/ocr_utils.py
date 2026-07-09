@@ -492,6 +492,130 @@ def _parse_tesseract_confidence(raw_conf: Any) -> int:
         return -1
 
 
+def _clean_event_word(word: str) -> str:
+    """Normalize OCR punctuation while preserving event-title text."""
+    word = (word or "").strip()
+    replacements = {
+        "\u2018": "'",
+        "\u2019": "'",
+        "\u201c": '"',
+        "\u201d": '"',
+        "\u00b4": "'",
+        "`": "'",
+    }
+    for source, target in replacements.items():
+        word = word.replace(source, target)
+    return word.strip()
+
+
+def _extract_event_name_from_word_boxes(img_np: np.ndarray) -> tuple[str, list[str], str]:
+    """Compose an event title from Tesseract word boxes.
+
+    Tesseract often detects the right title words but the line-level candidate can
+    drop a middle word or include decorative banner artifacts. This pass keeps the
+    OCR result as a plain string while using geometry to build a cleaner line.
+    """
+    if len(img_np.shape) == 3:
+        gray = cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY)
+    else:
+        gray = img_np.copy()
+
+    img_h, img_w = gray.shape[:2]
+    processed_variants = [
+        ("gray", gray),
+        ("white_180", _preprocess_white_text(img_np, threshold=180)),
+        ("white_165", _preprocess_white_text(img_np, threshold=165)),
+    ]
+    tesseract_configs = [
+        ("psm6", "--oem 3 --psm 6 -c preserve_interword_spaces=1"),
+        ("psm7", "--oem 3 --psm 7 -c preserve_interword_spaces=1"),
+    ]
+
+    best_text = ""
+    best_score = -1.0
+    best_words = []
+    best_pass = ""
+
+    for variant_name, processed in processed_variants:
+        for config_name, tess_config in tesseract_configs:
+            try:
+                data = pytesseract.image_to_data(
+                    processed,
+                    config=tess_config,
+                    lang='eng',
+                    output_type=pytesseract.Output.DICT
+                )
+            except Exception as e:
+                log_debug(f"Event word-box OCR pass failed for {variant_name}/{config_name}: {e}")
+                continue
+
+            line_groups = {}
+            debug_words = []
+            for i in range(len(data.get('text', []))):
+                raw_word = data['text'][i]
+                word = _clean_event_word(raw_word)
+                conf = _parse_tesseract_confidence(data['conf'][i])
+                if word:
+                    debug_words.append(f"{word}({conf})")
+
+                if conf < 45 or not word or not re.search(r"[A-Za-z]", word):
+                    continue
+
+                left = int(data['left'][i])
+                top = int(data['top'][i])
+                width = int(data['width'][i])
+                height = int(data['height'][i])
+                right = left + width
+                bottom = top + height
+
+                # Skip banner geometry/artifact boxes that span most of the crop.
+                if height > img_h * 0.70 or width > img_w * 0.80:
+                    continue
+
+                # Keep single-letter title words possible, but avoid low-signal
+                # scraps at either far edge of the banner.
+                alnum = re.sub(r"[^A-Za-z0-9]", "", word)
+                if len(alnum) <= 1 and (conf < 70 or left < img_w * 0.03 or right > img_w * 0.97):
+                    continue
+
+                line_num = data.get('line_num', [0] * len(data.get('text', [])))[i]
+                block_num = data.get('block_num', [0] * len(data.get('text', [])))[i]
+                par_num = data.get('par_num', [0] * len(data.get('text', [])))[i]
+                key = (block_num, par_num, line_num)
+                line_groups.setdefault(key, []).append({
+                    "word": word,
+                    "conf": conf,
+                    "left": left,
+                    "top": top,
+                    "right": right,
+                    "bottom": bottom,
+                    "width": width,
+                    "height": height,
+                })
+
+            for words in line_groups.values():
+                if not words:
+                    continue
+                words.sort(key=lambda item: item["left"])
+                text = " ".join(item["word"] for item in words).strip()
+                meaningful_chars = len(re.sub(r"[^A-Za-z0-9]", "", text))
+                if meaningful_chars < 4:
+                    continue
+
+                avg_conf = sum(item["conf"] for item in words) / len(words)
+                line_height = max(item["bottom"] for item in words) - min(item["top"] for item in words)
+                vertical_penalty = max(0, line_height - (img_h * 0.65)) * 0.5
+                score = avg_conf + min(meaningful_chars, 36) + (len(words) * 8) - vertical_penalty
+
+                if score > best_score:
+                    best_text = text
+                    best_score = score
+                    best_words = debug_words
+                    best_pass = f"{variant_name}/{config_name}"
+
+    return best_text, best_words, best_pass
+
+
 def _extract_event_name_candidates(img_np: np.ndarray) -> list[tuple[str, int, list[str], str]]:
     """Run several OCR passes and return ranked event-name candidates.
 
@@ -561,6 +685,17 @@ def extract_event_name_text(pil_img: Image.Image) -> str:
     """Extract event name text using a multi-pass OCR fallback pipeline."""
     try:
         img_np = _normalize_image(pil_img)
+        word_box_text, word_box_words, word_box_pass = _extract_event_name_from_word_boxes(img_np)
+        if word_box_text:
+            if DEBUG_MODE:
+                if word_box_words:
+                    log_debug(
+                        f"Event word-box OCR {word_box_pass}: {' '.join(word_box_words)} | "
+                        f"text='{word_box_text}'"
+                    )
+                log_debug(f"Event name OCR result: '{word_box_text}' from word boxes")
+            return word_box_text
+
         candidates = _extract_event_name_candidates(img_np)
 
         if DEBUG_MODE:
