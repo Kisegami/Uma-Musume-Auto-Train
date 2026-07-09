@@ -302,6 +302,42 @@ def do_recreation():
         log_debug(f"Clicked summer recreation button")
     else:
         log_debug(f"No recreation button found")
+        return
+
+    # Wait up to 5 seconds for screen to load and check for cancel button.
+    # If the trainee dating option is available from recreation, prefer it.
+    log_debug(f"Waiting for recreation screen to load (checking for cancel button)...")
+    cancel_matches = None
+    screenshot = None
+    max_wait_time = 5.0
+    check_interval = 0.5
+    elapsed_time = 0.0
+
+    while elapsed_time < max_wait_time:
+        screenshot = take_screenshot()
+        cancel_matches = match_template(screenshot, "assets/buttons/cancel_recreation.png", confidence=0.8)
+        if cancel_matches:
+            log_debug(f"Cancel button found after {elapsed_time:.1f}s")
+            break
+        time.sleep(check_interval)
+        elapsed_time += check_interval
+
+    if cancel_matches:
+        log_debug(f"Normal recreation screen detected, selecting trainee date...")
+        log_info(f"Normal recreation screen detected, selecting trainee date...")
+
+        trainee_date_btn = locate_on_screen("assets/ui/trainee_date.png", confidence=0.8)
+        if trainee_date_btn:
+            log_debug(f"Found trainee date button at {trainee_date_btn}")
+            tap(trainee_date_btn[0], trainee_date_btn[1])
+            log_info(f"Selected trainee date")
+        else:
+            log_warning(f"Trainee date button not found after detecting cancel button")
+    else:
+        log_debug(f"No cancel button found after {elapsed_time:.1f}s - normal recreation flow")
+        if screenshot and DEBUG_MODE:
+            screenshot.save("debug_recreation_no_cancel.png")
+            log_debug(f"Saved debug screenshot to debug_recreation_no_cancel.png")
 
 
 def do_rest_or_dating(screenshot=None):

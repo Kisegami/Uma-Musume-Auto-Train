@@ -62,11 +62,20 @@ def do_dating():
             log_error("Stopping bot execution - recreation button not found")
             raise RuntimeError(f"Recreation button not found. Debug image saved to {debug_filename}")
 
-        time.sleep(0.2)
+        log_debug("Waiting for recreation screen to load (checking for cancel button)...")
+        cancel_matches = None
+        max_wait_time = 5.0
+        check_interval = 0.5
+        elapsed_time = 0.0
 
-        log_debug("Checking for normal recreation screen (cancel button)...")
-        screenshot = take_screenshot()
-        cancel_matches = match_template(screenshot, "assets/buttons/cancel_btn.png", confidence=0.8)
+        while elapsed_time < max_wait_time:
+            screenshot = take_screenshot()
+            cancel_matches = match_template(screenshot, "assets/buttons/cancel_recreation.png", confidence=0.8)
+            if cancel_matches:
+                log_debug(f"Cancel button found after {elapsed_time:.1f}s")
+                break
+            time.sleep(check_interval)
+            elapsed_time += check_interval
 
         if cancel_matches:
             log_debug("Normal recreation screen detected, selecting trainee date...")
@@ -82,7 +91,7 @@ def do_dating():
             log_warning("Trainee date button not found after detecting cancel button")
             return False
 
-        log_debug("No cancel button found, waiting for dating screen...")
+        log_debug("No recreation cancel button found, waiting for dating screen...")
         time.sleep(0.5)
 
         pal_date_btn = locate_on_screen("assets/ui/pal_date.png", confidence=0.8)
