@@ -45,6 +45,14 @@ class DraggableListWidget(QListWidget):
 
 class TrainingTab(QScrollArea):
     """Training configuration tab - matches original GUI"""
+    TRAINING_STAT_DISPLAY = [
+        ("spd", "SPD"),
+        ("sta", "STA"),
+        ("pwr", "PWR"),
+        ("guts", "GUTS"),
+        ("wit", "WIT"),
+    ]
+    DEFAULT_DUEL_ALLOWED_TRAININGS = ["spd", "sta", "pwr", "guts", "wit"]
     DUEL_STAT_DISPLAY = [
         ("speed", "Speed"),
         ("stamina", "Stamina"),
@@ -128,6 +136,22 @@ class TrainingTab(QScrollArea):
         self.duel_group = QGroupBox("Duel Setting")
         duel_layout = QVBoxLayout(self.duel_group)
         duel_layout.setSpacing(12)
+
+        allowed_training_label = QLabel("Duel Allowed Training")
+        allowed_training_label.setStyleSheet(f"color: {COLORS['text_muted']}; font-weight: bold;")
+        duel_layout.addWidget(allowed_training_label)
+
+        allowed_training_row = QHBoxLayout()
+        allowed_training_row.setSpacing(18)
+        self.duel_allowed_training_vars = {}
+        for stat_key, label in self.TRAINING_STAT_DISPLAY:
+            cb = QCheckBox(label)
+            cb.setStyleSheet("QCheckBox { spacing: 8px; }")
+            cb.stateChanged.connect(self._save_training)
+            self.duel_allowed_training_vars[stat_key] = cb
+            allowed_training_row.addWidget(cb)
+        allowed_training_row.addStretch()
+        duel_layout.addLayout(allowed_training_row)
 
         whitelist_label = QLabel("Duel Choices Whitelists")
         whitelist_label.setStyleSheet(f"color: {COLORS['text_muted']}; font-weight: bold;")
@@ -639,6 +663,14 @@ class TrainingTab(QScrollArea):
         # Update gambling settings visibility
         self.gambling_settings_widget.setVisible(self.gambling_train.isChecked())
 
+        duel_allowed_trainings = self._normalize_duel_allowed_trainings(
+            training.get("duel_allowed_trainings", self.DEFAULT_DUEL_ALLOWED_TRAININGS)
+        )
+        for stat, cb in self.duel_allowed_training_vars.items():
+            cb.blockSignals(True)
+            cb.setChecked(stat in duel_allowed_trainings)
+            cb.blockSignals(False)
+
         duel_choices = self._normalize_duel_choices(training.get("duel_choices", self.DEFAULT_DUEL_CHOICES))
         for stat, cb in self.duel_choice_vars.items():
             cb.blockSignals(True)
@@ -717,6 +749,18 @@ class TrainingTab(QScrollArea):
         for choice in choices:
             if choice in valid and choice not in normalized:
                 normalized.append(choice)
+        return normalized
+
+    def _normalize_duel_allowed_trainings(self, trainings):
+        """Return valid training types where Happy Meek's Duel can score."""
+        valid = [key for key, _ in self.TRAINING_STAT_DISPLAY]
+        if not isinstance(trainings, list):
+            trainings = self.DEFAULT_DUEL_ALLOWED_TRAININGS
+
+        normalized = []
+        for training in trainings:
+            if training in valid and training not in normalized:
+                normalized.append(training)
         return normalized
 
     def _sync_duel_priority_list(self, ordered_choices=None):
@@ -817,6 +861,9 @@ class TrainingTab(QScrollArea):
         config["training"]["gambling_train_enabled"] = self.gambling_train.isChecked()
         config["training"]["gambling_train_failure_increase"] = self.gambling_failure_spin.value()
         config["training"]["gambling_train_score_per_increase"] = self.gambling_score_spin.value()
+        config["training"]["duel_allowed_trainings"] = [
+            stat for stat, cb in self.duel_allowed_training_vars.items() if cb.isChecked()
+        ]
         config["training"]["duel_choices"] = self._get_duel_priority_order()
         
         # Unity mode fields

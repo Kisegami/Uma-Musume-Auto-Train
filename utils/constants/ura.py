@@ -63,7 +63,7 @@ URA_TEMPLATE_REGIONS = {
     "assets/buttons/recreation_btn.png": (395, 1663, 292, 142),
     "assets/buttons/rest_btn.png": (19, 1372, 313, 236),
     "assets/buttons/rest_summer_btn.png": (22, 1375, 308, 211),
-    "assets/buttons/skills_btn.png": (190, 1602, 248, 138),
+    "assets/buttons/skills_btn.png": (54, 1465, 987, 243),
     "assets/buttons/skip_btn.png": (890, 1715, 180, 172),
     "assets/buttons/strategy_change.png": (702, 1038, 299, 147),
     "assets/buttons/training_btn.png": (348, 1461, 378, 139),

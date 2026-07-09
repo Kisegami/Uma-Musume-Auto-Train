@@ -17,6 +17,7 @@ from core.Ura.duel_handling import check_happy_meeks_duel_training
 # Load config for DEBUG_MODE
 config = load_main_config()
 DEBUG_MODE = config.get("debug_mode", False)
+DEFAULT_DUEL_ALLOWED_TRAININGS = ["spd", "sta", "pwr", "guts", "wit"]
 
 
 
@@ -63,6 +64,34 @@ def _filtered_template_matches(screenshot, template_path, region_cv, confidence=
     return deduplicated_matches(raw, threshold=30)
 
 
+def _normalize_duel_allowed_trainings(allowed_trainings):
+    if not isinstance(allowed_trainings, list):
+        allowed_trainings = DEFAULT_DUEL_ALLOWED_TRAININGS
+
+    normalized = []
+    for training in allowed_trainings:
+        if training in DEFAULT_DUEL_ALLOWED_TRAININGS and training not in normalized:
+            normalized.append(training)
+    return normalized
+
+
+def _load_duel_allowed_trainings():
+    try:
+        training_config = load_main_config().get("training", {})
+        return _normalize_duel_allowed_trainings(
+            training_config.get("duel_allowed_trainings", DEFAULT_DUEL_ALLOWED_TRAININGS)
+        )
+    except Exception as e:
+        log_warning(f"Could not load duel allowed trainings config: {e}")
+        return DEFAULT_DUEL_ALLOWED_TRAININGS[:]
+
+
+def _is_duel_training_allowed(training_type, allowed_trainings=None):
+    if allowed_trainings is None:
+        allowed_trainings = _load_duel_allowed_trainings()
+    return training_type in allowed_trainings
+
+
 
 def go_to_training():
     """Go to training screen"""
@@ -98,6 +127,7 @@ def check_training(go_back=True, year=None, current_stats=None):
     }
     results = {}
     skipped_stats = []
+    duel_allowed_trainings = _load_duel_allowed_trainings()
 
     for key, coords in training_coords.items():
         # Early stat cap check - skip analysis if stat is already at/above cap
@@ -172,12 +202,17 @@ def check_training(go_back=True, year=None, current_stats=None):
         # Hint - pass screenshot to avoid taking new one
         hint_found = check_hint(screenshot)  # ✅ Pass screenshot
 
-        duel_found = check_happy_meeks_duel_training(screenshot)
+        raw_duel_found = check_happy_meeks_duel_training(screenshot)
+        duel_score_allowed = _is_duel_training_allowed(key, duel_allowed_trainings)
+        duel_found = raw_duel_found and duel_score_allowed
 
         # Calculate score for this training type
         score = calculate_training_score(detailed_support, hint_found, key, duel_found=duel_found)
 
-        log_debug(f"Support counts: {support_counts} | hint_found={hint_found} | duel_found={duel_found} | score={score}")
+        log_debug(
+            f"Support counts: {support_counts} | hint_found={hint_found} | "
+            f"duel_available={raw_duel_found} | duel_score_allowed={duel_score_allowed} | score={score}"
+        )
 
         log_debug(f"Checking failure rate for {key.upper()} training...")
         # Pass screenshot to avoid taking new ones
@@ -188,7 +223,10 @@ def check_training(go_back=True, year=None, current_stats=None):
             "support_detail": detailed_support,
             "hint": bool(hint_found),
             "duel": bool(duel_found),
-            "duel_detail": {"available": bool(duel_found)},
+            "duel_detail": {
+                "available": bool(raw_duel_found),
+                "score_allowed": bool(duel_score_allowed),
+            },
             "total_support": total_support,
             "failure": failure_chance,
             "confidence": confidence,
@@ -214,7 +252,7 @@ def check_training(go_back=True, year=None, current_stats=None):
             log_info(f"-")
         
         log_info(f"hint={hint_found}")
-        log_info(f"duel={duel_found}")
+        log_info(f"duel={raw_duel_found}, allowed={duel_score_allowed}")
         log_info(f"Fail: {failure_chance}% - Confident: {confidence:.2f}")
         log_info(f"Score: {score}")
         
@@ -789,6 +827,7 @@ def check_training_api(year=None, current_stats=None):
 
     results = {}
     log_info("--- Training (API) ---")
+    duel_allowed_trainings = _load_duel_allowed_trainings()
 
     for t in trainings_list:
         key = t.get("name", "")
@@ -817,7 +856,12 @@ def check_training_api(year=None, current_stats=None):
 
         failure = t.get("failure", 0)
         hint_found = t.get("hint_found", False)
-        duel_found, duel_detail = _parse_api_duel_info(t)
+        raw_duel_found, duel_detail = _parse_api_duel_info(t)
+        duel_score_allowed = _is_duel_training_allowed(key, duel_allowed_trainings)
+        duel_found = raw_duel_found and duel_score_allowed
+        if isinstance(duel_detail, dict):
+            duel_detail = dict(duel_detail)
+            duel_detail["score_allowed"] = bool(duel_score_allowed)
 
         support_counts = {}
         detailed_support = {}
@@ -864,12 +908,14 @@ def check_training_api(year=None, current_stats=None):
             support_str = "-"
 
         extras = " hint" if hint_found else ""
-        if duel_found:
+        if raw_duel_found:
             level = duel_detail.get("level", 0) if isinstance(duel_detail, dict) else 0
             partner = duel_detail.get("partner_name", "") if isinstance(duel_detail, dict) else ""
             duel_text = f" duel(L{level}"
             if partner:
                 duel_text += f" {partner}"
+            if not duel_score_allowed:
+                duel_text += " disallowed"
             duel_text += ")"
             extras += duel_text
         log_info(f"  {key.upper():>4}: Score={score:.1f} Fail={failure}%(API) | {support_str}{extras}")

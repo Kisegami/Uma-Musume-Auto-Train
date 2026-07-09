@@ -9,6 +9,7 @@ from utils.vision.recognizer import match_template, max_match_confidence
 from core.Ura.skill_auto_purchase import (
     click_image_button,
     dismiss_skill_result_dialog,
+    enter_skill_screen,
     execute_skill_purchases,
     extract_skill_points,
 )
@@ -273,11 +274,10 @@ def _execute_auto_skill_purchase(
         available_points = current_skill_points
         log_info(f"[API] Got {len(all_skills)} skills from API (skipping OCR scan)")
     else:
-        entered = click_image_button("assets/buttons/skills_btn.png", "skills button", max_attempts=5)
+        entered = enter_skill_screen()
         if not entered:
             log_error(f"Could not find/open skills screen")
             return False
-        time.sleep(1.0)
 
         scan_result = scan_all_skills_with_scroll()
         if 'error' in scan_result:
@@ -322,11 +322,10 @@ def _execute_auto_skill_purchase(
         return False
 
     if _api_on:
-        entered = click_image_button("assets/buttons/skills_btn.png", "skills button", max_attempts=5)
+        entered = enter_skill_screen()
         if not entered:
             log_error(f"Could not find/open skills screen")
             return False
-        time.sleep(1.0)
 
     exec_result = execute_skill_purchases(final_plan, reset_to_top=not _api_on)
     if not exec_result.get('success'):

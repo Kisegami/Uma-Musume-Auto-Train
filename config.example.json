@@ -36,6 +36,13 @@
       "wits",
       "energy"
     ],
+    "duel_allowed_trainings": [
+      "spd",
+      "sta",
+      "pwr",
+      "guts",
+      "wit"
+    ],
     "minimum_mood": "GREAT",
     "maximum_failure": 15,
     "min_energy": 30,
