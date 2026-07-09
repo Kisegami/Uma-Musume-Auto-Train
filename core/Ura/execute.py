@@ -39,6 +39,9 @@ from core.Ura.event_handling import count_event_choices, load_event_priorities, 
 # Import training handling functions
 from core.Ura.training_handling import go_to_training, check_training, do_train, check_support_card, check_failure, check_hint, choose_best_training, calculate_training_score, check_training_api
 
+# Import dating handling functions
+from core.Ura.dating_handling import do_dating, should_use_dating_for_mood, should_use_dating_for_rest
+
 # Import race handling functions
 from core.Ura.races_handling import (
     find_and_do_race, do_custom_race, race_day, check_strategy_before_race,
@@ -299,6 +302,18 @@ def do_recreation():
         log_debug(f"Clicked summer recreation button")
     else:
         log_debug(f"No recreation button found")
+
+
+def do_rest_or_dating(screenshot=None):
+    """Use dating instead of rest when enabled and available; otherwise rest."""
+    if should_use_dating_for_rest(screenshot):
+        log_info("Using dating instead of rest")
+        if do_dating():
+            return
+        log_warning("Dating failed, falling back to rest")
+
+    do_rest()
+
 
 def career_lobby(timeout=None):
     """Main career lobby loop
@@ -720,7 +735,7 @@ def career_lobby(timeout=None):
         rest_in_june_enabled = training_config_section.get("rest_in_june", False)
         if rest_in_june_enabled and "Jun" in year and "Junior" not in year and energy_percentage <= 60 and not is_race_day and not is_ura_finale_race:
             log_info(f"Rest in June enabled - Energy <= {_format_energy_threshold(60, api_status)}. Going to rest to save energy for summer.")
-            do_rest()
+            do_rest_or_dating(screenshot)
             continue
         
         # Get current stats
@@ -845,6 +860,12 @@ def career_lobby(timeout=None):
                 log_info(f"Mood is low but energy is too high ({_format_energy(energy_percentage, api_status)} > {_format_energy_threshold(90, api_status)}), skipping recreation")
             else:
                 log_debug(f"Mood too low ({mood_index} < {minimum_mood}), doing recreation")
+                if should_use_dating_for_mood(screenshot):
+                    log_info(f"Mood is low, using dating to increase mood")
+                    if do_dating():
+                        continue
+                    log_warning(f"Dating failed, falling back to recreation")
+
                 log_info(f"Mood is low, trying recreation to increase mood")
                 do_recreation()
                 continue
@@ -857,7 +878,7 @@ def career_lobby(timeout=None):
         # Check energy before proceeding with training
         if energy_percentage < min_energy:
             log_warning(f"Energy too low ({_format_energy(energy_percentage, api_status)} < {_format_energy_threshold(min_energy, api_status)}), skipping training and going to rest")
-            do_rest()
+            do_rest_or_dating(screenshot)
             continue
             
         _on_training_screen = False
@@ -954,7 +975,7 @@ def career_lobby(timeout=None):
                         if _on_training_screen:
                             tap_on_image("assets/buttons/back_btn.png")
                             time.sleep(0.3)
-                        do_rest()
+                        do_rest_or_dating()
                         continue
                     else:
                         # Try to pick a training with relaxed thresholds despite high failure context
@@ -980,7 +1001,7 @@ def career_lobby(timeout=None):
                             if _on_training_screen:
                                 tap_on_image("assets/buttons/back_btn.png")
                                 time.sleep(0.3)
-                            do_rest()
+                            do_rest_or_dating()
                             continue
                 else:
                     # Check if racing is available (no races in July/August)
@@ -1013,10 +1034,10 @@ def career_lobby(timeout=None):
                                 time.sleep(0.3)
                             if wit_score < 1.0:
                                 log_info(f"No viable training after relaxation and no races. Choosing to rest.")
-                                do_rest()
+                                do_rest_or_dating()
                             else:
                                 log_info(f"No training selected after relaxation. Choosing to rest.")
-                                do_rest()
+                                do_rest_or_dating()
                         
                     else:
                         log_info(f"Prioritizing race due to insufficient training scores.")
@@ -1041,7 +1062,7 @@ def career_lobby(timeout=None):
                                 # Go back to training and use relaxed config
                                 if not go_to_training():
                                     log_warning("Could not return to training screen. Choosing to rest.")
-                                    do_rest()
+                                    do_rest_or_dating()
                                     continue
                                 _on_training_screen = True
                         else:
@@ -1073,13 +1094,13 @@ def career_lobby(timeout=None):
                                 if _on_training_screen:
                                     tap_on_image("assets/buttons/back_btn.png")
                                     time.sleep(0.3)
-                                do_rest()
+                                do_rest_or_dating()
                         else:
                             log_info(f"Energy is {_format_energy(energy_percentage, api_status)} (< {_format_energy_threshold(50, api_status)}). Going back to lobby to rest.")
                             if _on_training_screen:
                                 tap_on_image("assets/buttons/back_btn.png")
                                 time.sleep(0.3)
-                            do_rest()
+                            do_rest_or_dating()
             else:
                 # Race prioritization disabled: if no training was chosen here, rest
                 # (min_score and failure thresholds are still enforced)
@@ -1087,7 +1108,7 @@ def career_lobby(timeout=None):
                 if _on_training_screen:
                     tap_on_image("assets/buttons/back_btn.png")
                     time.sleep(0.3)
-                do_rest()
+                do_rest_or_dating()
         
         log_debug(f"Starting next iteration immediately...")
 
