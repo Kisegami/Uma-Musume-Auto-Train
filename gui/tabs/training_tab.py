@@ -45,6 +45,15 @@ class DraggableListWidget(QListWidget):
 
 class TrainingTab(QScrollArea):
     """Training configuration tab - matches original GUI"""
+    DUEL_STAT_DISPLAY = [
+        ("speed", "Speed"),
+        ("stamina", "Stamina"),
+        ("power", "Power"),
+        ("guts", "Guts"),
+        ("wits", "Wits"),
+        ("energy", "Energy"),
+    ]
+    DEFAULT_DUEL_CHOICES = ["speed", "stamina", "power", "guts", "wits", "energy"]
     
     def __init__(self, main_window):
         super().__init__()
@@ -114,7 +123,76 @@ class TrainingTab(QScrollArea):
         
         priority_layout.addLayout(priority_container)
         layout.addWidget(priority_group)
-        
+
+        # ==================== Ura Duel Settings Section ====================
+        self.duel_group = QGroupBox("Duel Setting")
+        duel_layout = QVBoxLayout(self.duel_group)
+        duel_layout.setSpacing(12)
+
+        whitelist_label = QLabel("Duel Choices Whitelists")
+        whitelist_label.setStyleSheet(f"color: {COLORS['text_muted']}; font-weight: bold;")
+        duel_layout.addWidget(whitelist_label)
+
+        whitelist_row = QHBoxLayout()
+        whitelist_row.setSpacing(18)
+        self.duel_choice_vars = {}
+        for stat_key, label in self.DUEL_STAT_DISPLAY:
+            cb = QCheckBox(label)
+            cb.setStyleSheet("QCheckBox { spacing: 8px; }")
+            cb.stateChanged.connect(self._on_duel_whitelist_changed)
+            self.duel_choice_vars[stat_key] = cb
+            whitelist_row.addWidget(cb)
+        whitelist_row.addStretch()
+        duel_layout.addLayout(whitelist_row)
+
+        priority_label = QLabel("Duel Choices Priority")
+        priority_label.setStyleSheet(f"color: {COLORS['text_muted']}; font-weight: bold;")
+        duel_layout.addWidget(priority_label)
+
+        duel_instruction = QLabel("Drag and drop chosen stats to reorder (left = highest priority):")
+        duel_instruction.setStyleSheet(f"color: {COLORS['text_muted']}; font-weight: normal;")
+        duel_instruction.setAlignment(Qt.AlignCenter)
+        duel_layout.addWidget(duel_instruction)
+
+        duel_priority_container = QHBoxLayout()
+        duel_priority_container.setAlignment(Qt.AlignCenter)
+        self.duel_priority_list = DraggableListWidget()
+        self.duel_priority_list.setFlow(QListWidget.LeftToRight)
+        self.duel_priority_list.setWrapping(False)
+        self.duel_priority_list.setFixedHeight(60)
+        self.duel_priority_list.setSpacing(8)
+        self.duel_priority_list.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.duel_priority_list.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.duel_priority_list.orderChanged.connect(self._on_duel_priority_changed)
+        self.duel_priority_list.setStyleSheet(f"""
+            QListWidget {{ 
+                background-color: transparent; 
+                border: none; 
+                outline: none;
+            }}
+            QListWidget::item {{
+                background-color: {COLORS['accent_primary']};
+                color: white;
+                border-radius: 10px;
+                padding: 10px 16px;
+                margin: 2px;
+                font-weight: bold;
+                font-size: 13px;
+                border: 2px solid {COLORS['accent_primary']};
+            }}
+            QListWidget::item:selected {{ 
+                background-color: {COLORS['accent_green']}; 
+                border: 2px solid white;
+            }}
+            QListWidget::item:hover:!selected {{ 
+                background-color: {COLORS['accent_blue']}; 
+                border: 2px solid {COLORS['accent_blue']};
+            }}
+        """)
+        self.duel_priority_list.setFixedWidth(650)
+        duel_priority_container.addWidget(self.duel_priority_list)
+        duel_layout.addLayout(duel_priority_container)
+
         # ==================== Training Settings Section ====================
         settings_group = QGroupBox("Training Settings")
         settings_layout = QGridLayout(settings_group)
@@ -244,6 +322,7 @@ class TrainingTab(QScrollArea):
         settings_layout.addWidget(self.unity_widget, 10, 0, 1, 2)
         
         layout.addWidget(settings_group)
+        layout.addWidget(self.duel_group)
         
         # ==================== Min Training Score Section ====================
         score_group = QGroupBox("Minimum Training Score (per stat)")
@@ -548,6 +627,13 @@ class TrainingTab(QScrollArea):
         # Update gambling settings visibility
         self.gambling_settings_widget.setVisible(self.gambling_train.isChecked())
 
+        duel_choices = self._normalize_duel_choices(training.get("duel_choices", self.DEFAULT_DUEL_CHOICES))
+        for stat, cb in self.duel_choice_vars.items():
+            cb.blockSignals(True)
+            cb.setChecked(stat in duel_choices)
+            cb.blockSignals(False)
+        self._sync_duel_priority_list(duel_choices)
+
         self.soft_cap_enabled.blockSignals(True)
         self.soft_cap_enabled.setChecked(training.get("soft_cap_enabled", False))
         self.soft_cap_enabled.blockSignals(False)
@@ -606,7 +692,50 @@ class TrainingTab(QScrollArea):
         config = self.main_window.get_config()
         mode = config.get("mode", "ura")
         self.unity_widget.setVisible(mode == "unity")
+        self.duel_group.setVisible(mode == "ura")
         self._update_unity_score_visibility()
+
+    def _normalize_duel_choices(self, choices):
+        """Return valid duel choices, preserving configured priority order."""
+        valid = [key for key, _ in self.DUEL_STAT_DISPLAY]
+        if not isinstance(choices, list):
+            choices = self.DEFAULT_DUEL_CHOICES
+
+        normalized = []
+        for choice in choices:
+            if choice in valid and choice not in normalized:
+                normalized.append(choice)
+        return normalized
+
+    def _sync_duel_priority_list(self, ordered_choices=None):
+        """Mirror checked duel choices into the draggable priority list."""
+        self._syncing_duel_priority = True
+        try:
+            if ordered_choices is None:
+                ordered_choices = self._get_duel_priority_order()
+            ordered_choices = self._normalize_duel_choices(ordered_choices)
+
+            checked = [key for key, _ in self.DUEL_STAT_DISPLAY if self.duel_choice_vars[key].isChecked()]
+            ordered = [key for key in ordered_choices if key in checked]
+            ordered.extend(key for key in checked if key not in ordered)
+
+            display = dict(self.DUEL_STAT_DISPLAY)
+            self.duel_priority_list.clear()
+            for stat in ordered:
+                item = QListWidgetItem(display[stat])
+                item.setData(Qt.UserRole, stat)
+                item.setTextAlignment(Qt.AlignCenter)
+                self.duel_priority_list.addItem(item)
+        finally:
+            self._syncing_duel_priority = False
+
+    def _get_duel_priority_order(self):
+        order = []
+        for i in range(self.duel_priority_list.count()):
+            item = self.duel_priority_list.item(i)
+            if item:
+                order.append(item.data(Qt.UserRole))
+        return order
 
     def _get_training_score_filename(self, mode):
         """Return the training score config file for the active mode."""
@@ -620,6 +749,18 @@ class TrainingTab(QScrollArea):
         """Handle priority order change"""
         if not getattr(self, '_loading', False):
             self._save_training()
+
+    def _on_duel_priority_changed(self, order):
+        """Handle duel priority order change."""
+        if not getattr(self, '_loading', False) and not getattr(self, '_syncing_duel_priority', False):
+            self._save_training()
+
+    def _on_duel_whitelist_changed(self):
+        """Handle duel whitelist checkbox changes."""
+        if getattr(self, '_loading', False):
+            return
+        self._sync_duel_priority_list()
+        self._save_training()
     
     def _on_gambling_train_toggle(self):
         """Handle gambling train checkbox toggle"""
@@ -664,6 +805,7 @@ class TrainingTab(QScrollArea):
         config["training"]["gambling_train_enabled"] = self.gambling_train.isChecked()
         config["training"]["gambling_train_failure_increase"] = self.gambling_failure_spin.value()
         config["training"]["gambling_train_score_per_increase"] = self.gambling_score_spin.value()
+        config["training"]["duel_choices"] = self._get_duel_priority_order()
         
         # Unity mode fields
         if "dating" not in config:

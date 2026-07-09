@@ -369,6 +369,7 @@ class MainWindow(QMainWindow):
             "adb_config": {"device_address": "127.0.0.1:7555", "adb_path": "adb", "screenshot_timeout": 5, "input_delay": 0.5},
             "training": {
                 "priority_stat": ["spd", "sta", "wit", "pwr", "guts"],
+                "duel_choices": ["speed", "stamina", "power", "guts", "wits", "energy"],
                 "minimum_mood": "GREAT",
                 "maximum_failure": 15,
                 "min_energy": 30,

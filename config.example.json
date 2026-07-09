@@ -28,6 +28,14 @@
       "pwr",
       "guts"
     ],
+    "duel_choices": [
+      "speed",
+      "stamina",
+      "power",
+      "guts",
+      "wits",
+      "energy"
+    ],
     "minimum_mood": "GREAT",
     "maximum_failure": 15,
     "min_energy": 30,
