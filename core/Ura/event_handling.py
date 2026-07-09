@@ -18,7 +18,8 @@ if os.name == 'nt':  # Windows
 
 from utils.vision.recognizer import locate_all_on_screen, match_template
 from utils.capture.screenshot import take_screenshot, capture_region
-from core.Ura.ocr import extract_event_name_text
+from utils.ocr.ocr_utils import extract_event_name_text
+from core.Ura.duel_handling import HAPPY_MEEKS_CHALLENGE_EVENT, handle_happy_meeks_challenge
 from utils.core.log import log_debug, log_info, log_warning, log_error
 from utils.vision.template_matching import deduplicated_matches
 from utils.core.config_loader import load_main_config
@@ -164,6 +165,25 @@ def _normalize_event_name(name: str) -> str:
     """
     result = name.replace("(❯)", "").replace("(❯❯)", "").replace("(❯❯❯)", "").replace("♪", "")
     return result.strip()
+
+
+def _normalize_event_name_for_route(name: str) -> str:
+    """Normalize OCR punctuation for exact special-event routing."""
+    if not name:
+        return ""
+
+    replacements = {
+        "\u2018": "'",
+        "\u2019": "'",
+        "\u201c": '"',
+        "\u201d": '"',
+        "\u00b4": "'",
+        "`": "'",
+    }
+    normalized = name.strip()
+    for source, target in replacements.items():
+        normalized = normalized.replace(source, target)
+    return " ".join(normalized.split())
 
 
 def search_custom_events(event_name):
@@ -830,6 +850,9 @@ def handle_event_choice():
                 return 1, False, recheck_locations
         
         log_info(f"Event found: {event_name}")
+
+        if _normalize_event_name_for_route(event_name) == HAPPY_MEEKS_CHALLENGE_EVENT:
+            return handle_happy_meeks_challenge(recheck_locations)
 
         # Check custom event templates first (from config.json)
         custom_choice = search_custom_events(event_name)
