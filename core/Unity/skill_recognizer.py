@@ -105,11 +105,11 @@ def extract_skill_info(screenshot, button_x, button_y, anchor_x=946, anchor_y=80
         offset_y = button_y - anchor_y
         
         # Define regions relative to anchor
-        # Skill name region: 204, 719, 732, 788 (width: 528, height: 69)
-        name_x1 = 204 + offset_x
-        name_y1 = 719 + offset_y
-        name_x2 = 732 + offset_x
-        name_y2 = 788 + offset_y
+        # Skill name region: 200, 716, 731, 767 (width: 531, height: 51)
+        name_x1 = 200 + offset_x
+        name_y1 = 716 + offset_y
+        name_x2 = 731 + offset_x
+        name_y2 = 767 + offset_y
         name_region = (name_x1, name_y1, name_x2, name_y2)
         
         # Skill price region: 834, 803, 927, 854 (width: 93, height: 51)
