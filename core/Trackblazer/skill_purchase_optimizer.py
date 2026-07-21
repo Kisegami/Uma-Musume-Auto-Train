@@ -100,7 +100,11 @@ def _normalize(text):
     if not text:
         return ""
     import re
-    normalized = re.sub(r"[^\w\s]", "", text.lower())
+    normalized = text.lower()
+    normalized = normalized.replace("○", " o ").replace("◎", " o ")
+    normalized = re.sub(r"[^\w\s]", " ", normalized)
+    normalized = " ".join(normalized.split())
+    normalized = re.sub(r"\s+(?:0|o)$", "", normalized)
     return " ".join(normalized.split())
 
 
