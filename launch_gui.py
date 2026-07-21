@@ -72,6 +72,7 @@ def check_config_file(config_file: str, example_file: str) -> dict:
         # Config doesn't exist, create from example
         if example_path.exists():
             try:
+                config_path.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(example_path, config_path)
                 result["created"] = True
                 print(f"[OK] Created {config_file} from {example_file}")
@@ -87,11 +88,25 @@ def check_config_file(config_file: str, example_file: str) -> dict:
 
 def check_all_configs():
     """Check all required configuration files"""
+    # Migrate score files from releases that stored them in the project root.
+    score_directory = Path("template/training_score")
+    score_directory.mkdir(parents=True, exist_ok=True)
+    for old_name in (
+        "training_score.json",
+        "training_score_unity.json",
+        "training_score_trackblazer.json",
+    ):
+        old_path = Path(old_name)
+        new_path = score_directory / old_name
+        if old_path.exists() and not new_path.exists():
+            shutil.move(str(old_path), str(new_path))
+            print(f"[OK] Moved {old_name} to {new_path}")
+
     config_files = {
         "config.json": "config.example.json",
-        "training_score.json": "training_score.example.json",
-        "training_score_unity.json": "training_score_unity.example.json",
-        "training_score_trackblazer.json": "training_score_trackblazer.example.json",
+        "template/training_score/training_score.json": "template/training_score/training_score.example.json",
+        "template/training_score/training_score_unity.json": "template/training_score/training_score_unity.example.json",
+        "template/training_score/training_score_trackblazer.json": "template/training_score/training_score_trackblazer.example.json",
         "event_priority.json": "event_priority.example.json",
     }
     

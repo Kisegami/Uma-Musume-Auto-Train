@@ -12,6 +12,7 @@ from utils.constants.trackblazer import *
 from utils.core.log import log_debug, log_info, log_warning, log_error
 from utils.vision.template_matching import wait_for_image, deduplicated_matches
 from utils.core.config_loader import load_main_config
+from utils.training_score_config import load_training_score_rules
 
 # Load config for DEBUG_MODE
 config = load_main_config()
@@ -170,7 +171,7 @@ def check_training(go_back=True, year=None, current_stats=None):
         hint_found = check_hint(screenshot)  # ✅ Pass screenshot
 
         # Calculate score for this training type
-        score = calculate_training_score(detailed_support, hint_found, key)
+        score = calculate_training_score(detailed_support, hint_found, key, year=year)
 
         log_debug(f"Support counts: {support_counts} | hint_found={hint_found} | score={score}")
 
@@ -679,7 +680,7 @@ def choose_best_training(training_results, config, current_stats, year=None, ite
     log_debug(f" Best training selected: {best_training} (score: {sorted_options[0][1].get('score', 0):.2f})")
     return best_training
 
-def calculate_training_score(support_detail, hint_found, training_type):
+def calculate_training_score(support_detail, hint_found, training_type, year=None):
     """
     Calculate training score based on support cards, bond levels, and hints.
     
@@ -696,10 +697,7 @@ def calculate_training_score(support_detail, hint_found, training_type):
     try:
         # Get project root: core/Trackblazer/training_handling.py -> core/Ura -> core -> root
         project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-        config_path = os.path.join(project_root, 'training_score_trackblazer.json')
-        with open(config_path, 'r', encoding='utf-8') as f:
-            config = json.load(f)
-            scoring_rules = config.get('scoring_rules', {})
+        scoring_rules = load_training_score_rules(project_root, "trackblazer", year)
     except (FileNotFoundError, json.JSONDecodeError, KeyError) as e:
         log_warning(f"Could not load training_score_trackblazer.json: {e}")
         # Fallback to default values if config file is not available
@@ -819,7 +817,7 @@ def check_training_api(year=None, current_stats=None):
             detailed_support.setdefault(card_type, []).append(entry)
 
         total_support = sum(support_counts.values())
-        score = calculate_training_score(detailed_support, hint_found, key)
+        score = calculate_training_score(detailed_support, hint_found, key, year=year)
 
         results[key] = {
             "support": support_counts,

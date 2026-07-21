@@ -12,6 +12,7 @@ from utils.constants.unity import *
 from utils.core.log import log_debug, log_info, log_warning, log_error
 from utils.vision.template_matching import wait_for_image, deduplicated_matches
 from utils.core.config_loader import load_main_config
+from utils.training_score_config import load_training_score_rules
 
 # Load config for DEBUG_MODE
 config = load_main_config()
@@ -1044,14 +1045,7 @@ def calculate_training_score(
     try:
         # Get project root: core/Unity/training_handling.py -> core/Unity -> core -> root
         project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-        unity_path = os.path.join(project_root, 'training_score_unity.json')
-        default_path = os.path.join(project_root, 'training_score.json')
-
-        config_path = unity_path if os.path.exists(unity_path) else default_path
-
-        with open(config_path, 'r', encoding='utf-8') as f:
-            config = json.load(f)
-            scoring_rules = config.get('scoring_rules', {})
+        scoring_rules = load_training_score_rules(project_root, "unity", year)
     except (FileNotFoundError, json.JSONDecodeError, KeyError) as e:
         log_warning(f"Could not load training score config: {e}")
         # Fallback to default values if config file is not available

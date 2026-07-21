@@ -19,9 +19,9 @@ Thumbs.db
 # User configuration files (use .example files as templates)
 config.json
 event_priority.json
-training_score.json
-training_score_unity.json
-training_score_trackblazer.json
+/template/training_score/training_score.json
+/template/training_score/training_score_unity.json
+/template/training_score/training_score_trackblazer.json
 debug
 # # Debug images and temporary files
 # debug_*.png
@@ -64,4 +64,5 @@ debug_*.png
 tests/
 *.exe
 test_*.py
-template/
+template/*
+!template/training_score/

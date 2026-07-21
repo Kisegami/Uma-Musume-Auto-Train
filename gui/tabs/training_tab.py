@@ -13,6 +13,7 @@ from PySide6.QtCore import Qt, Signal
 
 from ..styles import COLORS
 from ..icon_helper import get_icon
+from utils.training_score_config import get_training_score_path
 
 
 class NoScrollSpinBox(QSpinBox):
@@ -554,12 +555,115 @@ class TrainingTab(QScrollArea):
         self.spirit_training_extra_spin.setDecimals(2)
         self.spirit_training_extra_spin.valueChanged.connect(self._on_training_score_change)
         self.score_section_layout.addWidget(self.spirit_training_extra_spin, 9, 1)
+
+        # Keep references to the normal editor so it can be hidden in advanced mode.
+        self.normal_score_widgets = []
+        normal_positions = []
+        for index in range(self.score_section_layout.count()):
+            item = self.score_section_layout.itemAt(index)
+            row, column, row_span, column_span = self.score_section_layout.getItemPosition(index)
+            if row < 10 and item.widget():
+                self.normal_score_widgets.append(item.widget())
+                normal_positions.append((item.widget(), row, column, row_span, column_span))
+        for widget, *_ in normal_positions:
+            self.score_section_layout.removeWidget(widget)
+
+        self.advanced_score_enabled = QCheckBox("Use advanced scores by career phase (Experimental)")
+        self.advanced_score_enabled.setToolTip(
+            "Automatically use separate scores for Junior, Classic, Senior, "
+            "Twinkle Series / Finale, and Summer camp."
+        )
+        self.advanced_score_enabled.stateChanged.connect(self._on_advanced_score_toggle)
+        self.score_section_layout.addWidget(self.advanced_score_enabled, 0, 0, 1, 2)
+        for widget, row, column, row_span, column_span in normal_positions:
+            self.score_section_layout.addWidget(widget, row + 1, column, row_span, column_span)
+
+        self.advanced_score_widget = QWidget()
+        advanced_layout = QVBoxLayout(self.advanced_score_widget)
+        advanced_layout.setContentsMargins(0, 4, 0, 0)
+        advanced_layout.setSpacing(8)
+        self.advanced_score_editors = {}
+        profile_labels = [
+            ("junior", "JUNIOR", "#42E77A"),
+            ("classic", "CLASSIC", "#67DDEB"),
+            ("senior", "SENIOR", "#398BFF"),
+            ("finale", "TWINKLE SERIES / FINALE", "#F39AE8"),
+            ("summer", "SUMMER", "#FF765F"),
+        ]
+        for profile, title, color in profile_labels:
+            header = QWidget()
+            header_layout = QHBoxLayout(header)
+            header_layout.setContentsMargins(0, 0, 0, 0)
+            header_layout.setSpacing(10)
+            button = QPushButton("  Training Score Settings (Click to expand)")
+            button.setIcon(get_icon("expand"))
+            button.setCheckable(True)
+            header_layout.addWidget(button, 1)
+            title_label = QLabel(title)
+            title_label.setStyleSheet(f"color: {color}; font-weight: bold;")
+            title_label.setMinimumWidth(190)
+            header_layout.addWidget(title_label)
+            advanced_layout.addWidget(header)
+
+            editor = QWidget()
+            editor_layout = QGridLayout(editor)
+            editor_layout.setContentsMargins(18, 4, 0, 8)
+            fields = self._create_advanced_score_fields(editor_layout)
+            editor.hide()
+            advanced_layout.addWidget(editor)
+            button.clicked.connect(
+                lambda checked, b=button, w=editor: self._toggle_advanced_profile(b, w, checked)
+            )
+            self.advanced_score_editors[profile] = fields
+
+        self.advanced_score_widget.hide()
+        self.score_section_layout.addWidget(self.advanced_score_widget, 11, 0, 1, 2)
         
         self.score_section.hide()
         layout.addWidget(self.score_section)
         
         layout.addStretch()
         self.setWidget(container)
+
+    def _create_advanced_score_fields(self, layout):
+        """Create one phase-specific score editor and return its controls."""
+        definitions = [
+            ("rainbow_support", "Rainbow Support:"),
+            ("not_rainbow_support_low", "Low Bond (<4) Support:"),
+            ("not_rainbow_support_high", "High Bond (>=4) Different Type:"),
+            ("hint", "Hint:"),
+            ("friend_support", "Friend Support (bond < 3):"),
+            ("happy_meeks_duel", "Happy Meek's Duel:"),
+            ("spririt_training", "Spirit Training:"),
+            ("spirit_burst", "Spirit Burst:"),
+            ("spirit_burst_ex", "Spirit Burst Extreme:"),
+            ("spirit_training_extra", "Spirit Training Extra:"),
+        ]
+        fields = {}
+        for row, (key, text) in enumerate(definitions):
+            label = QLabel(text)
+            spin = NoScrollDoubleSpinBox()
+            spin.setRange(0, 5)
+            spin.setDecimals(2)
+            spin.valueChanged.connect(self._on_training_score_change)
+            layout.addWidget(label, row, 0)
+            layout.addWidget(spin, row, 1)
+            fields[key] = {"label": label, "spin": spin}
+        return fields
+
+    def _toggle_advanced_profile(self, button, editor, checked):
+        button.setText(f"  Training Score Settings (Click to {'collapse' if checked else 'expand'})")
+        button.setIcon(get_icon("collapse" if checked else "expand"))
+        editor.setVisible(checked)
+
+    def _on_advanced_score_toggle(self):
+        advanced = self.advanced_score_enabled.isChecked()
+        self.advanced_score_widget.setVisible(advanced)
+        for widget in self.normal_score_widgets:
+            widget.setVisible(not advanced)
+        self._update_unity_score_visibility()
+        if not getattr(self, '_loading', False):
+            self._save_training_score_config()
     
     def _toggle_score_section(self):
         """Toggle training score section visibility"""
@@ -578,19 +682,27 @@ class TrainingTab(QScrollArea):
         mode = config.get("mode", "ura")
         is_unity = mode == "unity"
         is_ura = mode == "ura"
+        normal_visible = not self.advanced_score_enabled.isChecked()
 
-        self.happy_meeks_duel_label.setVisible(is_ura)
-        self.happy_meeks_duel_spin.setVisible(is_ura)
+        self.happy_meeks_duel_label.setVisible(is_ura and normal_visible)
+        self.happy_meeks_duel_spin.setVisible(is_ura and normal_visible)
         
         # Unity-specific training score fields
-        self.unity_score_label1.setVisible(is_unity)
-        self.spirit_training_spin.setVisible(is_unity)
-        self.unity_score_label2.setVisible(is_unity)
-        self.spirit_burst_spin.setVisible(is_unity)
-        self.unity_score_label4.setVisible(is_unity)
-        self.spirit_burst_ex_spin.setVisible(is_unity)
-        self.unity_score_label3.setVisible(is_unity)
-        self.spirit_training_extra_spin.setVisible(is_unity)
+        self.unity_score_label1.setVisible(is_unity and normal_visible)
+        self.spirit_training_spin.setVisible(is_unity and normal_visible)
+        self.unity_score_label2.setVisible(is_unity and normal_visible)
+        self.spirit_burst_spin.setVisible(is_unity and normal_visible)
+        self.unity_score_label4.setVisible(is_unity and normal_visible)
+        self.spirit_burst_ex_spin.setVisible(is_unity and normal_visible)
+        self.unity_score_label3.setVisible(is_unity and normal_visible)
+        self.spirit_training_extra_spin.setVisible(is_unity and normal_visible)
+
+        for fields in self.advanced_score_editors.values():
+            fields["happy_meeks_duel"]["label"].setVisible(is_ura)
+            fields["happy_meeks_duel"]["spin"].setVisible(is_ura)
+            for key in ("spririt_training", "spirit_burst", "spirit_burst_ex", "spirit_training_extra"):
+                fields[key]["label"].setVisible(is_unity)
+                fields[key]["spin"].setVisible(is_unity)
     
     def load_config(self):
         """Load config values into UI"""
@@ -795,11 +907,9 @@ class TrainingTab(QScrollArea):
 
     def _get_training_score_filename(self, mode):
         """Return the training score config file for the active mode."""
-        if mode == "unity":
-            return "training_score_unity.json"
-        if mode == "trackblazer":
-            return "training_score_trackblazer.json"
-        return "training_score.json"
+        import os
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        return get_training_score_path(project_root, mode)
     
     def _on_priority_changed(self, order):
         """Handle priority order change"""
@@ -898,6 +1008,7 @@ class TrainingTab(QScrollArea):
         mode = config.get("mode", "ura")
         filename = self._get_training_score_filename(mode)
         
+        file_config = {}
         try:
             if os.path.exists(filename):
                 with open(filename, 'r', encoding='utf-8') as f:
@@ -957,6 +1068,26 @@ class TrainingTab(QScrollArea):
         self.spirit_training_extra_spin.blockSignals(True)
         self.spirit_training_extra_spin.setValue(get_points("spirit_training_extra", 0.2))
         self.spirit_training_extra_spin.blockSignals(False)
+
+        self.advanced_score_enabled.blockSignals(True)
+        self.advanced_score_enabled.setChecked(bool(file_config.get("advanced_enabled", False)))
+        self.advanced_score_enabled.blockSignals(False)
+        advanced = self.advanced_score_enabled.isChecked()
+        self.advanced_score_widget.setVisible(advanced)
+        for widget in self.normal_score_widgets:
+            widget.setVisible(not advanced)
+
+        defaults = {key: value.get("points", 0.0) for key, value in score_config.items() if isinstance(value, dict)}
+        profiles = file_config.get("profiles", {})
+        for profile, fields in self.advanced_score_editors.items():
+            profile_rules = profiles.get(profile, {})
+            for key, controls in fields.items():
+                fallback = defaults.get(key, self._score_default_points(key))
+                rule = profile_rules.get(key, {})
+                value = rule.get("points", fallback) if isinstance(rule, dict) else fallback
+                controls["spin"].blockSignals(True)
+                controls["spin"].setValue(value)
+                controls["spin"].blockSignals(False)
     
     def _save_training_score_config(self):
         """Save training score settings to JSON file"""
@@ -1016,13 +1147,61 @@ class TrainingTab(QScrollArea):
                 "points": self.spirit_training_extra_spin.value()
             }
         
-        file_config = {"scoring_rules": scoring_rules}
+        profiles = {}
+        for profile, fields in self.advanced_score_editors.items():
+            profile_rules = {}
+            for key, controls in fields.items():
+                if key == "happy_meeks_duel" and mode != "ura":
+                    continue
+                if key in ("spririt_training", "spirit_burst", "spirit_burst_ex", "spirit_training_extra") and mode != "unity":
+                    continue
+                profile_rules[key] = {
+                    "description": self._score_description(key),
+                    "points": controls["spin"].value(),
+                }
+            profiles[profile] = profile_rules
+
+        file_config = {
+            "advanced_enabled": self.advanced_score_enabled.isChecked(),
+            "scoring_rules": scoring_rules,
+            "profiles": profiles,
+        }
         
         try:
             with open(filename, 'w', encoding='utf-8') as f:
                 json.dump(file_config, f, indent=2)
         except Exception as e:
             print(f"Failed to save training score config: {e}")
+
+    @staticmethod
+    def _score_default_points(key):
+        return {
+            "rainbow_support": 1.0,
+            "not_rainbow_support_low": 0.7,
+            "not_rainbow_support_high": 0.0,
+            "hint": 0.3,
+            "friend_support": 0.5,
+            "happy_meeks_duel": 1.0,
+            "spririt_training": 0.5,
+            "spirit_burst": 1.0,
+            "spirit_burst_ex": 1.0,
+            "spirit_training_extra": 0.2,
+        }.get(key, 0.0)
+
+    @staticmethod
+    def _score_description(key):
+        return {
+            "rainbow_support": "Same type support card with bond level >= 4",
+            "not_rainbow_support_low": "Support with bond level < 4",
+            "not_rainbow_support_high": "Not same type support with bond level >= 4",
+            "hint": "Hint icon present",
+            "friend_support": "Friend support card with bond < 3",
+            "happy_meeks_duel": "Happy Meek's Duel icon present",
+            "spririt_training": "Spirit training",
+            "spirit_burst": "Spirit burst",
+            "spirit_burst_ex": "Spirit Burst Extreme",
+            "spirit_training_extra": "Spirit training after burst",
+        }.get(key, key)
     
     def _on_training_score_change(self):
         """Handle training score changes - save to JSON file"""
