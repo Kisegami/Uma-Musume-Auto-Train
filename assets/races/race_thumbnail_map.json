@@ -4,10 +4,10 @@
     "source_race_data": "assets/races/clean_race_data.json",
     "thumbnail_directory": "assets/races/races_thumb",
     "total_entries": 422,
-    "matched_entries": 394,
+    "matched_entries": 420,
     "fallback_entries": 18,
-    "unmapped_entries": 28,
-    "note": "Unmapped entries are races present in clean_race_data.json but not found by name in master.mdb text_data category 32."
+    "unmapped_entries": 2,
+    "note": "All 420 races in clean_race_data.json are mapped. The two unmapped entries are retained Prix Niel and Prix Foy records that are not present in clean_race_data.json."
   },
   "races": {
     "Junior Year Late Jul": {
@@ -362,10 +362,10 @@
         "match": "exact"
       },
       "Zen-Nippon Junior Yushun": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 1108,
+        "thumbnail_id": 1108,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1108_00.png",
+        "match": "exact"
       }
     },
     "Classic Year Early Jan": {
@@ -562,10 +562,10 @@
         "match": "exact"
       },
       "Marine Cup": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 3074,
+        "thumbnail_id": 3074,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3074_00.png",
+        "match": "exact"
       }
     },
     "Classic Year Late Apr": {
@@ -696,10 +696,10 @@
         "match": "exact"
       },
       "Kanto Oaks": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 2039,
+        "thumbnail_id": 2039,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2039_00.png",
+        "match": "exact"
       }
     },
     "Classic Year Late Jun": {
@@ -808,10 +808,10 @@
         "match": "exact"
       },
       "Sparking Lady Cup": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 3073,
+        "thumbnail_id": 3073,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3073_00.png",
+        "match": "exact"
       }
     },
     "Classic Year Late Jul": {
@@ -840,10 +840,10 @@
         "match": "exact"
       },
       "Mercury Cup": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 3076,
+        "thumbnail_id": 3076,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3076_00.png",
+        "match": "exact"
       }
     },
     "Classic Year Early Aug": {
@@ -940,10 +940,10 @@
         "match": "exact"
       },
       "Cluster Cup": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 3077,
+        "thumbnail_id": 3077,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3077_00.png",
+        "match": "exact"
       }
     },
     "Classic Year Early Sep": {
@@ -1046,10 +1046,10 @@
         "match": "exact"
       },
       "Sazanka TV Hai": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 2041,
+        "thumbnail_id": 2041,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2041_00.png",
+        "match": "exact"
       }
     },
     "Classic Year Early Oct": {
@@ -1102,22 +1102,22 @@
         "match": "exact"
       },
       "Ladies' Prelude": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 2036,
+        "thumbnail_id": 2036,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2036_00.png",
+        "match": "exact"
       },
       "Mile Championship Nambu Hai": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 1110,
+        "thumbnail_id": 1110,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1110_00.png",
+        "match": "exact"
       },
       "Tokyo Hai": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 2037,
+        "thumbnail_id": 2037,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2037_00.png",
+        "match": "exact"
       }
     },
     "Classic Year Late Oct": {
@@ -1216,32 +1216,32 @@
         "match": "base_name_fallback",
         "matched_name": "JBC Classic"
       },
-      "JBC Ladies’ Classic": {
+      "JBC Ladies\u2019 Classic": {
         "race_id": 1103,
         "thumbnail_id": 1103,
         "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1103_00.png",
         "match": "exact"
       },
-      "JBC Ladies’ Classic [2]": {
+      "JBC Ladies\u2019 Classic [2]": {
         "race_id": 1103,
         "thumbnail_id": 1103,
         "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1103_00.png",
         "match": "base_name_fallback",
-        "matched_name": "JBC Ladies’ Classic"
+        "matched_name": "JBC Ladies\u2019 Classic"
       },
-      "JBC Ladies’ Classic [3]": {
+      "JBC Ladies\u2019 Classic [3]": {
         "race_id": 1103,
         "thumbnail_id": 1103,
         "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1103_00.png",
         "match": "base_name_fallback",
-        "matched_name": "JBC Ladies’ Classic"
+        "matched_name": "JBC Ladies\u2019 Classic"
       },
-      "JBC Ladies’ Classic [4]": {
+      "JBC Ladies\u2019 Classic [4]": {
         "race_id": 1103,
         "thumbnail_id": 1103,
         "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1103_00.png",
         "match": "base_name_fallback",
-        "matched_name": "JBC Ladies’ Classic"
+        "matched_name": "JBC Ladies\u2019 Classic"
       },
       "JBC Sprint": {
         "race_id": 1104,
@@ -1413,10 +1413,10 @@
         "match": "exact"
       },
       "Queen Sho": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 3075,
+        "thumbnail_id": 3075,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3075_00.png",
+        "match": "exact"
       }
     },
     "Classic Year Late Dec": {
@@ -1551,10 +1551,10 @@
         "match": "exact"
       },
       "TCK Jo-O Hai": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 3071,
+        "thumbnail_id": 3071,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3071_00.png",
+        "match": "exact"
       }
     },
     "Senior Year Early Feb": {
@@ -1595,10 +1595,10 @@
         "match": "exact"
       },
       "Kawasaki Kinen": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 1107,
+        "thumbnail_id": 1107,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1107_00.png",
+        "match": "exact"
       }
     },
     "Senior Year Late Feb": {
@@ -1695,10 +1695,10 @@
         "match": "exact"
       },
       "Empress Hai": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 2038,
+        "thumbnail_id": 2038,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2038_00.png",
+        "match": "exact"
       }
     },
     "Senior Year Late Mar": {
@@ -1745,10 +1745,10 @@
         "match": "exact"
       },
       "Diolite Kinen": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 2040,
+        "thumbnail_id": 2040,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2040_00.png",
+        "match": "exact"
       }
     },
     "Senior Year Early Apr": {
@@ -1801,10 +1801,10 @@
         "match": "exact"
       },
       "Marine Cup": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 3074,
+        "thumbnail_id": 3074,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3074_00.png",
+        "match": "exact"
       }
     },
     "Senior Year Late Apr": {
@@ -1839,10 +1839,10 @@
         "match": "exact"
       },
       "Tokyo Sprint": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 3072,
+        "thumbnail_id": 3072,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3072_00.png",
+        "match": "exact"
       }
     },
     "Senior Year Early May": {
@@ -1901,10 +1901,10 @@
         "match": "exact"
       },
       "Kashiwa Kinen": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 1109,
+        "thumbnail_id": 1109,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1109_00.png",
+        "match": "exact"
       }
     },
     "Senior Year Late May": {
@@ -2077,10 +2077,10 @@
         "match": "exact"
       },
       "Sparking Lady Cup": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 3073,
+        "thumbnail_id": 3073,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3073_00.png",
+        "match": "exact"
       }
     },
     "Senior Year Late Jul": {
@@ -2103,10 +2103,10 @@
         "match": "exact"
       },
       "Mercury Cup": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 3076,
+        "thumbnail_id": 3076,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3076_00.png",
+        "match": "exact"
       },
       "Queen Stakes": {
         "race_id": 3043,
@@ -2203,10 +2203,10 @@
         "match": "exact"
       },
       "Cluster Cup": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 3077,
+        "thumbnail_id": 3077,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3077_00.png",
+        "match": "exact"
       }
     },
     "Senior Year Early Sep": {
@@ -2285,10 +2285,10 @@
         "match": "exact"
       },
       "Sazanka TV Hai": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 2041,
+        "thumbnail_id": 2041,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2041_00.png",
+        "match": "exact"
       }
     },
     "Senior Year Early Oct": {
@@ -2341,22 +2341,22 @@
         "match": "exact"
       },
       "Ladies' Prelude": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 2036,
+        "thumbnail_id": 2036,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2036_00.png",
+        "match": "exact"
       },
       "Mile Championship Nambu Hai": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 1110,
+        "thumbnail_id": 1110,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1110_00.png",
+        "match": "exact"
       },
       "Tokyo Hai": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 2037,
+        "thumbnail_id": 2037,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_2037_00.png",
+        "match": "exact"
       }
     },
     "Senior Year Late Oct": {
@@ -2443,32 +2443,32 @@
         "match": "base_name_fallback",
         "matched_name": "JBC Classic"
       },
-      "JBC Ladies’ Classic": {
+      "JBC Ladies\u2019 Classic": {
         "race_id": 1103,
         "thumbnail_id": 1103,
         "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1103_00.png",
         "match": "exact"
       },
-      "JBC Ladies’ Classic [2]": {
+      "JBC Ladies\u2019 Classic [2]": {
         "race_id": 1103,
         "thumbnail_id": 1103,
         "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1103_00.png",
         "match": "base_name_fallback",
-        "matched_name": "JBC Ladies’ Classic"
+        "matched_name": "JBC Ladies\u2019 Classic"
       },
-      "JBC Ladies’ Classic [3]": {
+      "JBC Ladies\u2019 Classic [3]": {
         "race_id": 1103,
         "thumbnail_id": 1103,
         "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1103_00.png",
         "match": "base_name_fallback",
-        "matched_name": "JBC Ladies’ Classic"
+        "matched_name": "JBC Ladies\u2019 Classic"
       },
-      "JBC Ladies’ Classic [4]": {
+      "JBC Ladies\u2019 Classic [4]": {
         "race_id": 1103,
         "thumbnail_id": 1103,
         "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_1103_00.png",
         "match": "base_name_fallback",
-        "matched_name": "JBC Ladies’ Classic"
+        "matched_name": "JBC Ladies\u2019 Classic"
       },
       "JBC Sprint": {
         "race_id": 1104,
@@ -2640,10 +2640,10 @@
         "match": "exact"
       },
       "Queen Sho": {
-        "race_id": null,
-        "thumbnail_id": null,
-        "thumbnail_path": null,
-        "match": "unmapped"
+        "race_id": 3075,
+        "thumbnail_id": 3075,
+        "thumbnail_path": "assets/races/races_thumb/thum_race_rt_000_3075_00.png",
+        "match": "exact"
       }
     },
     "Senior Year Late Dec": {

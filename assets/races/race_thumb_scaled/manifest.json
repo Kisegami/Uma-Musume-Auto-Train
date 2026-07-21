@@ -3,7 +3,7 @@
   "output_dir": "assets/races/race_thumb_scaled",
   "scale": 0.52,
   "crop_inset": 8,
-  "template_count": 338,
+  "template_count": 364,
   "templates": [
     {
       "source": "assets/races/races_thumb/thum_race_rt_000_1001_00.png",
@@ -162,6 +162,12 @@
       "height": 125
     },
     {
+      "source": "assets/races/races_thumb/thum_race_rt_000_1029_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_1029_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
       "source": "assets/races/races_thumb/thum_race_rt_000_1101_00.png",
       "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_1101_00.png",
       "width": 258,
@@ -194,6 +200,30 @@
     {
       "source": "assets/races/races_thumb/thum_race_rt_000_1106_00.png",
       "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_1106_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
+      "source": "assets/races/races_thumb/thum_race_rt_000_1107_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_1107_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
+      "source": "assets/races/races_thumb/thum_race_rt_000_1108_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_1108_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
+      "source": "assets/races/races_thumb/thum_race_rt_000_1109_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_1109_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
+      "source": "assets/races/races_thumb/thum_race_rt_000_1110_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_1110_00.png",
       "width": 258,
       "height": 125
     },
@@ -398,6 +428,42 @@
     {
       "source": "assets/races/races_thumb/thum_race_rt_000_2034_00.png",
       "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_2034_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
+      "source": "assets/races/races_thumb/thum_race_rt_000_2036_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_2036_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
+      "source": "assets/races/races_thumb/thum_race_rt_000_2037_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_2037_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
+      "source": "assets/races/races_thumb/thum_race_rt_000_2038_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_2038_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
+      "source": "assets/races/races_thumb/thum_race_rt_000_2039_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_2039_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
+      "source": "assets/races/races_thumb/thum_race_rt_000_2040_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_2040_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
+      "source": "assets/races/races_thumb/thum_race_rt_000_2041_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_2041_00.png",
       "width": 258,
       "height": 125
     },
@@ -824,6 +890,48 @@
     {
       "source": "assets/races/races_thumb/thum_race_rt_000_3070_00.png",
       "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_3070_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
+      "source": "assets/races/races_thumb/thum_race_rt_000_3071_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_3071_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
+      "source": "assets/races/races_thumb/thum_race_rt_000_3072_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_3072_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
+      "source": "assets/races/races_thumb/thum_race_rt_000_3073_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_3073_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
+      "source": "assets/races/races_thumb/thum_race_rt_000_3074_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_3074_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
+      "source": "assets/races/races_thumb/thum_race_rt_000_3075_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_3075_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
+      "source": "assets/races/races_thumb/thum_race_rt_000_3076_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_3076_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
+      "source": "assets/races/races_thumb/thum_race_rt_000_3077_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_3077_00.png",
       "width": 258,
       "height": 125
     },
@@ -1794,6 +1902,12 @@
       "height": 125
     },
     {
+      "source": "assets/races/races_thumb/thum_race_rt_000_5980_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_5980_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
       "source": "assets/races/races_thumb/thum_race_rt_000_6100_01.png",
       "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_6100_01.png",
       "width": 258,
@@ -1992,6 +2106,18 @@
       "height": 125
     },
     {
+      "source": "assets/races/races_thumb/thum_race_rt_000_9006_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_9006_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
+      "source": "assets/races/races_thumb/thum_race_rt_000_9007_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_9007_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
       "source": "assets/races/races_thumb/thum_race_rt_000_9010_00.png",
       "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_9010_00.png",
       "width": 258,
@@ -2018,6 +2144,36 @@
     {
       "source": "assets/races/races_thumb/thum_race_rt_000_9033_00.png",
       "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_9033_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
+      "source": "assets/races/races_thumb/thum_race_rt_000_9061_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_9061_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
+      "source": "assets/races/races_thumb/thum_race_rt_000_9062_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_9062_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
+      "source": "assets/races/races_thumb/thum_race_rt_000_9063_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_9063_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
+      "source": "assets/races/races_thumb/thum_race_rt_000_9064_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_9064_00.png",
+      "width": 258,
+      "height": 125
+    },
+    {
+      "source": "assets/races/races_thumb/thum_race_rt_000_9065_00.png",
+      "scaled": "assets/races/race_thumb_scaled/thum_race_rt_000_9065_00.png",
       "width": 258,
       "height": 125
     },
