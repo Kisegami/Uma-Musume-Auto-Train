@@ -1321,7 +1321,7 @@ def career_lobby(timeout=None):
                             "sta": 0.0,
                             "pwr": 0.0,
                             "guts": 0.0,
-                            "wit": 0.0
+                            "wit": min_score_config["wit"]
                         }
                         fallback_training = choose_best_training(
                             results_training,
@@ -1357,7 +1357,7 @@ def career_lobby(timeout=None):
                             "sta": 0.0,
                             "pwr": 0.0,
                             "guts": 0.0,
-                            "wit": 0.0
+                            "wit": min_score_config["wit"]
                         }
                         fallback_training = choose_best_training(
                             results_training,
@@ -1426,7 +1426,7 @@ def career_lobby(timeout=None):
                                 "sta": 0.0,
                                 "pwr": 0.0,
                                 "guts": 0.0,
-                                "wit": 0.0
+                                "wit": min_score_config["wit"]
                             }
                             relaxed_training = choose_best_training(
                                 results_training,
