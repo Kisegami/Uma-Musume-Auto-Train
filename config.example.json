@@ -146,6 +146,10 @@
     "training_buff_highest_rainbow_override_enabled": false,
     "training_buff_highest_rainbow_override_threshold": 3
   },
+  "lessons": {
+    "technique_template": "template/lessons/technique/default.json",
+    "song_template": "template/lessons/songs/default.json"
+  },
   "restart_career": {
     "restart_enabled": false,
     "restart_times": 2,

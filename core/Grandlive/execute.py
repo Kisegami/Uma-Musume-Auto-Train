@@ -46,6 +46,9 @@ from core.Grandlive.races_handling import (
     after_race, is_racing_available, is_pre_debut_year, get_custom_race_selection
 )
 
+# Import concert handling functions
+from core.Grandlive.concert_handling import do_concert, do_grand_concert
+
 from utils.core.config_loader import load_main_config
 config = load_main_config()
 training_config_section = config.get("training", {})
@@ -389,6 +392,10 @@ def career_lobby(timeout=None):
             ("assets/buttons/close.png", 0.8, None),
             ("assets/buttons/next_btn.png", 0.8, None),
             ("assets/ui/connection_error.png", 0.8, None),
+            ("assets/grandlive/concert_btn.png", 0.8, None),
+            ("assets/grandlive/grand_concert_btn.png", 0.8, None),
+            ("assets/grandlive/lessons_btn.png", 0.8, None),
+            ("assets/grandlive/lessons_btn_2.png", 0.8, None),
             ("assets/ui/tazuna_hint.png", 0.9, None),
             ("assets/buttons/back_btn.png", 0.8, None),
         ]
@@ -427,6 +434,29 @@ def career_lobby(timeout=None):
             _lobby_wait_start = None
             claw_machine()
             continue
+
+        # Check Grand Live concert routes before handling generic lobby actions.
+        grand_concert_matches = batch_results["assets/grandlive/grand_concert_btn.png"]
+        if grand_concert_matches:
+            _lobby_wait_start = None
+            do_grand_concert()
+            continue
+
+        concert_matches = batch_results["assets/grandlive/concert_btn.png"]
+        if concert_matches:
+            _lobby_wait_start = None
+            do_concert()
+            continue
+
+        lesson_matches = (
+            batch_results["assets/grandlive/lessons_btn.png"]
+            or batch_results["assets/grandlive/lessons_btn_2.png"]
+        )
+        if lesson_matches and _API_MODE:
+            from core.Grandlive.lesson_handling import handle_lessons
+            if handle_lessons():
+                _lobby_wait_start = None
+                continue
 
         # 3. Check OK button
         log_debug(f"Checking for OK button...")
@@ -635,6 +665,7 @@ def career_lobby(timeout=None):
             mood = api_status["mood"]
             year = api_status["year"]
             current_stats = api_status["stats"]
+            performance_points = api_status["performance"]
             energy_percentage = api_status["energy_current"]
             if skip_goal_check:
                 goal_data = "Skipped"
@@ -644,6 +675,7 @@ def career_lobby(timeout=None):
                 criteria_text = check_criteria(screenshot)
         else:
             api_status = None
+            performance_points = None
             mood = check_mood(screenshot)
             year = check_current_year(screenshot)
             if skip_goal_check:
@@ -733,6 +765,15 @@ def career_lobby(timeout=None):
         stats_str = f"SPD: {current_stats.get('spd', 0)}, STA: {current_stats.get('sta', 0)}, PWR: {current_stats.get('pwr', 0)}, GUTS: {current_stats.get('guts', 0)}, WIT: {current_stats.get('wit', 0)}" if current_stats else "N/A"
         
         log_info(f"Current stats: {stats_str}")
+        if performance_points is not None:
+            performance_str = (
+                f"Dance: {performance_points.get('dance', 0)}, "
+                f"Passion: {performance_points.get('passion', 0)}, "
+                f"Vocal: {performance_points.get('vocal', 0)}, "
+                f"Visual: {performance_points.get('visual', 0)}, "
+                f"Composure: {performance_points.get('composure', 0)}"
+            )
+            log_info(f"Performance points: {performance_str}")
         if api_status and api_status.get("max_stats"):
             max_stats = api_status["max_stats"]
             max_stats_str = f"SPD: {max_stats.get('spd', 0)}, STA: {max_stats.get('sta', 0)}, PWR: {max_stats.get('pwr', 0)}, GUTS: {max_stats.get('guts', 0)}, WIT: {max_stats.get('wit', 0)}"

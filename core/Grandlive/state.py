@@ -722,7 +722,8 @@ def check_status_api():
 
     Returns dict with Ura-compatible keys:
         year, mood, stats{spd,sta,pwr,guts,wit}, max_stats{spd,sta,pwr,guts,wit},
-        energy_current, energy_max, skill_points
+        energy_current, energy_max, skill_points,
+        performance{dance,passion,vocal,visual,composure}
     Or None if API is unavailable.
     """
     data = _get_status_cached()
@@ -737,6 +738,8 @@ def check_status_api():
         energy_max = energy.get("max", 100)
         energy_current = energy.get("current", 0)
         api_year = data.get("year", "Unknown Year")
+        grand_live = data.get("grand_live", {})
+        performance = grand_live.get("performance", {}) if isinstance(grand_live, dict) else {}
         if "Year 4" in api_year:
             api_year = "Finale Underway"
         max_stats_result = {stat: max_stats.get(stat, 0) for stat in ("spd", "sta", "pwr", "guts", "wit") if max_stats.get(stat, 0)}
@@ -755,6 +758,10 @@ def check_status_api():
             "energy_current": energy_current,
             "energy_max": energy_max,
             "skill_points": data.get("current_skill_points", 0),
+            "performance": {
+                point_type: performance.get(point_type, 0)
+                for point_type in ("dance", "passion", "vocal", "visual", "composure")
+            },
         }
         log_debug(f"[API] Status: year={result['year']} mood={result['mood']} energy={result['energy_current']}/{result['energy_max']} sp={result['skill_points']}")
         return result
@@ -796,3 +803,10 @@ def check_skill_points_api():
     if status is None:
         return None
     return status.get("skill_points")
+
+
+def check_performance_points_api():
+    status = check_status_api()
+    if status is None:
+        return None
+    return status.get("performance")

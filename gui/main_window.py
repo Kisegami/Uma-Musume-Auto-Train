@@ -28,6 +28,7 @@ from .tabs.training_tab import TrainingTab
 from .tabs.racing_tab import RacingTab
 from .tabs.event_tab import EventTab
 from .tabs.skill_tab import SkillTab
+from .tabs.lesson_tab import LessonsTab
 from .tabs.items_tab import ItemsTab
 from .tabs.restart_tab import RestartTab
 from .tabs.others_tab import OthersTab
@@ -189,6 +190,7 @@ class MainWindow(QMainWindow):
             ("Racing", "fa5s.flag-checkered"),
             ("Event", "fa5s.calendar"),
             ("Skill", "fa5s.star"),
+            ("Lessons", "fa5s.music"),
             ("Items", "fa5s.box"),
             ("Restart", "fa5s.redo"),
             ("Others", "fa5s.wrench"),
@@ -233,6 +235,7 @@ class MainWindow(QMainWindow):
         self.racing_page = RacingTab(self)
         self.event_page = EventTab(self)
         self.skill_page = SkillTab(self)
+        self.lessons_page = LessonsTab(self)
         self.items_page = ItemsTab(self)
         self.restart_page = RestartTab(self)
         self.others_page = OthersTab(self)
@@ -245,6 +248,7 @@ class MainWindow(QMainWindow):
         self.page_stack.addWidget(self.racing_page)
         self.page_stack.addWidget(self.event_page)
         self.page_stack.addWidget(self.skill_page)
+        self.page_stack.addWidget(self.lessons_page)
         self.page_stack.addWidget(self.items_page)
         self.page_stack.addWidget(self.restart_page)
         self.page_stack.addWidget(self.others_page)
@@ -287,11 +291,12 @@ class MainWindow(QMainWindow):
             "Racing": 3,
             "Event": 4,
             "Skill": 5,
-            "Items": 6,
-            "Restart": 7,
-            "Others": 8,
-            "Update": 9,
-            "Donation": 10,
+            "Lessons": 6,
+            "Items": 7,
+            "Restart": 8,
+            "Others": 9,
+            "Update": 10,
+            "Donation": 11,
         }
         
         # Update button states
@@ -303,14 +308,18 @@ class MainWindow(QMainWindow):
             self.page_stack.setCurrentIndex(page_map[page_name])
 
     def _update_mode_dependent_navigation(self):
-        """Show Trackblazer-only navigation entries when applicable."""
+        """Show scenario-specific navigation entries when applicable."""
         is_trackblazer = self.config.get("mode", "ura") == "trackblazer"
+        is_grand_live = self.config.get("mode", "ura") == "grand_live"
         items_button = next((btn for name, btn in self.nav_buttons if name == "Items"), None)
-        if items_button is None:
-            return
-
-        items_button.setVisible(is_trackblazer)
+        lessons_button = next((btn for name, btn in self.nav_buttons if name == "Lessons"), None)
+        if items_button is not None:
+            items_button.setVisible(is_trackblazer)
+        if lessons_button is not None:
+            lessons_button.setVisible(is_grand_live)
         if not is_trackblazer and items_button.isChecked():
+            self._on_nav_clicked("Skill")
+        if not is_grand_live and lessons_button and lessons_button.isChecked():
             self._on_nav_clicked("Skill")
     
     def _open_discord_prompt(self):
@@ -403,6 +412,10 @@ class MainWindow(QMainWindow):
                 "ignore_end_skill_purchase": False
             },
             "items": {"item_purchase_file": "template/items/default.json", "budget_strategy": "save_priority"},
+            "lessons": {
+                "technique_template": "template/lessons/technique/default.json",
+                "song_template": "template/lessons/songs/default.json"
+            },
             "debug_mode": False,
             "dump_lobby_template_regions": False,
             "bypass_template_regions": False,

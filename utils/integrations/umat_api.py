@@ -192,6 +192,11 @@ def get_training() -> dict | None:
     return _api_get("/training")
 
 
+def get_grand_live() -> dict | None:
+    """Fetch detailed Grand Live state, including current lesson choices."""
+    return _api_get("/scenario/grand-live")
+
+
 def get_skills() -> dict | None:
     """
     Fetch available skills from /skills endpoint.
