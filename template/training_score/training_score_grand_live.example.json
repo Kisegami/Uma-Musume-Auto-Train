@@ -5,7 +5,7 @@
       "points": 1.0
     },
     "not_rainbow_support_low": {
-      "description": "Not same type support with bond level < 4",
+      "description": "Support with bond level < 4",
       "points": 0.7
     },
     "not_rainbow_support_high": {
@@ -23,10 +23,6 @@
     "friend_support_high": {
       "description": "Friend support card with bond >= 3",
       "points": 0.5
-    },
-    "happy_meeks_duel": {
-      "description": "Happy Meek's Duel icon present",
-      "points": 1.0
     }
   }
 }

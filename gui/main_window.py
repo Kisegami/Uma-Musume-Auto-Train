@@ -414,7 +414,14 @@ class MainWindow(QMainWindow):
             "items": {"item_purchase_file": "template/items/default.json", "budget_strategy": "save_priority"},
             "lessons": {
                 "technique_template": "template/lessons/technique/default.json",
-                "song_template": "template/lessons/songs/default.json"
+                "song_template": "template/lessons/songs/default.json",
+                "song_requirements": {
+                    "catch_up_missed_minimum": False,
+                    "concerts": {
+                        str(index): {"minimum": 3, "maximum": 21}
+                        for index in range(1, 6)
+                    }
+                }
             },
             "debug_mode": False,
             "dump_lobby_template_regions": False,

@@ -685,7 +685,7 @@ def calculate_training_score(support_detail, hint_found, training_type, year=Non
     try:
         # Get project root: core/Grandlive/training_handling.py -> core/Grandlive -> core -> root
         project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-        scoring_rules = load_training_score_rules(project_root, "ura", year)
+        scoring_rules = load_training_score_rules(project_root, "grand_live", year)
     except (FileNotFoundError, json.JSONDecodeError, KeyError) as e:
         log_warning(f"Could not load training_score.json: {e}")
         # Fallback to default values if config file is not available
@@ -693,7 +693,9 @@ def calculate_training_score(support_detail, hint_found, training_type, year=Non
             "rainbow_support": {"points": 1.0},
             "not_rainbow_support_low": {"points": 0.7},
             "not_rainbow_support_high": {"points": 0.0},
-            "hint": {"points": 0.3}
+            "hint": {"points": 0.3},
+            "friend_support": {"points": 0.5},
+            "friend_support_high": {"points": 0.5},
         }
     
     score = 0.0
@@ -705,11 +707,10 @@ def calculate_training_score(support_detail, hint_found, training_type, year=Non
             
             # Friend support cards have separate scoring logic
             if card_type == "friend":
-                # Friend with bond < 3: add configurable points
-                # Friend with bond >= 3: add 0 points (no need to raise bond)
                 if level < 3:
                     score += scoring_rules.get("friend_support", {}).get("points", 0.5)
-                # else: bond >= 3, add 0 points (skip)
+                else:
+                    score += scoring_rules.get("friend_support_high", {}).get("points", 0.5)
                 continue
             
             # Normal support card scoring

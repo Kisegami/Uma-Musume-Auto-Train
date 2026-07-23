@@ -148,7 +148,17 @@
   },
   "lessons": {
     "technique_template": "template/lessons/technique/default.json",
-    "song_template": "template/lessons/songs/default.json"
+    "song_template": "template/lessons/songs/default.json",
+    "song_requirements": {
+      "catch_up_missed_minimum": false,
+      "concerts": {
+        "1": {"minimum": 3, "maximum": 21},
+        "2": {"minimum": 3, "maximum": 21},
+        "3": {"minimum": 3, "maximum": 21},
+        "4": {"minimum": 3, "maximum": 21},
+        "5": {"minimum": 3, "maximum": 21}
+      }
+    }
   },
   "restart_career": {
     "restart_enabled": false,

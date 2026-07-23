@@ -741,6 +741,8 @@ def calculate_training_score(support_detail, hint_found, training_type, duel_fou
             "not_rainbow_support_low": {"points": 0.7},
             "not_rainbow_support_high": {"points": 0.0},
             "hint": {"points": 0.3},
+            "friend_support": {"points": 0.5},
+            "friend_support_high": {"points": 0.5},
             "happy_meeks_duel": {"points": 1.0}
         }
     
@@ -753,11 +755,10 @@ def calculate_training_score(support_detail, hint_found, training_type, duel_fou
             
             # Friend support cards have separate scoring logic
             if card_type == "friend":
-                # Friend with bond < 3: add configurable points
-                # Friend with bond >= 3: add 0 points (no need to raise bond)
                 if level < 3:
                     score += scoring_rules.get("friend_support", {}).get("points", 0.5)
-                # else: bond >= 3, add 0 points (skip)
+                else:
+                    score += scoring_rules.get("friend_support_high", {}).get("points", 0.5)
                 continue
             
             # Normal support card scoring

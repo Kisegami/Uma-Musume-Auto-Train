@@ -93,6 +93,7 @@ def check_all_configs():
     score_directory.mkdir(parents=True, exist_ok=True)
     for old_name in (
         "training_score.json",
+        "training_score_grand_live.json",
         "training_score_unity.json",
         "training_score_trackblazer.json",
     ):
@@ -105,6 +106,7 @@ def check_all_configs():
     config_files = {
         "config.json": "config.example.json",
         "template/training_score/training_score.json": "template/training_score/training_score.example.json",
+        "template/training_score/training_score_grand_live.json": "template/training_score/training_score_grand_live.example.json",
         "template/training_score/training_score_unity.json": "template/training_score/training_score_unity.example.json",
         "template/training_score/training_score_trackblazer.json": "template/training_score/training_score_trackblazer.example.json",
         "event_priority.json": "event_priority.example.json",

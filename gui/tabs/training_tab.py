@@ -515,46 +515,54 @@ class TrainingTab(QScrollArea):
         self.friend_support_spin.valueChanged.connect(self._on_training_score_change)
         self.score_section_layout.addWidget(self.friend_support_spin, 4, 1)
 
+        # Friend Support (bond >= 3)
+        self.score_section_layout.addWidget(QLabel("Friend Support (bond >= 3):"), 5, 0)
+        self.friend_support_high_spin = NoScrollDoubleSpinBox()
+        self.friend_support_high_spin.setRange(0, 5)
+        self.friend_support_high_spin.setDecimals(2)
+        self.friend_support_high_spin.valueChanged.connect(self._on_training_score_change)
+        self.score_section_layout.addWidget(self.friend_support_high_spin, 5, 1)
+
         self.happy_meeks_duel_label = QLabel("Happy Meek's Duel:")
-        self.score_section_layout.addWidget(self.happy_meeks_duel_label, 5, 0)
+        self.score_section_layout.addWidget(self.happy_meeks_duel_label, 6, 0)
         self.happy_meeks_duel_spin = NoScrollDoubleSpinBox()
         self.happy_meeks_duel_spin.setRange(0, 5)
         self.happy_meeks_duel_spin.setDecimals(2)
         self.happy_meeks_duel_spin.valueChanged.connect(self._on_training_score_change)
-        self.score_section_layout.addWidget(self.happy_meeks_duel_spin, 5, 1)
+        self.score_section_layout.addWidget(self.happy_meeks_duel_spin, 6, 1)
         
         # Unity-specific training score fields (will be shown/hidden based on mode)
         self.unity_score_label1 = QLabel("Spirit Training:")
-        self.score_section_layout.addWidget(self.unity_score_label1, 6, 0)
+        self.score_section_layout.addWidget(self.unity_score_label1, 7, 0)
         self.spirit_training_spin = NoScrollDoubleSpinBox()
         self.spirit_training_spin.setRange(0, 5)
         self.spirit_training_spin.setDecimals(2)
         self.spirit_training_spin.valueChanged.connect(self._on_training_score_change)
-        self.score_section_layout.addWidget(self.spirit_training_spin, 6, 1)
+        self.score_section_layout.addWidget(self.spirit_training_spin, 7, 1)
         
         self.unity_score_label2 = QLabel("Spirit Burst:")
-        self.score_section_layout.addWidget(self.unity_score_label2, 7, 0)
+        self.score_section_layout.addWidget(self.unity_score_label2, 8, 0)
         self.spirit_burst_spin = NoScrollDoubleSpinBox()
         self.spirit_burst_spin.setRange(0, 5)
         self.spirit_burst_spin.setDecimals(2)
         self.spirit_burst_spin.valueChanged.connect(self._on_training_score_change)
-        self.score_section_layout.addWidget(self.spirit_burst_spin, 7, 1)
+        self.score_section_layout.addWidget(self.spirit_burst_spin, 8, 1)
 
         self.unity_score_label4 = QLabel("Spirit Burst Extreme:")
-        self.score_section_layout.addWidget(self.unity_score_label4, 8, 0)
+        self.score_section_layout.addWidget(self.unity_score_label4, 9, 0)
         self.spirit_burst_ex_spin = NoScrollDoubleSpinBox()
         self.spirit_burst_ex_spin.setRange(0, 5)
         self.spirit_burst_ex_spin.setDecimals(2)
         self.spirit_burst_ex_spin.valueChanged.connect(self._on_training_score_change)
-        self.score_section_layout.addWidget(self.spirit_burst_ex_spin, 8, 1)
+        self.score_section_layout.addWidget(self.spirit_burst_ex_spin, 9, 1)
         
         self.unity_score_label3 = QLabel("Spirit Training Extra:")
-        self.score_section_layout.addWidget(self.unity_score_label3, 9, 0)
+        self.score_section_layout.addWidget(self.unity_score_label3, 10, 0)
         self.spirit_training_extra_spin = NoScrollDoubleSpinBox()
         self.spirit_training_extra_spin.setRange(0, 5)
         self.spirit_training_extra_spin.setDecimals(2)
         self.spirit_training_extra_spin.valueChanged.connect(self._on_training_score_change)
-        self.score_section_layout.addWidget(self.spirit_training_extra_spin, 9, 1)
+        self.score_section_layout.addWidget(self.spirit_training_extra_spin, 10, 1)
 
         # Keep references to the normal editor so it can be hidden in advanced mode.
         self.normal_score_widgets = []
@@ -562,7 +570,7 @@ class TrainingTab(QScrollArea):
         for index in range(self.score_section_layout.count()):
             item = self.score_section_layout.itemAt(index)
             row, column, row_span, column_span = self.score_section_layout.getItemPosition(index)
-            if row < 10 and item.widget():
+            if row < 11 and item.widget():
                 self.normal_score_widgets.append(item.widget())
                 normal_positions.append((item.widget(), row, column, row_span, column_span))
         for widget, *_ in normal_positions:
@@ -617,7 +625,7 @@ class TrainingTab(QScrollArea):
             self.advanced_score_editors[profile] = fields
 
         self.advanced_score_widget.hide()
-        self.score_section_layout.addWidget(self.advanced_score_widget, 11, 0, 1, 2)
+        self.score_section_layout.addWidget(self.advanced_score_widget, 12, 0, 1, 2)
         
         self.score_section.hide()
         layout.addWidget(self.score_section)
@@ -633,6 +641,7 @@ class TrainingTab(QScrollArea):
             ("not_rainbow_support_high", "High Bond (>=4) Different Type:"),
             ("hint", "Hint:"),
             ("friend_support", "Friend Support (bond < 3):"),
+            ("friend_support_high", "Friend Support (bond >= 3):"),
             ("happy_meeks_duel", "Happy Meek's Duel:"),
             ("spririt_training", "Spirit Training:"),
             ("spirit_burst", "Spirit Burst:"),
@@ -1048,6 +1057,10 @@ class TrainingTab(QScrollArea):
         self.friend_support_spin.setValue(get_points("friend_support", 0.5))
         self.friend_support_spin.blockSignals(False)
 
+        self.friend_support_high_spin.blockSignals(True)
+        self.friend_support_high_spin.setValue(get_points("friend_support_high", 0.5))
+        self.friend_support_high_spin.blockSignals(False)
+
         self.happy_meeks_duel_spin.blockSignals(True)
         self.happy_meeks_duel_spin.setValue(get_points("happy_meeks_duel", 1.0))
         self.happy_meeks_duel_spin.blockSignals(False)
@@ -1119,6 +1132,10 @@ class TrainingTab(QScrollArea):
             "friend_support": {
                 "description": "Friend support card with bond < 3",
                 "points": self.friend_support_spin.value()
+            },
+            "friend_support_high": {
+                "description": "Friend support card with bond >= 3",
+                "points": self.friend_support_high_spin.value()
             }
         }
 
@@ -1181,6 +1198,7 @@ class TrainingTab(QScrollArea):
             "not_rainbow_support_high": 0.0,
             "hint": 0.3,
             "friend_support": 0.5,
+            "friend_support_high": 0.5,
             "happy_meeks_duel": 1.0,
             "spririt_training": 0.5,
             "spirit_burst": 1.0,
@@ -1196,6 +1214,7 @@ class TrainingTab(QScrollArea):
             "not_rainbow_support_high": "Not same type support with bond level >= 4",
             "hint": "Hint icon present",
             "friend_support": "Friend support card with bond < 3",
+            "friend_support_high": "Friend support card with bond >= 3",
             "happy_meeks_duel": "Happy Meek's Duel icon present",
             "spririt_training": "Spirit training",
             "spirit_burst": "Spirit burst",

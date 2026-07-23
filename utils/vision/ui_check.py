@@ -236,6 +236,24 @@ def career_ui_check():
                 tap(540, 960)
                 time.sleep(0.3)
             return career_ui_check()
+
+    # Grand Live concert screens are valid career states. Enter the scenario
+    # loop so its existing concert handlers can process the matching button.
+    mode = load_main_config().get("mode", "ura").lower()
+    if mode == "grand_live":
+        concert_btn = locate_on_screen(
+            "assets/grandlive/concert_btn.png", confidence=0.8
+        )
+        grand_concert_btn = locate_on_screen(
+            "assets/grandlive/grand_concert_btn.png", confidence=0.8
+        )
+        if concert_btn or grand_concert_btn:
+            log_info("Found Our Grand Concert UI, continue automation...")
+            career_lobby_func = get_career_lobby()
+            result = career_lobby_func()
+            if result is False:
+                raise RuntimeError("Bot stopped by career_lobby — do not restart.")
+            return True
             
     # 2. Check back button
     back_btn = locate_on_screen("assets/buttons/back_btn.png", confidence=0.8)

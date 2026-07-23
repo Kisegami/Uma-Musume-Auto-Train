@@ -8,6 +8,7 @@
       "medium": "assets/grandlive/song_jackets/jacket_icon_m_1032.png"
     },
     "lesson_level": 1,
+    "availability_part": 2,
     "purchase_bonus": {
       "effect": "Extra Skill Pt Gain",
       "value": 2
@@ -31,6 +32,7 @@
       "medium": "assets/grandlive/song_jackets/jacket_icon_m_1040.png"
     },
     "lesson_level": 1,
+    "availability_part": 1,
     "purchase_bonus": {
       "effect": "Power",
       "value": 22
@@ -55,6 +57,7 @@
       "medium": "assets/grandlive/song_jackets/jacket_icon_m_1044.png"
     },
     "lesson_level": 1,
+    "availability_part": 1,
     "purchase_bonus": {
       "effect": "Speed",
       "value": 22
@@ -79,6 +82,7 @@
       "medium": "assets/grandlive/song_jackets/jacket_icon_m_1003.png"
     },
     "lesson_level": 1,
+    "availability_part": 1,
     "purchase_bonus": {
       "effect": "Skill Pts",
       "value": 22
@@ -104,6 +108,7 @@
       "medium": "assets/grandlive/song_jackets/jacket_icon_m_1012.png"
     },
     "lesson_level": 1,
+    "availability_part": 3,
     "purchase_bonus": {
       "effect": "Extra Skill Pt Gain",
       "value": 3
@@ -128,6 +133,7 @@
       "medium": "assets/grandlive/song_jackets/jacket_icon_m_1043.png"
     },
     "lesson_level": 1,
+    "availability_part": 3,
     "purchase_bonus": {
       "effect": "Extra Stat Gain",
       "stat": "Wisdom",
@@ -152,6 +158,7 @@
       "medium": "assets/grandlive/song_jackets/jacket_icon_m_1042.png"
     },
     "lesson_level": 1,
+    "availability_part": 1,
     "purchase_bonus": {
       "effect": "Extra Stat Gain",
       "stat": "Power",
@@ -177,6 +184,7 @@
       "medium": "assets/grandlive/song_jackets/jacket_icon_m_1038.png"
     },
     "lesson_level": 1,
+    "availability_part": 1,
     "purchase_bonus": {
       "effect": "Extra Stat Gain",
       "stat": "Wisdom",
@@ -201,6 +209,7 @@
       "medium": "assets/grandlive/song_jackets/jacket_icon_m_1045.png"
     },
     "lesson_level": 1,
+    "availability_part": 3,
     "purchase_bonus": {
       "effect": "Extra Stat Gain",
       "stat": "Power",
@@ -225,6 +234,7 @@
       "medium": "assets/grandlive/song_jackets/jacket_icon_m_1046.png"
     },
     "lesson_level": 1,
+    "availability_part": 1,
     "purchase_bonus": {
       "effect": "Extra Stat Gain",
       "stat": "Guts",
@@ -249,6 +259,7 @@
       "medium": "assets/grandlive/song_jackets/jacket_icon_m_1047.png"
     },
     "lesson_level": 1,
+    "availability_part": 1,
     "purchase_bonus": {
       "effect": "Extra Stat Gain",
       "stat": "Stamina",
@@ -273,6 +284,7 @@
       "medium": "assets/grandlive/song_jackets/jacket_icon_m_1023.png"
     },
     "lesson_level": 1,
+    "availability_part": 2,
     "purchase_bonus": {
       "effect": "Extra Stat Gain",
       "stat": "Speed",
@@ -297,6 +309,7 @@
       "medium": "assets/grandlive/song_jackets/jacket_icon_m_1021.png"
     },
     "lesson_level": 1,
+    "availability_part": 4,
     "purchase_bonus": {
       "effect": "Stamina",
       "value": 22
@@ -321,6 +334,7 @@
       "medium": "assets/grandlive/song_jackets/jacket_icon_m_1011.png"
     },
     "lesson_level": 1,
+    "availability_part": 2,
     "purchase_bonus": {
       "effect": "Extra Stat Gain",
       "stat": "Guts",
@@ -345,6 +359,7 @@
       "medium": "assets/grandlive/song_jackets/jacket_icon_m_1014.png"
     },
     "lesson_level": 1,
+    "availability_part": 4,
     "purchase_bonus": {
       "effect": "Guts",
       "value": 22
@@ -369,6 +384,7 @@
       "medium": "assets/grandlive/song_jackets/jacket_icon_m_1041.png"
     },
     "lesson_level": 1,
+    "availability_part": 4,
     "purchase_bonus": {
       "effect": "Wisdom",
       "value": 22
@@ -393,6 +409,7 @@
       "medium": "assets/grandlive/song_jackets/jacket_icon_m_1039.png"
     },
     "lesson_level": 1,
+    "availability_part": 4,
     "purchase_bonus": {
       "effect": "Power",
       "value": 22
@@ -417,6 +434,7 @@
       "medium": "assets/grandlive/song_jackets/jacket_icon_m_1034.png"
     },
     "lesson_level": 1,
+    "availability_part": 3,
     "purchase_bonus": {
       "effect": "Extra Stat Gain",
       "stat": "Stamina",
@@ -441,6 +459,7 @@
       "medium": "assets/grandlive/song_jackets/jacket_icon_m_1020.png"
     },
     "lesson_level": 1,
+    "availability_part": 4,
     "purchase_bonus": {
       "effect": "Guts",
       "value": 26
@@ -465,6 +484,7 @@
       "medium": "assets/grandlive/song_jackets/jacket_icon_m_1024.png"
     },
     "lesson_level": 1,
+    "availability_part": 4,
     "purchase_bonus": {
       "effect": "Speed",
       "value": 26
@@ -489,6 +509,7 @@
       "medium": "assets/grandlive/song_jackets/jacket_icon_m_1057.png"
     },
     "lesson_level": 1,
+    "availability_part": 1,
     "purchase_bonus": {
       "effect": "Extra Stat Gain",
       "stat": "Speed",
@@ -509,6 +530,7 @@
     "command_id": 1006,
     "live_id": 1006,
     "lesson_level": 1,
+    "availability_part": 5,
     "purchasable": false,
     "acquisition_type": "scenario_progression",
     "jackets": {
@@ -532,6 +554,7 @@
     "command_id": 1006,
     "live_id": 1036,
     "lesson_level": 4,
+    "availability_part": 5,
     "purchasable": false,
     "acquisition_type": "normal_finale",
     "jackets": {
@@ -556,6 +579,7 @@
     "command_id": 1006,
     "live_id": 1029,
     "lesson_level": 4,
+    "availability_part": 5,
     "purchasable": false,
     "acquisition_type": "special_finale",
     "jackets": {

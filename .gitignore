@@ -22,6 +22,7 @@ event_priority.json
 /template/training_score/training_score.json
 /template/training_score/training_score_unity.json
 /template/training_score/training_score_trackblazer.json
+/template/training_score/training_score_grand_live.json
 debug
 # # Debug images and temporary files
 # debug_*.png

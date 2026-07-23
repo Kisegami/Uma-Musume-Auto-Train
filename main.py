@@ -163,7 +163,7 @@ def check_api_requirement():
 def main():
     log_info(f"Uma Auto - {mode_name} Version!")
     log_info("=" * 40)
-    log_info(f"Mode: {mode.upper()}")
+    log_info(f"Mode: {mode_name}")
 
     if not check_api_requirement():
         return

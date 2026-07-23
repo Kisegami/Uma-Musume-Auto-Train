@@ -56,6 +56,9 @@ racing_config_section = config.get("racing", {})
 skills_config_section = config.get("skills", {})
 DEBUG_MODE = config.get("debug_mode", False)
 
+GRAND_LIVE_RACE_DAY_TEMPLATE = "assets/grandlive/race_day.png"
+GRAND_LIVE_RACE_DAY_REGION = (12, 39, 222, 153)
+
 
 def _format_energy(energy, api_status=None, include_max=False):
     if api_status:
@@ -394,8 +397,6 @@ def career_lobby(timeout=None):
             ("assets/ui/connection_error.png", 0.8, None),
             ("assets/grandlive/concert_btn.png", 0.8, None),
             ("assets/grandlive/grand_concert_btn.png", 0.8, None),
-            ("assets/grandlive/lessons_btn.png", 0.8, None),
-            ("assets/grandlive/lessons_btn_2.png", 0.8, None),
             ("assets/ui/tazuna_hint.png", 0.9, None),
             ("assets/buttons/back_btn.png", 0.8, None),
         ]
@@ -447,16 +448,6 @@ def career_lobby(timeout=None):
             _lobby_wait_start = None
             do_concert()
             continue
-
-        lesson_matches = (
-            batch_results["assets/grandlive/lessons_btn.png"]
-            or batch_results["assets/grandlive/lessons_btn_2.png"]
-        )
-        if lesson_matches and _API_MODE:
-            from core.Grandlive.lesson_handling import handle_lessons
-            if handle_lessons():
-                _lobby_wait_start = None
-                continue
 
         # 3. Check OK button
         log_debug(f"Checking for OK button...")
@@ -688,7 +679,12 @@ def career_lobby(timeout=None):
         mood_index = MOOD_LIST.index(mood) if mood in MOOD_LIST else 0
         minimum_mood = MOOD_LIST.index(MINIMUM_MOOD)
 
-        race_day_matches = match_template(screenshot, "assets/buttons/race_day_btn.png", confidence=0.8)
+        race_day_matches = match_template(
+            screenshot,
+            GRAND_LIVE_RACE_DAY_TEMPLATE,
+            confidence=0.8,
+            region=GRAND_LIVE_RACE_DAY_REGION,
+        )
         is_race_day = bool(race_day_matches)
         ura_finale_race_matches = match_template(screenshot, "assets/buttons/race_ura.png", confidence=0.8)
         is_ura_finale_race = bool(ura_finale_race_matches) and year == "Finale Underway"
@@ -748,6 +744,20 @@ def career_lobby(timeout=None):
             energy_percentage = check_energy_bar(screenshot)
         min_energy = training_config_section.get("min_energy", config.get("min_energy", 30))
         log_info(f"Energy: {_format_energy(energy_percentage, api_status, include_max=True)} (Minimum: {_format_energy_threshold(min_energy, api_status)})")
+
+        # Evaluate normal-day Grand Live lessons immediately after the turn's
+        # API energy and stats have been read, before choosing another action.
+        if _API_MODE:
+            from core.Grandlive.lesson_handling import handle_lessons
+
+            if handle_lessons(
+                energy_current=api_status["energy_current"],
+                energy_max=api_status["energy_max"],
+                concert_day=False,
+            ):
+                _lobby_wait_start = None
+                continue
+
         # Check for rest in June to save energy for summer (skip on race day)
         rest_in_june_enabled = training_config_section.get("rest_in_june", False)
         if rest_in_june_enabled and "Jun" in year and "Junior" not in year and energy_percentage <= 60 and not is_race_day and not is_ura_finale_race:
@@ -779,7 +789,7 @@ def career_lobby(timeout=None):
             max_stats_str = f"SPD: {max_stats.get('spd', 0)}, STA: {max_stats.get('sta', 0)}, PWR: {max_stats.get('pwr', 0)}, GUTS: {max_stats.get('guts', 0)}, WIT: {max_stats.get('wit', 0)}"
             log_info(f"Max stats: {max_stats_str}")
         log_info(f"")
-        
+
         # Check if goals criteria are NOT met AND it is not Pre-Debut.
         # Prioritize racing when criteria are not met to help achieve goals.
         log_debug(f"Checking goal criteria...")
