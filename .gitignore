@@ -61,7 +61,7 @@ skills.json
 .deps_installed
 custom_races_oguri.json
 debug_*.png
-tests/
+tests*/
 *.exe
 test_*.py
 template/*
