@@ -48,6 +48,8 @@ if mode == "unity":
     mode_name = "Unity Cup"
 elif mode == "trackblazer":
     mode_name = "Trackblazer"
+elif mode == "grand_live":
+    mode_name = "Our Grand Concert"
 else:
     mode_name = "URA"
 
@@ -180,6 +182,8 @@ def main():
         log_info("Make sure Umamusume Unity Cup is running on your device!")
     elif mode == "trackblazer":
         log_info("Make sure Umamusume Trackblazer is running on your device!")
+    elif mode == "grand_live":
+        log_info("Make sure Umamusume Our Grand Concert is running on your device!")
     else:
         log_info("Make sure Umamusume is running on your device!")
     log_info("Press Ctrl+C to stop the automation.")

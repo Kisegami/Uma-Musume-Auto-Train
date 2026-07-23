@@ -50,8 +50,8 @@ class MainTab(QScrollArea):
         mode_row.setSpacing(8)
         mode_row.addWidget(QLabel("Game Mode:"))
         self.mode_combo = QComboBox()
-        self.mode_combo.addItems(["URA Finale", "Unity Cup", "Trackblazer"])
-        self.mode_combo.setFixedWidth(140)
+        self.mode_combo.addItems(["URA Finale", "Unity Cup", "Trackblazer", "Our Grand Concert"])
+        self.mode_combo.setFixedWidth(180)
         self.mode_combo.currentTextChanged.connect(self._on_mode_change)
         mode_row.addWidget(self.mode_combo)
         settings_layout.addLayout(mode_row)
@@ -203,6 +203,7 @@ class MainTab(QScrollArea):
             "ura": "URA Finale",
             "unity": "Unity Cup",
             "trackblazer": "Trackblazer",
+            "grand_live": "Our Grand Concert",
         }.get(mode, "URA Finale")
         self.mode_combo.setCurrentText(mode_display)
         self.mode_combo.blockSignals(False)
@@ -255,6 +256,7 @@ class MainTab(QScrollArea):
             "URA Finale": "ura",
             "Unity Cup": "unity",
             "Trackblazer": "trackblazer",
+            "Our Grand Concert": "grand_live",
         }
         mode = mode_map.get(text, "ura")
         self.main_window.update_config_value("mode", mode)
@@ -638,6 +640,8 @@ class MainTab(QScrollArea):
             logo_path = os.path.join(assets_dir, "Unity_Cup.png")
         elif mode == "trackblazer":
             logo_path = os.path.join(assets_dir, "Trackblazer.png")
+        elif mode == "grand_live":
+            logo_path = os.path.join(assets_dir, "Grand_Live.png")
         else:
             logo_path = os.path.join(assets_dir, "Ura_Finale.png")
         

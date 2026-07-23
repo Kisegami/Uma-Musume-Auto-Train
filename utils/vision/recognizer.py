@@ -82,7 +82,7 @@ def _resolve_search_region(template_path, region):
             return get_unity_template_region(template_path)
         if mode == "trackblazer":
             return get_trackblazer_template_region(template_path)
-        if mode == "ura":
+        if mode in ("ura", "grand_live"):
             return get_ura_template_region(template_path)
     except Exception:
         pass
