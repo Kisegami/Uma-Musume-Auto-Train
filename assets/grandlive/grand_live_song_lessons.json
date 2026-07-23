@@ -1,0 +1,577 @@
+{
+  "Run for Our Dream!": {
+    "song_list_id": 2,
+    "command_id": 1032,
+    "live_id": 1032,
+    "jackets": {
+      "large": "assets/grandlive/song_jackets/jacket_icon_l_1032.png",
+      "medium": "assets/grandlive/song_jackets/jacket_icon_m_1032.png"
+    },
+    "lesson_level": 1,
+    "purchase_bonus": {
+      "effect": "Extra Skill Pt Gain",
+      "value": 2
+    },
+    "successful_live_bonus": {
+      "effect": "Specialty Rate Up",
+      "value": 5
+    },
+    "cost": {
+      "Passion": 21,
+      "Visual": 21
+    },
+    "master_bonus_id": 40000
+  },
+  "Here Comes Our Time": {
+    "song_list_id": 3,
+    "command_id": 1040,
+    "live_id": 1040,
+    "jackets": {
+      "large": "assets/grandlive/song_jackets/jacket_icon_l_1040.png",
+      "medium": "assets/grandlive/song_jackets/jacket_icon_m_1040.png"
+    },
+    "lesson_level": 1,
+    "purchase_bonus": {
+      "effect": "Power",
+      "value": 22
+    },
+    "successful_live_bonus": {
+      "effect": "Friendship Training Effectiveness",
+      "value": 5,
+      "unit": "percent"
+    },
+    "cost": {
+      "Vocal": 32,
+      "Mental": 12
+    },
+    "master_bonus_id": 40001
+  },
+  "Full Speed Ahead! Umadol Power☆": {
+    "song_list_id": 4,
+    "command_id": 1044,
+    "live_id": 1044,
+    "jackets": {
+      "large": "assets/grandlive/song_jackets/jacket_icon_l_1044.png",
+      "medium": "assets/grandlive/song_jackets/jacket_icon_m_1044.png"
+    },
+    "lesson_level": 1,
+    "purchase_bonus": {
+      "effect": "Speed",
+      "value": 22
+    },
+    "successful_live_bonus": {
+      "effect": "Friendship Training Effectiveness",
+      "value": 5,
+      "unit": "percent"
+    },
+    "cost": {
+      "Dance": 32,
+      "Visual": 12
+    },
+    "master_bonus_id": 40002
+  },
+  "Run n' Run!": {
+    "song_list_id": 5,
+    "command_id": 1003,
+    "live_id": 1003,
+    "jackets": {
+      "large": "assets/grandlive/song_jackets/jacket_icon_l_1003.png",
+      "medium": "assets/grandlive/song_jackets/jacket_icon_m_1003.png"
+    },
+    "lesson_level": 1,
+    "purchase_bonus": {
+      "effect": "Skill Pts",
+      "value": 22
+    },
+    "successful_live_bonus": {
+      "effect": "Friendship Training Effectiveness",
+      "value": 5,
+      "unit": "percent"
+    },
+    "cost": {
+      "Dance": 14,
+      "Visual": 16,
+      "Mental": 14
+    },
+    "master_bonus_id": 40003
+  },
+  "Grow Up and Shine!": {
+    "song_list_id": 6,
+    "command_id": 1012,
+    "live_id": 1012,
+    "jackets": {
+      "large": "assets/grandlive/song_jackets/jacket_icon_l_1012.png",
+      "medium": "assets/grandlive/song_jackets/jacket_icon_m_1012.png"
+    },
+    "lesson_level": 1,
+    "purchase_bonus": {
+      "effect": "Extra Skill Pt Gain",
+      "value": 3
+    },
+    "successful_live_bonus": {
+      "effect": "Support Chain Event Frequency Level",
+      "value": 1
+    },
+    "cost": {
+      "Dance": 21,
+      "Vocal": 21,
+      "Mental": 21
+    },
+    "master_bonus_id": 40004
+  },
+  "Sunbeam Cheer": {
+    "song_list_id": 7,
+    "command_id": 1043,
+    "live_id": 1043,
+    "jackets": {
+      "large": "assets/grandlive/song_jackets/jacket_icon_l_1043.png",
+      "medium": "assets/grandlive/song_jackets/jacket_icon_m_1043.png"
+    },
+    "lesson_level": 1,
+    "purchase_bonus": {
+      "effect": "Extra Stat Gain",
+      "stat": "Wisdom",
+      "value": 2
+    },
+    "successful_live_bonus": {
+      "effect": "Support Chain Event Frequency Level",
+      "value": 1
+    },
+    "cost": {
+      "Passion": 42,
+      "Mental": 21
+    },
+    "master_bonus_id": 40005
+  },
+  "Go This Way": {
+    "song_list_id": 8,
+    "command_id": 1042,
+    "live_id": 1042,
+    "jackets": {
+      "large": "assets/grandlive/song_jackets/jacket_icon_l_1042.png",
+      "medium": "assets/grandlive/song_jackets/jacket_icon_m_1042.png"
+    },
+    "lesson_level": 1,
+    "purchase_bonus": {
+      "effect": "Extra Stat Gain",
+      "stat": "Power",
+      "value": 1
+    },
+    "successful_live_bonus": {
+      "effect": "Support Chain Event Frequency Level",
+      "value": 1
+    },
+    "cost": {
+      "Vocal": 21,
+      "Mental": 21
+    },
+    "master_bonus_id": 40006
+  },
+  "Believe in Miracles!": {
+    "alternate_title": "Kiseki wo Shinjite!",
+    "song_list_id": 9,
+    "command_id": 1038,
+    "live_id": 1038,
+    "jackets": {
+      "large": "assets/grandlive/song_jackets/jacket_icon_l_1038.png",
+      "medium": "assets/grandlive/song_jackets/jacket_icon_m_1038.png"
+    },
+    "lesson_level": 1,
+    "purchase_bonus": {
+      "effect": "Extra Stat Gain",
+      "stat": "Wisdom",
+      "value": 1
+    },
+    "successful_live_bonus": {
+      "effect": "Specialty Rate Up",
+      "value": 5
+    },
+    "cost": {
+      "Passion": 21,
+      "Mental": 21
+    },
+    "master_bonus_id": 40007
+  },
+  "Seven Colors Scenery": {
+    "song_list_id": 10,
+    "command_id": 1045,
+    "live_id": 1045,
+    "jackets": {
+      "large": "assets/grandlive/song_jackets/jacket_icon_l_1045.png",
+      "medium": "assets/grandlive/song_jackets/jacket_icon_m_1045.png"
+    },
+    "lesson_level": 1,
+    "purchase_bonus": {
+      "effect": "Extra Stat Gain",
+      "stat": "Power",
+      "value": 2
+    },
+    "successful_live_bonus": {
+      "effect": "Specialty Rate Up",
+      "value": 5
+    },
+    "cost": {
+      "Vocal": 21,
+      "Mental": 42
+    },
+    "master_bonus_id": 40008
+  },
+  "Getaway! Fallin' Love": {
+    "song_list_id": 11,
+    "command_id": 1046,
+    "live_id": 1046,
+    "jackets": {
+      "large": "assets/grandlive/song_jackets/jacket_icon_l_1046.png",
+      "medium": "assets/grandlive/song_jackets/jacket_icon_m_1046.png"
+    },
+    "lesson_level": 1,
+    "purchase_bonus": {
+      "effect": "Extra Stat Gain",
+      "stat": "Guts",
+      "value": 1
+    },
+    "successful_live_bonus": {
+      "effect": "Support Chain Event Frequency Level",
+      "value": 1
+    },
+    "cost": {
+      "Dance": 21,
+      "Visual": 21
+    },
+    "master_bonus_id": 40009
+  },
+  "Ring Ring Diary": {
+    "song_list_id": 12,
+    "command_id": 1047,
+    "live_id": 1047,
+    "jackets": {
+      "large": "assets/grandlive/song_jackets/jacket_icon_l_1047.png",
+      "medium": "assets/grandlive/song_jackets/jacket_icon_m_1047.png"
+    },
+    "lesson_level": 1,
+    "purchase_bonus": {
+      "effect": "Extra Stat Gain",
+      "stat": "Stamina",
+      "value": 1
+    },
+    "successful_live_bonus": {
+      "effect": "Support Chain Event Frequency Level",
+      "value": 1
+    },
+    "cost": {
+      "Passion": 21,
+      "Visual": 21
+    },
+    "master_bonus_id": 40010
+  },
+  "Our Blue Bird Days": {
+    "song_list_id": 13,
+    "command_id": 1023,
+    "live_id": 1023,
+    "jackets": {
+      "large": "assets/grandlive/song_jackets/jacket_icon_l_1023.png",
+      "medium": "assets/grandlive/song_jackets/jacket_icon_m_1023.png"
+    },
+    "lesson_level": 1,
+    "purchase_bonus": {
+      "effect": "Extra Stat Gain",
+      "stat": "Speed",
+      "value": 2
+    },
+    "successful_live_bonus": {
+      "effect": "Specialty Rate Up",
+      "value": 5
+    },
+    "cost": {
+      "Dance": 21,
+      "Visual": 42
+    },
+    "master_bonus_id": 40011
+  },
+  "The World's at Our Whim": {
+    "song_list_id": 14,
+    "command_id": 1021,
+    "live_id": 1021,
+    "jackets": {
+      "large": "assets/grandlive/song_jackets/jacket_icon_l_1021.png",
+      "medium": "assets/grandlive/song_jackets/jacket_icon_m_1021.png"
+    },
+    "lesson_level": 1,
+    "purchase_bonus": {
+      "effect": "Stamina",
+      "value": 22
+    },
+    "successful_live_bonus": {
+      "effect": "Friendship Training Effectiveness",
+      "value": 5,
+      "unit": "percent"
+    },
+    "cost": {
+      "Passion": 32,
+      "Vocal": 12
+    },
+    "master_bonus_id": 40012
+  },
+  "Hey, Guess What!": {
+    "song_list_id": 15,
+    "command_id": 1011,
+    "live_id": 1011,
+    "jackets": {
+      "large": "assets/grandlive/song_jackets/jacket_icon_l_1011.png",
+      "medium": "assets/grandlive/song_jackets/jacket_icon_m_1011.png"
+    },
+    "lesson_level": 1,
+    "purchase_bonus": {
+      "effect": "Extra Stat Gain",
+      "stat": "Guts",
+      "value": 2
+    },
+    "successful_live_bonus": {
+      "effect": "Specialty Rate Up",
+      "value": 5
+    },
+    "cost": {
+      "Dance": 42,
+      "Visual": 21
+    },
+    "master_bonus_id": 40013
+  },
+  "Sky-Blue Spring": {
+    "song_list_id": 16,
+    "command_id": 1014,
+    "live_id": 1014,
+    "jackets": {
+      "large": "assets/grandlive/song_jackets/jacket_icon_l_1014.png",
+      "medium": "assets/grandlive/song_jackets/jacket_icon_m_1014.png"
+    },
+    "lesson_level": 1,
+    "purchase_bonus": {
+      "effect": "Guts",
+      "value": 22
+    },
+    "successful_live_bonus": {
+      "effect": "Friendship Training Effectiveness",
+      "value": 5,
+      "unit": "percent"
+    },
+    "cost": {
+      "Dance": 12,
+      "Visual": 32
+    },
+    "master_bonus_id": 40014
+  },
+  "Dream Sky": {
+    "song_list_id": 17,
+    "command_id": 1041,
+    "live_id": 1041,
+    "jackets": {
+      "large": "assets/grandlive/song_jackets/jacket_icon_l_1041.png",
+      "medium": "assets/grandlive/song_jackets/jacket_icon_m_1041.png"
+    },
+    "lesson_level": 1,
+    "purchase_bonus": {
+      "effect": "Wisdom",
+      "value": 22
+    },
+    "successful_live_bonus": {
+      "effect": "Friendship Training Effectiveness",
+      "value": 5,
+      "unit": "percent"
+    },
+    "cost": {
+      "Passion": 22,
+      "Mental": 22
+    },
+    "master_bonus_id": 40015
+  },
+  "Present March♪": {
+    "song_list_id": 18,
+    "command_id": 1039,
+    "live_id": 1039,
+    "jackets": {
+      "large": "assets/grandlive/song_jackets/jacket_icon_l_1039.png",
+      "medium": "assets/grandlive/song_jackets/jacket_icon_m_1039.png"
+    },
+    "lesson_level": 1,
+    "purchase_bonus": {
+      "effect": "Power",
+      "value": 22
+    },
+    "successful_live_bonus": {
+      "effect": "Friendship Training Effectiveness",
+      "value": 5,
+      "unit": "percent"
+    },
+    "cost": {
+      "Vocal": 22,
+      "Mental": 22
+    },
+    "master_bonus_id": 40016
+  },
+  "Hoppity Sunny Days♪": {
+    "song_list_id": 19,
+    "command_id": 1034,
+    "live_id": 1034,
+    "jackets": {
+      "large": "assets/grandlive/song_jackets/jacket_icon_l_1034.png",
+      "medium": "assets/grandlive/song_jackets/jacket_icon_m_1034.png"
+    },
+    "lesson_level": 1,
+    "purchase_bonus": {
+      "effect": "Extra Stat Gain",
+      "stat": "Stamina",
+      "value": 2
+    },
+    "successful_live_bonus": {
+      "effect": "Specialty Rate Up",
+      "value": 5
+    },
+    "cost": {
+      "Passion": 42,
+      "Vocal": 21
+    },
+    "master_bonus_id": 40017
+  },
+  "Fanfare for the Future!": {
+    "song_list_id": 20,
+    "command_id": 1020,
+    "live_id": 1020,
+    "jackets": {
+      "large": "assets/grandlive/song_jackets/jacket_icon_l_1020.png",
+      "medium": "assets/grandlive/song_jackets/jacket_icon_m_1020.png"
+    },
+    "lesson_level": 1,
+    "purchase_bonus": {
+      "effect": "Guts",
+      "value": 26
+    },
+    "successful_live_bonus": {
+      "effect": "Friendship Training Effectiveness",
+      "value": 10,
+      "unit": "percent"
+    },
+    "cost": {
+      "Dance": 26,
+      "Visual": 42
+    },
+    "master_bonus_id": 40018
+  },
+  "Precious Treasure Box": {
+    "song_list_id": 21,
+    "command_id": 1024,
+    "live_id": 1024,
+    "jackets": {
+      "large": "assets/grandlive/song_jackets/jacket_icon_l_1024.png",
+      "medium": "assets/grandlive/song_jackets/jacket_icon_m_1024.png"
+    },
+    "lesson_level": 1,
+    "purchase_bonus": {
+      "effect": "Speed",
+      "value": 26
+    },
+    "successful_live_bonus": {
+      "effect": "Friendship Training Effectiveness",
+      "value": 10,
+      "unit": "percent"
+    },
+    "cost": {
+      "Dance": 42,
+      "Visual": 26
+    },
+    "master_bonus_id": 40019
+  },
+  "Zero Is Where the Center Stands!": {
+    "song_list_id": 23,
+    "command_id": 1057,
+    "live_id": 1057,
+    "jackets": {
+      "large": "assets/grandlive/song_jackets/jacket_icon_l_1057.png",
+      "medium": "assets/grandlive/song_jackets/jacket_icon_m_1057.png"
+    },
+    "lesson_level": 1,
+    "purchase_bonus": {
+      "effect": "Extra Stat Gain",
+      "stat": "Speed",
+      "value": 1
+    },
+    "successful_live_bonus": {
+      "effect": "Support Chain Event Frequency Level",
+      "value": 1
+    },
+    "cost": {
+      "Dance": 21,
+      "Visual": 21
+    },
+    "master_bonus_id": 40020
+  },
+  "Make Debut!": {
+    "song_list_id": 1,
+    "command_id": 1006,
+    "live_id": 1006,
+    "lesson_level": 1,
+    "purchasable": false,
+    "acquisition_type": "scenario_progression",
+    "jackets": {
+      "large": "assets/grandlive/song_jackets/jacket_icon_l_1006.png",
+      "medium": "assets/grandlive/song_jackets/jacket_icon_m_1006.png"
+    },
+    "purchase_bonus": {
+      "effect": "All Performance Points",
+      "value": 10
+    },
+    "successful_live_bonus": {
+      "effect": "Specialty Rate Up",
+      "value": 5
+    },
+    "cost": null,
+    "master_bonus_id": 40091
+  },
+  "Girls' Legend U (Normal Finale)": {
+    "display_title": "Girls' Legend U",
+    "song_list_id": 22,
+    "command_id": 1006,
+    "live_id": 1036,
+    "lesson_level": 4,
+    "purchasable": false,
+    "acquisition_type": "normal_finale",
+    "jackets": {
+      "large": "assets/grandlive/song_jackets/jacket_icon_l_1036.png",
+      "medium": "assets/grandlive/song_jackets/jacket_icon_m_1036.png"
+    },
+    "purchase_bonus": {
+      "effect": "All Attributes",
+      "value": 10
+    },
+    "successful_live_bonus": {
+      "effect": "Friendship Training Effectiveness",
+      "value": 10,
+      "unit": "percent"
+    },
+    "cost": null,
+    "master_bonus_id": 40092
+  },
+  "Girls' Legend U (Special Finale)": {
+    "display_title": "Girls' Legend U",
+    "song_list_id": 24,
+    "command_id": 1006,
+    "live_id": 1029,
+    "lesson_level": 4,
+    "purchasable": false,
+    "acquisition_type": "special_finale",
+    "jackets": {
+      "large": "assets/grandlive/song_jackets/jacket_icon_l_1029.png",
+      "medium": "assets/grandlive/song_jackets/jacket_icon_m_1029.png"
+    },
+    "purchase_bonus": {
+      "effect": "All Attributes",
+      "value": 10
+    },
+    "successful_live_bonus": {
+      "effect": "Friendship Training Effectiveness",
+      "value": 10,
+      "unit": "percent"
+    },
+    "cost": null,
+    "master_bonus_id": 40092
+  }
+}

@@ -10799,5 +10799,488 @@
       "Bottom Option": "Hanshin Racecourse ○ hint +1\r\nNakayama Festa bond +5"
     },
     "CardSlug": "30108-nakayama-festa"
+  },
+  {
+    "EventName": "(❯) Repose in the Lunar Mare",
+    "EventOptions": {
+      "": "Maximum Energy +4\r\nEnergy +35\r\nMood +1\r\nLight Hello bond +5"
+    },
+    "CardSlug": "30052-light-hello"
+  },
+  {
+    "EventName": "(❯❯) Tycho's Radiance",
+    "EventOptions": {
+      "": "Energy +35\r\nMood +1\r\nGuts +12\r\nLight Hello bond +5"
+    },
+    "CardSlug": "30052-light-hello"
+  },
+  {
+    "EventName": "(❯❯❯) Hidden Beneath the Regolith",
+    "EventOptions": {
+      "Top Option": "Energy +70\r\nMood +1\r\nLight Hello bond +5"
+    },
+    "CardSlug": "30052-light-hello"
+  },
+  {
+    "EventName": "(❯❯❯) Hidden Beneath the Regolith",
+    "EventOptions": {
+      "Bottom Option": "Mood +1\r\nSpeed +18\r\nGuts +18\r\nLight Hello bond +5"
+    },
+    "CardSlug": "30052-light-hello"
+  },
+  {
+    "EventName": "(❯❯❯❯) Scaling Mons Huygens",
+    "EventOptions": {
+      "": "Energy +42\r\nMood +1\r\nGuts +12\r\nLight Hello bond +5"
+    },
+    "CardSlug": "30052-light-hello"
+  },
+  {
+    "EventName": "(❯❯❯❯❯) At Rainbow Cove",
+    "EventOptions": {
+      "": "Randomly either\r\nMood +1\r\nEnergy +42\r\nSpeed +12\r\nGuts +12\r\nSee Ya Later! hint +3\r\nLight Hello bond +5\r\nor\r\nor\r\nMood +1\r\nEnergy +28\r\nSpeed +6\r\nGuts +6\r\nSee Ya Later! hint +1\r\nLight Hello bond +5"
+    },
+    "CardSlug": "30052-light-hello"
+  },
+  {
+    "EventName": "Some Crafty Research ♪",
+    "EventOptions": {
+      "Top Option": "Speed +8\r\nGuts +8\r\nLight Hello bond +5"
+    },
+    "CardSlug": "30052-light-hello"
+  },
+  {
+    "EventName": "Some Crafty Research ♪",
+    "EventOptions": {
+      "Bottom Option": "Energy +7\r\nMood +1\r\nLight Hello bond +5"
+    },
+    "CardSlug": "30052-light-hello"
+  },
+  {
+    "EventName": "Embrace Those Emotions!",
+    "EventOptions": {
+      "Top Option": "Energy +21\r\nMood +1\r\nSpeed +8\r\nGuts +8\r\nLight Hello bond +5\r\nCan start dating"
+    },
+    "CardSlug": "30052-light-hello"
+  },
+  {
+    "EventName": "Embrace Those Emotions!",
+    "EventOptions": {
+      "Bottom Option": "Wit +37\r\nSkill points +37\r\nMaverick ○ hint +5\r\nLight Hello bond -5\r\nEvent chain ended"
+    },
+    "CardSlug": "30052-light-hello"
+  },
+  {
+    "EventName": "Light Hello, the Event Planner",
+    "EventOptions": {
+      "": "Mood +1\r\nSpeed +12\r\nGuts +12\r\nLight Hello bond +10"
+    },
+    "CardSlug": "30052-light-hello"
+  },
+  {
+    "EventName": "Another Day's Hard Work!",
+    "EventOptions": {
+      "": "Randomly either\r\nGuts +3\r\nMood +1\r\nSkill points +3\r\nPerformance token you have the least of +20\r\nLight Hello bond +7\r\nor\r\nor\r\nGuts +3\r\nSkill points +3\r\nPerformance token you have the least of +20\r\nLight Hello bond +7"
+    },
+    "CardSlug": "30052-light-hello"
+  },
+  {
+    "EventName": "Dawn Under the Waning Moon",
+    "EventOptions": {
+      "": "Speed +25\r\nGuts +25\r\nSkill points +37"
+    },
+    "CardSlug": "30052-light-hello"
+  },
+  {
+    "EventName": "Until It Shines in Full",
+    "EventOptions": {
+      "": "Speed +18\r\nGuts +18\r\nSkill points +25"
+    },
+    "CardSlug": "30052-light-hello"
+  },
+  {
+    "EventName": "Bonding with Light Hello: Letting Loose",
+    "EventOptions": {
+      "Top Option": "Mood +2\r\nSpeed +12\r\nFront Runner Savvy ○ hint +1\r\nPace Chaser Savvy ○ hint +1\r\nLight Hello bond +5"
+    },
+    "CardSlug": "30052-light-hello"
+  },
+  {
+    "EventName": "Bonding with Light Hello: Letting Loose",
+    "EventOptions": {
+      "Bottom Option": "Energy +21\r\nGuts +12\r\nLight Hello bond +5"
+    },
+    "CardSlug": "30052-light-hello"
+  },
+  {
+    "EventName": "(❯) Researching the Limits of Running: Rapport",
+    "EventOptions": {
+      "Top Option": "Mood +1\r\nEnergy +10\r\nAgnes Tachyon bond +5"
+    },
+    "CardSlug": "30101-agnes-tachyon"
+  },
+  {
+    "EventName": "(❯) Researching the Limits of Running: Rapport",
+    "EventOptions": {
+      "Bottom Option": "Randomly either\r\nSpeed +5\r\nStamina +5\r\nWit +5\r\nPace Chaser Straightaways ○ hint +1/+3\r\nMurmur hint +1\r\nAgnes Tachyon bond +5\r\nor\r\nor\r\nSpeed +5\r\nWit +5\r\nPace Chaser Straightaways ○ hint +1\r\nAgnes Tachyon bond +5"
+    },
+    "CardSlug": "30101-agnes-tachyon"
+  },
+  {
+    "EventName": "(❯❯) Researching the Limits of Running: Dreams",
+    "EventOptions": {
+      "": "Speed +5\r\nStamina +5\r\nWit +5\r\nSkill points +10\r\nAgnes Tachyon bond +5"
+    },
+    "CardSlug": "30101-agnes-tachyon"
+  },
+  {
+    "EventName": "(❯❯❯) Researching the Limits of Running: Velocity",
+    "EventOptions": {
+      "": "Randomly either\r\nEnergy +10\r\nSkill points +30\r\nUnstoppable hint +3\r\nor\r\nor\r\nEnergy +5\r\nSkill points +10\r\nUnstoppable hint +1"
+    },
+    "CardSlug": "30101-agnes-tachyon"
+  },
+  {
+    "EventName": "The Correlation between Sleep and Efficiency",
+    "EventOptions": {
+      "Top Option": "Power +5\r\nWit +5\r\nAgnes Tachyon bond +5"
+    },
+    "CardSlug": "30101-agnes-tachyon"
+  },
+  {
+    "EventName": "The Correlation between Sleep and Efficiency",
+    "EventOptions": {
+      "Bottom Option": "Wit +10\r\nAgnes Tachyon bond +5"
+    },
+    "CardSlug": "30101-agnes-tachyon"
+  },
+  {
+    "EventName": "Happenstance Introduced Through Intervention",
+    "EventOptions": {
+      "Top Option": "Late Surger Savvy ○ hint +1\r\nAgnes Tachyon bond +5"
+    },
+    "CardSlug": "30101-agnes-tachyon"
+  },
+  {
+    "EventName": "Happenstance Introduced Through Intervention",
+    "EventOptions": {
+      "Bottom Option": "Wit +10\r\nAgnes Tachyon bond +5"
+    },
+    "CardSlug": "30101-agnes-tachyon"
+  },
+  {
+    "EventName": "(❯) Please Rerun Task",
+    "EventOptions": {
+      "Top Option": "Energy +5\r\nMood +1\r\nMihono Bourbon bond +5"
+    },
+    "CardSlug": "30121-mihono-bourbon"
+  },
+  {
+    "EventName": "(❯) Please Rerun Task",
+    "EventOptions": {
+      "Bottom Option": "Speed +10\r\nFast-Paced hint +1\r\nMihono Bourbon bond +5"
+    },
+    "CardSlug": "30121-mihono-bourbon"
+  },
+  {
+    "EventName": "(❯❯) Finding the Common Denominator",
+    "EventOptions": {
+      "": "Speed +10\r\nSkill points +15\r\nMihono Bourbon bond +5"
+    },
+    "CardSlug": "30121-mihono-bourbon"
+  },
+  {
+    "EventName": "(❯❯❯) The Fan-Appreciation Prize Drawing!",
+    "EventOptions": {
+      "": "Speed +10\r\nTrackblazer hint +1\r\nMihono Bourbon bond +5"
+    },
+    "CardSlug": "30121-mihono-bourbon"
+  },
+  {
+    "EventName": "Do No Harm",
+    "EventOptions": {
+      "Top Option": "Energy -10\r\nStamina +5\r\nPower +15\r\nMihono Bourbon bond +5"
+    },
+    "CardSlug": "30121-mihono-bourbon"
+  },
+  {
+    "EventName": "Do No Harm",
+    "EventOptions": {
+      "Bottom Option": "Energy +10\r\nWit +5\r\nMihono Bourbon bond +5"
+    },
+    "CardSlug": "30121-mihono-bourbon"
+  },
+  {
+    "EventName": "Orders Must Be Followed",
+    "EventOptions": {
+      "Top Option": "Focus hint +1\r\nMihono Bourbon bond +5"
+    },
+    "CardSlug": "30121-mihono-bourbon"
+  },
+  {
+    "EventName": "Orders Must Be Followed",
+    "EventOptions": {
+      "Bottom Option": "Speed +10\r\nSkill points +15\r\nMihono Bourbon bond +5"
+    },
+    "CardSlug": "30121-mihono-bourbon"
+  },
+  {
+    "EventName": "(❯) Not All Phenomena Must Be Seen",
+    "EventOptions": {
+      "": "Energy +20\r\nMood +1\r\nStamina +5\r\nManhattan Cafe bond +5"
+    },
+    "CardSlug": "30110-manhattan-cafe"
+  },
+  {
+    "EventName": "(❯❯) The Big Picture Isn't So Big",
+    "EventOptions": {
+      "": "Energy +25\r\nStamina +5\r\nManhattan Cafe bond +5"
+    },
+    "CardSlug": "30110-manhattan-cafe"
+  },
+  {
+    "EventName": "(❯❯❯) Not All Mysteries Must Be Solved",
+    "EventOptions": {
+      "": "Energy +30\r\nStamina +5\r\nOf Calm Mind hint +1\r\nManhattan Cafe bond +5"
+    },
+    "CardSlug": "30110-manhattan-cafe"
+  },
+  {
+    "EventName": "Solo Nighttime Run",
+    "EventOptions": {
+      "Top Option": "Stamina +10\r\nManhattan Cafe bond +5"
+    },
+    "CardSlug": "30110-manhattan-cafe"
+  },
+  {
+    "EventName": "Solo Nighttime Run",
+    "EventOptions": {
+      "Bottom Option": "Energy +10\r\nStamina +5\r\nManhattan Cafe bond +5"
+    },
+    "CardSlug": "30110-manhattan-cafe"
+  },
+  {
+    "EventName": "A Taste of Silence",
+    "EventOptions": {
+      "Top Option": "Stamina +5\r\nSkill points +15\r\nManhattan Cafe bond +5"
+    },
+    "CardSlug": "30110-manhattan-cafe"
+  },
+  {
+    "EventName": "A Taste of Silence",
+    "EventOptions": {
+      "Bottom Option": "Non-Standard Distance ○ hint +1\r\nManhattan Cafe bond +5"
+    },
+    "CardSlug": "30110-manhattan-cafe"
+  },
+  {
+    "EventName": "(❯) Repaying Your Kindness",
+    "EventOptions": {
+      "": "Mood +1\r\nGuts +10\r\nSakura Chiyono O bond +5"
+    },
+    "CardSlug": "30109-sakura-chiyono-o"
+  },
+  {
+    "EventName": "(❯❯) Because I Want You to Smile",
+    "EventOptions": {
+      "": "Guts +15\r\nSakura Chiyono O bond +5"
+    },
+    "CardSlug": "30109-sakura-chiyono-o"
+  },
+  {
+    "EventName": "(❯❯❯) I Gift You Fun and Joy!",
+    "EventOptions": {
+      "": "Randomly either\r\nGuts +10\r\nWit +10\r\nStep on the Gas! hint +3\r\nSakura Chiyono O bond +5\r\nor\r\nor\r\nGuts +5\r\nWit +5\r\nAcceleration hint +2/+3\r\nSakura Chiyono O bond +5"
+    },
+    "CardSlug": "30109-sakura-chiyono-o"
+  },
+  {
+    "EventName": "Today's Words of Wisdom!",
+    "EventOptions": {
+      "Top Option": "Energy -10\r\nPower +20\r\nSakura Chiyono O bond +5"
+    },
+    "CardSlug": "30109-sakura-chiyono-o"
+  },
+  {
+    "EventName": "Today's Words of Wisdom!",
+    "EventOptions": {
+      "Bottom Option": "Energy +5\r\nSkill points +10\r\nSakura Chiyono O bond +5"
+    },
+    "CardSlug": "30109-sakura-chiyono-o"
+  },
+  {
+    "EventName": "Until I Bloom...",
+    "EventOptions": {
+      "Top Option": "Energy +5\r\nStamina +5\r\nSakura Chiyono O bond +5"
+    },
+    "CardSlug": "30109-sakura-chiyono-o"
+  },
+  {
+    "EventName": "Until I Bloom...",
+    "EventOptions": {
+      "Bottom Option": "Spring Runner ○ hint +1\r\nSakura Chiyono O bond +5"
+    },
+    "CardSlug": "30109-sakura-chiyono-o"
+  },
+  {
+    "EventName": "(❯) After the Fishing Trip...",
+    "EventOptions": {
+      "": "Stamina +10\r\nHesitant Late Surgers hint +1\r\nSeiun Sky bond +5"
+    },
+    "CardSlug": "20050-seiun-sky"
+  },
+  {
+    "EventName": "(❯❯) Let's Go Fishing Again",
+    "EventOptions": {
+      "Top Option": "Speed +15\r\nStamina +15\r\nSeiun Sky bond +5"
+    },
+    "CardSlug": "20050-seiun-sky"
+  },
+  {
+    "EventName": "(❯❯) Let's Go Fishing Again",
+    "EventOptions": {
+      "Bottom Option": "Mood +1\r\nSecond Wind hint +1\r\nSeiun Sky bond +15"
+    },
+    "CardSlug": "20050-seiun-sky"
+  },
+  {
+    "EventName": "Recruiting Cat Catchers",
+    "EventOptions": {
+      "Top Option": "Energy +10\r\nWit +5\r\nSeiun Sky bond +5"
+    },
+    "CardSlug": "20050-seiun-sky"
+  },
+  {
+    "EventName": "Recruiting Cat Catchers",
+    "EventOptions": {
+      "Bottom Option": "Energy -10\r\nSpeed +15\r\nStamina +5\r\nSeiun Sky bond +5"
+    },
+    "CardSlug": "20050-seiun-sky"
+  },
+  {
+    "EventName": "Recruiting Advisors",
+    "EventOptions": {
+      "Top Option": "Wit +15\r\nSeiun Sky bond +5"
+    },
+    "CardSlug": "20050-seiun-sky"
+  },
+  {
+    "EventName": "Recruiting Advisors",
+    "EventOptions": {
+      "Bottom Option": "Keeping the Lead hint +1\r\nSeiun Sky bond +5"
+    },
+    "CardSlug": "20050-seiun-sky"
+  },
+  {
+    "EventName": "(❯) Repose in the Lunar Mare",
+    "EventOptions": {
+      "": "Maximum Energy +4\r\nEnergy +32\r\nMood +1\r\nLight Hello bond +5"
+    },
+    "CardSlug": "10083-light-hello"
+  },
+  {
+    "EventName": "(❯❯) Tycho's Radiance",
+    "EventOptions": {
+      "": "Energy +32\r\nMood +1\r\nGuts +12\r\nLight Hello bond +5"
+    },
+    "CardSlug": "10083-light-hello"
+  },
+  {
+    "EventName": "(❯❯❯) Hidden Beneath the Regolith",
+    "EventOptions": {
+      "Top Option": "Energy +65\r\nMood +1\r\nLight Hello bond +5"
+    },
+    "CardSlug": "10083-light-hello"
+  },
+  {
+    "EventName": "(❯❯❯) Hidden Beneath the Regolith",
+    "EventOptions": {
+      "Bottom Option": "Mood +1\r\nSpeed +18\r\nGuts +18\r\nLight Hello bond +5"
+    },
+    "CardSlug": "10083-light-hello"
+  },
+  {
+    "EventName": "(❯❯❯❯) Scaling Mons Huygens",
+    "EventOptions": {
+      "": "Energy +39\r\nMood +1\r\nGuts +12\r\nLight Hello bond +5"
+    },
+    "CardSlug": "10083-light-hello"
+  },
+  {
+    "EventName": "(❯❯❯❯❯) At Rainbow Cove",
+    "EventOptions": {
+      "": "Randomly either\r\nMood +1\r\nEnergy +26\r\nSpeed +6\r\nGuts +6\r\nPlaytime's Over! hint +3\r\nLight Hello bond +5\r\nor\r\nor\r\nMood +1\r\nEnergy +13\r\nPlaytime's Over! hint +1\r\nLight Hello bond +5"
+    },
+    "CardSlug": "10083-light-hello"
+  },
+  {
+    "EventName": "Some Crafty Research ♪",
+    "EventOptions": {
+      "Top Option": "Speed +8\r\nGuts +8\r\nLight Hello bond +5"
+    },
+    "CardSlug": "10083-light-hello"
+  },
+  {
+    "EventName": "Some Crafty Research ♪",
+    "EventOptions": {
+      "Bottom Option": "Energy +6\r\nMood +1\r\nLight Hello bond +5"
+    },
+    "CardSlug": "10083-light-hello"
+  },
+  {
+    "EventName": "Embrace Those Emotions!",
+    "EventOptions": {
+      "Top Option": "Energy +19\r\nMood +1\r\nSpeed +8\r\nGuts +8\r\nLight Hello bond +5\r\nCan start dating"
+    },
+    "CardSlug": "10083-light-hello"
+  },
+  {
+    "EventName": "Embrace Those Emotions!",
+    "EventOptions": {
+      "Bottom Option": "Wit +36\r\nSkill points +36\r\nMaverick ○ hint +5\r\nLight Hello bond -5\r\nEvent chain ended"
+    },
+    "CardSlug": "10083-light-hello"
+  },
+  {
+    "EventName": "Light Hello, the Event Planner",
+    "EventOptions": {
+      "": "Mood +1\r\nSpeed +12\r\nGuts +12\r\nLight Hello bond +10"
+    },
+    "CardSlug": "10083-light-hello"
+  },
+  {
+    "EventName": "Another Day's Hard Work!",
+    "EventOptions": {
+      "": "Randomly either\r\nGuts +3\r\nMood +1\r\nSkill points +3\r\nPerformance token you have the least of +20\r\nLight Hello bond +7\r\nor\r\nor\r\nGuts +3\r\nSkill points +3\r\nPerformance token you have the least of +20\r\nLight Hello bond +7"
+    },
+    "CardSlug": "10083-light-hello"
+  },
+  {
+    "EventName": "Dawn Under the Waning Moon",
+    "EventOptions": {
+      "": "Speed +24\r\nGuts +24\r\nSkill points +36"
+    },
+    "CardSlug": "10083-light-hello"
+  },
+  {
+    "EventName": "Until It Shines in Full",
+    "EventOptions": {
+      "": "Speed +18\r\nGuts +18\r\nSkill points +24"
+    },
+    "CardSlug": "10083-light-hello"
+  },
+  {
+    "EventName": "Bonding with Light Hello: Letting Loose",
+    "EventOptions": {
+      "Top Option": "Mood +2\r\nSpeed +12\r\nFront Runner Savvy ○ hint +1\r\nPace Chaser Savvy ○ hint +1\r\nLight Hello bond +5"
+    },
+    "CardSlug": "10083-light-hello"
+  },
+  {
+    "EventName": "Bonding with Light Hello: Letting Loose",
+    "EventOptions": {
+      "Bottom Option": "Energy +19\r\nGuts +12\r\nLight Hello bond +5"
+    },
+    "CardSlug": "10083-light-hello"
   }
 ]
