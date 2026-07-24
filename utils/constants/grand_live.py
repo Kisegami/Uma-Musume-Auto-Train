@@ -26,6 +26,8 @@ GRAND_LIVE_TEMPLATE_REGIONS = {
     "assets/grandlive/concert_start.png": (574, 1281, 380, 153),
     "assets/grandlive/race_day.png": (19, 98, 206, 89),
     "assets/grandlive/lessons_btn.png": (437, 1646, 561, 118),
+    "assets/grandlive/lessons_btn_complete.png": (9, 1456, 1071, 234),
+    "assets/grandlive/skills_btn_complete.png": (9, 1456, 1071, 234),
     "assets/grandlive/on_stage.png": (421, 999, 213, 187),
     "assets/buttons/title_menu.png": (951, 1789, 104, 98),
     "assets/ui/home_theater.png": (184, 1601, 92, 69),

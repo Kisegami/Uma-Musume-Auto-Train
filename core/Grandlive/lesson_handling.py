@@ -42,6 +42,7 @@ STAT_EFFECT_KEYS = {
 # The three API slots are displayed as vertical cards on the lesson screen.
 LESSON_SLOT_COORDS = {1: (540, 525), 2: (540, 935), 3: (540, 1350)}
 NORMAL_LESSONS_BUTTON = "assets/grandlive/lessons_btn.png"
+COMPLETE_LESSONS_BUTTON = "assets/grandlive/lessons_btn_complete.png"
 CONCERT_LESSONS_BUTTON = "assets/grandlive/lessons_btn_2.png"
 LEARN_BUTTON = "assets/grandlive/learn_btn.png"
 BACK_BUTTON = "assets/buttons/back_btn.png"
@@ -711,7 +712,11 @@ def handle_lessons(
         )
         return False
 
-    entry_button = CONCERT_LESSONS_BUTTON if concert_day else NORMAL_LESSONS_BUTTON
+    entry_button = (
+        CONCERT_LESSONS_BUTTON
+        if concert_day
+        else COMPLETE_LESSONS_BUTTON if completion else NORMAL_LESSONS_BUTTON
+    )
     if not tap_on_image(entry_button, confidence=0.8, min_search=3):
         day_label = "concert" if concert_day else "normal"
         log_warning(f"Grand Live {day_label}-day Lessons button was not found")

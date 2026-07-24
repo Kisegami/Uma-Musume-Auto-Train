@@ -28,6 +28,8 @@ from core.Grandlive.ocr import extract_text, extract_number
 from utils.core.config_loader import load_main_config
 from utils.constants.ura import RESTART_COMPLETE_SPAM_TARGET
 
+COMPLETE_SKILLS_BUTTON = "assets/grandlive/skills_btn_complete.png"
+
 # Module-level state for persistent restart tracking across function calls
 _restart_state = {
     'restart_count': 0,
@@ -192,7 +194,7 @@ def execute_skill_purchase_workflow(available_points: int):
             raise RuntimeError("API mode is enabled but /skills API is not responding. Check API connection or set api.enabled to false in config.json.")
         log_info(f"[API] Got {len(all_available_skills)} end-career skills from API (skipping OCR scan)")
     else:
-        if not restart_click_image_button("assets/buttons/end_skill.png", "end skill button", max_attempts=5):
+        if not restart_click_image_button(COMPLETE_SKILLS_BUTTON, "end skill button", max_attempts=5):
             log_info(f"Failed to tap end skill button")
             return
         time.sleep(2)
@@ -253,7 +255,7 @@ def execute_skill_purchase_workflow(available_points: int):
                 # OCR mode is already inside the end-skill screen after scanning.
                 # Only API mode needs to open the screen before purchasing.
                 if api_mode:
-                    if not restart_click_image_button("assets/buttons/end_skill.png", "end skill button", max_attempts=5):
+                    if not restart_click_image_button(COMPLETE_SKILLS_BUTTON, "end skill button", max_attempts=5):
                         log_info(f"Failed to tap end skill button")
                         return_to_complete_career_screen()
                         return

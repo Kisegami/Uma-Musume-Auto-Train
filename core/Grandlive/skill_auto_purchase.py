@@ -284,7 +284,7 @@ def fast_swipe_to_top(end_career=False):
     This is much faster than swiping multiple times.
     
     Args:
-        end_career: If True, use end_skill.png button instead of skills_btn.png
+        end_career: If True, use the Grand Live completion-screen Skills button.
     """
     log_info(f"Navigating to top of skill list (back + skills button)")
     
@@ -301,8 +301,12 @@ def fast_swipe_to_top(end_career=False):
     time.sleep(0.5)
     
     # Step 3: Tap skills button again to return to top of list
-    # Use end_skill.png in end-career mode, otherwise use skills_btn.png
-    skill_button = "assets/buttons/end_skill.png" if end_career else "assets/buttons/skills_btn.png"
+    # Grand Live has a distinct Skills button on the career-completion screen.
+    skill_button = (
+        "assets/grandlive/skills_btn_complete.png"
+        if end_career
+        else "assets/buttons/skills_btn.png"
+    )
     log_debug(f"Tapping skills button to return to top of list ({skill_button})...")
     if tap_on_image(skill_button, confidence=0.8, min_search=10):
         log_debug(f"Skills button clicked")
@@ -320,7 +324,7 @@ def execute_skill_purchases(purchase_plan, max_scrolls=30, end_career=False, res
     Args:
         purchase_plan: List of skills to purchase (from create_purchase_plan)
         max_scrolls: Maximum number of scrolls to prevent infinite loops
-        end_career: If True, use end_skill.png button instead of skills_btn.png
+        end_career: If True, use the Grand Live completion-screen Skills button.
         reset_to_top: If True, reopen the skill list from the top before scanning.
             Set to False when the caller has already opened the skill list and wants
             to avoid an unnecessary back/reopen cycle (for example in API mode).
