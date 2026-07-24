@@ -12,6 +12,7 @@ from utils.core.log import log_info, log_warning
 from utils.inputs.input import tap, tap_on_image
 from utils.integrations.umat_api import get_grand_live, get_status
 from utils.vision.recognizer import locate_on_screen
+from core.Grandlive.dating_handling import check_dating_available
 
 
 DEFAULT_CATEGORY_PRIORITY = ["stat", "recovery", "skill_hint"]
@@ -548,6 +549,19 @@ def handle_lessons(
 ):
     """Open Lessons and learn eligible API-selected lessons until none remain."""
     grand_live = grand_live or get_grand_live()
+    technique_config, _ = _lesson_config(config)
+    skip_recovery_for_pal_dating = bool(
+        technique_config.get("skip_recovery_while_pal_dating", False)
+        and any(
+            choice.get("category") == "recovery"
+            for choice in (grand_live or {}).get("lesson_choices", [])
+        )
+        and check_dating_available()
+    )
+    if skip_recovery_for_pal_dating:
+        log_info(
+            "Pal Dating is available; skipping Recovery lessons until it is completed"
+        )
     if energy_current is None or energy_max is None:
         status = get_status() or {}
         energy = status.get("energy", {})
@@ -556,6 +570,13 @@ def handle_lessons(
 
     def select_choice(state):
         choices = (state or {}).get("lesson_choices", [])
+        if skip_recovery_for_pal_dating:
+            choices = [
+                choice for choice in choices
+                if choice.get("category") != "recovery"
+            ]
+            state = dict(state or {})
+            state["lesson_choices"] = choices
         _log_lesson_choices(state)
         technique, songs = _lesson_config(config)
 

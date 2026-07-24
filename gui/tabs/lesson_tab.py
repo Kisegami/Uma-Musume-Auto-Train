@@ -24,6 +24,7 @@ TECHNIQUE_DEFAULT = {
     "category_priority": ["stat", "recovery", "skill_hint"],
     "stat_priority": ["spd", "sta", "pwr", "guts", "wit", "skill_points"],
     "save_recovery": True,
+    "skip_recovery_while_pal_dating": False,
     "skill_types": [
         "Aptitude Appropriate",
         "Dirt", "Sprint", "Mile", "Medium", "Long",
@@ -236,8 +237,15 @@ class TechniqueLessonEditor(QWidget):
         self.save_recovery = QCheckBox("Skip recovery lessons that would overflow Energy")
         self.save_recovery.stateChanged.connect(self._save)
         recovery_layout.addWidget(self.save_recovery)
+        self.skip_recovery_while_pal_dating = QCheckBox(
+            "Skip recovery lessons while Pal Dating is available"
+        )
+        self.skip_recovery_while_pal_dating.stateChanged.connect(self._save)
+        recovery_layout.addWidget(self.skip_recovery_while_pal_dating)
         recovery_note = QLabel(
-            "Keeps recovery lessons for later when their Energy gain would exceed maximum Energy."
+            "The first option keeps recovery lessons for later when their Energy gain "
+            "would exceed maximum Energy. The second skips them until Pal Dating is "
+            "completed or no longer available."
         )
         recovery_note.setObjectName("muted")
         recovery_note.setWordWrap(True)
@@ -289,6 +297,9 @@ class TechniqueLessonEditor(QWidget):
             checkbox.setChecked(key in allowed)
         self._fill_list(self.stat_list, allowed)
         self.save_recovery.setChecked(bool(data.get("save_recovery", True)))
+        self.skip_recovery_while_pal_dating.setChecked(
+            bool(data.get("skip_recovery_while_pal_dating", False))
+        )
         allowed_skills = data.get("skill_types", TECHNIQUE_DEFAULT["skill_types"])
         for skill_type, checkbox in self.skill_checks.items():
             checkbox.setChecked(skill_type in allowed_skills)
@@ -320,6 +331,8 @@ class TechniqueLessonEditor(QWidget):
             "category_priority": _list_values(self.category_list),
             "stat_priority": _list_values(self.stat_list),
             "save_recovery": self.save_recovery.isChecked(),
+            "skip_recovery_while_pal_dating":
+                self.skip_recovery_while_pal_dating.isChecked(),
             "skill_types": [key for key, box in self.skill_checks.items() if box.isChecked()],
         })
 
