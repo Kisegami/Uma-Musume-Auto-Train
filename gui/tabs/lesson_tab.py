@@ -54,6 +54,7 @@ DEFAULT_CONCERT_REQUIREMENTS = {
     str(index): {"minimum": 3, "maximum": 4}
     for index in range(1, 6)
 }
+DEFAULT_TRY_LEARN_18_BEFORE_GRAND_CONCERT = False
 DISPLAY = {
     "stat": "Stats Lesson", "recovery": "Recovery Lesson", "skill_hint": "Skill Lesson",
     "spd": "Speed", "sta": "Stamina", "pwr": "Power", "guts": "Guts",
@@ -794,6 +795,26 @@ class LessonsTab(QScrollArea):
         catch_up_note.setObjectName("muted")
         catch_up_note.setWordWrap(True)
         layout.addWidget(catch_up_note)
+
+        self.try_learn_18_before_grand_concert = QCheckBox(
+            "Try to learn 18 songs total before the Grand Concert"
+        )
+        self.try_learn_18_before_grand_concert.setToolTip(
+            "On Senior Year Early Dec, checks the total songs learned and "
+            "spends available Performance Points on affordable song lessons "
+            "until 18 songs are learned or no affordable song remains."
+        )
+        self.try_learn_18_before_grand_concert.stateChanged.connect(
+            self._save_song_requirements
+        )
+        layout.addWidget(self.try_learn_18_before_grand_concert)
+        grand_concert_note = QLabel(
+            "Runs on Senior Year Early Dec and does not save Performance Points "
+            "for a better song while catching up."
+        )
+        grand_concert_note.setObjectName("muted")
+        grand_concert_note.setWordWrap(True)
+        layout.addWidget(grand_concert_note)
         self._requirements_loading = False
         self.page_layout.addWidget(group)
 
@@ -829,6 +850,14 @@ class LessonsTab(QScrollArea):
         self.catch_up_song_minimum.setChecked(
             bool(raw.get("catch_up_missed_minimum", False))
         )
+        self.try_learn_18_before_grand_concert.setChecked(
+            bool(
+                raw.get(
+                    "try_learn_18_before_grand_concert",
+                    DEFAULT_TRY_LEARN_18_BEFORE_GRAND_CONCERT,
+                )
+            )
+        )
         self._requirements_loading = False
 
     def _save_song_requirements(self, *_args):
@@ -838,6 +867,8 @@ class LessonsTab(QScrollArea):
             return
         requirements = {
             "catch_up_missed_minimum": self.catch_up_song_minimum.isChecked(),
+            "try_learn_18_before_grand_concert":
+                self.try_learn_18_before_grand_concert.isChecked(),
             "concerts": {
                 str(index): {
                     "minimum": self.requirement_minimum_spins[index].value(),

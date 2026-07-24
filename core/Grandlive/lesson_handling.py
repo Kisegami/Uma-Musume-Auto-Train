@@ -21,6 +21,7 @@ DEFAULT_SELECTION_METHOD = "save_best"
 AVAILABLE_SELECTION_METHOD = "available"
 DEFAULT_SONG_REQUIREMENTS = {
     "catch_up_missed_minimum": False,
+    "try_learn_18_before_grand_concert": False,
     "concerts": {
         str(index): {"minimum": 3, "maximum": 4}
         for index in range(1, 6)
@@ -91,6 +92,9 @@ def _song_requirements(config=None):
     return {
         "catch_up_missed_minimum": bool(
             raw.get("catch_up_missed_minimum", False)
+        ),
+        "try_learn_18_before_grand_concert": bool(
+            raw.get("try_learn_18_before_grand_concert", False)
         ),
         "concerts": concerts,
     }
@@ -392,6 +396,26 @@ def choose_any_available_lesson(
     return min(affordable, key=lambda choice: int(choice.get("slot", 99)))
 
 
+def choose_any_available_song(grand_live, config=None):
+    """Choose an affordable song while explicitly disabling point saving."""
+    choices = [
+        choice
+        for choice in (grand_live or {}).get("lesson_choices", [])
+        if choice.get("category") == "song"
+        and choice.get("affordable", False)
+    ]
+    if not choices:
+        return None
+
+    _, songs = _lesson_config(config)
+    available_songs = dict(songs)
+    available_songs["selection_method"] = AVAILABLE_SELECTION_METHOD
+    preferred = choose_song_lesson(choices, available_songs)
+    if preferred is not None:
+        return preferred
+    return min(choices, key=lambda choice: int(choice.get("slot", 99)))
+
+
 def choose_completion_lesson(
     grand_live, config=None, energy_current=0, energy_max=100
 ):
@@ -546,6 +570,7 @@ def handle_lessons(
     concert_index=None,
     grand_live=None,
     completion=False,
+    song_total_target=None,
 ):
     """Open Lessons and learn eligible API-selected lessons until none remain."""
     grand_live = grand_live or get_grand_live()
@@ -587,6 +612,16 @@ def handle_lessons(
                 energy_current=energy_current,
                 energy_max=energy_max,
             )
+
+        if song_total_target is not None:
+            _, learned_total = _song_progress_counts(state)
+            if learned_total >= song_total_target:
+                log_info(
+                    f"Grand Concert song target met "
+                    f"({learned_total}/{song_total_target})"
+                )
+                return None
+            return choose_any_available_song(state, config=config)
 
         def should_save_recovery(choice):
             if not _recovery_would_overflow(
@@ -728,7 +763,12 @@ def handle_lessons(
             else (
                 "No concert-day song lesson matches the current requirement and method"
                 if force_any_available
-                else "No affordable lesson matches the active lesson method"
+                else (
+                    f"No affordable song lesson remains for the "
+                    f"{song_total_target}-song Grand Concert target"
+                    if song_total_target is not None
+                    else "No affordable lesson matches the active lesson method"
+                )
             )
         )
         return False

@@ -41,6 +41,16 @@ def should_use_dating_for_rest(screenshot=None):
     return False
 
 
+def should_use_dating_for_mood(screenshot=None):
+    """Prefer an available Pal Date over normal recreation for low mood."""
+    if check_dating_available(screenshot):
+        log_debug("Dating is available - will use dating for mood")
+        return True
+
+    log_debug("Dating is not available - using normal recreation for mood")
+    return False
+
+
 def do_dating():
     """Open recreation and select the available pal date."""
     log_info("Starting dating workflow...")

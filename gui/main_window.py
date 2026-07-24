@@ -417,6 +417,7 @@ class MainWindow(QMainWindow):
                 "song_template": "template/lessons/songs/default.json",
                 "song_requirements": {
                     "catch_up_missed_minimum": False,
+                    "try_learn_18_before_grand_concert": False,
                     "concerts": {
                         str(index): {"minimum": 3, "maximum": 21}
                         for index in range(1, 6)

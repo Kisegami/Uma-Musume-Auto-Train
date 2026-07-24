@@ -51,10 +51,12 @@ from core.Grandlive.concert_handling import do_concert, do_grand_concert
 from core.Grandlive.dating_handling import (
     check_dating_available,
     do_dating,
+    should_use_dating_for_mood,
     should_use_dating_for_rest,
 )
 
 from utils.core.config_loader import load_main_config
+from utils.integrations.umat_api import get_grand_live
 config = load_main_config()
 training_config_section = config.get("training", {})
 racing_config_section = config.get("racing", {})
@@ -817,12 +819,36 @@ def career_lobby(timeout=None):
         # Evaluate normal-day Grand Live lessons immediately after the turn's
         # API energy and stats have been read, before choosing another action.
         if _API_MODE:
-            from core.Grandlive.lesson_handling import handle_lessons
+            from core.Grandlive.lesson_handling import (
+                _song_progress_counts,
+                _song_requirements,
+                handle_lessons,
+            )
+
+            lesson_options = {}
+            if (
+                str(year).strip().lower() == "senior year early dec"
+                and _song_requirements().get(
+                    "try_learn_18_before_grand_concert", False
+                )
+            ):
+                grand_live = get_grand_live()
+                _, learned_total = _song_progress_counts(grand_live)
+                if learned_total < 18:
+                    log_info(
+                        f"Senior Year Early Dec: {learned_total}/18 songs "
+                        "learned; trying affordable songs without saving"
+                    )
+                    lesson_options = {
+                        "grand_live": grand_live,
+                        "song_total_target": 18,
+                    }
 
             if handle_lessons(
                 energy_current=api_status["energy_current"],
                 energy_max=api_status["energy_max"],
                 concert_day=False,
+                **lesson_options,
             ):
                 _lobby_wait_start = None
                 continue
@@ -968,9 +994,22 @@ def career_lobby(timeout=None):
                 log_debug(f"Mood too low ({mood_index} < {minimum_mood}) but energy too high ({_format_energy(energy_percentage, api_status)} > {_format_energy_threshold(90, api_status)}), skipping recreation")
                 log_info(f"Mood is low but energy is too high ({_format_energy(energy_percentage, api_status)} > {_format_energy_threshold(90, api_status)}), skipping recreation")
             else:
-                log_debug(f"Mood too low ({mood_index} < {minimum_mood}), doing recreation")
-                log_info(f"Mood is low, trying recreation to increase mood")
-                do_recreation()
+                log_debug(
+                    f"Mood too low ({mood_index} < {minimum_mood}), "
+                    "checking for dating or recreation"
+                )
+                if should_use_dating_for_mood(screenshot):
+                    log_info("Mood is low, using Pal Dating to increase mood")
+                    if do_dating():
+                        log_info("Pal Dating initiated successfully")
+                    else:
+                        log_warning(
+                            "Pal Dating failed, falling back to recreation"
+                        )
+                        do_recreation()
+                else:
+                    log_info("Mood is low, trying recreation to increase mood")
+                    do_recreation()
                 continue
         else:
             log_debug(f"Mood is good ({mood_index} >= {minimum_mood})")

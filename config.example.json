@@ -151,6 +151,7 @@
     "song_template": "template/lessons/songs/default.json",
     "song_requirements": {
       "catch_up_missed_minimum": false,
+      "try_learn_18_before_grand_concert": false,
       "concerts": {
         "1": {"minimum": 3, "maximum": 4},
         "2": {"minimum": 3, "maximum": 4},
