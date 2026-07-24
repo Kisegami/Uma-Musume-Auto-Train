@@ -152,11 +152,11 @@
     "song_requirements": {
       "catch_up_missed_minimum": false,
       "concerts": {
-        "1": {"minimum": 3, "maximum": 21},
-        "2": {"minimum": 3, "maximum": 21},
-        "3": {"minimum": 3, "maximum": 21},
-        "4": {"minimum": 3, "maximum": 21},
-        "5": {"minimum": 3, "maximum": 21}
+        "1": {"minimum": 3, "maximum": 4},
+        "2": {"minimum": 3, "maximum": 4},
+        "3": {"minimum": 3, "maximum": 4},
+        "4": {"minimum": 3, "maximum": 4},
+        "5": {"minimum": 3, "maximum": 4}
       }
     }
   },
@@ -177,9 +177,12 @@
     "auto_charge_tp_carats": false
   },
   "dating": {
-    "use_dating_instead_of_rest": false
+    "use_dating_instead_of_rest": false,
+    "complete_date_after_senior_summer": false,
+    "complete_date_energy_threshold": 30
   },
   "mode": "ura",
+  "grand_live_scenario_reward": "None",
   "debug_mode": false,
   "dump_lobby_template_regions": false,
   "bypass_template_regions": false,

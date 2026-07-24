@@ -81,6 +81,28 @@ class MainTab(QScrollArea):
         self.unity_team_combo.currentTextChanged.connect(self._on_unity_team_change)
         team_row_layout.addWidget(self.unity_team_combo)
         settings_layout.addWidget(self.unity_team_row)
+
+        # Grand Live scenario reward row (only visible in Our Grand Concert)
+        self.grand_live_reward_row = QWidget()
+        reward_row_layout = QHBoxLayout(self.grand_live_reward_row)
+        reward_row_layout.setContentsMargins(0, 0, 0, 0)
+        reward_row_layout.setSpacing(8)
+        reward_row_layout.addWidget(QLabel("Scenario Rewards\n(Closer Together Event):"))
+        self.grand_live_reward_combo = QComboBox()
+        self.grand_live_reward_combo.addItems([
+            "Smart Falcon",
+            "Mihono Bourbon",
+            "Silence Suzuka",
+            "Agnes Tachyon",
+            "None",
+        ])
+        self.grand_live_reward_combo.setCurrentText("None")
+        self.grand_live_reward_combo.setFixedWidth(140)
+        self.grand_live_reward_combo.currentTextChanged.connect(
+            self._on_grand_live_reward_change
+        )
+        reward_row_layout.addWidget(self.grand_live_reward_combo)
+        settings_layout.addWidget(self.grand_live_reward_row)
         
         # Wrap settings in container with top alignment
         settings_container = QWidget()
@@ -212,10 +234,17 @@ class MainTab(QScrollArea):
         self.unity_team_combo.blockSignals(True)
         self.unity_team_combo.setCurrentText(config.get("unity_team_name", "Team Carrot"))
         self.unity_team_combo.blockSignals(False)
+
+        self.grand_live_reward_combo.blockSignals(True)
+        self.grand_live_reward_combo.setCurrentText(
+            config.get("grand_live_scenario_reward", "None")
+        )
+        self.grand_live_reward_combo.blockSignals(False)
         
-        # Set Unity Team visibility based on mode and update scenario logo
+        # Set scenario-specific field visibility and update scenario logo
         is_unity = (mode == "unity")
         self.unity_team_row.setVisible(is_unity)
+        self.grand_live_reward_row.setVisible(mode == "grand_live")
         self.trackblazer_warning.setVisible(mode == "trackblazer")
         self._update_scenario_logo(mode)
         
@@ -265,6 +294,7 @@ class MainTab(QScrollArea):
         # Toggle Unity Team visibility and update scenario logo
         is_unity = (mode == "unity")
         self.unity_team_row.setVisible(is_unity)
+        self.grand_live_reward_row.setVisible(mode == "grand_live")
         self.trackblazer_warning.setVisible(mode == "trackblazer")
         self._update_scenario_logo(mode)
         
@@ -284,6 +314,13 @@ class MainTab(QScrollArea):
         if getattr(self, '_loading', False):
             return
         self.main_window.update_config_value("unity_team_name", text)
+        self.main_window.save_config()
+
+    def _on_grand_live_reward_change(self, text):
+        """Save the selected reward character for the Closer Together event."""
+        if getattr(self, '_loading', False):
+            return
+        self.main_window.update_config_value("grand_live_scenario_reward", text)
         self.main_window.save_config()
     
     def _on_emulator_change(self, text):

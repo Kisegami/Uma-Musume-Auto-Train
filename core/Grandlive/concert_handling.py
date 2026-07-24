@@ -95,6 +95,7 @@ def _run_grand_concert_ui():
         return False
 
     log_info("Starting Grand Concert")
+    time.sleep(0.5)
     if not _wait_and_tap(CONCERT_START_BUTTON, pre_tap_delay=0.1):
         return False
     if not _wait_and_double_tap(ON_STAGE_BUTTON):

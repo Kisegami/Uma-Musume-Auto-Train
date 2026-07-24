@@ -50,7 +50,7 @@ CONCERT_REQUIREMENT_LABELS = (
     "Grand Concert",
 )
 DEFAULT_CONCERT_REQUIREMENTS = {
-    str(index): {"minimum": 3, "maximum": 21}
+    str(index): {"minimum": 3, "maximum": 4}
     for index in range(1, 6)
 }
 DISPLAY = {
@@ -513,7 +513,10 @@ class SongPriorityDialog(QDialog):
         if not value:
             return ""
         unit = "%" if value.get("unit") == "percent" else ""
-        return f"{value.get('effect', '')} +{value.get('value', '')}{unit}"
+        effect = value.get("effect", "")
+        if effect == "Extra Stat Gain" and value.get("stat"):
+            effect = f"Extra {value['stat']} Gained"
+        return f"{effect} +{value.get('value', '')}{unit}"
 
     def _refresh(self):
         for group, widget in zip(self.groups, self.lists):
@@ -803,7 +806,7 @@ class LessonsTab(QScrollArea):
             minimum_value = max(3, min(21, int(configured.get("minimum", 3))))
             maximum_value = max(
                 minimum_value,
-                min(21, int(configured.get("maximum", 21))),
+                min(21, int(configured.get("maximum", 4))),
             )
             minimum = self.requirement_minimum_spins[index]
             maximum = self.requirement_maximum_spins[index]

@@ -1084,15 +1084,11 @@ def complete_career(current_restart_count: int, max_restart_times: int,
     """Execute the complete career workflow including skill purchase"""
     log_info(f"=== Executing Complete Career Workflow ===")
     
-    # Extract fans and skill points first
+    # Extract fans first. Lessons are spent before reading skill points because
+    # an end-of-career lesson can grant additional skill points.
     screenshot = take_screenshot()
     restart_config = load_restart_config()
     ignore_end_skill_purchase = restart_config.get("ignore_end_skill_purchase", False)
-    if ignore_end_skill_purchase:
-        skill_points = 0
-        log_info("End career skill purchase ignored by config")
-    else:
-        skill_points = extract_skill_points(screenshot)
     
     # Handle notification and fan merging
     run_fans, total_fans_acquired = notify_run_completion(
@@ -1110,6 +1106,19 @@ def complete_career(current_restart_count: int, max_restart_times: int,
     if not should_continue:
         log_info(f"Career completion criteria met: {reason}")
         return False, current_restart_count, total_fans_acquired
+
+    # Performance Points cannot be carried into the next career. Spend every
+    # affordable lesson in priority order, excluding Recovery lessons, before
+    # the final skill purchase.
+    from core.Grandlive.lesson_handling import handle_lessons
+    log_info("Learning remaining Grand Live lessons before end skill purchase")
+    handle_lessons(completion=True)
+
+    if ignore_end_skill_purchase:
+        skill_points = 0
+        log_info("End career skill purchase ignored by config")
+    else:
+        skill_points = extract_skill_points(take_screenshot())
     
     # Execute skill purchase workflow (if skill points available)
     if not ignore_end_skill_purchase and skill_points > 0:

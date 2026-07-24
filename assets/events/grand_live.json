@@ -1,0 +1,23 @@
+[
+  {
+    "EventName": "Proposal! A New Single",
+    "EventOptions": {
+      "Top Option": "Passion +20\nYayoi Akikawa bond +10",
+      "Bottom Option": "Composure +20\nYayoi Akikawa bond +10"
+    }
+  },
+  {
+    "EventName": "Tracen Idol",
+    "EventOptions": {
+      "Top Option": "Energy +15",
+      "Bottom Option": "Passion +20"
+    }
+  },
+  {
+    "EventName": "Every Bit of Effort Counts",
+    "EventOptions": {
+      "Top Option": "Energy +10",
+      "Bottom Option": "Guts +10"
+    }
+  }
+]

@@ -34,6 +34,11 @@ SCENARIO_EVENT_FILES = {
         "template_key": "trackblazer",
         "note": "Dedicated Trackblazer scenario event database.",
     },
+    "Our Grand Concert": {
+        "path": os.path.join("assets", "events", "grand_live.json"),
+        "template_key": "grand_live",
+        "note": "Dedicated Grand Live scenario event database.",
+    },
 }
 
 

@@ -21,7 +21,7 @@ AVAILABLE_SELECTION_METHOD = "available"
 DEFAULT_SONG_REQUIREMENTS = {
     "catch_up_missed_minimum": False,
     "concerts": {
-        str(index): {"minimum": 3, "maximum": 21}
+        str(index): {"minimum": 3, "maximum": 4}
         for index in range(1, 6)
     },
 }
@@ -37,6 +37,7 @@ STAT_EFFECT_KEYS = {
     "guts": "guts",
     "wit": "wit",
     "skill pts": "skill_points",
+    "skill points": "skill_points",
 }
 # The three API slots are displayed as vertical cards on the lesson screen.
 LESSON_SLOT_COORDS = {1: (540, 525), 2: (540, 935), 3: (540, 1350)}
@@ -83,7 +84,7 @@ def _song_requirements(config=None):
     for index in range(1, 6):
         configured = raw_concerts.get(str(index), {})
         minimum = max(3, int(configured.get("minimum", 3)))
-        maximum = max(minimum, int(configured.get("maximum", 21)))
+        maximum = max(minimum, int(configured.get("maximum", 4)))
         concerts[str(index)] = {"minimum": minimum, "maximum": maximum}
     return {
         "catch_up_missed_minimum": bool(
@@ -174,9 +175,19 @@ def unknown_concert_requirement_status(grand_live):
     }
 
 
-def _effect_stat(effect):
-    prefix = str(effect or "").split("+", 1)[0].strip().lower()
-    return STAT_EFFECT_KEYS.get(prefix)
+def _stat_effect_values(effect):
+    """Return every configured stat gain found in a lesson effect."""
+    values = {}
+    stat_names = "|".join(
+        re.escape(name) for name in sorted(STAT_EFFECT_KEYS, key=len, reverse=True)
+    )
+    pattern = rf"(?<!\w)({stat_names})\s*\+\s*(\d+)"
+    for match in re.finditer(pattern, str(effect or ""), re.IGNORECASE):
+        stat = STAT_EFFECT_KEYS[match.group(1).lower()]
+        # A stat normally appears once. Summing also gives sensible behavior if
+        # the API ever emits the same stat as multiple effect fragments.
+        values[stat] = values.get(stat, 0) + int(match.group(2))
+    return values
 
 
 def _recovery_value(effect):
@@ -220,11 +231,13 @@ def _technique_rank(
 ):
     category = choice.get("category")
     if category == "stat":
-        stat = _effect_stat(choice.get("effect"))
         priority = technique.get("stat_priority", DEFAULT_STAT_PRIORITY)
-        if stat not in priority:
+        values = _stat_effect_values(choice.get("effect"))
+        if not any(stat in priority for stat in values):
             return None
-        return priority.index(stat)
+        # Lower tuples rank first: maximize the highest-priority stat, then use
+        # each following stat as a tie-breaker.
+        return tuple(-values.get(stat, 0) for stat in priority)
 
     if category == "recovery":
         if (
@@ -377,6 +390,40 @@ def choose_any_available_lesson(
     return min(affordable, key=lambda choice: int(choice.get("slot", 99)))
 
 
+def choose_completion_lesson(
+    grand_live, config=None, energy_current=0, energy_max=100
+):
+    """Choose an affordable end-of-career lesson without saving Recovery."""
+    choices = (grand_live or {}).get("lesson_choices", [])
+    eligible = [
+        choice
+        for choice in choices
+        if choice.get("affordable", False)
+        and choice.get("category") != "recovery"
+    ]
+    if not eligible:
+        return None
+
+    config = config or load_main_config()
+    technique, songs = _lesson_config(config)
+    if all(choice.get("category") == "song" for choice in choices):
+        available_songs = dict(songs)
+        available_songs["selection_method"] = AVAILABLE_SELECTION_METHOD
+        preferred = choose_song_lesson(eligible, available_songs)
+    else:
+        available_technique = dict(technique)
+        available_technique["selection_method"] = AVAILABLE_SELECTION_METHOD
+        preferred = choose_technique_lesson(
+            eligible,
+            available_technique,
+            energy_current,
+            energy_max,
+        )
+    if preferred is not None:
+        return preferred
+    return min(eligible, key=lambda choice: int(choice.get("slot", 99)))
+
+
 def _wait_for_image(
     image_path, timeout=LESSON_UI_TIMEOUT, confidence=0.8, poll_interval=0.1
 ):
@@ -496,6 +543,7 @@ def handle_lessons(
     concert_day=False,
     concert_index=None,
     grand_live=None,
+    completion=False,
 ):
     """Open Lessons and learn eligible API-selected lessons until none remain."""
     grand_live = grand_live or get_grand_live()
@@ -509,6 +557,14 @@ def handle_lessons(
         choices = (state or {}).get("lesson_choices", [])
         _log_lesson_choices(state)
         technique, songs = _lesson_config(config)
+
+        if completion:
+            return choose_completion_lesson(
+                state,
+                config=config,
+                energy_current=energy_current,
+                energy_max=energy_max,
+            )
 
         def should_save_recovery(choice):
             if not _recovery_would_overflow(
@@ -645,9 +701,13 @@ def handle_lessons(
     choice = select_choice(grand_live)
     if choice is None:
         log_info(
-            "No concert-day song lesson matches the current requirement and method"
-            if force_any_available
-            else "No affordable lesson matches the active lesson method"
+            "No affordable non-Recovery lesson remains at career completion"
+            if completion
+            else (
+                "No concert-day song lesson matches the current requirement and method"
+                if force_any_available
+                else "No affordable lesson matches the active lesson method"
+            )
         )
         return False
 
@@ -675,7 +735,7 @@ def handle_lessons(
         if not learn_button:
             log_warning("Learn button did not appear after selecting the lesson")
             break
-        time.sleep(0.1)
+        time.sleep(0.5)
         tap(*learn_button)
 
         time.sleep(3.0)
@@ -695,4 +755,7 @@ def handle_lessons(
 
     if not tap_on_image(BACK_BUTTON, confidence=0.8, min_search=3):
         log_warning("Could not leave the Grand Live lesson screen")
+    else:
+        # Let the lobby finish rendering before the caller resumes its checks.
+        time.sleep(0.5)
     return True

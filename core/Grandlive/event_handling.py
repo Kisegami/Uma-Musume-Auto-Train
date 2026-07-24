@@ -33,11 +33,20 @@ project_root = _get_project_root()
 config = load_main_config(os.path.join(project_root, "config.json"))
 DEBUG_MODE = config.get("debug_mode", False)
 
+CLOSER_TOGETHER_CHOICES = {
+    "Smart Falcon": 1,
+    "Mihono Bourbon": 2,
+    "Silence Suzuka": 3,
+    "Agnes Tachyon": 4,
+    "None": 5,
+}
+
 # Cache for event databases to avoid reloading JSON files
 _event_cache = {
     "support_card": None,
     "uma_data": None,
     "ura_finale": None,
+    "grand_live": None,
     "custom_uma_events": None,
     "custom_support_events": None,
     "custom_scenario_events": None
@@ -73,6 +82,14 @@ def _load_event_databases():
         except Exception as e:
             log_warning(f"Error loading ura_finale.json: {e}")
             _event_cache["ura_finale"] = []
+
+    if _event_cache["grand_live"] is None and os.path.exists("assets/events/grand_live.json"):
+        try:
+            with open("assets/events/grand_live.json", "r", encoding="utf-8-sig") as f:
+                _event_cache["grand_live"] = json.load(f)
+        except Exception as e:
+            log_warning(f"Error loading grand_live.json: {e}")
+            _event_cache["grand_live"] = []
     
     return _event_cache
 
@@ -137,7 +154,7 @@ def _load_custom_event_templates():
     else:
         _event_cache["custom_support_events"] = {}
 
-    scenario_key = "ura"
+    scenario_key = "grand_live"
     scenario_template_path = os.path.join(project_root, "template", "Events", "Scenario", f"ScenarioEvents_{scenario_key}.json")
     if os.path.exists(scenario_template_path):
         try:
@@ -275,7 +292,8 @@ def _load_all_event_names():
         event_files = [
             "assets/events/support_card.json",
             "assets/events/uma_data.json",
-            "assets/events/ura_finale.json"
+            "assets/events/ura_finale.json",
+            "assets/events/grand_live.json",
         ]
         
         project_root = _get_project_root()
@@ -623,6 +641,13 @@ def search_events_exact(event_name):
                 elif entry["source"] == "Both":
                     entry["source"] = "All Sources"
                 entry["options"].update(ev.get("EventOptions", {}))
+
+    # Grand Live
+    if cache["grand_live"]:
+        for ev in cache["grand_live"]:
+            if ev.get("EventName") == event_name:
+                entry = results.setdefault(event_name, {"source": "Grand Live", "options": {}})
+                entry["options"].update(ev.get("EventOptions", {}))
     
     return results
 
@@ -721,6 +746,21 @@ def search_events_fuzzy(event_name):
                     entry["source"] = "Uma Data + Ura Finale"
                 elif entry["source"] == "Both":
                     entry["source"] = "All Sources"
+                entry["options"].update(ev.get("EventOptions", {}))
+
+    # Process Grand Live events
+    if cache["grand_live"]:
+        for ev in cache["grand_live"]:
+            db_name = ev.get("EventName", "")
+            if not db_name:
+                continue
+            db_name_lower = db_name.lower().strip()
+
+            match_type = categorize_match(db_name, db_name_lower)
+            target_dict = exact_matches if match_type == "exact" else (word_matches if match_type == "word" else (loose_matches if match_type == "loose" else None))
+
+            if target_dict is not None:
+                entry = target_dict.setdefault(db_name, {"source": "Grand Live", "options": {}})
                 entry["options"].update(ev.get("EventOptions", {}))
     
     # Return in priority order
@@ -830,6 +870,37 @@ def handle_event_choice():
                 return 1, False, recheck_locations
         
         log_info(f"Event found: {event_name}")
+
+        # Tutorial always requires the second response in Grand Live.
+        if "Tutorial" in event_name:
+            log_info("Hardcoded event: Tutorial - choosing 2nd choice")
+            choices_found, choice_locations = wait_for_stable_event_choices()
+            if choices_found >= 2:
+                log_info("Choose choice: 2")
+                return 2, True, choice_locations
+
+            log_warning(
+                f"Tutorial event detected but only {choices_found} choice(s) "
+                "available, defaulting to first choice"
+            )
+            return 1, True, choice_locations
+
+        if "Closer Together" in event_name:
+            reward = config.get("grand_live_scenario_reward", "None")
+            choice_number = CLOSER_TOGETHER_CHOICES.get(reward, 5)
+            choices_found, choice_locations = wait_for_stable_event_choices()
+            log_info(
+                f"Hardcoded event: Closer Together - {reward} "
+                f"(choice {choice_number})"
+            )
+            if choices_found >= choice_number:
+                return choice_number, True, choice_locations
+
+            log_warning(
+                f"Closer Together choice {choice_number} exceeds the "
+                f"{choices_found} available choice(s), defaulting to first choice"
+            )
+            return 1, True, choice_locations
 
         # Check custom event templates first (from config.json)
         custom_choice = search_custom_events(event_name)
