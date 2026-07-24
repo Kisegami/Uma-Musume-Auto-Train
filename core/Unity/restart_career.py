@@ -250,7 +250,11 @@ def execute_skill_purchase_workflow(available_points: int):
         purchase_plan = create_purchase_plan(deduplicated_skills, merged_config, end_career=True)
         
         if purchase_plan:
-            affordable_skills, total_cost, remaining_points = filter_affordable_skills(purchase_plan, available_points)
+            affordable_skills, total_cost, remaining_points = filter_affordable_skills(
+                purchase_plan,
+                available_points,
+                merged_config.get("gold_skill_upgrades", {}),
+            )
             if affordable_skills:
                 # OCR mode is already inside the end-skill screen after scanning.
                 # Only API mode needs to open the screen before purchasing.

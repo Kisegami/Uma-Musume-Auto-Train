@@ -392,6 +392,7 @@ def execute_skill_purchases(purchase_plan, max_scrolls=30, end_career=False, res
             current_skills = result.get('skills', [])
             if not current_skills:
                 log_debug(f"No skills found on this screen")
+                time.sleep(2)
             else:
                 log_debug(f"Found {len(current_skills)} available skills on screen")
                 
@@ -408,6 +409,10 @@ def execute_skill_purchases(purchase_plan, max_scrolls=30, end_career=False, res
                             })
                             log_info(f"Found target skill: {screen_skill['name']} (matches {target_skill['name']})")
                             break
+
+                if not skills_found_on_screen:
+                    log_debug("No matching target skills found on this screen")
+                    time.sleep(2)
                 
                 # Purchase found skills
                 for match in skills_found_on_screen:
@@ -432,14 +437,10 @@ def execute_skill_purchases(purchase_plan, max_scrolls=30, end_career=False, res
                     else:
                         log_error(f"Failed to purchase: {screen_skill['name']}")
                 
-                # If we found and purchased skills, wait a bit longer
-                if skills_found_on_screen:
-                    time.sleep(1.5)
-            
             # Continue scrolling if we haven't found all skills
             if remaining_skills and scrolls_performed < max_scrolls:
                 log_debug(f"Scrolling down to find more skills")
-                success = swipe_skill_list_down_slow(wait_before=0.1)
+                success = swipe_skill_list_down_slow(wait_before=0.1, wait_after=1.5)
                 if not success:
                     log_error(f"Failed to scroll, stopping search")
                     break

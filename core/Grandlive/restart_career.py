@@ -258,7 +258,11 @@ def execute_skill_purchase_workflow(available_points: int):
         purchase_plan = create_purchase_plan(deduplicated_skills, merged_config, end_career=True)
         
         if purchase_plan:
-            affordable_skills, total_cost, remaining_points = filter_affordable_skills(purchase_plan, available_points)
+            affordable_skills, total_cost, remaining_points = filter_affordable_skills(
+                purchase_plan,
+                available_points,
+                merged_config.get("gold_skill_upgrades", {}),
+            )
             if affordable_skills:
                 if api_mode:
                     if not restart_click_image_button(

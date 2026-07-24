@@ -33,7 +33,8 @@ GRAND_LIVE_TEMPLATE_REGIONS = {
     "assets/ui/home_theater.png": (184, 1601, 92, 69),
     "assets/buttons/ongoing_career.png": (834, 1500, 153, 123),
     "assets/buttons/resume_career.png": (673, 1319, 249, 97),
-    "assets/buttons/skill_up.png": (936, 848, 76, 616),
+    # Full skill-button column: x1=906, y1=718, x2=1041, y2=1534.
+    "assets/buttons/skill_up.png": (906, 718, 135, 816),
     "assets/buttons/learn.png": (588, 1719, 375, 107),
     "assets/icons/dating.png": (469, 1588, 66, 72),
     "assets/buttons/cancel_recreation.png": (445, 1333, 189, 86),
