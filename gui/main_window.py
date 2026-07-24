@@ -153,7 +153,7 @@ class MainWindow(QMainWindow):
         sidebar_layout.addSpacing(8)
         
         # App title in sidebar
-        title_label = QLabel("UMAT v0.3")
+        title_label = QLabel("UMAT v0.4")
         title_label.setObjectName("title")
         title_label.setAlignment(Qt.AlignCenter)
         title_label.setStyleSheet("font-size: 16px;")
