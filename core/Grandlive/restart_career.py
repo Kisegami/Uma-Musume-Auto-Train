@@ -29,6 +29,7 @@ from utils.core.config_loader import load_main_config
 from utils.constants.ura import RESTART_COMPLETE_SPAM_TARGET
 
 COMPLETE_SKILLS_BUTTON = "assets/grandlive/skills_btn_complete.png"
+COMPLETE_ACTIONS_REGION = (9, 1456, 1071, 234)
 
 # Module-level state for persistent restart tracking across function calls
 _restart_state = {
@@ -187,6 +188,7 @@ def execute_skill_purchase_workflow(available_points: int):
     except ImportError:
         api_mode = False
 
+    entered_skill_screen = False
     if api_mode:
         all_available_skills = get_skills_api()
         if all_available_skills is None:
@@ -194,9 +196,15 @@ def execute_skill_purchase_workflow(available_points: int):
             raise RuntimeError("API mode is enabled but /skills API is not responding. Check API connection or set api.enabled to false in config.json.")
         log_info(f"[API] Got {len(all_available_skills)} end-career skills from API (skipping OCR scan)")
     else:
-        if not restart_click_image_button(COMPLETE_SKILLS_BUTTON, "end skill button", max_attempts=5):
-            log_info(f"Failed to tap end skill button")
+        if not restart_click_image_button(
+            COMPLETE_SKILLS_BUTTON,
+            "completion skills button",
+            max_attempts=5,
+            region=COMPLETE_ACTIONS_REGION,
+        ):
+            log_info("Failed to tap completion skills button")
             return
+        entered_skill_screen = True
         time.sleep(2)
         scan_result = scan_all_skills_with_scroll(confidence=0.9, brightness_threshold=150, max_scrolls=20)
         all_available_skills = scan_result.get('all_skills', [])
@@ -252,18 +260,21 @@ def execute_skill_purchase_workflow(available_points: int):
         if purchase_plan:
             affordable_skills, total_cost, remaining_points = filter_affordable_skills(purchase_plan, available_points)
             if affordable_skills:
-                # OCR mode is already inside the end-skill screen after scanning.
-                # Only API mode needs to open the screen before purchasing.
                 if api_mode:
-                    if not restart_click_image_button(COMPLETE_SKILLS_BUTTON, "end skill button", max_attempts=5):
-                        log_info(f"Failed to tap end skill button")
-                        return_to_complete_career_screen()
+                    if not restart_click_image_button(
+                        COMPLETE_SKILLS_BUTTON,
+                        "completion skills button",
+                        max_attempts=5,
+                        region=COMPLETE_ACTIONS_REGION,
+                    ):
+                        log_info("Failed to tap completion skills button")
                         return
+                    entered_skill_screen = True
                     time.sleep(2)
                 execute_skill_purchases(affordable_skills, end_career=True, reset_to_top=not api_mode)
     
-    # Return to complete career screen
-    return_to_complete_career_screen()
+    if entered_skill_screen:
+        return_to_complete_career_screen()
 
 
 def return_to_complete_career_screen():
@@ -1120,7 +1131,24 @@ def complete_career(current_restart_count: int, max_restart_times: int,
         skill_points = 0
         log_info("End career skill purchase ignored by config")
     else:
-        skill_points = extract_skill_points(take_screenshot())
+        try:
+            from utils.integrations.umat_api import get_skills, is_api_enabled
+            api_mode = is_api_enabled()
+        except ImportError:
+            api_mode = False
+
+        if api_mode:
+            skills_data = get_skills()
+            if skills_data is None:
+                log_error("API mode is enabled but failed to get skill points from /skills")
+                raise RuntimeError(
+                    "API mode is enabled but /skills API is not responding. "
+                    "Check API connection or set api.enabled to false in config.json."
+                )
+            skill_points = int(skills_data.get("current_skill_points", 0) or 0)
+            log_info(f"[API] End-career skill points: {skill_points}")
+        else:
+            skill_points = extract_skill_points(take_screenshot())
     
     # Execute skill purchase workflow (if skill points available)
     if not ignore_end_skill_purchase and skill_points > 0:
