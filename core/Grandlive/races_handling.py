@@ -836,7 +836,7 @@ def enter_race_selection_screen():
     races_clicked = False
     for attempt in range(1, 4):
         log_info(f"Race Select - Races button scan attempt {attempt}/3")
-        if tap_on_image("assets/buttons/races_btn.png", min_search=10):
+        if tap_on_image("assets/grandlive/race_btn_gl.png", min_search=10):
             races_clicked = True
             break
         log_warning(f"Race Select - Failed to find races button on attempt {attempt}/3")

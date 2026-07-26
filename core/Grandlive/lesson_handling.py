@@ -621,7 +621,26 @@ def handle_lessons(
                     f"({learned_total}/{song_total_target})"
                 )
                 return None
-            return choose_any_available_song(state, config=config)
+            song_choice = choose_any_available_song(state, config=config)
+            if song_choice is not None:
+                return song_choice
+
+            # Technique lessons refresh the board and can reveal the next song.
+            # While catching up, spend on the best affordable filler instead of
+            # abandoning the target merely because no song is visible yet.
+            filler_choice = choose_any_available_lesson(
+                state,
+                config=config,
+                energy_current=energy_current,
+                energy_max=energy_max,
+            )
+            if filler_choice is not None:
+                log_info(
+                    f"No affordable song is currently visible; learning "
+                    f"affordable filler slot {filler_choice.get('slot', '?')} "
+                    "to refresh the lesson board"
+                )
+            return filler_choice
 
         def should_save_recovery(choice):
             if not _recovery_would_overflow(
@@ -764,7 +783,7 @@ def handle_lessons(
                 "No concert-day song lesson matches the current requirement and method"
                 if force_any_available
                 else (
-                    f"No affordable song lesson remains for the "
+                    f"No affordable lesson remains while pursuing the "
                     f"{song_total_target}-song Grand Concert target"
                     if song_total_target is not None
                     else "No affordable lesson matches the active lesson method"

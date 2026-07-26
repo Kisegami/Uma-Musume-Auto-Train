@@ -772,7 +772,7 @@ def career_lobby(timeout=None):
                 log_info(f"Maiden race icon found in lobby! Checking for 2-star races...")
                 
                 # Navigate to race menu
-                if tap_on_image("assets/buttons/races_btn.png", min_search=10):
+                if tap_on_image("assets/grandlive/race_btn_gl.png", min_search=10):
                     time.sleep(0.5)
                     # Handle OK button if it appears
                     tap_on_image("assets/buttons/ok_btn.png", confidence=0.5, min_search=2)
@@ -837,7 +837,8 @@ def career_lobby(timeout=None):
                 if learned_total < 18:
                     log_info(
                         f"Senior Year Early Dec: {learned_total}/18 songs "
-                        "learned; trying affordable songs without saving"
+                        "learned; spending on affordable lessons until the "
+                        "song target is reached"
                     )
                     lesson_options = {
                         "grand_live": grand_live,

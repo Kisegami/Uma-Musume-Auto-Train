@@ -25,6 +25,8 @@ GRAND_LIVE_TEMPLATE_REGIONS = {
     "assets/grandlive/learn_btn.png": (597, 1707, 385, 109),
     "assets/grandlive/concert_start.png": (574, 1281, 380, 153),
     "assets/grandlive/race_day.png": (19, 98, 206, 89),
+    # Observed bbox (850, 1727, 117, 43), padded by 10 px on every side.
+    "assets/grandlive/race_btn_gl.png": (840, 1717, 137, 63),
     "assets/grandlive/lessons_btn.png": (437, 1646, 561, 118),
     "assets/grandlive/lessons_btn_complete.png": (9, 1456, 1071, 234),
     "assets/grandlive/skills_btn_complete.png": (9, 1456, 1071, 234),

@@ -801,16 +801,17 @@ class LessonsTab(QScrollArea):
         )
         self.try_learn_18_before_grand_concert.setToolTip(
             "On Senior Year Early Dec, checks the total songs learned and "
-            "spends available Performance Points on affordable song lessons "
-            "until 18 songs are learned or no affordable song remains."
+            "spends available Performance Points on affordable lessons, "
+            "including filler lessons that refresh the board, until 18 songs "
+            "are learned or no affordable lesson remains."
         )
         self.try_learn_18_before_grand_concert.stateChanged.connect(
             self._save_song_requirements
         )
         layout.addWidget(self.try_learn_18_before_grand_concert)
         grand_concert_note = QLabel(
-            "Runs on Senior Year Early Dec and does not save Performance Points "
-            "for a better song while catching up."
+            "Runs on Senior Year Early Dec and spends affordable technique "
+            "lessons as needed to reveal more songs while catching up."
         )
         grand_concert_note.setObjectName("muted")
         grand_concert_note.setWordWrap(True)
