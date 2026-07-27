@@ -79,6 +79,8 @@
       "guts": 600,
       "wit": 600
     },
+    "over_1200_score_reduction_enabled": false,
+    "over_1200_score_reduction": 1.0,
     "rest_in_june": true,
     "skip_goal_check": false,
     "skip_infirmary_check_on_new_turn": false,

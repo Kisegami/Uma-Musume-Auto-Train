@@ -478,6 +478,28 @@ class TrainingTab(QScrollArea):
 
             hard_caps_row.addWidget(stat_widget)
         caps_group_layout.addLayout(hard_caps_row)
+
+        self.over_1200_score_reduction_enabled = QCheckBox(
+            "Reduce training score when its stat is above 1200"
+        )
+        self.over_1200_score_reduction_enabled.stateChanged.connect(
+            self._on_over_1200_score_reduction_toggle
+        )
+        caps_group_layout.addWidget(self.over_1200_score_reduction_enabled)
+
+        self.over_1200_score_reduction_widget = QWidget()
+        reduction_layout = QHBoxLayout(self.over_1200_score_reduction_widget)
+        reduction_layout.setContentsMargins(18, 0, 0, 0)
+        reduction_layout.addWidget(QLabel("Reduce score by"))
+        self.over_1200_score_reduction_spin = NoScrollDoubleSpinBox()
+        self.over_1200_score_reduction_spin.setRange(0, 100)
+        self.over_1200_score_reduction_spin.setSingleStep(0.1)
+        self.over_1200_score_reduction_spin.setDecimals(1)
+        self.over_1200_score_reduction_spin.valueChanged.connect(self._save_training)
+        reduction_layout.addWidget(self.over_1200_score_reduction_spin)
+        reduction_layout.addWidget(QLabel("points"))
+        reduction_layout.addStretch()
+        caps_group_layout.addWidget(self.over_1200_score_reduction_widget)
         
         layout.addWidget(caps_group)
         
@@ -871,6 +893,20 @@ class TrainingTab(QScrollArea):
             spin.blockSignals(False)
 
         self.soft_cap_widget.setVisible(self.soft_cap_enabled.isChecked())
+
+        self.over_1200_score_reduction_enabled.blockSignals(True)
+        self.over_1200_score_reduction_enabled.setChecked(
+            training.get("over_1200_score_reduction_enabled", False)
+        )
+        self.over_1200_score_reduction_enabled.blockSignals(False)
+        self.over_1200_score_reduction_spin.blockSignals(True)
+        self.over_1200_score_reduction_spin.setValue(
+            training.get("over_1200_score_reduction", 1.0)
+        )
+        self.over_1200_score_reduction_spin.blockSignals(False)
+        self.over_1200_score_reduction_widget.setVisible(
+            self.over_1200_score_reduction_enabled.isChecked()
+        )
         
         # Load training score from JSON file
         self._load_training_score_config()
@@ -985,6 +1021,14 @@ class TrainingTab(QScrollArea):
         self.soft_cap_widget.setVisible(self.soft_cap_enabled.isChecked())
         if not getattr(self, '_loading', False):
             self._save_training()
+
+    def _on_over_1200_score_reduction_toggle(self):
+        """Show the score reduction input when the option is enabled."""
+        self.over_1200_score_reduction_widget.setVisible(
+            self.over_1200_score_reduction_enabled.isChecked()
+        )
+        if not getattr(self, '_loading', False):
+            self._save_training()
     
     def _save_training(self):
         """Save training settings"""
@@ -1047,6 +1091,12 @@ class TrainingTab(QScrollArea):
         config["training"]["soft_cap_enabled"] = self.soft_cap_enabled.isChecked()
         config["training"]["soft_stat_caps"] = {stat: spin.value() for stat, spin in self.soft_cap_spins.items()}
         config["training"]["stat_caps"] = {stat: spin.value() for stat, spin in self.cap_spins.items()}
+        config["training"]["over_1200_score_reduction_enabled"] = (
+            self.over_1200_score_reduction_enabled.isChecked()
+        )
+        config["training"]["over_1200_score_reduction"] = (
+            self.over_1200_score_reduction_spin.value()
+        )
         
         # Actually save to file
         self.main_window.save_config()

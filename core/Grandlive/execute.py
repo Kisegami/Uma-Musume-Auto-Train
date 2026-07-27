@@ -1078,7 +1078,9 @@ def career_lobby(timeout=None):
             "priority_stat": training_config_section.get("priority_stat", config.get("priority_stat", ["spd", "sta", "wit", "pwr", "guts"])),
             "gambling_train_enabled": training_config_section.get("gambling_train_enabled", False),
             "gambling_train_failure_increase": training_config_section.get("gambling_train_failure_increase", 5),
-            "gambling_train_score_per_increase": training_config_section.get("gambling_train_score_per_increase", 1.0)
+            "gambling_train_score_per_increase": training_config_section.get("gambling_train_score_per_increase", 1.0),
+            "over_1200_score_reduction_enabled": training_config_section.get("over_1200_score_reduction_enabled", False),
+            "over_1200_score_reduction": training_config_section.get("over_1200_score_reduction", 0.0),
         }
 
         do_race_when_bad_training_flag = training_config_section.get("do_race_when_bad_training", config.get("do_race_when_bad_training", True))

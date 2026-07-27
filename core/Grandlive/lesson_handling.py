@@ -577,10 +577,6 @@ def handle_lessons(
     technique_config, _ = _lesson_config(config)
     skip_recovery_for_pal_dating = bool(
         technique_config.get("skip_recovery_while_pal_dating", False)
-        and any(
-            choice.get("category") == "recovery"
-            for choice in (grand_live or {}).get("lesson_choices", [])
-        )
         and check_dating_available()
     )
     if skip_recovery_for_pal_dating:

@@ -385,7 +385,9 @@ class MainWindow(QMainWindow):
                 "skip_goal_check": False,
                 "soft_cap_enabled": False,
                 "soft_stat_caps": {"spd": 600, "sta": 600, "pwr": 600, "guts": 600, "wit": 600},
-                "stat_caps": {"spd": 600, "sta": 600, "pwr": 600, "guts": 600, "wit": 600}
+                "stat_caps": {"spd": 600, "sta": 600, "pwr": 600, "guts": 600, "wit": 600},
+                "over_1200_score_reduction_enabled": False,
+                "over_1200_score_reduction": 1.0
             },
             "racing": {
                 "strategy": "FRONT",
