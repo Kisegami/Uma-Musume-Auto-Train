@@ -1,0 +1,3451 @@
+[
+  {
+    "id": 11001,
+    "category": "stat",
+    "title": "Dance Step Basics",
+    "effect": "Speed +5",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 10
+      }
+    ]
+  },
+  {
+    "id": 11002,
+    "category": "stat",
+    "title": "Audience Involvement Basics",
+    "effect": "Stamina +5",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 10
+      }
+    ]
+  },
+  {
+    "id": 11003,
+    "category": "stat",
+    "title": "Vocal Training Basics",
+    "effect": "Power +5",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 10
+      }
+    ]
+  },
+  {
+    "id": 11004,
+    "category": "stat",
+    "title": "Makeup Basics",
+    "effect": "Guts +5",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 10
+      }
+    ]
+  },
+  {
+    "id": 11005,
+    "category": "stat",
+    "title": "Composure Training Basics",
+    "effect": "Wit +5",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 10
+      }
+    ]
+  },
+  {
+    "id": 11006,
+    "category": "stat",
+    "title": "Watch an Up-and-Coming Idol's Concert",
+    "effect": "Skill Pts +5",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 10
+      }
+    ]
+  },
+  {
+    "id": 11007,
+    "category": "stat",
+    "title": "Watch an Up-and-Coming Idol's Concert",
+    "effect": "Skill Pts +5",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 10
+      }
+    ]
+  },
+  {
+    "id": 11008,
+    "category": "stat",
+    "title": "Watch an Up-and-Coming Idol's Concert",
+    "effect": "Skill Pts +5",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 10
+      }
+    ]
+  },
+  {
+    "id": 11009,
+    "category": "stat",
+    "title": "Watch an Up-and-Coming Idol's Concert",
+    "effect": "Skill Pts +5",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 10
+      }
+    ]
+  },
+  {
+    "id": 11010,
+    "category": "stat",
+    "title": "Watch an Up-and-Coming Idol's Concert",
+    "effect": "Skill Pts +5",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 10
+      }
+    ]
+  },
+  {
+    "id": 11101,
+    "category": "stat",
+    "title": "Dance Step Intermediate Class",
+    "effect": "Speed +8",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 16
+      }
+    ]
+  },
+  {
+    "id": 11102,
+    "category": "stat",
+    "title": "Audience Involvement Intermediate Class",
+    "effect": "Stamina +8",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 16
+      }
+    ]
+  },
+  {
+    "id": 11103,
+    "category": "stat",
+    "title": "Vocal Training Intermediate Class",
+    "effect": "Power +8",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 16
+      }
+    ]
+  },
+  {
+    "id": 11104,
+    "category": "stat",
+    "title": "Makeup Intermediate Class",
+    "effect": "Guts +8",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 16
+      }
+    ]
+  },
+  {
+    "id": 11105,
+    "category": "stat",
+    "title": "Composure Training Intermediate Class",
+    "effect": "Wit +8",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 16
+      }
+    ]
+  },
+  {
+    "id": 11106,
+    "category": "stat",
+    "title": "Watch a Mid-Career Idol's Concert",
+    "effect": "Skill Pts +8",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 16
+      }
+    ]
+  },
+  {
+    "id": 11107,
+    "category": "stat",
+    "title": "Watch a Mid-Career Idol's Concert",
+    "effect": "Skill Pts +8",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 16
+      }
+    ]
+  },
+  {
+    "id": 11108,
+    "category": "stat",
+    "title": "Watch a Mid-Career Idol's Concert",
+    "effect": "Skill Pts +8",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 16
+      }
+    ]
+  },
+  {
+    "id": 11109,
+    "category": "stat",
+    "title": "Watch a Mid-Career Idol's Concert",
+    "effect": "Skill Pts +8",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 16
+      }
+    ]
+  },
+  {
+    "id": 11110,
+    "category": "stat",
+    "title": "Watch a Mid-Career Idol's Concert",
+    "effect": "Skill Pts +8",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 16
+      }
+    ]
+  },
+  {
+    "id": 11201,
+    "category": "stat",
+    "title": "Dance Step Advanced Class",
+    "effect": "Speed +12",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 24
+      }
+    ]
+  },
+  {
+    "id": 11202,
+    "category": "stat",
+    "title": "Audience Involvement Advanced Class",
+    "effect": "Stamina +12",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 24
+      }
+    ]
+  },
+  {
+    "id": 11203,
+    "category": "stat",
+    "title": "Vocal Training Advanced Class",
+    "effect": "Power +12",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 24
+      }
+    ]
+  },
+  {
+    "id": 11204,
+    "category": "stat",
+    "title": "Makeup Advanced Class",
+    "effect": "Guts +12",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 24
+      }
+    ]
+  },
+  {
+    "id": 11205,
+    "category": "stat",
+    "title": "Composure Training Advanced Class",
+    "effect": "Wit +12",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 24
+      }
+    ]
+  },
+  {
+    "id": 11206,
+    "category": "stat",
+    "title": "Watch a Top-Tier Idol's Concert",
+    "effect": "Skill Pts +12",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 24
+      }
+    ]
+  },
+  {
+    "id": 11207,
+    "category": "stat",
+    "title": "Watch a Top-Tier Idol's Concert",
+    "effect": "Skill Pts +12",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 24
+      }
+    ]
+  },
+  {
+    "id": 11208,
+    "category": "stat",
+    "title": "Watch a Top-Tier Idol's Concert",
+    "effect": "Skill Pts +12",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 24
+      }
+    ]
+  },
+  {
+    "id": 11209,
+    "category": "stat",
+    "title": "Watch a Top-Tier Idol's Concert",
+    "effect": "Skill Pts +12",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 24
+      }
+    ]
+  },
+  {
+    "id": 11210,
+    "category": "stat",
+    "title": "Watch a Top-Tier Idol's Concert",
+    "effect": "Skill Pts +12",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 24
+      }
+    ]
+  },
+  {
+    "id": 12001,
+    "category": "stat",
+    "title": "Rhythm Basics",
+    "effect": "Speed +3 to 7",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": 12002,
+    "category": "stat",
+    "title": "Fan Interaction Basics",
+    "effect": "Stamina +3 to 7",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": 12003,
+    "category": "stat",
+    "title": "Abdominal Breathing Basics",
+    "effect": "Power +3 to 7",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": 12004,
+    "category": "stat",
+    "title": "Hair Styling Basics",
+    "effect": "Guts +3 to 7",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": 12005,
+    "category": "stat",
+    "title": "Solo Performance Basics",
+    "effect": "Wit +3 to 7",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": 12006,
+    "category": "stat",
+    "title": "Autograph Basics",
+    "effect": "Skill Pts +3 to 7",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": 12101,
+    "category": "stat",
+    "title": "Rhythm Intermediate Class",
+    "effect": "Speed +5 to 9",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 12102,
+    "category": "stat",
+    "title": "Fan Interaction Intermediate Class",
+    "effect": "Stamina +5 to 9",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 12103,
+    "category": "stat",
+    "title": "Abdominal Breathing Intermediate Class",
+    "effect": "Power +5 to 9",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 12104,
+    "category": "stat",
+    "title": "Hair Styling Intermediate Class",
+    "effect": "Guts +5 to 9",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 12105,
+    "category": "stat",
+    "title": "Solo Performance Intermediate Class",
+    "effect": "Wit +5 to 9",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 12106,
+    "category": "stat",
+    "title": "Autograph Intermediate Class",
+    "effect": "Skill Pts +5 to 9",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 12201,
+    "category": "stat",
+    "title": "Rhythm Advanced Class",
+    "effect": "Speed +8 to 12",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 12202,
+    "category": "stat",
+    "title": "Fan Interaction Advanced Class",
+    "effect": "Stamina +8 to 12",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 12203,
+    "category": "stat",
+    "title": "Abdominal Breathing Advanced Class",
+    "effect": "Power +8 to 12",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 12204,
+    "category": "stat",
+    "title": "Hair Styling Advanced Class",
+    "effect": "Guts +8 to 12",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 12205,
+    "category": "stat",
+    "title": "Solo Performance Advanced Class",
+    "effect": "Wit +8 to 12",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 12206,
+    "category": "stat",
+    "title": "Autograph Advanced Class",
+    "effect": "Skill Pts +8 to 12",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 13001,
+    "category": "stat",
+    "title": "Expression Basics",
+    "effect": "Speed +4\nStamina +4",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 8
+      },
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": 13002,
+    "category": "stat",
+    "title": "Dancing and Singing Basics",
+    "effect": "Speed +4\nPower +4",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 8
+      },
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": 13003,
+    "category": "stat",
+    "title": "Jazz Dance Basics",
+    "effect": "Speed +4\nGuts +4",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 8
+      },
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": 13004,
+    "category": "stat",
+    "title": "Isolation Basics",
+    "effect": "Speed +4\nWit +4",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 8
+      },
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": 13005,
+    "category": "stat",
+    "title": "Formation Basics",
+    "effect": "Speed +4\nSkill Pts +4",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 10
+      },
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 6
+      }
+    ]
+  },
+  {
+    "id": 13006,
+    "category": "stat",
+    "title": "Vocal Expression Basics",
+    "effect": "Stamina +4\nPower +4",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 8
+      },
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": 13007,
+    "category": "stat",
+    "title": "Acting Basics",
+    "effect": "Stamina +4\nGuts +4",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 8
+      },
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": 13008,
+    "category": "stat",
+    "title": "Mic Performance Basics",
+    "effect": "Stamina +4\nWit +4",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 8
+      },
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": 13009,
+    "category": "stat",
+    "title": "Yoga Basics",
+    "effect": "Stamina +4\nSkill Pts +4",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 10
+      },
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 6
+      }
+    ]
+  },
+  {
+    "id": 13010,
+    "category": "stat",
+    "title": "Harmony Basics",
+    "effect": "Power +4\nGuts +4",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 8
+      },
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": 13011,
+    "category": "stat",
+    "title": "Rap Basics",
+    "effect": "Power +4\nWit +4",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 8
+      },
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": 13012,
+    "category": "stat",
+    "title": "Vocal Theory Basics",
+    "effect": "Power +4\nSkill Pts +4",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 10
+      },
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 6
+      }
+    ]
+  },
+  {
+    "id": 13013,
+    "category": "stat",
+    "title": "Flexibility Basics",
+    "effect": "Guts +4\nWit +4",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 8
+      },
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": 13014,
+    "category": "stat",
+    "title": "Visuals Research Basics",
+    "effect": "Guts +4\nSkill Pts +4",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 6
+      },
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 10
+      }
+    ]
+  },
+  {
+    "id": 13015,
+    "category": "stat",
+    "title": "Idol History Basics",
+    "effect": "Wit +4\nSkill Pts +4",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 6
+      },
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 10
+      }
+    ]
+  },
+  {
+    "id": 13101,
+    "category": "stat",
+    "title": "Expression Intermediate Class",
+    "effect": "Speed +6\nStamina +6",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 12
+      },
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 13102,
+    "category": "stat",
+    "title": "Dancing and Singing Intermediate Class",
+    "effect": "Speed +6\nPower +6",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 12
+      },
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 13103,
+    "category": "stat",
+    "title": "Jazz Dance Intermediate Class",
+    "effect": "Speed +6\nGuts +6",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 12
+      },
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 13104,
+    "category": "stat",
+    "title": "Isolation Intermediate Class",
+    "effect": "Speed +6\nWit +6",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 12
+      },
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 13105,
+    "category": "stat",
+    "title": "Formation Intermediate Class",
+    "effect": "Speed +6\nSkill Pts +6",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 14
+      },
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 10
+      }
+    ]
+  },
+  {
+    "id": 13106,
+    "category": "stat",
+    "title": "Vocal Expression Intermediate Class",
+    "effect": "Stamina +6\nPower +6",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 12
+      },
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 13107,
+    "category": "stat",
+    "title": "Acting Intermediate Class",
+    "effect": "Stamina +6\nGuts +6",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 12
+      },
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 13108,
+    "category": "stat",
+    "title": "Mic Performance Intermediate Class",
+    "effect": "Stamina +6\nWit +6",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 12
+      },
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 13109,
+    "category": "stat",
+    "title": "Yoga Intermediate Class",
+    "effect": "Stamina +6\nSkill Pts +6",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 14
+      },
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 10
+      }
+    ]
+  },
+  {
+    "id": 13110,
+    "category": "stat",
+    "title": "Harmony Intermediate Class",
+    "effect": "Power +6\nGuts +6",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 12
+      },
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 13111,
+    "category": "stat",
+    "title": "Rap Intermediate Class",
+    "effect": "Power +6\nWit +6",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 12
+      },
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 13112,
+    "category": "stat",
+    "title": "Vocal Theory Intermediate Class",
+    "effect": "Power +6\nSkill Pts +6",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 14
+      },
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 10
+      }
+    ]
+  },
+  {
+    "id": 13113,
+    "category": "stat",
+    "title": "Flexibility Intermediate Class",
+    "effect": "Guts +6\nWit +6",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 12
+      },
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 13114,
+    "category": "stat",
+    "title": "Visuals Research Intermediate Class",
+    "effect": "Guts +6\nSkill Pts +6",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 10
+      },
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 14
+      }
+    ]
+  },
+  {
+    "id": 13115,
+    "category": "stat",
+    "title": "Idol History Intermediate Class",
+    "effect": "Wit +6\nSkill Pts +6",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 10
+      },
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 14
+      }
+    ]
+  },
+  {
+    "id": 13201,
+    "category": "stat",
+    "title": "Expression Advanced Class",
+    "effect": "Speed +8\nStamina +8",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 16
+      },
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 16
+      }
+    ]
+  },
+  {
+    "id": 13202,
+    "category": "stat",
+    "title": "Dancing and Singing Advanced Class",
+    "effect": "Speed +8\nPower +8",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 16
+      },
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 16
+      }
+    ]
+  },
+  {
+    "id": 13203,
+    "category": "stat",
+    "title": "Jazz Dance Advanced Class",
+    "effect": "Speed +8\nGuts +8",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 16
+      },
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 16
+      }
+    ]
+  },
+  {
+    "id": 13204,
+    "category": "stat",
+    "title": "Isolation Advanced Class",
+    "effect": "Speed +8\nWit +8",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 16
+      },
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 16
+      }
+    ]
+  },
+  {
+    "id": 13205,
+    "category": "stat",
+    "title": "Formation Advanced Class",
+    "effect": "Speed +8\nSkill Pts +8",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 20
+      },
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 13206,
+    "category": "stat",
+    "title": "Vocal Expression Advanced Class",
+    "effect": "Stamina +8\nPower +8",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 16
+      },
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 16
+      }
+    ]
+  },
+  {
+    "id": 13207,
+    "category": "stat",
+    "title": "Acting Advanced Class",
+    "effect": "Stamina +8\nGuts +8",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 16
+      },
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 16
+      }
+    ]
+  },
+  {
+    "id": 13208,
+    "category": "stat",
+    "title": "Mic Performance Advanced Class",
+    "effect": "Stamina +8\nWit +8",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 16
+      },
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 16
+      }
+    ]
+  },
+  {
+    "id": 13209,
+    "category": "stat",
+    "title": "Yoga Advanced Class",
+    "effect": "Stamina +8\nSkill Pts +8",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 20
+      },
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 13210,
+    "category": "stat",
+    "title": "Harmony Advanced Class",
+    "effect": "Power +8\nGuts +8",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 16
+      },
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 16
+      }
+    ]
+  },
+  {
+    "id": 13211,
+    "category": "stat",
+    "title": "Rap Advanced Class",
+    "effect": "Power +8\nWit +8",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 16
+      },
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 16
+      }
+    ]
+  },
+  {
+    "id": 13212,
+    "category": "stat",
+    "title": "Vocal Theory Advanced Class",
+    "effect": "Power +8\nSkill Pts +8",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 20
+      },
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 13213,
+    "category": "stat",
+    "title": "Flexibility Advanced Class",
+    "effect": "Guts +8\nWit +8",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 16
+      },
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 16
+      }
+    ]
+  },
+  {
+    "id": 13214,
+    "category": "stat",
+    "title": "Visuals Research Advanced Class",
+    "effect": "Guts +8\nSkill Pts +8",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 12
+      },
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 20
+      }
+    ]
+  },
+  {
+    "id": 13215,
+    "category": "stat",
+    "title": "Idol History Advanced Class",
+    "effect": "Wit +8\nSkill Pts +8",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 12
+      },
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 20
+      }
+    ]
+  },
+  {
+    "id": 20000,
+    "category": "skill_hint",
+    "title": "Group Lesson",
+    "effect": "Skill hint appropriate for aptitude",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20001,
+    "category": "skill_hint",
+    "title": "Group Lesson",
+    "effect": "Skill hint appropriate for aptitude",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20002,
+    "category": "skill_hint",
+    "title": "Group Lesson",
+    "effect": "Skill hint appropriate for aptitude",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20003,
+    "category": "skill_hint",
+    "title": "Group Lesson",
+    "effect": "Skill hint appropriate for aptitude",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20004,
+    "category": "skill_hint",
+    "title": "Group Lesson",
+    "effect": "Skill hint appropriate for aptitude",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20005,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Dirt)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20006,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Dirt)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20007,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Dirt)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20008,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Dirt)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20009,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Dirt)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20010,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Sprint)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20011,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Sprint)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20012,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Sprint)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20013,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Sprint)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20014,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Sprint)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20015,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Mile)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20016,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Mile)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20017,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Mile)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20018,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Mile)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20019,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Mile)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20020,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Medium)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20021,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Medium)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20022,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Medium)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20023,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Medium)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20024,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Medium)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20025,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Long)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20026,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Long)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20027,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Long)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20028,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Long)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20029,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Long)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20030,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Front Runner)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20031,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Front Runner)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20032,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Front Runner)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20033,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Front Runner)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20034,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Front Runner)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20035,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Pace Chaser)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20036,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Pace Chaser)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20037,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Pace Chaser)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20038,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Pace Chaser)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20039,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Pace Chaser)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20040,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Late Surger)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20041,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Late Surger)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20042,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Late Surger)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20043,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Late Surger)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20044,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (Late Surger)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20045,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (End Closer)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20046,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (End Closer)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20047,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (End Closer)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20048,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (End Closer)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20049,
+    "category": "skill_hint",
+    "title": "Group Lesson Basics",
+    "effect": "Skill Hint Lvl +1 (End Closer)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": 20050,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Dirt)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20051,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Dirt)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20052,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Dirt)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20053,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Dirt)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20054,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Dirt)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20055,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Sprint)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20056,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Sprint)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20057,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Sprint)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20058,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Sprint)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20059,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Sprint)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20060,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Mile)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20061,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Mile)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20062,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Mile)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20063,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Mile)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20064,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Mile)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20065,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Medium)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20066,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Medium)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20067,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Medium)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20068,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Medium)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20069,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Medium)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20070,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Long)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20071,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Long)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20072,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Long)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20073,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Long)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20074,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Long)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20075,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Front Runner)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20076,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Front Runner)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20077,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Front Runner)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20078,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Front Runner)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20079,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Front Runner)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20080,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Pace Chaser)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20081,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Pace Chaser)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20082,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Pace Chaser)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20083,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Pace Chaser)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20084,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Pace Chaser)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20085,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Late Surger)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20086,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Late Surger)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20087,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Late Surger)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20088,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Late Surger)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20089,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (Late Surger)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20090,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (End Closer)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20091,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (End Closer)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20092,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (End Closer)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20093,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (End Closer)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20094,
+    "category": "skill_hint",
+    "title": "Group Lesson Intermediate",
+    "effect": "Skill Hint Lvl +2 (End Closer)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 20095,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Dirt)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20096,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Dirt)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20097,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Dirt)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20098,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Dirt)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20099,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Dirt)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20100,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Sprint)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20101,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Sprint)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20102,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Sprint)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20103,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Sprint)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20104,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Sprint)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20105,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Mile)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20106,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Mile)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20107,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Mile)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20108,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Mile)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20109,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Mile)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20110,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Medium)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20111,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Medium)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20112,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Medium)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20113,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Medium)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20114,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Medium)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20115,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Long)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20116,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Long)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20117,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Long)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20118,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Long)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20119,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Long)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20120,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Front Runner)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20121,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Front Runner)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20122,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Front Runner)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20123,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Front Runner)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20124,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Front Runner)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20125,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Pace Chaser)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20126,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Pace Chaser)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20127,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Pace Chaser)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20128,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Pace Chaser)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20129,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Pace Chaser)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20130,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Late Surger)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20131,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Late Surger)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20132,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Late Surger)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20133,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Late Surger)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20134,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (Late Surger)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20135,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (End Closer)",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20136,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (End Closer)",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20137,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (End Closer)",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20138,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (End Closer)",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 20139,
+    "category": "skill_hint",
+    "title": "Group Lesson Advanced",
+    "effect": "Skill Hint Lvl +3 (End Closer)",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 30000,
+    "category": "recovery",
+    "title": "Facial-Slimming Massage",
+    "effect": "Energy +20",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 30001,
+    "category": "recovery",
+    "title": "Relaxing Body Massage",
+    "effect": "Energy +30",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 30002,
+    "category": "recovery",
+    "title": "Full-Body Detox",
+    "effect": "Energy +40",
+    "cost": [
+      {
+        "performance_type": 5,
+        "performance": "Mental",
+        "value": 35
+      }
+    ]
+  },
+  {
+    "id": 30003,
+    "category": "recovery",
+    "title": "Facial-Slimming Massage",
+    "effect": "Energy +20",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 30004,
+    "category": "recovery",
+    "title": "Relaxing Body Massage",
+    "effect": "Energy +30",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 30005,
+    "category": "recovery",
+    "title": "Full-Body Detox",
+    "effect": "Energy +40",
+    "cost": [
+      {
+        "performance_type": 4,
+        "performance": "Visual",
+        "value": 35
+      }
+    ]
+  },
+  {
+    "id": 30006,
+    "category": "recovery",
+    "title": "Facial-Slimming Massage",
+    "effect": "Energy +20",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 30007,
+    "category": "recovery",
+    "title": "Relaxing Body Massage",
+    "effect": "Energy +30",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 30008,
+    "category": "recovery",
+    "title": "Full-Body Detox",
+    "effect": "Energy +40",
+    "cost": [
+      {
+        "performance_type": 3,
+        "performance": "Vocal",
+        "value": 35
+      }
+    ]
+  },
+  {
+    "id": 30009,
+    "category": "recovery",
+    "title": "Facial-Slimming Massage",
+    "effect": "Energy +20",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 30010,
+    "category": "recovery",
+    "title": "Relaxing Body Massage",
+    "effect": "Energy +30",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 30011,
+    "category": "recovery",
+    "title": "Full-Body Detox",
+    "effect": "Energy +40",
+    "cost": [
+      {
+        "performance_type": 2,
+        "performance": "Passion",
+        "value": 35
+      }
+    ]
+  },
+  {
+    "id": 30012,
+    "category": "recovery",
+    "title": "Facial-Slimming Massage",
+    "effect": "Energy +20",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 30013,
+    "category": "recovery",
+    "title": "Relaxing Body Massage",
+    "effect": "Energy +30",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": 30014,
+    "category": "recovery",
+    "title": "Full-Body Detox",
+    "effect": "Energy +40",
+    "cost": [
+      {
+        "performance_type": 1,
+        "performance": "Dance",
+        "value": 35
+      }
+    ]
+  }
+]

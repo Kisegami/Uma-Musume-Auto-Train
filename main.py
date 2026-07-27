@@ -48,6 +48,8 @@ if mode == "unity":
     mode_name = "Unity Cup"
 elif mode == "trackblazer":
     mode_name = "Trackblazer"
+elif mode == "grand_live":
+    mode_name = "Our Grand Concert"
 else:
     mode_name = "URA"
 
@@ -161,7 +163,7 @@ def check_api_requirement():
 def main():
     log_info(f"Uma Auto - {mode_name} Version!")
     log_info("=" * 40)
-    log_info(f"Mode: {mode.upper()}")
+    log_info(f"Mode: {mode_name}")
 
     if not check_api_requirement():
         return
@@ -180,6 +182,8 @@ def main():
         log_info("Make sure Umamusume Unity Cup is running on your device!")
     elif mode == "trackblazer":
         log_info("Make sure Umamusume Trackblazer is running on your device!")
+    elif mode == "grand_live":
+        log_info("Make sure Umamusume Our Grand Concert is running on your device!")
     else:
         log_info("Make sure Umamusume is running on your device!")
     log_info("Press Ctrl+C to stop the automation.")

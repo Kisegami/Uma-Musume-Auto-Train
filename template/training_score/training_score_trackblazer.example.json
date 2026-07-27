@@ -19,6 +19,10 @@
     "friend_support": {
       "description": "Friend support card with bond < 3",
       "points": 0.5
+    },
+    "friend_support_high": {
+      "description": "Friend support card with bond >= 3",
+      "points": 0.5
     }
   }
 }

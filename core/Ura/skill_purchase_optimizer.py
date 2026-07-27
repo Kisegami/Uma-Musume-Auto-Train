@@ -101,10 +101,12 @@ def _normalize(text):
         return ""
     import re
     normalized = text.lower()
-    normalized = normalized.replace("○", " o ").replace("◎", " o ")
+    # Dictionary suffixes are ○, ◎, and ×. OCR commonly reads these as
+    # o/0, oo/00, and x, so discard only a terminal marker for matching.
+    normalized = normalized.replace("○", " ").replace("◎", " ").replace("×", " ")
+    normalized = re.sub(r"\s+(?:[0o]{1,2}|x)$", " ", normalized)
     normalized = re.sub(r"[^\w\s]", " ", normalized)
     normalized = " ".join(normalized.split())
-    normalized = re.sub(r"\s+(?:0|o)$", "", normalized)
     return " ".join(normalized.split())
 
 
@@ -230,6 +232,7 @@ def _reorder_end_career_gold_first(purchase_plan, gold_upgrades):
         if index not in used_indexes
     )
     return reordered
+
 
 def create_purchase_plan(available_skills, config, end_career=False):
     """
@@ -376,7 +379,7 @@ def create_purchase_plan(available_skills, config, end_career=False):
     
     return purchase_plan
 
-def filter_affordable_skills(purchase_plan, available_points):
+def filter_affordable_skills(purchase_plan, available_points, gold_upgrades=None):
     """
     Filter purchase plan to only include skills that can be afforded.
     
@@ -387,19 +390,35 @@ def filter_affordable_skills(purchase_plan, available_points):
     Returns:
         tuple: (affordable_skills, total_cost, remaining_points)
     """
+    gold_upgrades = gold_upgrades or {}
     affordable_skills = []
     total_cost = 0
+    selected_gold_names = set()
     
     log_info(f"\n[INFO] Filtering skills by available points ({available_points})")
     log_info(f"=" * 60)
     
     for skill in purchase_plan:
         try:
+            base_for_selected_gold = any(
+                gold_skill_name in selected_gold_names
+                and fuzzy_match_skill_name(skill.get('name', ''), base_skill_name)
+                for gold_skill_name, base_skill_name in gold_upgrades.items()
+            )
+            if base_for_selected_gold:
+                log_info(f"Skipping {skill['name']}: gold upgrade already selected")
+                continue
+
             skill_cost = int(skill['price']) if skill['price'].isdigit() else 0
             
             if total_cost + skill_cost <= available_points:
                 affordable_skills.append(skill)
                 total_cost += skill_cost
+                selected_gold_names.update(
+                    gold_skill_name
+                    for gold_skill_name in gold_upgrades
+                    if fuzzy_match_skill_name(skill.get('name', ''), gold_skill_name)
+                )
                 remaining_points = available_points - total_cost
                 log_info(f"✅ {skill['name']:<30} | Cost: {skill_cost:<4} | Remaining: {remaining_points}")
             else:

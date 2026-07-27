@@ -251,28 +251,46 @@ class TrainingTab(QScrollArea):
         
         # Use dating instead of rest (works for both URA and Unity)
         self.use_dating = QCheckBox("Use dating instead of rest")
-        self.use_dating.stateChanged.connect(self._save_training)
+        self.use_dating.stateChanged.connect(self._on_use_dating_toggle)
         settings_layout.addWidget(self.use_dating, 4, 0, 1, 2)
+
+        self.complete_date_widget = QWidget()
+        complete_date_layout = QHBoxLayout(self.complete_date_widget)
+        complete_date_layout.setContentsMargins(20, 0, 0, 0)
+        complete_date_layout.setSpacing(8)
+        self.complete_date_after_summer = QCheckBox(
+            "Try to complete Date after Senior Summer when Energy is below"
+        )
+        self.complete_date_after_summer.stateChanged.connect(self._save_training)
+        complete_date_layout.addWidget(self.complete_date_after_summer)
+        self.complete_date_energy = NoScrollSpinBox()
+        self.complete_date_energy.setRange(0, 100)
+        self.complete_date_energy.setValue(30)
+        self.complete_date_energy.valueChanged.connect(self._save_training)
+        complete_date_layout.addWidget(self.complete_date_energy)
+        complete_date_layout.addWidget(QLabel("Energy"))
+        complete_date_layout.addStretch()
+        settings_layout.addWidget(self.complete_date_widget, 5, 0, 1, 2)
         
         # Rest in June to save energy for summer
         self.rest_in_june = QCheckBox("Rest in June to save Energy for Summer")
         self.rest_in_june.stateChanged.connect(self._save_training)
-        settings_layout.addWidget(self.rest_in_june, 5, 0, 1, 2)
+        settings_layout.addWidget(self.rest_in_june, 6, 0, 1, 2)
 
         # Skip OCR-based criteria/goal-name checks
         self.skip_goal_check = QCheckBox("Skip criteria and goal-name check")
         self.skip_goal_check.stateChanged.connect(self._save_training)
-        settings_layout.addWidget(self.skip_goal_check, 6, 0, 1, 2)
+        settings_layout.addWidget(self.skip_goal_check, 7, 0, 1, 2)
 
         # Skip infirmary redirect on the first turn of a fresh career
         self.skip_infirmary_check_on_new_turn = QCheckBox("Skip infirmary check on new turn")
         self.skip_infirmary_check_on_new_turn.stateChanged.connect(self._save_training)
-        settings_layout.addWidget(self.skip_infirmary_check_on_new_turn, 7, 0, 1, 2)
+        settings_layout.addWidget(self.skip_infirmary_check_on_new_turn, 8, 0, 1, 2)
 
         # Gambling Train - increase max failure for high score training
         self.gambling_train = QCheckBox("Gambling Train (increase max failure for high score)")
         self.gambling_train.stateChanged.connect(self._on_gambling_train_toggle)
-        settings_layout.addWidget(self.gambling_train, 8, 0, 1, 2)
+        settings_layout.addWidget(self.gambling_train, 9, 0, 1, 2)
         
         # Gambling Train Settings (shown when enabled)
         self.gambling_settings_widget = QWidget()
@@ -302,7 +320,7 @@ class TrainingTab(QScrollArea):
         gambling_layout.addStretch()
         
         self.gambling_settings_widget.hide()
-        settings_layout.addWidget(self.gambling_settings_widget, 9, 0, 1, 2)
+        settings_layout.addWidget(self.gambling_settings_widget, 10, 0, 1, 2)
         
         # ==================== Unity Mode Settings ====================
         self.unity_widget = QWidget()
@@ -344,7 +362,7 @@ class TrainingTab(QScrollArea):
         spirit_ex_row.addStretch()
         unity_layout.addLayout(spirit_ex_row)
         
-        settings_layout.addWidget(self.unity_widget, 10, 0, 1, 2)
+        settings_layout.addWidget(self.unity_widget, 11, 0, 1, 2)
         
         layout.addWidget(settings_group)
         layout.addWidget(self.duel_group)
@@ -460,6 +478,28 @@ class TrainingTab(QScrollArea):
 
             hard_caps_row.addWidget(stat_widget)
         caps_group_layout.addLayout(hard_caps_row)
+
+        self.over_1200_score_reduction_enabled = QCheckBox(
+            "Reduce training score when its stat is above 1200"
+        )
+        self.over_1200_score_reduction_enabled.stateChanged.connect(
+            self._on_over_1200_score_reduction_toggle
+        )
+        caps_group_layout.addWidget(self.over_1200_score_reduction_enabled)
+
+        self.over_1200_score_reduction_widget = QWidget()
+        reduction_layout = QHBoxLayout(self.over_1200_score_reduction_widget)
+        reduction_layout.setContentsMargins(18, 0, 0, 0)
+        reduction_layout.addWidget(QLabel("Reduce score by"))
+        self.over_1200_score_reduction_spin = NoScrollDoubleSpinBox()
+        self.over_1200_score_reduction_spin.setRange(0, 100)
+        self.over_1200_score_reduction_spin.setSingleStep(0.1)
+        self.over_1200_score_reduction_spin.setDecimals(1)
+        self.over_1200_score_reduction_spin.valueChanged.connect(self._save_training)
+        reduction_layout.addWidget(self.over_1200_score_reduction_spin)
+        reduction_layout.addWidget(QLabel("points"))
+        reduction_layout.addStretch()
+        caps_group_layout.addWidget(self.over_1200_score_reduction_widget)
         
         layout.addWidget(caps_group)
         
@@ -515,46 +555,54 @@ class TrainingTab(QScrollArea):
         self.friend_support_spin.valueChanged.connect(self._on_training_score_change)
         self.score_section_layout.addWidget(self.friend_support_spin, 4, 1)
 
+        # Friend Support (bond >= 3)
+        self.score_section_layout.addWidget(QLabel("Friend Support (bond >= 3):"), 5, 0)
+        self.friend_support_high_spin = NoScrollDoubleSpinBox()
+        self.friend_support_high_spin.setRange(0, 5)
+        self.friend_support_high_spin.setDecimals(2)
+        self.friend_support_high_spin.valueChanged.connect(self._on_training_score_change)
+        self.score_section_layout.addWidget(self.friend_support_high_spin, 5, 1)
+
         self.happy_meeks_duel_label = QLabel("Happy Meek's Duel:")
-        self.score_section_layout.addWidget(self.happy_meeks_duel_label, 5, 0)
+        self.score_section_layout.addWidget(self.happy_meeks_duel_label, 6, 0)
         self.happy_meeks_duel_spin = NoScrollDoubleSpinBox()
         self.happy_meeks_duel_spin.setRange(0, 5)
         self.happy_meeks_duel_spin.setDecimals(2)
         self.happy_meeks_duel_spin.valueChanged.connect(self._on_training_score_change)
-        self.score_section_layout.addWidget(self.happy_meeks_duel_spin, 5, 1)
+        self.score_section_layout.addWidget(self.happy_meeks_duel_spin, 6, 1)
         
         # Unity-specific training score fields (will be shown/hidden based on mode)
         self.unity_score_label1 = QLabel("Spirit Training:")
-        self.score_section_layout.addWidget(self.unity_score_label1, 6, 0)
+        self.score_section_layout.addWidget(self.unity_score_label1, 7, 0)
         self.spirit_training_spin = NoScrollDoubleSpinBox()
         self.spirit_training_spin.setRange(0, 5)
         self.spirit_training_spin.setDecimals(2)
         self.spirit_training_spin.valueChanged.connect(self._on_training_score_change)
-        self.score_section_layout.addWidget(self.spirit_training_spin, 6, 1)
+        self.score_section_layout.addWidget(self.spirit_training_spin, 7, 1)
         
         self.unity_score_label2 = QLabel("Spirit Burst:")
-        self.score_section_layout.addWidget(self.unity_score_label2, 7, 0)
+        self.score_section_layout.addWidget(self.unity_score_label2, 8, 0)
         self.spirit_burst_spin = NoScrollDoubleSpinBox()
         self.spirit_burst_spin.setRange(0, 5)
         self.spirit_burst_spin.setDecimals(2)
         self.spirit_burst_spin.valueChanged.connect(self._on_training_score_change)
-        self.score_section_layout.addWidget(self.spirit_burst_spin, 7, 1)
+        self.score_section_layout.addWidget(self.spirit_burst_spin, 8, 1)
 
         self.unity_score_label4 = QLabel("Spirit Burst Extreme:")
-        self.score_section_layout.addWidget(self.unity_score_label4, 8, 0)
+        self.score_section_layout.addWidget(self.unity_score_label4, 9, 0)
         self.spirit_burst_ex_spin = NoScrollDoubleSpinBox()
         self.spirit_burst_ex_spin.setRange(0, 5)
         self.spirit_burst_ex_spin.setDecimals(2)
         self.spirit_burst_ex_spin.valueChanged.connect(self._on_training_score_change)
-        self.score_section_layout.addWidget(self.spirit_burst_ex_spin, 8, 1)
+        self.score_section_layout.addWidget(self.spirit_burst_ex_spin, 9, 1)
         
         self.unity_score_label3 = QLabel("Spirit Training Extra:")
-        self.score_section_layout.addWidget(self.unity_score_label3, 9, 0)
+        self.score_section_layout.addWidget(self.unity_score_label3, 10, 0)
         self.spirit_training_extra_spin = NoScrollDoubleSpinBox()
         self.spirit_training_extra_spin.setRange(0, 5)
         self.spirit_training_extra_spin.setDecimals(2)
         self.spirit_training_extra_spin.valueChanged.connect(self._on_training_score_change)
-        self.score_section_layout.addWidget(self.spirit_training_extra_spin, 9, 1)
+        self.score_section_layout.addWidget(self.spirit_training_extra_spin, 10, 1)
 
         # Keep references to the normal editor so it can be hidden in advanced mode.
         self.normal_score_widgets = []
@@ -562,7 +610,7 @@ class TrainingTab(QScrollArea):
         for index in range(self.score_section_layout.count()):
             item = self.score_section_layout.itemAt(index)
             row, column, row_span, column_span = self.score_section_layout.getItemPosition(index)
-            if row < 10 and item.widget():
+            if row < 11 and item.widget():
                 self.normal_score_widgets.append(item.widget())
                 normal_positions.append((item.widget(), row, column, row_span, column_span))
         for widget, *_ in normal_positions:
@@ -617,7 +665,7 @@ class TrainingTab(QScrollArea):
             self.advanced_score_editors[profile] = fields
 
         self.advanced_score_widget.hide()
-        self.score_section_layout.addWidget(self.advanced_score_widget, 11, 0, 1, 2)
+        self.score_section_layout.addWidget(self.advanced_score_widget, 12, 0, 1, 2)
         
         self.score_section.hide()
         layout.addWidget(self.score_section)
@@ -633,6 +681,7 @@ class TrainingTab(QScrollArea):
             ("not_rainbow_support_high", "High Bond (>=4) Different Type:"),
             ("hint", "Hint:"),
             ("friend_support", "Friend Support (bond < 3):"),
+            ("friend_support_high", "Friend Support (bond >= 3):"),
             ("happy_meeks_duel", "Happy Meek's Duel:"),
             ("spririt_training", "Spirit Training:"),
             ("spirit_burst", "Spirit Burst:"),
@@ -745,6 +794,17 @@ class TrainingTab(QScrollArea):
         self.use_dating.blockSignals(True)
         self.use_dating.setChecked(dating_config.get("use_dating_instead_of_rest", False))
         self.use_dating.blockSignals(False)
+
+        self.complete_date_after_summer.blockSignals(True)
+        self.complete_date_after_summer.setChecked(
+            dating_config.get("complete_date_after_senior_summer", False)
+        )
+        self.complete_date_after_summer.blockSignals(False)
+        self.complete_date_energy.blockSignals(True)
+        self.complete_date_energy.setValue(
+            dating_config.get("complete_date_energy_threshold", 30)
+        )
+        self.complete_date_energy.blockSignals(False)
         
         # Rest in June
         self.rest_in_june.blockSignals(True)
@@ -833,6 +893,20 @@ class TrainingTab(QScrollArea):
             spin.blockSignals(False)
 
         self.soft_cap_widget.setVisible(self.soft_cap_enabled.isChecked())
+
+        self.over_1200_score_reduction_enabled.blockSignals(True)
+        self.over_1200_score_reduction_enabled.setChecked(
+            training.get("over_1200_score_reduction_enabled", False)
+        )
+        self.over_1200_score_reduction_enabled.blockSignals(False)
+        self.over_1200_score_reduction_spin.blockSignals(True)
+        self.over_1200_score_reduction_spin.setValue(
+            training.get("over_1200_score_reduction", 1.0)
+        )
+        self.over_1200_score_reduction_spin.blockSignals(False)
+        self.over_1200_score_reduction_widget.setVisible(
+            self.over_1200_score_reduction_enabled.isChecked()
+        )
         
         # Load training score from JSON file
         self._load_training_score_config()
@@ -849,6 +923,9 @@ class TrainingTab(QScrollArea):
         mode = config.get("mode", "ura")
         self.unity_widget.setVisible(mode == "unity")
         self.duel_group.setVisible(mode == "ura")
+        self.complete_date_widget.setVisible(
+            mode == "grand_live" and self.use_dating.isChecked()
+        )
         self._update_unity_score_visibility()
 
     def _normalize_duel_choices(self, choices):
@@ -934,9 +1011,22 @@ class TrainingTab(QScrollArea):
         if not getattr(self, '_loading', False):
             self._save_training()
 
+    def _on_use_dating_toggle(self):
+        """Update dependent dating options and save their state."""
+        self.update_unity_visibility()
+        self._save_training()
+
     def _on_soft_cap_toggle(self):
         """Handle soft cap checkbox toggle"""
         self.soft_cap_widget.setVisible(self.soft_cap_enabled.isChecked())
+        if not getattr(self, '_loading', False):
+            self._save_training()
+
+    def _on_over_1200_score_reduction_toggle(self):
+        """Show the score reduction input when the option is enabled."""
+        self.over_1200_score_reduction_widget.setVisible(
+            self.over_1200_score_reduction_enabled.isChecked()
+        )
         if not getattr(self, '_loading', False):
             self._save_training()
     
@@ -980,6 +1070,12 @@ class TrainingTab(QScrollArea):
         if "dating" not in config:
             config["dating"] = {}
         config["dating"]["use_dating_instead_of_rest"] = self.use_dating.isChecked()
+        config["dating"]["complete_date_after_senior_summer"] = (
+            self.complete_date_after_summer.isChecked()
+        )
+        config["dating"]["complete_date_energy_threshold"] = (
+            self.complete_date_energy.value()
+        )
         
         config["training"]["spirit_burst_enabled_stats"] = [
             stat for stat, cb in self.spirit_burst_vars.items() if cb.isChecked()
@@ -995,6 +1091,12 @@ class TrainingTab(QScrollArea):
         config["training"]["soft_cap_enabled"] = self.soft_cap_enabled.isChecked()
         config["training"]["soft_stat_caps"] = {stat: spin.value() for stat, spin in self.soft_cap_spins.items()}
         config["training"]["stat_caps"] = {stat: spin.value() for stat, spin in self.cap_spins.items()}
+        config["training"]["over_1200_score_reduction_enabled"] = (
+            self.over_1200_score_reduction_enabled.isChecked()
+        )
+        config["training"]["over_1200_score_reduction"] = (
+            self.over_1200_score_reduction_spin.value()
+        )
         
         # Actually save to file
         self.main_window.save_config()
@@ -1047,6 +1149,10 @@ class TrainingTab(QScrollArea):
         self.friend_support_spin.blockSignals(True)
         self.friend_support_spin.setValue(get_points("friend_support", 0.5))
         self.friend_support_spin.blockSignals(False)
+
+        self.friend_support_high_spin.blockSignals(True)
+        self.friend_support_high_spin.setValue(get_points("friend_support_high", 0.5))
+        self.friend_support_high_spin.blockSignals(False)
 
         self.happy_meeks_duel_spin.blockSignals(True)
         self.happy_meeks_duel_spin.setValue(get_points("happy_meeks_duel", 1.0))
@@ -1119,6 +1225,10 @@ class TrainingTab(QScrollArea):
             "friend_support": {
                 "description": "Friend support card with bond < 3",
                 "points": self.friend_support_spin.value()
+            },
+            "friend_support_high": {
+                "description": "Friend support card with bond >= 3",
+                "points": self.friend_support_high_spin.value()
             }
         }
 
@@ -1181,6 +1291,7 @@ class TrainingTab(QScrollArea):
             "not_rainbow_support_high": 0.0,
             "hint": 0.3,
             "friend_support": 0.5,
+            "friend_support_high": 0.5,
             "happy_meeks_duel": 1.0,
             "spririt_training": 0.5,
             "spirit_burst": 1.0,
@@ -1196,6 +1307,7 @@ class TrainingTab(QScrollArea):
             "not_rainbow_support_high": "Not same type support with bond level >= 4",
             "hint": "Hint icon present",
             "friend_support": "Friend support card with bond < 3",
+            "friend_support_high": "Friend support card with bond >= 3",
             "happy_meeks_duel": "Happy Meek's Duel icon present",
             "spririt_training": "Spirit training",
             "spirit_burst": "Spirit burst",

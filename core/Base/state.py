@@ -354,6 +354,10 @@ def check_and_purchase_skills_before_custom_race(screenshot=None):
         return False
 
     skills_config = config.get("skills", {})
+    if not skills_config.get("enable_skill_point_check", config.get("enable_skill_point_check", True)):
+        log_debug("Skipping automatic skill purchase before custom race: parent skill management setting is disabled")
+        return False
+
     if not skills_config.get("pre_custom_race_skill_check", False):
         return False
 

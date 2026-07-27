@@ -7,6 +7,7 @@ import os
 SCORE_DIRECTORY = os.path.join("template", "training_score")
 SCORE_FILENAMES = {
     "ura": "training_score.json",
+    "grand_live": "training_score_grand_live.json",
     "unity": "training_score_unity.json",
     "trackblazer": "training_score_trackblazer.json",
 }

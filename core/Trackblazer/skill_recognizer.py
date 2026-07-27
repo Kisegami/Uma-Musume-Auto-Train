@@ -198,7 +198,7 @@ def clean_skill_name(text):
     
     # Remove extra whitespace and newlines
     text = re.sub(r'\s+', ' ', text).strip()
-    
+
     # Remove common OCR artifacts
     text = re.sub(r'[^\w\s\-\(\)\'\"&]', '', text)
     
