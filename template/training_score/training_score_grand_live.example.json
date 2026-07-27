@@ -1,0 +1,161 @@
+{
+  "advanced_enabled": true,
+  "scoring_rules": {
+    "rainbow_support": {
+      "description": "Same type support card with bond level >= 4",
+      "points": 1.0
+    },
+    "not_rainbow_support_low": {
+      "description": "Support with bond level < 4",
+      "points": 0.7
+    },
+    "not_rainbow_support_high": {
+      "description": "Not same type support with bond level >= 4 (no need to get more bond)",
+      "points": 0.0
+    },
+    "hint": {
+      "description": "Hint icon present",
+      "points": 0.3
+    },
+    "friend_support": {
+      "description": "Friend support card with bond < 3",
+      "points": 0.5
+    },
+    "friend_support_high": {
+      "description": "Friend support card with bond >= 3",
+      "points": 0.5
+    }
+  },
+  "profiles": {
+    "junior": {
+      "rainbow_support": {
+        "description": "Same type support card with bond level >= 4",
+        "points": 0.8
+      },
+      "not_rainbow_support_low": {
+        "description": "Support with bond level < 4",
+        "points": 1.1
+      },
+      "not_rainbow_support_high": {
+        "description": "Not same type support with bond level >= 4",
+        "points": 0.0
+      },
+      "hint": {
+        "description": "Hint icon present",
+        "points": 0.1
+      },
+      "friend_support": {
+        "description": "Friend support card with bond < 3",
+        "points": 0.9
+      },
+      "friend_support_high": {
+        "description": "Friend support card with bond >= 3",
+        "points": 0.5
+      }
+    },
+    "classic": {
+      "rainbow_support": {
+        "description": "Same type support card with bond level >= 4",
+        "points": 1.0
+      },
+      "not_rainbow_support_low": {
+        "description": "Support with bond level < 4",
+        "points": 1.1
+      },
+      "not_rainbow_support_high": {
+        "description": "Not same type support with bond level >= 4",
+        "points": 0.0
+      },
+      "hint": {
+        "description": "Hint icon present",
+        "points": 0.1
+      },
+      "friend_support": {
+        "description": "Friend support card with bond < 3",
+        "points": 1.0
+      },
+      "friend_support_high": {
+        "description": "Friend support card with bond >= 3",
+        "points": 0.75
+      }
+    },
+    "senior": {
+      "rainbow_support": {
+        "description": "Same type support card with bond level >= 4",
+        "points": 1.1
+      },
+      "not_rainbow_support_low": {
+        "description": "Support with bond level < 4",
+        "points": 0.7
+      },
+      "not_rainbow_support_high": {
+        "description": "Not same type support with bond level >= 4",
+        "points": 0.0
+      },
+      "hint": {
+        "description": "Hint icon present",
+        "points": 0.1
+      },
+      "friend_support": {
+        "description": "Friend support card with bond < 3",
+        "points": 0.5
+      },
+      "friend_support_high": {
+        "description": "Friend support card with bond >= 3",
+        "points": 0.75
+      }
+    },
+    "finale": {
+      "rainbow_support": {
+        "description": "Same type support card with bond level >= 4",
+        "points": 1.0
+      },
+      "not_rainbow_support_low": {
+        "description": "Support with bond level < 4",
+        "points": 0.7
+      },
+      "not_rainbow_support_high": {
+        "description": "Not same type support with bond level >= 4",
+        "points": 0.0
+      },
+      "hint": {
+        "description": "Hint icon present",
+        "points": 0.1
+      },
+      "friend_support": {
+        "description": "Friend support card with bond < 3",
+        "points": 0.5
+      },
+      "friend_support_high": {
+        "description": "Friend support card with bond >= 3",
+        "points": 0.75
+      }
+    },
+    "summer": {
+      "rainbow_support": {
+        "description": "Same type support card with bond level >= 4",
+        "points": 1.2
+      },
+      "not_rainbow_support_low": {
+        "description": "Support with bond level < 4",
+        "points": 0.0
+      },
+      "not_rainbow_support_high": {
+        "description": "Not same type support with bond level >= 4",
+        "points": 0.0
+      },
+      "hint": {
+        "description": "Hint icon present",
+        "points": 0.1
+      },
+      "friend_support": {
+        "description": "Friend support card with bond < 3",
+        "points": 0.5
+      },
+      "friend_support_high": {
+        "description": "Friend support card with bond >= 3",
+        "points": 0.75
+      }
+    }
+  }
+}
