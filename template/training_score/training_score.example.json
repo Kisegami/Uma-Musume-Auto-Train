@@ -20,6 +20,10 @@
       "description": "Friend support card with bond < 3",
       "points": 0.5
     },
+    "friend_support_high": {
+      "description": "Friend support card with bond >= 3",
+      "points": 0.5
+    },
     "happy_meeks_duel": {
       "description": "Happy Meek's Duel icon present",
       "points": 1.0

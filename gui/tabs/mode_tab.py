@@ -38,9 +38,12 @@ class ModeTab(QScrollArea):
         
         mode_layout.addWidget(QLabel("Mode:"), 0, 0)
         self.mode_combo = QComboBox()
-        self.mode_combo.addItems(["ura", "aoharu", "grand_live", "project_l'arc"])
+        self.mode_combo.addItem("URA Finale", "ura")
+        self.mode_combo.addItem("Unity Cup", "unity")
+        self.mode_combo.addItem("Trackblazer", "trackblazer")
+        self.mode_combo.addItem("Our Grand Concert", "grand_live")
         self.mode_combo.currentTextChanged.connect(
-            lambda v: self.main_window.update_config_value("mode", v)
+            lambda _: self.main_window.update_config_value("mode", self.mode_combo.currentData())
         )
         mode_layout.addWidget(self.mode_combo, 0, 1)
         
@@ -136,7 +139,8 @@ class ModeTab(QScrollArea):
         config = self.main_window.get_config()
         
         # Mode
-        self.mode_combo.setCurrentText(config.get("mode", "ura"))
+        mode_index = self.mode_combo.findData(config.get("mode", "ura"))
+        self.mode_combo.setCurrentIndex(mode_index if mode_index >= 0 else 0)
         
         # Restart
         restart = config.get("restart_career", {})

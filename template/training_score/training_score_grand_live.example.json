@@ -1,5 +1,8 @@
 {
+<<<<<<< HEAD
   "advanced_enabled": true,
+=======
+>>>>>>> 2f92d2da82ac68ac86634ab4dce9c01044ed01e1
   "scoring_rules": {
     "rainbow_support": {
       "description": "Same type support card with bond level >= 4",
@@ -25,6 +28,7 @@
       "description": "Friend support card with bond >= 3",
       "points": 0.5
     }
+<<<<<<< HEAD
   },
   "profiles": {
     "junior": {
@@ -159,3 +163,7 @@
     }
   }
 }
+=======
+  }
+}
+>>>>>>> 2f92d2da82ac68ac86634ab4dce9c01044ed01e1

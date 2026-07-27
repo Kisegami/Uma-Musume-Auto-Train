@@ -10,12 +10,18 @@ from utils.platform.device import reopen_and_resume_career
 # --- Dynamically load career_lobby based on mode ---
 from utils.core.config_loader import load_main_config
 
+def _get_core_package(mode):
+    """Map canonical config mode names to their Python package names."""
+    return {
+        "grand_live": "Grandlive",
+    }.get(mode, mode.capitalize())
+
 def get_career_lobby():
     config = load_main_config()
     mode = config.get("mode", "ura").lower()
     
     try:
-        module_name = f"core.{mode.capitalize()}.execute"
+        module_name = f"core.{_get_core_package(mode)}.execute"
         module = importlib.import_module(module_name)
         return module.career_lobby
     except ImportError as e:
@@ -63,7 +69,7 @@ def Home_run():
         mode = config.get("mode", "ura").lower()
         
         try:
-            module_name = f"core.{mode.capitalize()}.restart_career"
+            module_name = f"core.{_get_core_package(mode)}.restart_career"
             module = importlib.import_module(module_name)
             load_restart_config = module.load_restart_config
             start_career = module.start_career
@@ -132,7 +138,7 @@ def continue_race():
     mode = config.get("mode", "ura").lower()
     
     try:
-        module_name = f"core.{mode.capitalize()}.races_handling"
+        module_name = f"core.{_get_core_package(mode)}.races_handling"
         module = importlib.import_module(module_name)
         race_prep = module.race_prep
         after_race = module.after_race
@@ -230,6 +236,24 @@ def career_ui_check():
                 tap(540, 960)
                 time.sleep(0.3)
             return career_ui_check()
+
+    # Grand Live concert screens are valid career states. Enter the scenario
+    # loop so its existing concert handlers can process the matching button.
+    mode = load_main_config().get("mode", "ura").lower()
+    if mode == "grand_live":
+        concert_btn = locate_on_screen(
+            "assets/grandlive/concert_btn.png", confidence=0.8
+        )
+        grand_concert_btn = locate_on_screen(
+            "assets/grandlive/grand_concert_btn.png", confidence=0.8
+        )
+        if concert_btn or grand_concert_btn:
+            log_info("Found Our Grand Concert UI, continue automation...")
+            career_lobby_func = get_career_lobby()
+            result = career_lobby_func()
+            if result is False:
+                raise RuntimeError("Bot stopped by career_lobby — do not restart.")
+            return True
             
     # 2. Check back button
     back_btn = locate_on_screen("assets/buttons/back_btn.png", confidence=0.8)

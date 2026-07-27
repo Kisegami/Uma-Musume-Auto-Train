@@ -20,6 +20,10 @@
       "description": "Friend support card with bond < 3",
       "points": 0.8
     },
+    "friend_support_high": {
+      "description": "Friend support card with bond >= 3",
+      "points": 0.5
+    },
     "spririt_training": {
       "description": "Spirit training",
       "points": 0.5

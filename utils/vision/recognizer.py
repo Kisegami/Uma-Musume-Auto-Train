@@ -9,6 +9,7 @@ from utils.core.config_loader import load_main_config
 from utils.constants.trackblazer import get_template_region as get_trackblazer_template_region
 from utils.constants.unity import get_template_region as get_unity_template_region
 from utils.constants.ura import get_template_region as get_ura_template_region
+from utils.constants.grand_live import get_template_region as get_grand_live_template_region
 
 def _get_project_root():
     """Get the project root directory"""
@@ -82,6 +83,8 @@ def _resolve_search_region(template_path, region):
             return get_unity_template_region(template_path)
         if mode == "trackblazer":
             return get_trackblazer_template_region(template_path)
+        if mode == "grand_live":
+            return get_grand_live_template_region(template_path)
         if mode == "ura":
             return get_ura_template_region(template_path)
     except Exception:

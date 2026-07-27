@@ -20,7 +20,7 @@ _api_config = _config.get("api", {})
 API_ENABLED = _api_config.get("enabled", False)
 API_BASE_URL = _api_config.get("base_url", "http://localhost:8123").rstrip("/")
 API_TIMEOUT = _api_config.get("timeout", 2)  # seconds
-MIN_KUC_VERSION = "0.35"
+MIN_KUC_VERSION = "0.4"
 
 
 # ── Internal helpers ──────────────────────────────────────────────────────────
@@ -190,6 +190,11 @@ def get_training() -> dict | None:
     Or None if unavailable.
     """
     return _api_get("/training")
+
+
+def get_grand_live() -> dict | None:
+    """Fetch detailed Grand Live state, including current lesson choices."""
+    return _api_get("/scenario/grand-live")
 
 
 def get_skills() -> dict | None:

@@ -895,6 +895,11 @@ def choose_best_training(training_results, config, current_stats, year=None):
     """
     if not training_results:
         return None
+
+    from utils.training_score_adjustments import apply_over_1200_score_reduction
+    training_results = apply_over_1200_score_reduction(
+        training_results, config, current_stats
+    )
     
     max_failure = config.get("maximum_failure", 15)
     min_score_config = config.get("min_score", {})
@@ -924,6 +929,10 @@ def choose_best_training(training_results, config, current_stats, year=None):
         "guts": min_score_config.get("guts", default_min_score),
         "wit": min_score_config.get("wit", default_min_score)
     }
+
+    from utils.training_score_adjustments import format_training_score_evaluation
+    for line in format_training_score_evaluation(training_results, current_stats, min_scores):
+        log_info(line)
     
     # Gambling train config - increases max failure for high score training
     gambling_enabled = config.get("gambling_train_enabled", False)
@@ -1054,6 +1063,8 @@ def calculate_training_score(
             "not_rainbow_support_low": {"points": 0.7},
             "not_rainbow_support_high": {"points": 0.0},
             "hint": {"points": 0.3},
+            "friend_support": {"points": 0.5},
+            "friend_support_high": {"points": 0.5},
             # keep key typo consistent with training_score_unity.json
             "spririt_training": {"points": 0.5},
             "spirit_burst": {"points": 1.0},
@@ -1083,11 +1094,10 @@ def calculate_training_score(
             
             # Friend support cards have separate scoring logic
             if card_type == "friend":
-                # Friend with bond < 3: add configurable points
-                # Friend with bond >= 3: add 0 points (no need to raise bond)
                 if level < 3:
                     score += scoring_rules.get("friend_support", {}).get("points", 0.5)
-                # else: bond >= 3, add 0 points (skip)
+                else:
+                    score += scoring_rules.get("friend_support_high", {}).get("points", 0.5)
                 continue
             
             # Normal support card scoring
