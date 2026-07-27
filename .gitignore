@@ -2,7 +2,7 @@ venv/
 __pycache__/
 tools/
 screenshots/
-# test_*/
+# tests_*/
 test_screenshots/
 Tesseract-OCR/
 standalone/
